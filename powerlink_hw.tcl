@@ -100,41 +100,41 @@ set_parameter_property configApSpi_CPHA ALLOWED_RANGES {"0" "1"}
 
 add_parameter rpdoNum INTEGER 3
 set_parameter_property rpdoNum ALLOWED_RANGES {1 2 3}
-set_parameter_property rpdoNum DISPLAY_NAME "Number of Rpdo Buffers"
+set_parameter_property rpdoNum DISPLAY_NAME "Number of RPDO Buffers"
 
 add_parameter rpdo0size INTEGER 1
 set_parameter_property rpdo0size ALLOWED_RANGES 1:1490
 set_parameter_property rpdo0size UNITS bytes
-set_parameter_property rpdo0size DISPLAY_NAME "1st Rpdo Buffer Size"
+set_parameter_property rpdo0size DISPLAY_NAME "1st RPDO Buffer Size"
 
 add_parameter rpdo1size INTEGER 1
 set_parameter_property rpdo1size ALLOWED_RANGES 1:1490
 set_parameter_property rpdo1size UNITS bytes
-set_parameter_property rpdo1size DISPLAY_NAME "2nd Rpdo Buffer Size"
+set_parameter_property rpdo1size DISPLAY_NAME "2nd RPDO Buffer Size"
 
 add_parameter rpdo2size INTEGER 1
 set_parameter_property rpdo2size ALLOWED_RANGES 1:1490
 set_parameter_property rpdo2size UNITS bytes
-set_parameter_property rpdo2size DISPLAY_NAME "3rd Rpdo Buffer Size"
+set_parameter_property rpdo2size DISPLAY_NAME "3rd RPDO Buffer Size"
 
 add_parameter tpdoNum INTEGER 1
 set_parameter_property tpdoNum ALLOWED_RANGES 1
-set_parameter_property tpdoNum DISPLAY_NAME "Number of Tpdo Buffers"
+set_parameter_property tpdoNum DISPLAY_NAME "Number of TPDO Buffers"
 
 add_parameter tpdo0size INTEGER 1
 set_parameter_property tpdo0size ALLOWED_RANGES 1:1490
 set_parameter_property tpdo0size UNITS bytes
-set_parameter_property tpdo0size DISPLAY_NAME "1st Tpdo Buffer Size"
+set_parameter_property tpdo0size DISPLAY_NAME "1st TPDO Buffer Size"
 
 add_parameter asyncTxBufSize INTEGER 1514
 set_parameter_property asyncTxBufSize ALLOWED_RANGES 1:1518
 set_parameter_property asyncTxBufSize UNITS bytes
-set_parameter_property asyncTxBufSize DISPLAY_NAME "Asynchronous Tx Buffer Size"
+set_parameter_property asyncTxBufSize DISPLAY_NAME "Asynchronous TX Buffer Size"
 
 add_parameter asyncRxBufSize INTEGER 1514
 set_parameter_property asyncRxBufSize ALLOWED_RANGES 1:1518
 set_parameter_property asyncRxBufSize UNITS bytes
-set_parameter_property asyncRxBufSize DISPLAY_NAME "Asynchronous Rx Buffer Size"
+set_parameter_property asyncRxBufSize DISPLAY_NAME "Asynchronous RX Buffer Size"
 
 #parameters for PDI HDL
 add_parameter genPdi_g BOOLEAN true
@@ -192,10 +192,12 @@ set_parameter_property iRpdo2BufSize_g DERIVED TRUE
 add_parameter iTpdoObjNumber_g INTEGER 1
 set_parameter_property iTpdoObjNumber_g HDL_PARAMETER true
 set_parameter_property iTpdoObjNumber_g ALLOWED_RANGES 1:1490
+set_parameter_property iTpdoObjNumber_g DISPLAY_NAME "Maximum Mapped TPDO Objects"
 
 add_parameter iRpdoObjNumber_g INTEGER 1
 set_parameter_property iRpdoObjNumber_g HDL_PARAMETER true
 set_parameter_property iRpdoObjNumber_g ALLOWED_RANGES 1:1490
+set_parameter_property iRpdoObjNumber_g DISPLAY_NAME "Maximum Mapped RPDO Objects"
 
 add_parameter iAsyTxBufSize_g INTEGER 1514
 set_parameter_property iAsyTxBufSize_g HDL_PARAMETER true
@@ -338,6 +340,7 @@ proc my_validation_callback {} {
 			set macRxBuffers 4
 			set memRpdo [expr ($rpdo0size + 16)*3]
 		} elseif {$rpdos == 2} {
+send_message error "The PDI does not support more than 1 RPDO! Please use only 1 RPDO!"
 			set_parameter_property rpdo0size VISIBLE true
 			set_parameter_property rpdo1size VISIBLE true
 			set_parameter_property rpdo2size VISIBLE false
@@ -345,6 +348,7 @@ proc my_validation_callback {} {
 			set macRxBuffers 5
 			set memRpdo [expr ($rpdo0size + 16 + $rpdo1size + 16)*3]
 		} elseif {$rpdos == 3} {
+send_message error "The PDI does not support more than 1 RPDO! Please use only 1 RPDO!"
 			set_parameter_property rpdo0size VISIBLE true
 			set_parameter_property rpdo1size VISIBLE true
 			set_parameter_property rpdo2size VISIBLE true
@@ -363,7 +367,7 @@ proc my_validation_callback {} {
 			
 			set_parameter_property configApParallelInterface VISIBLE true
 			
-			send_message error "The Parallel AP Interface is not yet implemented! Use Avalon AP!"
+send_message error "The Parallel AP Interface is not yet implemented! Please use Avalon AP!"
 		} elseif {$configApInterface == "SPI"} {
 			#let's use spi
 			set_parameter_property configApSpi_CPOL VISIBLE true
@@ -371,7 +375,7 @@ proc my_validation_callback {} {
 			
 			set genSpiAp true
 			
-			send_message error "The SPI AP Interface is not yet implemented! Use Avalon AP!"
+send_message error "The SPI AP Interface is not yet implemented! Please use Avalon AP!"
 		}
 	}
 	
@@ -393,6 +397,8 @@ proc my_validation_callback {} {
 	set rxBufSize [expr $macRxBuffers * ($mtu + $crc + $macRxHd)]
 	
 	set macBufSize [expr $txBufSize + $rxBufSize]
+	#align macBufSize to 1 double word!!!
+	set macBufSize [expr ($macBufSize + 3) & ~3]
 	set macM9K [expr int(ceil($macBufSize / 1024.))]
 	set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
 	
@@ -457,12 +463,16 @@ proc my_validation_callback {} {
 	set_module_assignment embeddedsw.CMacro.CONFIG					$configPowerlink
 	if {$configPowerlink == "CN with AP"} {
 		set_module_assignment embeddedsw.CMacro.CONFIGAPIF			$configApInterface
+		set_module_assignment embeddedsw.CMacro.PDIRPDOOBJ			$rpdoDesc
+		set_module_assignment embeddedsw.CMacro.PDITPDOOBJ			$tpdoDesc
 	}
 	set_module_assignment embeddedsw.CMacro.MACBUFSIZE				$macBufSize
 	set_module_assignment embeddedsw.CMacro.MACRXBUFSIZE			$rxBufSize
 	set_module_assignment embeddedsw.CMacro.MACRXBUFFERS			$macRxBuffers
 	set_module_assignment embeddedsw.CMacro.MACTXBUFSIZE			$txBufSize
 	set_module_assignment embeddedsw.CMacro.MACTXBUFFERS			$macTxBuffers
+	set_module_assignment embeddedsw.CMacro.PDIRPDOS				$rpdos
+	set_module_assignment embeddedsw.CMacro.PDITPDOS				$tpdos
 }
 
 #display
