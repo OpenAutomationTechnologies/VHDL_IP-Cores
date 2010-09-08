@@ -54,6 +54,7 @@
 -- 2010-08-02  V0.72		Enabled Timer triggered TX functionality (just adding generic TxSyncOn)
 -- 2010-08-19  V0.73		Filter for phy ports
 --							100MHz Clk for RMII ports (better for timing)
+-- 2010-09-07  V0.74		Bugfix: Rx packets are not stored to DPRAM (Dma_Dout/Dma_Dout_s mixed up)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -382,8 +383,7 @@ BEGIN
 	BEGIN
 	
 	Dma_Din <= Dma_Din_s(7 downto 0) & Dma_Din_s(15 downto 8);
-	Dma_Dout(7 downto 0) <= Dma_Dout_s(7 downto 0);
-	Dma_Dout(15 downto 8) <= Dma_Dout_s(15 downto 8);
+	Dma_Dout_s <= Dma_Dout(7 downto 0) & Dma_Dout(15 downto 8);
 	readA_s <= Dma_Req and Dma_Rw;
 	readB_s <= not iBuf_read_n and iBuf_chipselect;
 	writeA_s <= Dma_Req and not Dma_Rw;
