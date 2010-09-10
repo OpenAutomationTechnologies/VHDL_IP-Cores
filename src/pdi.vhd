@@ -77,16 +77,16 @@ entity pdi is
             pcp_read					: in    std_logic;
             pcp_write					: in    std_logic;
             pcp_byteenable	            : in    std_logic_vector(3 DOWNTO 0);
-            pcp_address                 : in    std_logic_vector(14 DOWNTO 0);
+            pcp_address                 : in    std_logic_vector(12 DOWNTO 0);
             pcp_writedata               : in    std_logic_vector(31 DOWNTO 0);
             pcp_readdata                : out   std_logic_vector(31 DOWNTO 0);
-			pcp_irq						: in	std_logic; --should be connected to the Time Cmp Irq of openMAC!
+			pcp_irq						: in	std_logic; --should be connected to the Time Cmp Toggle of openMAC!
 		-- Avalon Slave Interface for AP
             ap_chipselect               : in    std_logic;
             ap_read						: in    std_logic;
             ap_write					: in    std_logic;
             ap_byteenable             	: in    std_logic_vector(3 DOWNTO 0);
-            ap_address                  : in    std_logic_vector(14 DOWNTO 0);
+            ap_address                  : in    std_logic_vector(12 DOWNTO 0);
             ap_writedata                : in    std_logic_vector(31 DOWNTO 0);
             ap_readdata                 : out   std_logic_vector(31 DOWNTO 0);
 			ap_irq						: out	std_logic --Irq to the AP
@@ -436,7 +436,7 @@ begin
 			dprBe						=> dprCntStReg_s.pcp.be,
 			dprWr						=> dprCntStReg_s.pcp.wr,
 			--ap irq generation
-			apIrqValue					=> apIrqValue,
+			--apIrqValue					=> apIrqValue,
 			apIrqControl				=> apIrqControlPcp
 	);
 	
@@ -498,16 +498,12 @@ begin
 	);
 	
 	theApIrqGenerator : entity work.apIrqGen
-	generic map (
-		cntWidth => 32
-	)
-			
 	port map (
 		--CLOCK DOMAIN PCP
 		clkA => pcp_clk,
 		rstA => pcp_reset,
 		irqA => pcp_irq,
-		preValA => apIrqValue,
+		--preValA => apIrqValue,
 		enableA => apIrqControlPcp(7),
 		modeA => apIrqControlPcp(6),
 		setA => apIrqControlPcp(0),
@@ -1037,7 +1033,7 @@ entity pdiControlStatusReg is
 			tPdoTrigger					: out	std_logic; --TPDO virtual buffer change trigger
 			rPdoTrigger					: out	std_logic_vector(2 downto 0); --RPDOs virtual buffer change triggers
 			---is used for Irq Generation and should be mapped to apIrqGen
-			apIrqValue					: out	std_logic_vector(31 downto 0); --pcp only
+			--apIrqValue					: out	std_logic_vector(31 downto 0); --pcp only
 			apIrqControl				: out	std_logic_vector(7 downto 0);
 			--dpr interface (from PCP/AP to DPR)
 			dprAddr						: out	std_logic_vector(iDprAddrWidth_g-1 downto 0);
@@ -1053,11 +1049,11 @@ architecture rtl of pdiControlStatusReg is
 signal selDpr							:		std_logic; --if '1' get/write content from/to dpr
 signal nonDprDout						:		std_logic_vector(31 downto 0);
 signal addrRes							:		std_logic_vector(dprAddr'range);
-signal apIrqValue_s						: 		std_logic_vector(31 downto 0); --pcp only
+--signal apIrqValue_s						: 		std_logic_vector(31 downto 0); --pcp only
 signal apIrqControl_s					: 		std_logic_vector(7 downto 0);
 begin	
 	
-	apIrqValue <= apIrqValue_s;
+	--apIrqValue <= apIrqValue_s;
 	apIrqControl <= apIrqControl_s;
 	
 	--generate dpr select signal
@@ -1087,7 +1083,7 @@ begin
 			tPdoTrigger <= '0';
 			rPdoTrigger <= (others => '0');
 			nonDprDout <= (others => '0');
-			apIrqValue_s <= (others => '0');
+			--apIrqValue_s <= (others => '0');
 			apIrqControl_s <= (others => '0');
 		elsif clk = '1' and clk'event then
 			tPdoTrigger <= '0';
@@ -1124,12 +1120,12 @@ begin
 						nonDprDout	<=	rAsyncBuffer;
 					when 16#30# =>
 						nonDprDout	<=	pdoVirtualBufferSel;
-					when 16#34# =>
-						if bIsPcp then
-							nonDprDout	<=	apIrqValue_s;
-						else
-							nonDprDout	<=	x"DEADC0DE";
-						end if;
+--					when 16#34# =>
+--						if bIsPcp then
+--							nonDprDout	<=	apIrqValue_s;
+--						else
+--							nonDprDout	<=	x"DEADC0DE";
+--						end if;
 					when 16#38# =>
 						nonDprDout	<=	x"000000" & apIrqControl_s; 
 					when others =>
@@ -1147,13 +1143,13 @@ begin
 							end if;
 						end loop;
 					when 16#34# =>
-						if bIsPcp then
-							for i in 3 downto 0 loop
-								if be(i) = '1' then
-									apIrqValue_s((i+1)*8-1 downto i*8) <= din((i+1)*8-1 downto i*8);
-								end if;
-							end loop;
-						end if;
+--						if bIsPcp then
+--							for i in 3 downto 0 loop
+--								if be(i) = '1' then
+--									apIrqValue_s((i+1)*8-1 downto i*8) <= din((i+1)*8-1 downto i*8);
+--								end if;
+--							end loop;
+--						end if;
 					when 16#38# =>
 						if be(0) = '1' then
 							apIrqControl_s <= din(7 downto 0);
@@ -1175,16 +1171,11 @@ USE ieee.std_logic_arith.all;
 USE ieee.std_logic_unsigned.all;
 
 entity apIrqGen is
-	generic (
-		cntWidth						:		integer := 32
-	);
-			
 	port (
 		--CLOCK DOMAIN PCP
 		clkA							: in	std_logic;
 		rstA							: in	std_logic;
-		irqA							: in	std_logic;
-		preValA							: in	std_logic_vector(cntWidth-1 downto 0); --APIRQ_VALUE (by PCP)
+		irqA							: in	std_logic; --toggle from MAC
 		enableA							: in	std_logic; --APIRQ_CONTROL / IRQ_En
 		modeA							: in	std_logic; --APIRQ_CONTROL / IRQ_MODE
 		setA							: in	std_logic; --APIRQ_CONTROL / IRQ_SET
@@ -1197,10 +1188,9 @@ entity apIrqGen is
 end entity apIrqGen;
 
 architecture rtl of apIrqGen is
-type fsm_t is (wait4event, count, setIrq, wait4ack);
+type fsm_t is (wait4event, setIrq, wait4ack);
 signal fsm								:		fsm_t;
-signal preVal, cnt						:		std_logic_vector(cntWidth-1 downto 0);
-signal enable, mode, irq, set, cntRst	:		std_logic;
+signal enable, mode, irq, toggle, set	:		std_logic;
 begin
 	
 	--everything is done in clkB domain!
@@ -1216,15 +1206,9 @@ begin
 						if mode = '0' and set = '1' then
 							fsm <= setIrq;
 						elsif mode = '1' and irq = '1' then
-							fsm <= count;
-						else
-							fsm <= wait4event;
-						end if;
-					when count =>
-						if cntRst = '1' then
 							fsm <= setIrq;
 						else
-							fsm <= count;
+							fsm <= wait4event;
 						end if;
 					when setIrq =>
 						irqB <= '1';
@@ -1243,40 +1227,6 @@ begin
 			end if;
 		end if;
 	end process;
-	
-	theCounter : process(clkB, rstB)
-	begin
-		if rstB = '1' then
-			cnt <= (others => '0');
-		elsif clkB = '1' and clkB'event then
-			if cntRst = '1' then
-				cnt <= (others => '0');
-			else
-				cnt <= cnt + 1;
-			end if;
-		end if;
-	end process;
-	cntRst <= '1' when cnt = preVal or fsm /= count else '0';
-	
-	--use only one stage synchronizer for preVal (less LE required!)
-	process(clkB, rstB)
-	begin
-		if rstB = '1' then
-			preVal <= (others => '0');
-		elsif clkB = '1' and clkB'event then
-			preVal <= preValA;
-		end if;
-	end process;
-	--sync those signals to clkB
---	syncPreVal : for i in cntWidth-1 downto 0 generate
---		theSync : entity work.sync
---			port map (
---				inData => preValA(i),
---				outData => preVal(i),
---				clk => clkB,
---				rst => rstB
---			);
---	end generate;
 	
 	syncEnable : entity work.sync
 		port map (
@@ -1304,14 +1254,22 @@ begin
 			rst => rstB
 		);
 	
-	syncIrq : entity work.slow2fastSync
+	syncToggle : entity work.sync
 		port map (
-			dataSrc => irqA,
-			dataDst => irq,
-			clkSrc => clkA,
-			rstSrc => rstA,
-			clkDst => clkB,
-			rstDst => rstB
+			inData => irqA,
+			outData => toggle,
+			clk => clkB,
+			rst => rstB
+		);
+	
+	toggleEdgeDet : entity work.edgeDet
+		port map (
+			inData => toggle,
+			rising => open,
+			falling => open,
+			any => irq,
+			clk => clkB,
+			rst => rstB
 		);
 	
 end architecture rtl;

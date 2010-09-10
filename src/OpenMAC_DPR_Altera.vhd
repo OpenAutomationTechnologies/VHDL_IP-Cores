@@ -118,7 +118,7 @@ architecture struct of Dpr_16_32 is
 begin
 
 Ram: COMPONENT altsyncram
-		GENERIC MAP ( OPERATION_MODE => "DUAL_PORT", INIT_FILE => "..\src\Null_alt.hex",
+		GENERIC MAP ( OPERATION_MODE => "DUAL_PORT", --INIT_FILE => "..\src\Null_alt.hex",
 					  WIDTH_A => 16, WIDTHAD_A => 8, NUMWORDS_A => 256, WIDTH_BYTEENA_A => 2,
 					  WIDTH_B => 32, WIDTHAD_B => 7, NUMWORDS_B => 128
 					 )

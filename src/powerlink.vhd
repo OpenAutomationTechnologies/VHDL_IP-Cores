@@ -45,34 +45,35 @@ use ieee.std_logic_unsigned.all;
 
 entity powerlink is
 	generic(
-	-- GENERAL GENERICS
-		genPdi_g					:		boolean := true;
-		genAvalonAp_g				:		boolean := true;
-		genSimpleIO_g				:		boolean := false;
-		genSpiAp_g					:		boolean := false;
+	-- GENERAL GENERICS															--
+		genPdi_g					:		boolean 							:= true;
+		genAvalonAp_g				:		boolean 							:= true;
+		genSimpleIO_g				:		boolean 							:= false;
+		genSpiAp_g					:		boolean 							:= false;
 	-- OPENMAC GENERICS
-		Simulate                    :     	boolean := false;
-   		iBufSize_g					: 		integer := 1024;
-   		iBufSizeLOG2_g				: 		integer := 10;
+		Simulate                    :     	boolean 							:= false;
+   		iBufSize_g					: 		integer 							:= 1024;
+   		iBufSizeLOG2_g				: 		integer 							:= 10;
 	-- PDI GENERICS
-		iRpdos_g					:		integer := 3;
-		iTpdos_g					:		integer := 1;
+		iRpdos_g					:		integer 							:= 3;
+		iTpdos_g					:		integer 							:= 1;
 		--PDO buffer size *3
-		iTpdoBufSize_g				:		integer := 100;
-		iRpdo0BufSize_g				:		integer := 100;
-		iRpdo1BufSize_g				:		integer := 100;
-		iRpdo2BufSize_g				:		integer := 100;
+		iTpdoBufSize_g				:		integer 							:= 100;
+		iRpdo0BufSize_g				:		integer 							:= 100;
+		iRpdo1BufSize_g				:		integer 							:= 100;
+		iRpdo2BufSize_g				:		integer 							:= 100;
 		--PDO-objects
-		iTpdoObjNumber_g			:		integer := 10;
-		iRpdoObjNumber_g			:		integer := 10; --includes all PDOs!!!
+		iTpdoObjNumber_g			:		integer 							:= 10;
+		iRpdoObjNumber_g			:		integer 							:= 10; --includes all PDOs!!!
 		--asynchronous TX and RX buffer size
-		iAsyTxBufSize_g				:		integer := 1500;
-		iAsyRxBufSize_g				:		integer := 1500;
+		iAsyTxBufSize_g				:		integer 							:= 1500;
+		iAsyRxBufSize_g				:		integer 							:= 1500;
 	-- 8/16bit PARALLEL PDI GENERICS
-		papDataWidth_g				:		integer := 8;
+		papDataWidth_g				:		integer 							:= 8;
+		papLowAct_g					:		boolean								:= false;
 	-- SPI GENERICS
-		spiCPOL_g					:		boolean := false;
-		spiCPHA_g					:		boolean := false
+		spiCPOL_g					:		boolean 							:= false;
+		spiCPHA_g					:		boolean 							:= false
 	);
 	port(
 	-- CLOCK / RESET PORTS
@@ -97,7 +98,7 @@ entity powerlink is
 		tcp_read_n					: in    std_logic;
 		tcp_write_n					: in    std_logic;
 		tcp_byteenable_n            : in    std_logic_vector(3 downto 0);
-		tcp_address                 : in    std_logic_vector(0 downto 0);
+		tcp_address                 : in    std_logic_vector(1 downto 0);
 		tcp_writedata               : in    std_logic_vector(31 downto 0);
 		tcp_readdata                : out   std_logic_vector(31 downto 0);
 		tcp_irq						: out 	std_logic;
@@ -115,31 +116,38 @@ entity powerlink is
 	    pcp_read					: in    std_logic;
 	    pcp_write					: in    std_logic;
 	    pcp_byteenable	            : in    std_logic_vector(3 downto 0);
-	    pcp_address                 : in    std_logic_vector(14 downto 0);
+	    pcp_address                 : in    std_logic_vector(12 downto 0);
 	    pcp_writedata               : in    std_logic_vector(31 downto 0);
 	    pcp_readdata                : out   std_logic_vector(31 downto 0);
 	--- AP PORTS
 		ap_irq						: out	std_logic;
+		ap_irq_n					: out	std_logic;
 	---- AVALON
 		ap_chipselect               : in    std_logic;
 		ap_read						: in    std_logic;
 		ap_write					: in    std_logic;
 		ap_byteenable             	: in    std_logic_vector(3 downto 0);
-		ap_address                  : in    std_logic_vector(14 downto 0);
+		ap_address                  : in    std_logic_vector(12 downto 0);
 		ap_writedata                : in    std_logic_vector(31 downto 0);
 		ap_readdata                 : out   std_logic_vector(31 downto 0);
 	---- 8/16bit parallel
 		pap_cs						: in    std_logic;
 		pap_rd						: in    std_logic;
 		pap_wr 						: in    std_logic;
-		pap_be						: in    std_logic_vector(papDataWidth_g/4-1 downto 0);
+		pap_be						: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
+		pap_cs_n					: in    std_logic;
+		pap_rd_n					: in    std_logic;
+		pap_wr_n					: in    std_logic;
+		pap_be_n					: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
 		pap_addr 					: in    std_logic_vector(15 downto 0);
 		pap_wrdata					: in    std_logic_vector(papDataWidth_g-1 downto 0);
 		pap_rddata					: out   std_logic_vector(papDataWidth_g-1 downto 0);
 		pap_doe						: out	std_logic;
+		pap_ready					: out	std_logic;
+		pap_ready_n					: out	std_logic;
 	---- SPI
 		spi_clk						: in	std_logic;
-		spi_sel						: in	std_logic;
+		spi_sel_n					: in	std_logic;
 		spi_mosi					: in 	std_logic;
 		spi_miso					: out	std_logic;
 	---- simple I/O
@@ -160,35 +168,57 @@ entity powerlink is
 		phy0_TxDat                 	: out   std_logic_vector(1 downto 0);
 		phy0_TxEn                  	: out   std_logic;
 		phy0_MiiClk					: out	std_logic;
-		phy0_MiiDat					: inout	std_logic := '1';
-		phy0_MiiRst_n				: out	std_logic := '0';
+		phy0_MiiDat					: inout	std_logic 							:= '1';
+		phy0_MiiRst_n				: out	std_logic 							:= '0';
 		phy1_RxDat                 	: in    std_logic_vector(1 downto 0);
 		phy1_RxDv                  	: in    std_logic;
 		phy1_TxDat                 	: out   std_logic_vector(1 downto 0);
 		phy1_TxEn                  	: out   std_logic;
 		phy1_MiiClk					: out	std_logic;
-		phy1_MiiDat					: inout	std_logic := '1';
-		phy1_MiiRst_n				: out	std_logic := '0'
+		phy1_MiiDat					: inout	std_logic 							:= '1';
+		phy1_MiiRst_n				: out	std_logic 							:= '0'
 	);
 end powerlink;
 
 architecture rtl of powerlink is
-	signal mii_Clk					:		std_logic;
-	signal mii_Di					:		std_logic;
-	signal mii_Do					:		std_logic;
-	signal mii_Doe					:		std_logic;
-	signal mii_nResetOut			:		std_logic;
-	signal rstPcp_n					:		std_logic;
-	signal rstAp_n					:		std_logic;
-	signal timerIrq					:		std_logic;
+	signal mii_Clk					:		std_logic							:= '0';
+	signal mii_Di					:		std_logic							:= '0';
+	signal mii_Do					:		std_logic							:= '0';
+	signal mii_Doe					:		std_logic							:= '0';
+	signal mii_nResetOut			:		std_logic							:= '0';
+	signal rstPcp_n					:		std_logic							:= '0';
+	signal rstAp_n					:		std_logic							:= '0';
+	signal irqToggle				:		std_logic							:= '0';
+	
+	signal ap_chipselect_s			:		std_logic							:= '0';
+	signal ap_read_s				:		std_logic							:= '0';
+	signal ap_write_s				:		std_logic							:= '0';
+	signal ap_byteenable_s			:		std_logic_vector(ap_byteenable'range) := (others => '0');
+	signal ap_address_s				:		std_logic_vector(ap_address'range)	:= (others => '0');
+	signal ap_writedata_s			:		std_logic_vector(ap_writedata'range):= (others => '0');
+	signal ap_readdata_s			:		std_logic_vector(ap_readdata'range)	:= (others => '0');
+	
+	signal pap_cs_s					:		std_logic;
+	signal pap_rd_s					:		std_logic;
+	signal pap_wr_s					:		std_logic;
+	signal pap_be_s					:		std_logic_vector(pap_be'range);
+	signal pap_cs_ss				:		std_logic;
+	signal pap_rd_ss				:		std_logic;
+	signal pap_wr_ss				:		std_logic;
+	signal pap_ready_s				:		std_logic;
+	signal ap_irq_s					:		std_logic;
+	
+	signal spi_sel_s				:		std_logic;
 begin
 	--general signals
 	rstPcp_n <= not rstPcp;
 	rstAp_n <= not rstAp;
 	--timer irq signal
-	tcp_irq <= timerIrq;
+	--tcp_irq <= IrqToggle;
 	
-	genPdi : if genPdi_g and genAvalonAp_g generate
+------------------------------------------------------------------------------------------------------------------------
+--PCP + AP
+	genPdi : if genPdi_g and genAvalonAp_g and not genSpiAp_g generate
 		theAvalonPdi : entity work.pdi
 			generic map (
 				iRpdos_g					=> iRpdos_g,
@@ -218,7 +248,7 @@ begin
 				pcp_address                 => pcp_address,
 				pcp_writedata               => pcp_writedata,
 				pcp_readdata                => pcp_readdata,
-				pcp_irq						=> timerIrq,
+				pcp_irq						=> irqToggle,
 				-- Avalon Slave Interface for AP
 				ap_chipselect               => ap_chipselect,
 				ap_read						=> ap_read,
@@ -230,18 +260,212 @@ begin
 				ap_irq						=> ap_irq
 			);
 	end generate genPdi;
-	
-	genPdiPar : if genPdi_g and not genAvalonAp_g generate
-		ASSERT FALSE
-			REPORT "Parallel external Interface (8/16bit) is not yet implemented!" 
+
+--AP is external connected via parallel interface
+	genPdiPar : if genPdi_g and not genAvalonAp_g and not genSpiAp_g generate
+		
+		--only 8 or 16bit data width is allowed
+		ASSERT ( papDataWidth_g = 8 or papDataWidth_g = 16 )
+			REPORT "External parallel port only allows 8 or 16bit data width!"
 			severity failure;
+		
+		-------------------------------------------------------------------------------------
+		--sync signals used by the fsm in pdi_par
+		-- use active low or high inputs!
+		theParPortSyncCs : entity work.sync
+			port map (
+				inData					=> pap_cs_s, --sync the parallel port cs signal
+				outData					=> pap_cs_ss, --the sync cs is used to trigger fsm
+				clk						=> clk50,
+				rst						=> rstPcp
+			);
+		
+		theParPortSyncRd : entity work.sync
+			port map (
+				inData					=> pap_rd_s, --sync the parallel port rd signal
+				outData					=> pap_rd_ss, --the sync cs is used rd trigger fsm
+				clk						=> clk50,
+				rst						=> rstPcp
+			);
+		
+		theParPortSyncWr : entity work.sync
+			port map (
+				inData					=> pap_wr_s, --sync the parallel port wr signal
+				outData					=> pap_wr_ss, --the sync cs is used wr trigger fsm
+				clk						=> clk50,
+				rst						=> rstPcp
+			);
+		--
+		-------------------------------------------------------------------------------------
+		
+		-------------------------------------------------------------------------------------
+		--convert active low signals to active high - respectively assign active high signals
+		theActiveLowGen : if papLowAct_g generate
+			pap_wr_s <= not pap_wr_n;
+			pap_rd_s <= not pap_rd_n;
+			pap_cs_s <= not pap_cs_n;
+			pap_be_s <= not pap_be_n;
+		end generate;
+		
+		theActiveHighGen : if not papLowAct_g generate
+			pap_wr_s <= pap_wr;
+			pap_rd_s <= pap_rd;
+			pap_cs_s <= pap_cs;
+			pap_be_s <= pap_be;
+		end generate;
+		
+		ap_irq <= ap_irq_s;
+		ap_irq_n <= not ap_irq_s;
+		
+		pap_ready <= pap_ready_s;
+		pap_ready_n <= not pap_ready_s;
+		--
+		-------------------------------------------------------------------------------------
+		
+		theParPort : entity work.pdi_par
+			generic map (
+				papDataWidth_g				=> papDataWidth_g
+			)
+			port map (
+			-- 8/16bit parallel
+				pap_cs						=> pap_cs_ss,
+				pap_rd						=> pap_rd_ss,
+				pap_wr						=> pap_wr_ss,
+				pap_be						=> pap_be_s,
+				pap_addr					=> pap_addr,
+				pap_wrdata					=> pap_wrdata,
+				pap_rddata					=> pap_rddata,
+				pap_doe						=> pap_doe,
+				pap_ready					=> pap_ready_s,
+			-- clock for AP side
+				ap_reset					=> rstPcp,
+				ap_clk						=> clk50,
+			-- Avalon Slave Interface for AP
+	            ap_chipselect				=> ap_chipselect_s,
+	            ap_read						=> ap_read_s,
+	            ap_write					=> ap_write_s,
+	            ap_byteenable				=> ap_byteenable_s,
+	            ap_address					=> ap_address_s,
+	            ap_writedata				=> ap_writedata_s,
+	            ap_readdata					=> ap_readdata_s
+			);
+		
+		thePdi : entity work.pdi
+			generic map (
+				iRpdos_g					=> iRpdos_g,
+				iTpdos_g					=> iTpdos_g,
+				--PDO buffer size *3
+				iTpdoBufSize_g				=> iTpdoBufSize_g,
+				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
+				iRpdo1BufSize_g				=> iRpdo1BufSize_g,
+				iRpdo2BufSize_g				=> iRpdo2BufSize_g,
+				--PDO-objects
+				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
+				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
+				--asynchronous TX and RX buffer size
+				iAsyTxBufSize_g				=> iAsyTxBufSize_g,
+				iAsyRxBufSize_g				=> iAsyRxBufSize_g
+			)
+			port map (
+				pcp_reset					=> rstPcp,
+				pcp_clk                  	=> clkPcp,
+				ap_reset					=> rstPcp,
+				ap_clk						=> clk50,
+				-- Avalon Slave Interface for PCP
+				pcp_chipselect              => pcp_chipselect,
+				pcp_read					=> pcp_read,
+				pcp_write					=> pcp_write,
+				pcp_byteenable	            => pcp_byteenable,
+				pcp_address                 => pcp_address,
+				pcp_writedata               => pcp_writedata,
+				pcp_readdata                => pcp_readdata,
+				pcp_irq						=> irqToggle,
+				-- Avalon Slave Interface for AP
+				ap_chipselect               => ap_chipselect_s,
+				ap_read						=> ap_read_s,
+				ap_write					=> ap_write_s,
+				ap_byteenable             	=> ap_byteenable_s,
+				ap_address                  => ap_address_s,
+				ap_writedata                => ap_writedata_s,
+				ap_readdata                 => ap_readdata_s,
+				ap_irq						=> ap_irq_s
+			);
 	end generate genPdiPar;
-	
+
+--AP is extern connected via SPI
 	genPdiSpi : if genPdi_g and genSpiAp_g generate
-		ASSERT FALSE
-			REPORT "SPI is not yet implemented!" 
-			severity failure;
+		
+		spi_sel_s <= not spi_sel_n;
+		
+		thePdiSpi : entity work.pdi_spi
+			generic map (
+				spiSize_g					=> 8, --fixed value!
+				cpol_g 						=> spiCPOL_g,
+				cpha_g 						=> spiCPHA_g
+			)
+			port map (
+				-- SPI
+				spi_clk						=> spi_clk,
+				spi_sel						=> spi_sel_s,
+				spi_miso					=> spi_miso,
+				spi_mosi					=> spi_mosi,
+				-- clock for AP side
+				ap_reset					=> rstPcp,
+				ap_clk						=> clk50,
+				-- Avalon Slave Interface for AP
+				ap_chipselect               => ap_chipselect_s,
+				ap_read						=> ap_read_s,
+				ap_write					=> ap_write_s,
+				ap_byteenable             	=> ap_byteenable_s,
+				ap_address                  => ap_address_s,
+				ap_writedata                => ap_writedata_s,
+				ap_readdata                 => ap_readdata_s
+			);
+		
+		thePdi : entity work.pdi
+			generic map (
+				iRpdos_g					=> iRpdos_g,
+				iTpdos_g					=> iTpdos_g,
+				--PDO buffer size *3
+				iTpdoBufSize_g				=> iTpdoBufSize_g,
+				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
+				iRpdo1BufSize_g				=> iRpdo1BufSize_g,
+				iRpdo2BufSize_g				=> iRpdo2BufSize_g,
+				--PDO-objects
+				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
+				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
+				--asynchronous TX and RX buffer size
+				iAsyTxBufSize_g				=> iAsyTxBufSize_g,
+				iAsyRxBufSize_g				=> iAsyRxBufSize_g
+			)
+			port map (
+				pcp_reset					=> rstPcp,
+				pcp_clk                  	=> clkPcp,
+				ap_reset					=> rstPcp,
+				ap_clk						=> clk50,
+				-- Avalon Slave Interface for PCP
+				pcp_chipselect              => pcp_chipselect,
+				pcp_read					=> pcp_read,
+				pcp_write					=> pcp_write,
+				pcp_byteenable	            => pcp_byteenable,
+				pcp_address                 => pcp_address,
+				pcp_writedata               => pcp_writedata,
+				pcp_readdata                => pcp_readdata,
+				pcp_irq						=> irqToggle,
+				-- Avalon Slave Interface for AP
+				ap_chipselect               => ap_chipselect_s,
+				ap_read						=> ap_read_s,
+				ap_write					=> ap_write_s,
+				ap_byteenable             	=> ap_byteenable_s,
+				ap_address                  => ap_address_s,
+				ap_writedata                => ap_writedata_s,
+				ap_readdata                 => ap_readdata_s,
+				ap_irq						=> ap_irq_s
+			);
 	end generate genPdiSpi;
+--
+------------------------------------------------------------------------------------------------------------------------
+
 ------------------------------------------------------------------------------------------------------------------------
 --SIMPLE I/O CN
 	genSimpleIO : if genSimpleIO_g generate
@@ -292,7 +516,8 @@ begin
 			t_address               => tcp_address,
 			t_writedata             => tcp_writedata,
 			t_readdata              => tcp_readdata,
-			t_IRQ					=> timerIrq, --tcp_irq,
+			t_IRQ					=> tcp_irq,
+			t_IrqToggle				=> irqToggle,
 			iBuf_chipselect         => mbf_chipselect,
 			iBuf_read_n				=> mbf_read_n,
 			iBuf_write_n			=> mbf_write_n,

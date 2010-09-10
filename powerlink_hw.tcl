@@ -57,6 +57,7 @@ set_module_property ICON_PATH img/br.png
 #files
 add_file src/powerlink.vhd {SYNTHESIS SIMULATION}
 add_file src/pdi.vhd {SYNTHESIS SIMULATION}
+add_file src/pdi_par.vhd {SYNTHESIS SIMULATION}
 add_file src/pdi_dpr.vhd {SYNTHESIS SIMULATION}
 add_file src/pdi_tripleVBufLogic.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenFILTER.vhd {SYNTHESIS SIMULATION}
@@ -66,6 +67,10 @@ add_file src/OpenMAC_AvalonIF.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_DPR_Altera.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_PHYMI.vhd {SYNTHESIS SIMULATION}
 add_file src/portio.vhd {SYNTHESIS SIMULATION}
+add_file src/spi.vhd {SYNTHESIS SIMULATION}
+add_file src/spi_sreg.vhd {SYNTHESIS SIMULATION}
+add_file src/pdi_spi.vhd {SYNTHESIS SIMULATION}
+
 
 #callbacks
 set_module_property VALIDATION_CALLBACK my_validation_callback
@@ -87,16 +92,31 @@ add_parameter configApParallelInterface STRING "8bit"
 set_parameter_property configApParallelInterface VISIBLE false
 set_parameter_property configApParallelInterface DISPLAY_NAME "Size of Parallel Interface to AP"
 set_parameter_property configApParallelInterface ALLOWED_RANGES {"8bit" "16bit"}
+#set_parameter_property configApParallelInterface DISPLAY_HINT radio
+
+add_parameter configApParSigs STRING "High Active"
+set_parameter_property configApParSigs VISIBLE false
+set_parameter_property configApParSigs DISPLAY_NAME "Active State of Control Signal (Cs, Wr, Rd and Be)"
+set_parameter_property configApParSigs ALLOWED_RANGES {"High Active" "Low Active"}
+#set_parameter_property configApParSigs DISPLAY_HINT radio
+
+add_parameter configApParOutSigs STRING "High Active"
+set_parameter_property configApParOutSigs VISIBLE false
+set_parameter_property configApParOutSigs DISPLAY_NAME "Active State of Output Signals (Irq and Ready)"
+set_parameter_property configApParOutSigs ALLOWED_RANGES {"High Active" "Low Active"}
+#set_parameter_property configApParOutSigs DISPLAY_HINT radio
 
 add_parameter configApSpi_CPOL STRING "0"
 set_parameter_property configApSpi_CPOL VISIBLE false
 set_parameter_property configApSpi_CPOL DISPLAY_NAME "SPI CPOL"
 set_parameter_property configApSpi_CPOL ALLOWED_RANGES {"0" "1"}
+#set_parameter_property configApSpi_CPOL DISPLAY_HINT radio
 
 add_parameter configApSpi_CPHA STRING "0"
 set_parameter_property configApSpi_CPHA VISIBLE false
 set_parameter_property configApSpi_CPHA DISPLAY_NAME "SPI CPHA"
 set_parameter_property configApSpi_CPHA ALLOWED_RANGES {"0" "1"}
+#set_parameter_property configApSpi_CPHA DISPLAY_HINT radio
 
 add_parameter rpdoNum INTEGER 3
 set_parameter_property rpdoNum ALLOWED_RANGES {1 2 3}
@@ -231,6 +251,11 @@ set_parameter_property papDataWidth_g HDL_PARAMETER true
 set_parameter_property papDataWidth_g VISIBLE false
 set_parameter_property papDataWidth_g DERIVED TRUE
 
+add_parameter papLowAct_g BOOLEAN false
+set_parameter_property papLowAct_g HDL_PARAMETER true
+set_parameter_property papLowAct_g VISIBLE false
+set_parameter_property papLowAct_g DERIVED TRUE
+
 #parameters for SPI
 add_parameter spiCPOL_g BOOLEAN false
 set_parameter_property spiCPOL_g HDL_PARAMETER true
@@ -286,6 +311,8 @@ proc my_validation_callback {} {
 	#default assignments...
 	set_parameter_property configApInterface VISIBLE false
 	set_parameter_property configApParallelInterface VISIBLE false
+	set_parameter_property configApParSigs VISIBLE false
+	set_parameter_property configApParOutSigs VISIBLE false
 	set_parameter_property configApSpi_CPOL VISIBLE false
 	set_parameter_property configApSpi_CPHA VISIBLE false
 	set_parameter_property asyncTxBufSize VISIBLE false
@@ -340,7 +367,6 @@ proc my_validation_callback {} {
 			set macRxBuffers 4
 			set memRpdo [expr ($rpdo0size + 16)*3]
 		} elseif {$rpdos == 2} {
-send_message error "The PDI does not support more than 1 RPDO! Please use only 1 RPDO!"
 			set_parameter_property rpdo0size VISIBLE true
 			set_parameter_property rpdo1size VISIBLE true
 			set_parameter_property rpdo2size VISIBLE false
@@ -348,7 +374,6 @@ send_message error "The PDI does not support more than 1 RPDO! Please use only 1
 			set macRxBuffers 5
 			set memRpdo [expr ($rpdo0size + 16 + $rpdo1size + 16)*3]
 		} elseif {$rpdos == 3} {
-send_message error "The PDI does not support more than 1 RPDO! Please use only 1 RPDO!"
 			set_parameter_property rpdo0size VISIBLE true
 			set_parameter_property rpdo1size VISIBLE true
 			set_parameter_property rpdo2size VISIBLE true
@@ -366,8 +391,9 @@ send_message error "The PDI does not support more than 1 RPDO! Please use only 1
 			#the parallel interface is used
 			
 			set_parameter_property configApParallelInterface VISIBLE true
+			set_parameter_property configApParSigs VISIBLE true
+			set_parameter_property configApParOutSigs VISIBLE true
 			
-send_message error "The Parallel AP Interface is not yet implemented! Please use Avalon AP!"
 		} elseif {$configApInterface == "SPI"} {
 			#let's use spi
 			set_parameter_property configApSpi_CPOL VISIBLE true
@@ -375,7 +401,6 @@ send_message error "The Parallel AP Interface is not yet implemented! Please use
 			
 			set genSpiAp true
 			
-send_message error "The SPI AP Interface is not yet implemented! Please use Avalon AP!"
 		}
 	}
 	
@@ -434,19 +459,15 @@ send_message error "The SPI AP Interface is not yet implemented! Please use Aval
 	set_parameter_value iBufSize_g			$macBufSize
 	set_parameter_value iBufSizeLOG2_g		$log2MacBufSize
 	
-#	set_parameter_value iRpdos_g			$rpdos
-#	set_parameter_value iTpdos_g			$tpdos
-#	set_parameter_value iTpdoBufSize_g		$tpdo0size
-#	set_parameter_value iRpdo0BufSize_g		$rpdo0size
-#	set_parameter_value iRpdo1BufSize_g		$rpdo1size
-#	set_parameter_value iRpdo2BufSize_g		$rpdo2size
-#	set_parameter_value iAsyTxBufSize_g		$asyncTxBufSize
-#	set_parameter_value iAsyRxBufSize_g		$asyncRxBufSize
-	
 	if {[get_parameter_value configApParallelInterface] == "8bit"} {
 		set_parameter_value papDataWidth_g	8
 	} else {
 		set_parameter_value papDataWidth_g	16
+	}
+	if {[get_parameter_value configApParSigs] == "Low Active"} {
+		set_parameter_value papLowAct_g	true
+	} else {
+		set_parameter_value papLowAct_g	false
 	}
 	if {$spiCpol == "1"} {
 		set_parameter_value spiCPOL_g true
@@ -480,6 +501,8 @@ add_display_item "Block Diagram" id0 icon img/POWERLINK.png
 add_display_item "General Settings" configPowerlink PARAMETER
 add_display_item "Process Data Interface Settings" configApInterface PARAMETER
 add_display_item "Process Data Interface Settings" configApParallelInterface PARAMETER
+add_display_item "Process Data Interface Settings" configApParOutSigs PARAMETER
+add_display_item "Process Data Interface Settings" configApParSigs PARAMETER
 add_display_item "Process Data Interface Settings" configApSpi_CPOL PARAMETER
 add_display_item "Process Data Interface Settings" configApSpi_CPHA PARAMETER
 add_display_item "Receive Process Data" rpdoNum PARAMETER
@@ -540,7 +563,7 @@ set_interface_property MAC_CMP ENABLED true
 add_interface_port MAC_CMP tcp_read_n read_n Input 1
 add_interface_port MAC_CMP tcp_write_n write_n Input 1
 add_interface_port MAC_CMP tcp_byteenable_n byteenable_n Input 4
-add_interface_port MAC_CMP tcp_address address Input 1
+add_interface_port MAC_CMP tcp_address address Input 2
 add_interface_port MAC_CMP tcp_writedata writedata Input 32
 add_interface_port MAC_CMP tcp_readdata readdata Output 32
 add_interface_port MAC_CMP tcp_chipselect chipselect Input 1
@@ -658,7 +681,7 @@ add_interface_port PDI_PCP pcp_chipselect chipselect Input 1
 add_interface_port PDI_PCP pcp_read read Input 1
 add_interface_port PDI_PCP pcp_write write Input 1
 add_interface_port PDI_PCP pcp_byteenable byteenable Input 4
-add_interface_port PDI_PCP pcp_address address Input 15
+add_interface_port PDI_PCP pcp_address address Input 13
 add_interface_port PDI_PCP pcp_writedata writedata Input 32
 add_interface_port PDI_PCP pcp_readdata readdata Output 32
 
@@ -685,7 +708,7 @@ add_interface_port PDI_AP ap_chipselect chipselect Input 1
 add_interface_port PDI_AP ap_read read Input 1
 add_interface_port PDI_AP ap_write write Input 1
 add_interface_port PDI_AP ap_byteenable byteenable Input 4
-add_interface_port PDI_AP ap_address address Input 15
+add_interface_port PDI_AP ap_address address Input 13
 add_interface_port PDI_AP ap_writedata writedata Input 32
 add_interface_port PDI_AP ap_readdata readdata Output 32
 
@@ -700,7 +723,7 @@ add_interface_port PDI_AP_IRQ ap_irq irq Output 1
 add_interface SPI_AP conduit end
 set_interface_property SPI_AP ENABLED false
 add_interface_port SPI_AP spi_clk export Input 1
-add_interface_port SPI_AP spi_sel export Input 1
+add_interface_port SPI_AP spi_sel_n export Input 1
 add_interface_port SPI_AP spi_mosi export Input 1
 add_interface_port SPI_AP spi_miso export Output 1
 add_interface_port SPI_AP ap_irq export Output 1
@@ -708,15 +731,25 @@ add_interface_port SPI_AP ap_irq export Output 1
 ##Parallel AP Interface export
 add_interface PAR_AP conduit end
 set_interface_property PAR_AP ENABLED false
+###control signals
 add_interface_port PAR_AP pap_cs export Input 1
 add_interface_port PAR_AP pap_rd export Input 1
 add_interface_port PAR_AP pap_wr export Input 1
-add_interface_port PAR_AP pap_be export Input papDataWidth_g/4
+add_interface_port PAR_AP pap_be export Input papDataWidth_g/8
+add_interface_port PAR_AP pap_cs_n export Input 1
+add_interface_port PAR_AP pap_rd_n export Input 1
+add_interface_port PAR_AP pap_wr_n export Input 1
+add_interface_port PAR_AP pap_be_n export Input papDataWidth_g/8
+###bus
 add_interface_port PAR_AP pap_addr export Input 16
 add_interface_port PAR_AP pap_wrdata export Input papDataWidth_g
 add_interface_port PAR_AP pap_rddata export Output papDataWidth_g
 add_interface_port PAR_AP pap_doe export Output 1
+###irq/ready
 add_interface_port PAR_AP ap_irq export Output 1
+add_interface_port PAR_AP pap_ready export Output 1
+add_interface_port PAR_AP ap_irq_n export Output 1
+add_interface_port PAR_AP pap_ready_n export Output 1
 
 #Simple I/O
 ##Avalon Memory Mapped Slave: SMP
@@ -785,9 +818,41 @@ proc my_elaboration_callback {} {
 		} elseif {[get_parameter_value configApInterface] == "Parallel"} {
 		# AP is external (PAR_AP)
 			set_interface_property PAR_AP ENABLED true
+			if {[get_parameter_value papDataWidth_g] == 8} {
+				#we don't need byteenable for 8bit data bus width!
+				set_port_property pap_be termination true
+			}
+			if {[get_parameter_value configApParOutSigs] == "Low Active"} {
+				#low active output signals (ap_irq_n and pap_ready_n) are used
+				set_port_property pap_ready termination true
+				set_port_property ap_irq termination true
+			} else {
+				#high active output signals (ap_irq and pap_ready) are used
+				set_port_property pap_ready_n termination true
+				set_port_property ap_irq_n termination true
+			}
+			if {[get_parameter_value configApParSigs] == "Low Active"} {
+				#low active input signals (pap_cs_n, pap_rd_n, pap_wr_n and pap_be_n) are used
+				set_port_property pap_cs termination true
+				set_port_property pap_rd termination true
+				set_port_property pap_wr termination true
+				set_port_property pap_be termination true
+			} else {
+				#high active input signals (pap_cs, pap_rd, pap_wr and pap_be) are used
+				set_port_property pap_cs_n termination true
+				set_port_property pap_rd_n termination true
+				set_port_property pap_wr_n termination true
+				set_port_property pap_be_n termination true
+			}
 		} elseif {[get_parameter_value configApInterface] == "SPI"} {
 		# AP is external via SPI (SPI_AP)
 			set_interface_property SPI_AP ENABLED true
 		}
 	}
 }
+
+#if {[get_parameter_value configApParOutSigs] == "Low Active"} {
+#	set_parameter_value papLowActOut_g	true
+#} else {
+#	set_parameter_value papLowActOut_g	false
+#}

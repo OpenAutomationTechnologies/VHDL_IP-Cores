@@ -84,10 +84,11 @@ ENTITY AlteraOpenMACIF IS
             t_read_n					: IN    STD_LOGIC;
             t_write_n					: IN    STD_LOGIC;
             t_byteenable_n              : IN    STD_LOGIC_VECTOR(3 DOWNTO 0);
-            t_address                   : IN    STD_LOGIC_VECTOR(0 DOWNTO 0);
+            t_address                   : IN    STD_LOGIC_VECTOR(1 DOWNTO 0);
             t_writedata                 : IN    STD_LOGIC_VECTOR(31 DOWNTO 0);
             t_readdata                  : OUT   STD_LOGIC_VECTOR(31 DOWNTO 0);
             t_IRQ						: OUT 	STD_LOGIC;
+			t_IrqToggle					: OUT	STD_LOGIC;
         -- Avalon Slave Interface to packet buffer dpr
 			iBuf_chipselect             : IN    STD_LOGIC;
             iBuf_read_n					: IN    STD_LOGIC;
@@ -430,28 +431,38 @@ BEGIN
 	-----------------------------------------------------------------------
 	the_cmpUnit : BLOCK
 		SIGNAL Mac_Cmp_On : STD_LOGIC;
+		SIGNAL Mac_Tog_On : STD_LOGIC;
 		SIGNAL Mac_Cmp_Wert : STD_LOGIC_VECTOR(Mac_Zeit'RANGE);
+		SIGNAL Mac_Cmp_TogVal	: STD_LOGIC_VECTOR(Mac_Zeit'RANGE);
 		SIGNAL Mac_Cmp_Irq : STD_LOGIC;
+		SIGNAL Mac_Cmp_Toggle : STD_LOGIC;
 	BEGIN
 		
 		t_IRQ <= Mac_Cmp_Irq;
+		t_IrqToggle <= Mac_Cmp_Toggle;
 		
 		p_MacCmp : PROCESS ( Reset_n, Clk50 )
 		BEGIN
 			IF ( Reset_n = '0' ) THEN
 				Mac_Cmp_Irq  <= '0';
 				Mac_Cmp_On   <= '0';
+				Mac_Tog_On   <= '0';
 				Mac_Cmp_Wert <= (OTHERS => '0');
+				Mac_Cmp_TogVal <= (OTHERS => '0');
+				Mac_Cmp_Toggle <= '0';
 				t_readdata <= (OTHERS => '0');
 			ELSIF rising_edge( Clk50 ) THEN
 			
 				IF ( t_chipselect = '1' AND t_write_n = '0' ) THEN
-					Mac_Cmp_Irq <= '0';
 					case t_address is
-						when "0" => --0
+						when "00" => --0
 							Mac_Cmp_Wert <= t_writedata;
-						when "1" => --4
+							Mac_Cmp_Irq <= '0';
+						when "01" => --4
 							Mac_Cmp_On <= t_writedata(0);
+							Mac_Tog_On <= t_writedata(4);
+						when "10" => --8
+							Mac_Cmp_TogVal <= t_writedata;
 						when others =>
 							-- do nothing
 					end case;
@@ -461,12 +472,18 @@ BEGIN
 					Mac_Cmp_Irq <= '1';
 				END IF;
 				
+				IF ( Mac_Tog_On = '1' and Mac_Cmp_TogVal( Mac_Zeit'RANGE ) = Mac_Zeit ) THEN
+					Mac_Cmp_Toggle <= not Mac_Cmp_Toggle;
+				END IF;
+				
 				if ( t_chipselect = '1' and t_read_n = '0' ) then
 					case t_address is
-						when "0" => --0
+						when "00" => --0
 							t_readdata <= Mac_Zeit(31 DOWNTO 0);
-						when "1" => --4
-							t_readdata <= x"0000000" & "00" & Mac_Cmp_Irq & Mac_Cmp_On;
+						when "01" => --4
+							t_readdata <= x"000000" & "00" & Mac_Cmp_Toggle & Mac_Tog_On & "00" & Mac_Cmp_Irq & Mac_Cmp_On;
+						when "10" => --8
+							t_readdata <= Mac_Cmp_TogVal;
 						when others =>
 							t_readdata <= (others => '0');
 					end case;
