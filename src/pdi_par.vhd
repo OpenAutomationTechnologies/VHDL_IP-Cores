@@ -129,7 +129,7 @@ begin
 	end generate genBeSigs16bit;
 	
 	theFsm : process(ap_clk, ap_reset)
-	variable timeout : integer range 0 to 4;
+	variable timeout : integer range 0 to 2;
 	begin
 		if ap_reset = '1' then
 			fsm <= idle;
@@ -161,8 +161,8 @@ begin
 					fsm <= wr_ack;
 					
 				when rd =>
-					--read access takes 2 cycles
-					if timeout = 1 then
+					--read access takes 2 cycles + 1
+					if timeout = 2 then
 						fsm <= rd_ack;
 						timeout := 0;
 					else
@@ -171,12 +171,20 @@ begin
 					end if;
 					
 				when wr_ack =>
-					--ack lasts for one cycle
-					fsm <= idle;
+					--wait for deassertion of wr
+					if pap_wr = '0' then
+						fsm <= idle;
+					else
+						fsm <= wr_ack;
+					end if;
 					
 				when rd_ack =>
-					--ack lasts for one cycle
-					fsm <= idle;
+					--wait for deassertion of rd
+					if pap_rd = '0' then
+						fsm <= idle;
+					else
+						fsm <= rd_ack;
+					end if;
 					
 			end case;
 		end if;

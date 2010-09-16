@@ -55,6 +55,7 @@
 -- 2010-08-19  V0.73		Filter for phy ports
 --							100MHz Clk for RMII ports (better for timing)
 -- 2010-09-07  V0.74		Bugfix: Rx packets are not stored to DPRAM (Dma_Dout/Dma_Dout_s mixed up)
+-- 2010-09-13  V0.75		added selection Rmii / Mii
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -63,13 +64,14 @@ USE ieee.std_logic_arith.all;
 USE ieee.std_logic_unsigned.all;
 
 ENTITY AlteraOpenMACIF IS
-   GENERIC( Simulate                    : IN    boolean := false;
-   			iBufSize_g					: IN	integer := 1024;
-   			iBufSizeLOG2_g				: IN	integer := 10);
+   GENERIC( Simulate                    : 		boolean := false;
+   			iBufSize_g					: 		integer := 1024;
+   			iBufSizeLOG2_g				: 		integer := 10;
+			useRmii_g					: 		boolean := true);
    PORT (   Reset_n						: IN    STD_LOGIC;
 			Clk50                  		: IN    STD_LOGIC;
 			ClkFaster					: IN	STD_LOGIC;
-			Clk100						: IN	STD_LOGIC;
+			ClkEth						: IN	STD_LOGIC;
 		-- Avalon Slave Interface 
             s_chipselect                : IN    STD_LOGIC;
             s_read_n					: IN    STD_LOGIC;
@@ -107,6 +109,21 @@ ENTITY AlteraOpenMACIF IS
             rCrs_Dv_1                   : IN    STD_LOGIC;                     -- RMII Carrier Sense / Data Valid
             rTx_Dat_1                   : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0);  -- RMII Tx Daten
             rTx_En_1                    : OUT   STD_LOGIC;                     -- RMII Tx_Enable
+		--- MII PORTS
+			phyMii0_RxClk				: in	std_logic;
+			phyMii0_RxDat               : in    std_logic_vector(3 downto 0);
+			phyMii0_RxDv                : in    std_logic;
+			phyMii0_TxClk				: in	std_logic;
+			phyMii0_TxDat               : out   std_logic_vector(3 downto 0);
+			phyMii0_TxEn                : out   std_logic;
+			phyMii0_TxEr                : out   std_logic;
+			phyMii1_RxClk				: in	std_logic;
+			phyMii1_RxDat               : in    std_logic_vector(3 downto 0);
+			phyMii1_RxDv                : in    std_logic;
+			phyMii1_TxClk				: in	std_logic;
+			phyMii1_TxDat               : out   std_logic_vector(3 downto 0);
+			phyMii1_TxEn                : out   std_logic;
+			phyMii1_TxEr                : out   std_logic;
 --		-- Serial Management Interface (the_Mii)	
 			mii_Clk						: OUT	STD_LOGIC;
 			mii_Di						: IN	STD_LOGIC;
@@ -117,6 +134,7 @@ ENTITY AlteraOpenMACIF IS
 END ENTITY AlteraOpenMACIF;
 
 ARCHITECTURE struct OF AlteraOpenMACIF IS
+	signal rst							: std_logic;
 -- Avalon Slave to openMAC
 	SIGNAL mac_chipselect_ram           : STD_LOGIC;
 	SIGNAL mac_chipselect_cont          : STD_LOGIC;
@@ -181,6 +199,8 @@ ARCHITECTURE struct OF AlteraOpenMACIF IS
 -- Mii Signals
 	SIGNAL mii_Doei						: STD_LOGIC;
 BEGIN
+	
+	rst <= not Reset_n;
 	
 	the_Mii : ENTITY work.OpenMAC_MII
 		PORT MAP (  nRst => Reset_n,
@@ -298,38 +318,81 @@ BEGIN
 						TxDatOut =>  Phy1TxDat
 		);
 	
-	regPhy100Meg : process(clk100, Reset_n)
-	--latches tx signals to phy with falling edge of 100MHz clk
-	begin
-		if Reset_n = '0' then
-			rTx_En_0 <= '0';
-			rTx_Dat_0 <= (others => '0');
-			rTx_En_1 <= '0';
-			rTx_Dat_1 <= (others => '0');
-		elsif clk100 = '0' and clk100'event then
-			rTx_En_0 <= Phy0TxEn;
-			rTx_Dat_0 <= Phy0TxDat;
-			rTx_En_1 <= Phy1TxEn;
-			rTx_Dat_1 <= Phy1TxDat;
-		end if;
-	end process;
+	genRmii : if useRmii_g generate
+		regPhy100Meg : process(ClkEth, Reset_n)
+		--latches tx signals to phy with falling edge of 100MHz clk
+		begin
+			if Reset_n = '0' then
+				rTx_En_0 <= '0';
+				rTx_Dat_0 <= (others => '0');
+				rTx_En_1 <= '0';
+				rTx_Dat_1 <= (others => '0');
+			elsif ClkEth = '0' and ClkEth'event then
+				rTx_En_0 <= Phy0TxEn;
+				rTx_Dat_0 <= Phy0TxDat;
+				rTx_En_1 <= Phy1TxEn;
+				rTx_Dat_1 <= Phy1TxDat;
+			end if;
+		end process;
+		
+		regPhy50Meg : process(clk50, Reset_n)
+		--latches rx signals from phy with rising edge of 100MHz clk
+		begin
+			if Reset_n = '0' then
+				Phy0RxDv <= '0';
+				Phy0RxDat <= (others => '0');
+				Phy1RxDv <= '0';
+				Phy1RxDat <= (others => '0');
+			elsif clk50 = '1' and clk50'event then
+				Phy0RxDv <= rCrs_Dv_0;
+				Phy0RxDat <= rRx_Dat_0;
+				Phy1RxDv <= rCrs_Dv_1;
+				Phy1RxDat <= rRx_Dat_1;
+			end if;
+		end process;
+	end generate;
 	
-	regPhy50Meg : process(clk50, Reset_n)
-	--latches rx signals from phy with rising edge of 100MHz clk
-	begin
-		if Reset_n = '0' then
-			Phy0RxDv <= '0';
-			Phy0RxDat <= (others => '0');
-			Phy1RxDv <= '0';
-			Phy1RxDat <= (others => '0');
-		elsif clk50 = '1' and clk50'event then
-			Phy0RxDv <= rCrs_Dv_0;
-			Phy0RxDat <= rRx_Dat_0;
-			Phy1RxDv <= rCrs_Dv_1;
-			Phy1RxDat <= rRx_Dat_1;
-		end if;
-	end process;
-	
+	geMii : if not useRmii_g generate
+		
+		phyMii0_TxEr <= '0';
+		theRmii2MiiCnv0 : entity work.rmii2mii
+			port map (
+				clk50				=> clk50,
+				rst					=> rst,
+				--RMII (MAC)
+				rTxEn				=> Phy0TxEn,
+				rTxDat				=> Phy0TxDat,
+				rRxDv				=> Phy0RxDv,
+				rRxDat				=> Phy0RxDat,
+				--MII (PHY)
+				mTxEn				=> phyMii0_TxEn,
+				mTxDat				=> phyMii0_TxDat,
+				mTxClk				=> phyMii0_TxClk,
+				mRxDv				=> phyMii0_RxDv,
+				mRxDat				=> phyMii0_RxDat,
+				mRxClk				=> phyMii0_RxClk
+			);
+		
+		phyMii1_TxEr <= '0';
+		theRmii2MiiCnv1 : entity work.rmii2mii
+			port map (
+				clk50				=> clk50,
+				rst					=> rst,
+				--RMII (MAC)
+				rTxEn				=> Phy1TxEn,
+				rTxDat				=> Phy1TxDat,
+				rRxDv				=> Phy1RxDv,
+				rRxDat				=> Phy1RxDat,
+				--MII (PHY)
+				mTxEn				=> phyMii1_TxEn,
+				mTxDat				=> phyMii1_TxDat,
+				mTxClk				=> phyMii1_TxClk,
+				mRxDv				=> phyMii1_RxDv,
+				mRxDat				=> phyMii1_RxDat,
+				mRxClk				=> phyMii1_RxClk
+			);
+	end generate;
+		
 	-----------------------------------------------------------------------
 	-- Avalon Slave Interface <-> openMac
 	-----------------------------------------------------------------------

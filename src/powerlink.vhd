@@ -35,7 +35,8 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2010-08-23  V0.01	zelenkaj    First version
+-- 2010-08-23  	V0.01	zelenkaj    First version
+-- 2010-09-13	V0.02	zelenkaj	added selection Rmii / Mii
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -54,6 +55,7 @@ entity powerlink is
 		Simulate                    :     	boolean 							:= false;
    		iBufSize_g					: 		integer 							:= 1024;
    		iBufSizeLOG2_g				: 		integer 							:= 10;
+		useRmii_g					:		boolean								:= true; --use Rmii
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
 		iTpdos_g					:		integer 							:= 1;
@@ -78,7 +80,7 @@ entity powerlink is
 	port(
 	-- CLOCK / RESET PORTS
 		clk50 						: in 	std_logic; --RMII clk
-		clk100 						: in 	std_logic; --Tx Reg clk
+		clkEth 						: in 	std_logic; --Tx Reg clk
 		clkPcp 						: in 	std_logic; --pcp clk (
 		clkAp 						: in 	std_logic; --ap clk
 		rstPcp 						: in 	std_logic; --rst from pcp side (ap + rmii + tx)
@@ -176,7 +178,22 @@ entity powerlink is
 		phy1_TxEn                  	: out   std_logic;
 		phy1_MiiClk					: out	std_logic;
 		phy1_MiiDat					: inout	std_logic 							:= '1';
-		phy1_MiiRst_n				: out	std_logic 							:= '0'
+		phy1_MiiRst_n				: out	std_logic 							:= '0';
+	--- MII PORTS
+		phyMii0_RxClk				: in	std_logic;
+		phyMii0_RxDat               : in    std_logic_vector(3 downto 0);
+		phyMii0_RxDv                : in    std_logic;
+		phyMii0_TxClk				: in	std_logic;
+		phyMii0_TxDat               : out   std_logic_vector(3 downto 0);
+		phyMii0_TxEn                : out   std_logic;
+		phyMii0_TxEr                : out   std_logic;
+		phyMii1_RxClk				: in	std_logic;
+		phyMii1_RxDat               : in    std_logic_vector(3 downto 0);
+		phyMii1_RxDv                : in    std_logic;
+		phyMii1_TxClk				: in	std_logic;
+		phyMii1_TxDat               : out   std_logic_vector(3 downto 0);
+		phyMii1_TxEn                : out   std_logic;
+		phyMii1_TxEr                : out   std_logic
 	);
 end powerlink;
 
@@ -280,21 +297,22 @@ begin
 				rst						=> rstPcp
 			);
 		
-		theParPortSyncRd : entity work.sync
-			port map (
-				inData					=> pap_rd_s, --sync the parallel port rd signal
-				outData					=> pap_rd_ss, --the sync cs is used rd trigger fsm
-				clk						=> clk50,
-				rst						=> rstPcp
-			);
-		
-		theParPortSyncWr : entity work.sync
-			port map (
-				inData					=> pap_wr_s, --sync the parallel port wr signal
-				outData					=> pap_wr_ss, --the sync cs is used wr trigger fsm
-				clk						=> clk50,
-				rst						=> rstPcp
-			);
+--		theParPortSyncRd : entity work.sync
+--			port map (
+--				inData					=> pap_rd_s, --sync the parallel port rd signal
+--				outData					=> pap_rd_ss, --the sync cs is used rd trigger fsm
+--				clk						=> clk50,
+--				rst						=> rstPcp
+--			);
+		pap_rd_ss <= pap_rd_s;
+--		theParPortSyncWr : entity work.sync
+--			port map (
+--				inData					=> pap_wr_s, --sync the parallel port wr signal
+--				outData					=> pap_wr_ss, --the sync cs is used wr trigger fsm
+--				clk						=> clk50,
+--				rst						=> rstPcp
+--			);
+		pap_wr_ss <= pap_wr_s;
 		--
 		-------------------------------------------------------------------------------------
 		
@@ -494,13 +512,14 @@ begin
 		generic map (
 			Simulate				=> Simulate,
 			iBufSize_g				=> iBufSize_g,
-			iBufSizeLOG2_g			=> iBufSizeLOG2_g
+			iBufSizeLOG2_g			=> iBufSizeLOG2_g,
+			useRmii_g				=> useRmii_g
 		)
 		port map (
 			Reset_n					=> rstPcp_n,
 			Clk50                  	=> clk50,
 			ClkFaster				=> clkPcp,
-			Clk100					=> clk100,
+			clkEth					=> clkEth,
 			s_chipselect            => mac_chipselect,
 			s_read_n				=> mac_read_n,
 			s_write_n				=> mac_write_n,
@@ -533,6 +552,21 @@ begin
 			rCrs_Dv_1               => phy1_RxDv,
 			rTx_Dat_1               => phy1_TxDat,
 			rTx_En_1                => phy1_TxEn,
+		--- MII PORTS
+			phyMii0_RxClk			=> phyMii0_RxClk,
+			phyMii0_RxDat           => phyMii0_RxDat,
+			phyMii0_RxDv            => phyMii0_RxDv,
+			phyMii0_TxClk			=> phyMii0_TxClk,
+			phyMii0_TxDat           => phyMii0_TxDat,
+			phyMii0_TxEn            => phyMii0_TxEn,
+			phyMii0_TxEr            => phyMii0_TxEr,
+			phyMii1_RxClk			=> phyMii1_RxClk,
+			phyMii1_RxDat           => phyMii1_RxDat,
+			phyMii1_RxDv            => phyMii1_RxDv,
+			phyMii1_TxClk			=> phyMii1_TxClk,
+			phyMii1_TxDat           => phyMii1_TxDat,
+			phyMii1_TxEn            => phyMii1_TxEn,
+			phyMii1_TxEr            => phyMii1_TxEr,
 			mii_Clk					=> mii_Clk,
 			mii_Di					=> mii_Di,
 			mii_Do					=> mii_Do,

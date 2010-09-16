@@ -36,6 +36,7 @@
 #-- Version History
 #------------------------------------------------------------------------------------------------------------------------
 #-- 2010-08-24	V0.01	zelenkaj	first generation
+#-- 2010-09-13	V0.02	zelenkaj	added selection Rmii / Mii
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -66,6 +67,7 @@ add_file src/OpenMAC.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_AvalonIF.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_DPR_Altera.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_PHYMI.vhd {SYNTHESIS SIMULATION}
+add_file src/rmii2mii.vhd {SYNTHESIS SIMULATION}
 add_file src/portio.vhd {SYNTHESIS SIMULATION}
 add_file src/spi.vhd {SYNTHESIS SIMULATION}
 add_file src/spi_sreg.vhd {SYNTHESIS SIMULATION}
@@ -156,6 +158,12 @@ set_parameter_property asyncRxBufSize ALLOWED_RANGES 1:1518
 set_parameter_property asyncRxBufSize UNITS bytes
 set_parameter_property asyncRxBufSize DISPLAY_NAME "Asynchronous RX Buffer Size"
 
+add_parameter phyIF STRING "RMII"
+set_parameter_property phyIF VISIBLE true
+set_parameter_property phyIF DISPLAY_NAME "Ethernet Phy Interface"
+set_parameter_property phyIF ALLOWED_RANGES {"RMII" "MII"}
+set_parameter_property phyIF DISPLAY_HINT radio
+
 #parameters for PDI HDL
 add_parameter genPdi_g BOOLEAN true
 set_parameter_property genPdi_g HDL_PARAMETER true
@@ -245,6 +253,11 @@ set_parameter_property iBufSizeLOG2_g HDL_PARAMETER true
 set_parameter_property iBufSizeLOG2_g VISIBLE false
 set_parameter_property iBufSizeLOG2_g DERIVED TRUE
 
+add_parameter useRmii_g BOOLEAN true
+set_parameter_property useRmii_g HDL_PARAMETER true
+set_parameter_property useRmii_g VISIBLE false
+set_parameter_property useRmii_g DERIVED true
+
 #parameters for parallel interface
 add_parameter papDataWidth_g INTEGER 16
 set_parameter_property papDataWidth_g HDL_PARAMETER true
@@ -284,6 +297,15 @@ proc my_validation_callback {} {
 	set tpdoDesc					[get_parameter_value iTpdoObjNumber_g]
 	set asyncTxBufSize				[get_parameter_value asyncTxBufSize]
 	set asyncRxBufSize				[get_parameter_value asyncRxBufSize]
+	
+	set mii							[get_parameter_value phyIF]
+	
+	if {$mii == "RMII"} {
+		set_parameter_value useRmii_g true
+	} else {
+		set_parameter_value useRmii_g false
+		send_message info "Consider to use RMII to reduce resource usage!"
+	}
 	
 	set memRpdo 0
 	set memTpdo 0
@@ -515,6 +537,7 @@ add_display_item "Transmit Process Data" iTpdoObjNumber_g PARAMETER
 add_display_item "Receive Process Data" iRpdoObjNumber_g PARAMETER
 add_display_item "Asynchronous Buffer" asyncTxBufSize  PARAMETER
 add_display_item "Asynchronous Buffer" asyncRxBufSize  PARAMETER
+add_display_item "openMAC" phyIF  PARAMETER
 
 #INTERFACES
 
@@ -531,10 +554,10 @@ set_interface_property ap_clk ENABLED true
 add_interface_port ap_clk clkAp clk Input 1
 add_interface_port ap_clk rstAp reset Input 1
 
-##clk 100MHz
-add_interface clk100meg clock end
-set_interface_property clk100meg ENABLED true
-add_interface_port clk100meg clk100 clk Input 1
+##clk Ethernet
+add_interface clkEth clock end
+set_interface_property clkEth ENABLED true
+add_interface_port clkEth clkEth clk Input 1
 
 ##clk 50MHz
 add_interface clk50meg clock end
@@ -629,6 +652,34 @@ add_interface_port RMII1 phy1_TxEn export Output 1
 add_interface_port RMII1 phy1_MiiClk export Output 1
 add_interface_port RMII1 phy1_MiiDat export Bidir 1
 add_interface_port RMII1 phy1_MiiRst_n export Output 1
+
+##Export Mii Phy 0
+add_interface MII0 conduit end
+set_interface_property MII0 ENABLED false
+add_interface_port MII0 phyMii0_TxClk export Input 1
+add_interface_port MII0 phyMii0_TxEn export Output 1
+add_interface_port MII0 phyMii0_TxEr export Output 1
+add_interface_port MII0 phyMii0_TxDat export Output 4
+add_interface_port MII0 phyMii0_RxClk export Input 1
+add_interface_port MII0 phyMii0_RxDv export Input 1
+add_interface_port MII0 phyMii0_RxDat export Input 4
+add_interface_port MII0 phy0_MiiClk export Output 1
+add_interface_port MII0 phy0_MiiDat export Bidir 1
+add_interface_port MII0 phy0_MiiRst_n export Output 1
+
+##Export Mii Phy 1
+add_interface MII1 conduit end
+set_interface_property MII1 ENABLED false
+add_interface_port MII1 phyMii1_TxClk export Input 1
+add_interface_port MII1 phyMii1_TxEn export Output 1
+add_interface_port MII1 phyMii1_TxEr export Output 1
+add_interface_port MII1 phyMii1_TxDat export Output 4
+add_interface_port MII1 phyMii1_RxClk export Input 1
+add_interface_port MII1 phyMii1_RxDv export Input 1
+add_interface_port MII1 phyMii1_RxDat export Input 4
+add_interface_port MII1 phy1_MiiClk export Output 1
+add_interface_port MII1 phy1_MiiDat export Bidir 1
+add_interface_port MII1 phy1_MiiRst_n export Output 1
 
 ##Avalon Memory Mapped Slave: MAC_REG Buffer
 add_interface MAC_BUF avalon end
@@ -797,6 +848,20 @@ proc my_elaboration_callback {} {
 	set_interface_property SMP ENABLED false
 	set_interface_property SMP_PIO ENABLED false
 	
+	if {[get_parameter_value useRmii_g]} {
+		set_interface_property RMII0 ENABLED true
+		set_interface_property RMII1 ENABLED true
+		set_interface_property MII0 ENABLED false
+		set_interface_property MII1 ENABLED false
+		set_interface_property clkEth ENABLED true
+	} else {
+		set_interface_property RMII0 ENABLED false
+		set_interface_property RMII1 ENABLED false
+		set_interface_property MII0 ENABLED true
+		set_interface_property MII1 ENABLED true
+		set_interface_property clkEth ENABLED false
+	}
+	
 	if {[get_parameter_value configPowerlink] == "Simple I/O CN"} {
 		#the Simple I/O CN requires:
 		# MAC stuff
@@ -850,9 +915,3 @@ proc my_elaboration_callback {} {
 		}
 	}
 }
-
-#if {[get_parameter_value configApParOutSigs] == "Low Active"} {
-#	set_parameter_value papLowActOut_g	true
-#} else {
-#	set_parameter_value papLowActOut_g	false
-#}
