@@ -128,6 +128,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>				// used functions: calloc
 #include <omethlib_target.h>	// target specific defines (BIG/LITTLE endian)
 
+
 // check if target-specific defines are ok
 #ifndef OMETH_HW_MODE
 	#error OMETH_HW_MODE not defined (see omethlib_target.h)
@@ -648,7 +649,7 @@ static OMETH_H		omethCreateInt
 //allocate MAC-internal memory
     pByte = hEth->config.pBufBase;//OMETH_MAKE_NONCACHABLE(calloc(hEth->config.rxBuffers * len ,1));
 	if(pByte == 0) return hEth;
-    
+
 	// store buffer address for appi and destroy function
 	hEth->pRxBufBase = pByte;
     hEth->pTxBufBase = pByte + hEth->config.rxBuffers * len;
@@ -944,10 +945,10 @@ unsigned short		omethGetLinkSpeed
 }
 
 /*****************************************************************************
-* 
+*
 * omethGetTxBufBase - Get MAC-internal tx buffer base address
-* 
-* RETURN: 
+*
+* RETURN:
 *    tx buffer base pointer
 *
 */
@@ -960,10 +961,10 @@ unsigned char *     omethGetTxBufBase
 }
 
 /*****************************************************************************
-* 
+*
 * omethGetRxBufBase - Get MAC-internal rx buffer base address
-* 
-* RETURN: 
+*
+* RETURN:
 *    tx buffer base pointer
 *
 */
