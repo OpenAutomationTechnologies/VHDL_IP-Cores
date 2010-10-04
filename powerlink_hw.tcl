@@ -37,6 +37,7 @@
 #------------------------------------------------------------------------------------------------------------------------
 #-- 2010-08-24	V0.01	zelenkaj	first generation
 #-- 2010-09-13	V0.02	zelenkaj	added selection Rmii / Mii
+#-- 2010-10-04  V0.03	zelenkaj	bugfix: Rmii / Mii selection was faulty
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -631,6 +632,20 @@ set_interface_property MAC_IRQ ASSOCIATED_CLOCK clk50meg
 set_interface_property MAC_IRQ ENABLED true
 add_interface_port MAC_IRQ mac_irq irq Output 1
 
+##Export Phy Management 0
+add_interface PHYM0 conduit end
+set_interface_property PHYM0 ENABLED true
+add_interface_port PHYM0 phy0_MiiClk export Output 1
+add_interface_port PHYM0 phy0_MiiDat export Bidir 1
+add_interface_port PHYM0 phy0_MiiRst_n export Output 1
+
+##Export Phy Management 1
+add_interface PHYM1 conduit end
+set_interface_property PHYM1 ENABLED true
+add_interface_port PHYM1 phy1_MiiClk export Output 1
+add_interface_port PHYM1 phy1_MiiDat export Bidir 1
+add_interface_port PHYM1 phy1_MiiRst_n export Output 1
+
 ##Export Rmii Phy 0
 add_interface RMII0 conduit end
 set_interface_property RMII0 ENABLED true
@@ -638,9 +653,6 @@ add_interface_port RMII0 phy0_RxDat export Input 2
 add_interface_port RMII0 phy0_RxDv export Input 1
 add_interface_port RMII0 phy0_TxDat export Output 2
 add_interface_port RMII0 phy0_TxEn export Output 1
-add_interface_port RMII0 phy0_MiiClk export Output 1
-add_interface_port RMII0 phy0_MiiDat export Bidir 1
-add_interface_port RMII0 phy0_MiiRst_n export Output 1
 
 ##Export Rmii Phy 1
 add_interface RMII1 conduit end
@@ -649,9 +661,6 @@ add_interface_port RMII1 phy1_RxDat export Input 2
 add_interface_port RMII1 phy1_RxDv export Input 1
 add_interface_port RMII1 phy1_TxDat export Output 2
 add_interface_port RMII1 phy1_TxEn export Output 1
-add_interface_port RMII1 phy1_MiiClk export Output 1
-add_interface_port RMII1 phy1_MiiDat export Bidir 1
-add_interface_port RMII1 phy1_MiiRst_n export Output 1
 
 ##Export Mii Phy 0
 add_interface MII0 conduit end
@@ -663,9 +672,6 @@ add_interface_port MII0 phyMii0_TxDat export Output 4
 add_interface_port MII0 phyMii0_RxClk export Input 1
 add_interface_port MII0 phyMii0_RxDv export Input 1
 add_interface_port MII0 phyMii0_RxDat export Input 4
-add_interface_port MII0 phy0_MiiClk export Output 1
-add_interface_port MII0 phy0_MiiDat export Bidir 1
-add_interface_port MII0 phy0_MiiRst_n export Output 1
 
 ##Export Mii Phy 1
 add_interface MII1 conduit end
@@ -677,9 +683,6 @@ add_interface_port MII1 phyMii1_TxDat export Output 4
 add_interface_port MII1 phyMii1_RxClk export Input 1
 add_interface_port MII1 phyMii1_RxDv export Input 1
 add_interface_port MII1 phyMii1_RxDat export Input 4
-add_interface_port MII1 phy1_MiiClk export Output 1
-add_interface_port MII1 phy1_MiiDat export Bidir 1
-add_interface_port MII1 phy1_MiiRst_n export Output 1
 
 ##Avalon Memory Mapped Slave: MAC_REG Buffer
 add_interface MAC_BUF avalon end

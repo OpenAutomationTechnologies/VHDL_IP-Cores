@@ -1,7 +1,5 @@
 ------------------------------------------------------------------------------------------------------------------------
--- Process Data Interface (PDI) for
---	POWERLINK Communication Processor (PCP): Avalon
---	Application Processor (AP): Avalon
+-- Simple Port I/O
 --
 -- 	  Copyright (C) 2010 B&R
 --
@@ -37,8 +35,8 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2010-06-28  V0.01	zelenkaj    First version
--- 2010-08-16  V0.10	zelenkaj	Added the possibility for more RPDOs
+-- 2010-08-16  V0.01	zelenkaj    First version
+-- 2010-10-04  V0.02	zelenkaj	Bugfix: PORTDIR was mapped incorrectly (according to doc) to Avalon bus
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -107,9 +105,7 @@ begin
 					when '0' =>	--read port
 						s0_readdata <= sPortInL;
 					when '1' =>	--read port config
-						for i in 3 downto 0 loop
-							s0_readdata((i+1)*8-1 downto (i+1)*8-8) <= (others => sPortConfig(i));
-						end loop;
+						s0_readdata <= x"000000" & x"0" & sPortConfig;
 					when others =>
 							s0_readdata <= x"deadc0de";
 				end case;
