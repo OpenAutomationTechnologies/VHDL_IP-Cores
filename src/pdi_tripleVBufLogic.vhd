@@ -36,6 +36,7 @@
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
 -- 2010-08-16  V0.01	zelenkaj        First version
+-- 2010-10-11  V0.02	zelenkaj		Bugfix: PCP can't be producer in any case => added generic
 ------------------------------------------------------------------------------------------------------------------------
 --	This logic implements the virtual triple buffers, by changing an input address to the appropriate
 --	output address. The output address is connected to a RAM implementing the virtual buffers.
@@ -58,7 +59,9 @@ ENTITY tripleVBufLogic IS
 			--out address width
 			iOutAddrWidth_g				:		INTEGER :=		13;
 			--in address width
-			iInAddrWidth_g				:		INTEGER :=		11
+			iInAddrWidth_g				:		INTEGER :=		11;
+			--ap is producer
+			bApIsProducer				:		BOOLEAN :=		FALSE
 	);
 			
 	PORT (
@@ -148,7 +151,7 @@ BEGIN
 	--The AP triggers with triggerB and locks buffers for reading.
 	SIGNAL	clk, rst					:		STD_LOGIC;
 	SIGNAL	triggerA					:		STD_LOGIC;
-	SIGNAL	triggerB					:		STD_LOGIC;									--triggerB is in AP clock domain!
+	SIGNAL	triggerB, triggerB_s		:		STD_LOGIC;									--triggerB is in AP clock domain!
 	SIGNAL	toggleB, toggleBsync		:		STD_LOGIC;									--toggleB is toggled by AP and synced to PCP
 	SIGNAL	toggleEdge					:		STD_LOGIC_VECTOR(1 DOWNTO 0);
 	SIGNAL	locked						:		STD_LOGIC_VECTOR(2 DOWNTO 0);
@@ -159,8 +162,8 @@ BEGIN
 		clk <= pcpClk;
 		rst <= pcpReset;
 		
-		--triggerA is in PCP's clk domain
-		triggerA <= pcpTrigger;
+		--triggerA is the producer's trigger
+		triggerA <= pcpTrigger when bApIsProducer = false else triggerB_s;
 		
 		--conTrigger pulse is in AP clock domain, thus different clock rates will produce more or less pulses!
 		---thus a toggling signal crosses the clock domain
@@ -193,13 +196,15 @@ BEGIN
 				toggleEdge <= toggleEdge(0) & toggleBsync;
 			END IF;
 		END PROCESS toggleShiftReg;
-		triggerB <= toggleEdge(1) xor toggleEdge(0);
+		triggerB_s <= toggleEdge(1) xor toggleEdge(0);
+		--triggerB is the consumer's trigger
+		triggerB <= triggerB_s when bApIsProducer = false else pcpTrigger;
 		
 		--currentA is set by PCP (currently used buffer by PCP)
-		pcpSelVBuf_s <= currentA;
+		pcpSelVBuf_s <= currentA when bApIsProducer = false else locked;
 		
 		--locked virtual buffer in PCP clock domain
-		lockedVBuf_s <= locked;
+		lockedVBuf_s <= locked when bApIsProducer = false else currentA;
 		
 		tripleBufMechanism : PROCESS(clk, rst)
 		VARIABLE	valid_v				:	STD_LOGIC_VECTOR(2 DOWNTO 0);

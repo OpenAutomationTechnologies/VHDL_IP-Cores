@@ -40,6 +40,8 @@
 -- 2010-06-28  V0.01	zelenkaj    First version
 -- 2010-08-16  V0.10	zelenkaj	Added the possibility for more RPDOs
 -- 2010-08-23  V0.11	zelenkaj	Added IRQ generation
+-- 2010-10-04  V0.12	zelenkaj	Changed memory size calculation (e.g. generics must include header size)
+-- 2010-10-11  V0.13	zelenkaj	Bugfix: PCP can't be producer in any case => added generic
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -56,15 +58,15 @@ entity pdi is
 			iTpdos_g					:		integer := 1;
 			--PDO buffer size *3
 			iTpdoBufSize_g				:		integer := 100;
-			iRpdo0BufSize_g				:		integer := 100;
-			iRpdo1BufSize_g				:		integer := 100;
-			iRpdo2BufSize_g				:		integer := 100;
+			iRpdo0BufSize_g				:		integer := 116; --includes header
+			iRpdo1BufSize_g				:		integer := 116; --includes header
+			iRpdo2BufSize_g				:		integer := 116; --includes header
 			--PDO-objects
 			iTpdoObjNumber_g			:		integer := 10;
 			iRpdoObjNumber_g			:		integer := 10; --includes all PDOs!!!
 			--asynchronous TX and RX buffer size
-			iAsyTxBufSize_g				:		integer := 1500;
-			iAsyRxBufSize_g				:		integer := 1500
+			iAsyTxBufSize_g				:		integer := 1504; --includes header
+			iAsyRxBufSize_g				:		integer := 1504  --includes header
 	);
 			
 	port (   
@@ -121,16 +123,16 @@ constant	extLog2MaxOneSpan			: integer := integer(ceil(log2(real(extMaxOneSpan))
 ----control / status register
 constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#3C#);
 ----asynchronous buffers
-constant	extTAsynBuf_c				: memoryMapping_t := (16#0800#, iAsyTxBufSize_g + 4);
-constant	extRAsynBuf_c				: memoryMapping_t := (16#1000#, iAsyRxBufSize_g + 4);
+constant	extTAsynBuf_c				: memoryMapping_t := (16#0800#, iAsyTxBufSize_g); --header is included in generic value!
+constant	extRAsynBuf_c				: memoryMapping_t := (16#1000#, iAsyRxBufSize_g); --header is included in generic value!
 ----pdo descriptors
 constant	extTpdoDesc_c				: memoryMapping_t := (16#1800#, iTpdoObjNumber_g * 8);
 constant	extRpdoDesc_c				: memoryMapping_t := (16#2000#, iRpdoObjNumber_g * 8);
 ----pdo buffer
-constant	extTpdoBuf_c				: memoryMapping_t := (16#2800#, iTpdoBufSize_g + 0);
-constant	extRpdo0Buf_c				: memoryMapping_t := (16#3000#, iRpdo0BufSize_g + 16);
-constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g + 16);
-constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g + 16);
+constant	extTpdoBuf_c				: memoryMapping_t := (16#2800#, iTpdoBufSize_g); --header is included in generic value!
+constant	extRpdo0Buf_c				: memoryMapping_t := (16#3000#, iRpdo0BufSize_g); --header is included in generic value!
+constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g); --header is included in generic value!
+constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g); --header is included in generic value!
 ---memory mapping inside the PDI's DPR
 ----control / status register
 constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 16#C#);
@@ -757,7 +759,9 @@ begin
 			--out address width
 			iOutAddrWidth_g				=> dprTpdoBuf_s.pcp.addr'length,
 			--in address width
-			iInAddrWidth_g				=> extLog2MaxOneSpan-2
+			iInAddrWidth_g				=> extLog2MaxOneSpan-2,
+			--ap is producer
+			bApIsProducer				=> true
 		)
 		
 		port map (
@@ -815,7 +819,9 @@ begin
 			--out address width
 			iOutAddrWidth_g				=> dprRpdo0Buf_s.pcp.addr'length,
 			--in address width
-			iInAddrWidth_g				=> extLog2MaxOneSpan-2
+			iInAddrWidth_g				=> extLog2MaxOneSpan-2,
+			--ap is NOT producer
+			bApIsProducer				=> false
 		)
 		
 		port map (
@@ -873,7 +879,9 @@ genRpdo1 : if iRpdos_g >= 2 generate
 			--out address width
 			iOutAddrWidth_g				=> dprRpdo1Buf_s.pcp.addr'length,
 			--in address width
-			iInAddrWidth_g				=> extLog2MaxOneSpan-2
+			iInAddrWidth_g				=> extLog2MaxOneSpan-2,
+			--ap is NOT producer
+			bApIsProducer				=> false
 		)
 		
 		port map (
@@ -933,7 +941,9 @@ genRpdo2 : if iRpdos_g >= 3 generate
 			--out address width
 			iOutAddrWidth_g				=> dprRpdo2Buf_s.pcp.addr'length,
 			--in address width
-			iInAddrWidth_g				=> extLog2MaxOneSpan-2 --dprRpdo0Buf_s.pcp.addr'length
+			iInAddrWidth_g				=> extLog2MaxOneSpan-2,
+			--ap is NOT producer
+			bApIsProducer				=> false
 		)
 		
 		port map (
@@ -1086,9 +1096,10 @@ begin
 			--apIrqValue_s <= (others => '0');
 			apIrqControl_s <= (others => '0');
 		elsif clk = '1' and clk'event then
+			--default assignments
 			tPdoTrigger <= '0';
 			rPdoTrigger <= (others => '0');
-			apIrqControl_s(0) <= '0'; --ack/set generates 50Meg pulse
+			apIrqControl_s(0) <= '0';
 			
 			if rd = '1' then
 				case conv_integer(addr)*4 is
@@ -1120,12 +1131,6 @@ begin
 						nonDprDout	<=	rAsyncBuffer;
 					when 16#30# =>
 						nonDprDout	<=	pdoVirtualBufferSel;
---					when 16#34# =>
---						if bIsPcp then
---							nonDprDout	<=	apIrqValue_s;
---						else
---							nonDprDout	<=	x"DEADC0DE";
---						end if;
 					when 16#38# =>
 						nonDprDout	<=	x"000000" & apIrqControl_s; 
 					when others =>
@@ -1134,22 +1139,8 @@ begin
 			elsif wr = '1' and sel = '1' and selDpr = '0' then
 				case conv_integer(addr)*4 is
 					when 16#30# =>
-						if be(3) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						for i in 2 downto 0 loop
-							if be(i) = '1' then
-								rPdoTrigger(i) <= '1';
-							end if;
-						end loop;
-					when 16#34# =>
---						if bIsPcp then
---							for i in 3 downto 0 loop
---								if be(i) = '1' then
---									apIrqValue_s((i+1)*8-1 downto i*8) <= din((i+1)*8-1 downto i*8);
---								end if;
---							end loop;
---						end if;
+						tPdoTrigger <= be(3);
+						rPdoTrigger(2 downto 0) <= be(2 downto 0);
 					when 16#38# =>
 						if be(0) = '1' then
 							apIrqControl_s <= din(7 downto 0);
@@ -1393,7 +1384,7 @@ BEGIN
 	shiftReg : PROCESS(clk, rst)
 	BEGIN
 		IF rst = '1' THEN
-			sreg <= (others => '0');
+			sreg <= (others => inData); --(others => '0');
 		ELSIF clk = '1' AND clk'EVENT THEN
 			sreg <= sreg(0) & inData;
 		END IF;
