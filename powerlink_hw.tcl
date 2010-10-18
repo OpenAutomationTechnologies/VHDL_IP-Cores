@@ -39,6 +39,8 @@
 #-- 2010-09-13	V0.02	zelenkaj	added selection Rmii / Mii
 #-- 2010-10-04  V0.03	zelenkaj	bugfix: Rmii / Mii selection was faulty
 #-- 2010-10-11  V0.04	zelenkaj	changed pdi dpr size calculation
+#-- 2010-10-18	V0.02	zelenkaj	added selection Big/Little Endian (pdi_par)
+#--									use bidirectional data bus (pdi_par)
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -106,6 +108,12 @@ add_parameter configApParOutSigs STRING "High Active"
 set_parameter_property configApParOutSigs VISIBLE false
 set_parameter_property configApParOutSigs DISPLAY_NAME "Active State of Output Signals (Irq and Ready)"
 set_parameter_property configApParOutSigs ALLOWED_RANGES {"High Active" "Low Active"}
+
+add_parameter configApParEndian STRING "Little"
+set_parameter_property configApParEndian VISIBLE false
+set_parameter_property configApParEndian DISPLAY_NAME "Endian"
+set_parameter_property configApParEndian ALLOWED_RANGES {"Little" "Big"}
+#set_parameter_property configApParEndian DISPLAY_HINT radio
 
 add_parameter configApSpi_CPOL STRING "0"
 set_parameter_property configApSpi_CPOL VISIBLE false
@@ -266,6 +274,11 @@ set_parameter_property papLowAct_g HDL_PARAMETER true
 set_parameter_property papLowAct_g VISIBLE false
 set_parameter_property papLowAct_g DERIVED TRUE
 
+add_parameter papBigEnd_g BOOLEAN false
+set_parameter_property papBigEnd_g HDL_PARAMETER true
+set_parameter_property papBigEnd_g VISIBLE false
+set_parameter_property papBigEnd_g DERIVED TRUE
+
 #parameters for SPI
 add_parameter spiCPOL_g BOOLEAN false
 set_parameter_property spiCPOL_g HDL_PARAMETER true
@@ -341,6 +354,7 @@ proc my_validation_callback {} {
 	set_parameter_property configApParallelInterface VISIBLE false
 	set_parameter_property configApParSigs VISIBLE false
 	set_parameter_property configApParOutSigs VISIBLE false
+	set_parameter_property configApParEndian VISIBLE false
 	set_parameter_property configApSpi_CPOL VISIBLE false
 	set_parameter_property configApSpi_CPHA VISIBLE false
 	set_parameter_property asyncTxBufSize VISIBLE false
@@ -421,6 +435,9 @@ proc my_validation_callback {} {
 			set_parameter_property configApParallelInterface VISIBLE true
 			set_parameter_property configApParSigs VISIBLE true
 			set_parameter_property configApParOutSigs VISIBLE true
+			if {[get_parameter_value configApParallelInterface] == "16bit"} {
+				set_parameter_property configApParEndian VISIBLE true
+			}
 			
 		} elseif {$configApInterface == "SPI"} {
 			#let's use spi
@@ -496,6 +513,11 @@ proc my_validation_callback {} {
 	} else {
 		set_parameter_value papDataWidth_g	16
 	}
+	if {[get_parameter_value configApParEndian] == "Little"} {
+		set_parameter_value papBigEnd_g	false
+	} else {
+		set_parameter_value papBigEnd_g	true
+	}
 	if {[get_parameter_value configApParSigs] == "Low Active"} {
 		set_parameter_value papLowAct_g	true
 	} else {
@@ -535,6 +557,7 @@ add_display_item "Process Data Interface Settings" configApInterface PARAMETER
 add_display_item "Process Data Interface Settings" configApParallelInterface PARAMETER
 add_display_item "Process Data Interface Settings" configApParOutSigs PARAMETER
 add_display_item "Process Data Interface Settings" configApParSigs PARAMETER
+add_display_item "Process Data Interface Settings" configApParEndian PARAMETER
 add_display_item "Process Data Interface Settings" configApSpi_CPOL PARAMETER
 add_display_item "Process Data Interface Settings" configApSpi_CPHA PARAMETER
 add_display_item "Receive Process Data" rpdoNum PARAMETER
@@ -805,9 +828,10 @@ add_interface_port PAR_AP pap_wr_n export Input 1
 add_interface_port PAR_AP pap_be_n export Input papDataWidth_g/8
 ###bus
 add_interface_port PAR_AP pap_addr export Input 16
-add_interface_port PAR_AP pap_wrdata export Input papDataWidth_g
-add_interface_port PAR_AP pap_rddata export Output papDataWidth_g
-add_interface_port PAR_AP pap_doe export Output 1
+add_interface_port PAR_AP pap_data export Bidir papDataWidth_g
+#add_interface_port PAR_AP pap_wrdata export Input papDataWidth_g
+#add_interface_port PAR_AP pap_rddata export Output papDataWidth_g
+#add_interface_port PAR_AP pap_doe export Output 1
 ###irq/ready
 add_interface_port PAR_AP ap_irq export Output 1
 add_interface_port PAR_AP pap_ready export Output 1

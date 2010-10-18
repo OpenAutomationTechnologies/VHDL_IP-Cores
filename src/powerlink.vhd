@@ -37,6 +37,8 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- 2010-08-23  	V0.01	zelenkaj    First version
 -- 2010-09-13	V0.02	zelenkaj	added selection Rmii / Mii
+-- 2010-10-18	V0.03	zelenkaj	added selection Big/Little Endian (pdi_par)
+--									use bidirectional bus (pdi_par)
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -73,6 +75,7 @@ entity powerlink is
 	-- 8/16bit PARALLEL PDI GENERICS
 		papDataWidth_g				:		integer 							:= 8;
 		papLowAct_g					:		boolean								:= false;
+		papBigEnd_g					:		boolean								:= false;
 	-- SPI GENERICS
 		spiCPOL_g					:		boolean 							:= false;
 		spiCPHA_g					:		boolean 							:= false
@@ -142,9 +145,10 @@ entity powerlink is
 		pap_wr_n					: in    std_logic;
 		pap_be_n					: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
 		pap_addr 					: in    std_logic_vector(15 downto 0);
-		pap_wrdata					: in    std_logic_vector(papDataWidth_g-1 downto 0);
-		pap_rddata					: out   std_logic_vector(papDataWidth_g-1 downto 0);
-		pap_doe						: out	std_logic;
+		pap_data					: inout std_logic_vector(papDataWidth_g-1 downto 0);
+--		pap_wrdata					: in    std_logic_vector(papDataWidth_g-1 downto 0);
+--		pap_rddata					: out   std_logic_vector(papDataWidth_g-1 downto 0);
+--		pap_doe						: out	std_logic;
 		pap_ready					: out	std_logic;
 		pap_ready_n					: out	std_logic;
 	---- SPI
@@ -342,7 +346,8 @@ begin
 		
 		theParPort : entity work.pdi_par
 			generic map (
-				papDataWidth_g				=> papDataWidth_g
+			papDataWidth_g				=> papDataWidth_g,
+			papBigEnd_g					=> papBigEnd_g
 			)
 			port map (
 			-- 8/16bit parallel
@@ -351,9 +356,10 @@ begin
 				pap_wr						=> pap_wr_ss,
 				pap_be						=> pap_be_s,
 				pap_addr					=> pap_addr,
-				pap_wrdata					=> pap_wrdata,
-				pap_rddata					=> pap_rddata,
-				pap_doe						=> pap_doe,
+				pap_data					=> pap_data,
+--				pap_wrdata					=> pap_wrdata,
+--				pap_rddata					=> pap_rddata,
+--				pap_doe						=> pap_doe,
 				pap_ready					=> pap_ready_s,
 			-- clock for AP side
 				ap_reset					=> rstPcp,

@@ -35,7 +35,9 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2010-08-31  V0.01	zelenkaj    First version
+-- 2010-08-31  	V0.01	zelenkaj    First version
+-- 2010-10-18	V0.02	zelenkaj	added selection Big/Little Endian
+--									use bidirectional data bus
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -45,7 +47,9 @@ USE ieee.std_logic_unsigned.all;
 
 entity pdi_par is
 	generic (
-			papDataWidth_g				:		integer := 8
+	papDataWidth_g				:		integer := 8;
+	--16bit data is big endian if true
+	papBigEnd_g					:		boolean := false
 	);
 			
 	port (   
@@ -55,9 +59,10 @@ entity pdi_par is
 			pap_wr 						: in    std_logic;
 			pap_be						: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
 			pap_addr 					: in    std_logic_vector(15 downto 0);
-			pap_wrdata					: in    std_logic_vector(papDataWidth_g-1 downto 0);
-			pap_rddata					: out   std_logic_vector(papDataWidth_g-1 downto 0);
-			pap_doe						: out	std_logic;
+--			pap_wrdata					: in    std_logic_vector(papDataWidth_g-1 downto 0);
+--			pap_rddata					: out   std_logic_vector(papDataWidth_g-1 downto 0);
+--			pap_doe						: out	std_logic;
+			pap_data					: inout	std_logic_vector(papDataWidth_g-1 downto 0);
 			pap_ready					: out	std_logic;
 		-- clock for AP side
 			ap_reset					: in    std_logic;
@@ -79,11 +84,12 @@ architecture rtl of pdi_par is
 	
 	signal ap_byteenable_s				:		std_logic_vector(ap_byteenable'range);
 	signal pap_doe_s					:		std_logic;
+	signal pap_wrdata, pap_rddata		:		std_logic_vector(papDataWidth_g-1 downto 0);
 begin
 	
 	pap_ready <= '1' when fsm = wr_ack or fsm = rd_ack else '0';
 	pap_doe_s <= '1' when fsm = rd or fsm = rd_ack else '0';
-	pap_doe <= pap_doe_s;
+--	pap_doe <= pap_doe_s;
 	
 	ap_chipselect <= '1' when fsm = wr or fsm = rd or fsm = rd_ack else '0';
 	ap_write <= '1' when fsm = wr else '0';
@@ -91,6 +97,10 @@ begin
 	ap_address <= pap_addr(ap_address'left+2 downto 2);
 	
 	gen8bitSigs : if papDataWidth_g = 8 generate
+		--tri-state buffer
+		pap_data <= pap_rddata when pap_doe_s = '1' else (others => 'Z');
+		pap_wrdata <= pap_data;
+		
 		ap_byteenable_s <= 	"0001" when pap_addr(1 downto 0) = "00" else
 							"0010" when pap_addr(1 downto 0) = "01" else
 							"0100" when pap_addr(1 downto 0) = "10" else
@@ -108,6 +118,18 @@ begin
 	end generate gen8bitSigs;
 	
 	genBeSigs16bit : if papDataWidth_g = 16 generate
+		--tri-state buffer + endian consideration
+		pap_data <= pap_rddata 	when pap_doe_s = '1' and papBigEnd_g = false else
+					pap_rddata(papDataWidth_g/2-1 downto 0) &
+					pap_rddata(papDataWidth_g-1 downto papDataWidth_g/2)
+								when pap_doe_s = '1' and papBigEnd_g = true else
+					(others => 'Z');
+		pap_wrdata <= pap_data 	when papBigEnd_g = false else
+					pap_data(papDataWidth_g/2-1 downto 0) &
+					pap_data(papDataWidth_g-1 downto papDataWidth_g/2)
+								when papBigEnd_g = true else
+					(others => '0');
+		
 		ap_byteenable_s <= 	"0001" when pap_addr(1 downto 1) = "0" and pap_be = "01" else
 							"0010" when pap_addr(1 downto 1) = "0" and pap_be = "10" else
 							"0011" when pap_addr(1 downto 1) = "0" and pap_be = "11" else
