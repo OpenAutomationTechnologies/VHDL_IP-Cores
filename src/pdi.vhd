@@ -37,11 +37,12 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2010-06-28  V0.01	zelenkaj    First version
--- 2010-08-16  V0.10	zelenkaj	Added the possibility for more RPDOs
--- 2010-08-23  V0.11	zelenkaj	Added IRQ generation
--- 2010-10-04  V0.12	zelenkaj	Changed memory size calculation (e.g. generics must include header size)
--- 2010-10-11  V0.13	zelenkaj	Bugfix: PCP can't be producer in any case => added generic
+-- 2010-06-28  	V0.01	zelenkaj    First version
+-- 2010-08-16  	V0.10	zelenkaj	Added the possibility for more RPDOs
+-- 2010-08-23  	V0.11	zelenkaj	Added IRQ generation
+-- 2010-10-04  	V0.12	zelenkaj	Changed memory size calculation (e.g. generics must include header size)
+-- 2010-10-11  	V0.13	zelenkaj	Bugfix: PCP can't be producer in any case => added generic
+-- 2010-10-25	V0.14	zelenkaj	Use one Address Adder per DPR port side (reduces LE usage)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -167,6 +168,7 @@ constant	magicNumber_c				: integer := 16#50435000#;
 type dprSig_t is
 	record
 			addr						: std_logic_vector(dprAddrWidth_c-2-1 downto 0); --double word address!
+			addrOff						: std_logic_vector(dprAddrWidth_c-2 downto 0); --double word address!
 			be							: std_logic_vector(3 downto 0);
 			din							: std_logic_vector(31 downto 0);
 			wr							: std_logic;
@@ -227,6 +229,9 @@ signal		vBufSel_s					: pdi32Bit_t := ((others => '1'), (others => '1')); --TXPD
 signal		apIrqValue					: std_logic_vector(31 downto 0);
 signal		apIrqControlPcp,
 			apIrqControlAp				: std_logic_vector(7 downto 0);
+---address calulation result
+signal		pcp_addrRes					: std_logic_vector(dprAddrWidth_c-2 downto 0);
+signal		ap_addrRes					: std_logic_vector(dprAddrWidth_c-2 downto 0);
 begin
 	
 	ASSERT NOT(iRpdos_g < 1 or iRpdos_g > 3)
@@ -274,8 +279,8 @@ begin
 		LOG2_NUM_WORDS	=>		dprAddrWidth_c-2
 		)
 		port map (
-		address_a		=>		dpr.pcp.addr(dprAddrWidth_c-2-1 downto 0),
-		address_b		=>		dpr.ap.addr(dprAddrWidth_c-2-1 downto 0),
+		address_a		=>		pcp_addrRes(dprAddrWidth_c-2-1 downto 0), --dpr.pcp.addr(dprAddrWidth_c-2-1 downto 0),
+		address_b		=>		ap_addrRes(dprAddrWidth_c-2-1 downto 0), --dpr.ap.addr(dprAddrWidth_c-2-1 downto 0),
 		byteena_a		=>		dpr.pcp.be,
 		byteena_b		=>		dpr.ap.be,
 		clock_a			=>		pcp_clk,
@@ -288,6 +293,8 @@ begin
 		q_b				=>		dprOut.ap
 		);
 	
+	pcp_addrRes <= '0' & pcp_address(extLog2MaxOneSpan-1-2 downto 0) + dpr.pcp.addrOff;
+	
 	dpr.pcp	<=	dprCntStReg_s.pcp	when	selCntStReg_s.pcp = '1'	else
 				dprTAsynBuf_s.pcp	when	selTAsynBuf_s.pcp = '1' else
 				dprRAsynBuf_s.pcp	when	selRAsynBuf_s.pcp = '1' else
@@ -297,7 +304,10 @@ begin
 				dprRpdo0Buf_s.pcp	when	selRpdo0Buf_s.pcp = '1' and iRpdos_g >= 1 else
 				dprRpdo1Buf_s.pcp	when	selRpdo1Buf_s.pcp = '1' and iRpdos_g >= 2 else
 				dprRpdo2Buf_s.pcp	when	selRpdo2Buf_s.pcp = '1' and iRpdos_g >= 3 else
-				((others => '0'), (others => '0'), (others => '0'), '0');
+				((others => '0'), (others => '0'), (others => '0'), (others => '0'), '0');
+	
+	
+	ap_addrRes <= '0' & ap_address(extLog2MaxOneSpan-1-2 downto 0) + dpr.ap.addrOff;
 	
 	dpr.ap	<=	dprCntStReg_s.ap	when	selCntStReg_s.ap = '1'	else
 				dprTAsynBuf_s.ap	when	selTAsynBuf_s.ap = '1' 	else
@@ -308,7 +318,7 @@ begin
 				dprRpdo0Buf_s.ap	when	selRpdo0Buf_s.ap = '1' 	and iRpdos_g >= 1 else
 				dprRpdo1Buf_s.ap	when	selRpdo1Buf_s.ap = '1' 	and iRpdos_g >= 2 else
 				dprRpdo2Buf_s.ap	when	selRpdo2Buf_s.ap = '1' 	and iRpdos_g >= 3 else
-				((others => '0'), (others => '0'), (others => '0'), '0');
+				((others => '0'), (others => '0'), (others => '0'), (others => '0'), '0');
 ------------------------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -432,7 +442,7 @@ begin
 			tPdoTrigger					=> vBufTriggerPdo_s.pcp(3),
 			rPdoTrigger					=> vBufTriggerPdo_s.pcp(2 downto 0),
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						=> dprCntStReg_s.pcp.addr,
+			dprAddrOff					=> dprCntStReg_s.pcp.addrOff,
 			dprDin						=> dprCntStReg_s.pcp.din,
 			dprDout						=> dprOut.pcp,
 			dprBe						=> dprCntStReg_s.pcp.be,
@@ -489,7 +499,7 @@ begin
 			tPdoTrigger					=> vBufTriggerPdo_s.ap(3),
 			rPdoTrigger					=> vBufTriggerPdo_s.ap(2 downto 0),
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						=> dprCntStReg_s.ap.addr,
+			dprAddrOff					=> dprCntStReg_s.ap.addrOff,
 			dprDin						=> dprCntStReg_s.ap.din,
 			dprDout						=> dprOut.ap,
 			dprBe						=> dprCntStReg_s.ap.be,
@@ -536,7 +546,7 @@ begin
 			din							=> pcp_writedata,
 			dout						=> outTAsynBuf_s.pcp,
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						=> dprTAsynBuf_s.pcp.addr,
+			dprAddrOff					=> dprTAsynBuf_s.pcp.addrOff,
 			dprDin						=> dprTAsynBuf_s.pcp.din,
 			dprDout						=> dprOut.pcp,
 			dprBe						=> dprTAsynBuf_s.pcp.be,
@@ -560,7 +570,7 @@ begin
 			din							=> ap_writedata,
 			dout						=> outTAsynBuf_s.ap,
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						=> dprTAsynBuf_s.ap.addr,
+			dprAddrOff					=> dprTAsynBuf_s.ap.addrOff,
 			dprDin						=> dprTAsynBuf_s.ap.din,
 			dprDout						=> dprOut.ap,
 			dprBe						=> dprTAsynBuf_s.ap.be,
@@ -587,7 +597,7 @@ begin
 			din							=> pcp_writedata,
 			dout						=> outRAsynBuf_s.pcp,
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						=> dprRAsynBuf_s.pcp.addr,
+			dprAddrOff					=> dprRAsynBuf_s.pcp.addrOff,
 			dprDin						=> dprRAsynBuf_s.pcp.din,
 			dprDout						=> dprOut.pcp,
 			dprBe						=> dprRAsynBuf_s.pcp.be,
@@ -611,7 +621,7 @@ begin
 			din							=> ap_writedata,
 			dout						=> outRAsynBuf_s.ap,
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						=> dprRAsynBuf_s.ap.addr,
+			dprAddrOff					=> dprRAsynBuf_s.ap.addrOff,
 			dprDin						=> dprRAsynBuf_s.ap.din,
 			dprDout						=> dprOut.ap,
 			dprBe						=> dprRAsynBuf_s.ap.be,
@@ -638,7 +648,7 @@ begin
 			din							=> pcp_writedata,
 			dout						=> outTpdoDesc_s.pcp,
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						=> dprTpdoDesc_s.pcp.addr,
+			dprAddrOff					=> dprTpdoDesc_s.pcp.addrOff,
 			dprDin						=> dprTpdoDesc_s.pcp.din,
 			dprDout						=> dprOut.pcp,
 			dprBe						=> dprTpdoDesc_s.pcp.be,
@@ -662,7 +672,7 @@ begin
 			din							=> ap_writedata,
 			dout						=> outTpdoDesc_s.ap,
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						=> dprTpdoDesc_s.ap.addr,
+			dprAddrOff					=> dprTpdoDesc_s.ap.addrOff,
 			dprDin						=> dprTpdoDesc_s.ap.din,
 			dprDout						=> dprOut.ap,
 			dprBe						=> dprTpdoDesc_s.ap.be,
@@ -690,7 +700,7 @@ begin
 			din							=> pcp_writedata,
 			dout						=> outRpdoDesc_s.pcp,
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						=> dprRpdoDesc_s.pcp.addr,
+			dprAddrOff					=> dprRpdoDesc_s.pcp.addrOff,
 			dprDin						=> dprRpdoDesc_s.pcp.din,
 			dprDout						=> dprOut.pcp,
 			dprBe						=> dprRpdoDesc_s.pcp.be,
@@ -714,7 +724,7 @@ begin
 			din							=> ap_writedata,
 			dout						=> outRpdoDesc_s.ap,
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						=> dprRpdoDesc_s.ap.addr,
+			dprAddrOff					=> dprRpdoDesc_s.ap.addrOff,
 			dprDin						=> dprRpdoDesc_s.ap.din,
 			dprDout						=> dprOut.ap,
 			dprBe						=> dprRpdoDesc_s.ap.be,
@@ -768,14 +778,14 @@ begin
 			pcpClk						=> pcp_clk,
 			pcpReset					=> pcp_reset,
 			pcpTrigger					=> vBufTriggerPdo_s.pcp(3),
-			pcpInAddr					=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
-			pcpOutAddr					=> dprTpdoBuf_s.pcp.addr,
+			--pcpInAddr					=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
+			pcpOutAddrOff				=> dprTpdoBuf_s.pcp.addrOff,
 			pcpOutSelVBuf				=> selVBufPcpOneHot,
 			apClk						=> ap_clk,
 			apReset						=> ap_reset,
 			apTrigger					=> vBufTriggerPdo_s.ap(3),
-			apInAddr					=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
-			apOutAddr					=> dprTpdoBuf_s.ap.addr,
+			--apInAddr					=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
+			apOutAddrOff				=> dprTpdoBuf_s.ap.addrOff,
 			apOutSelVBuf				=> selVBufApOneHot
 		);
 		
@@ -828,14 +838,14 @@ begin
 			pcpClk						=> pcp_clk,
 			pcpReset					=> pcp_reset,
 			pcpTrigger					=> vBufTriggerPdo_s.pcp(0),
-			pcpInAddr					=> pcp_address(extLog2MaxOneSpan-1-2 downto 0), --tmpPcpAddr,
-			pcpOutAddr					=> dprRpdo0Buf_s.pcp.addr,
+			--pcpInAddr					=> pcp_address(extLog2MaxOneSpan-1-2 downto 0), --tmpPcpAddr,
+			pcpOutAddrOff				=> dprRpdo0Buf_s.pcp.addrOff,
 			pcpOutSelVBuf				=> selVBufPcpOneHot,
 			apClk						=> ap_clk,
 			apReset					=> ap_reset,
 			apTrigger					=> vBufTriggerPdo_s.ap(0),
-			apInAddr					=> ap_address(extLog2MaxOneSpan-1-2 downto 0), --tmpApAddr,
-			apOutAddr					=> dprRpdo0Buf_s.ap.addr,
+			--apInAddr					=> ap_address(extLog2MaxOneSpan-1-2 downto 0), --tmpApAddr,
+			apOutAddrOff				=> dprRpdo0Buf_s.ap.addrOff,
 			apOutSelVBuf				=> selVBufApOneHot
 		);
 		
@@ -888,14 +898,14 @@ genRpdo1 : if iRpdos_g >= 2 generate
 			pcpClk						=> pcp_clk,
 			pcpReset					=> pcp_reset,
 			pcpTrigger					=> vBufTriggerPdo_s.pcp(1),
-			pcpInAddr					=> pcp_address(extLog2MaxOneSpan-1-2 downto 0), --tmpPcpAddr,
-			pcpOutAddr					=> dprRpdo1Buf_s.pcp.addr,
+			--pcpInAddr					=> pcp_address(extLog2MaxOneSpan-1-2 downto 0), --tmpPcpAddr,
+			pcpOutAddrOff				=> dprRpdo1Buf_s.pcp.addrOff,
 			pcpOutSelVBuf				=> selVBufPcpOneHot,
 			apClk						=> ap_clk,
-			apReset					=> ap_reset,
+			apReset						=> ap_reset,
 			apTrigger					=> vBufTriggerPdo_s.ap(1),
-			apInAddr					=> ap_address(extLog2MaxOneSpan-1-2 downto 0), --tmpApAddr,
-			apOutAddr					=> dprRpdo1Buf_s.ap.addr,
+			--apInAddr					=> ap_address(extLog2MaxOneSpan-1-2 downto 0), --tmpApAddr,
+			apOutAddrOff				=> dprRpdo1Buf_s.ap.addrOff,
 			apOutSelVBuf				=> selVBufApOneHot
 		);
 		
@@ -950,14 +960,14 @@ genRpdo2 : if iRpdos_g >= 3 generate
 			pcpClk						=> pcp_clk,
 			pcpReset					=> pcp_reset,
 			pcpTrigger					=> vBufTriggerPdo_s.pcp(2),
-			pcpInAddr					=> pcp_address(extLog2MaxOneSpan-1-2 downto 0), --tmpPcpAddr,
-			pcpOutAddr					=> dprRpdo2Buf_s.pcp.addr,
+			--pcpInAddr					=> pcp_address(extLog2MaxOneSpan-1-2 downto 0), --tmpPcpAddr,
+			pcpOutAddrOff				=> dprRpdo2Buf_s.pcp.addrOff,
 			pcpOutSelVBuf				=> selVBufPcpOneHot,
 			apClk						=> ap_clk,
-			apReset					=> ap_reset,
+			apReset						=> ap_reset,
 			apTrigger					=> vBufTriggerPdo_s.ap(2),
-			apInAddr					=> ap_address(extLog2MaxOneSpan-1-2 downto 0), --tmpApAddr,
-			apOutAddr					=> dprRpdo2Buf_s.ap.addr,
+			--apInAddr					=> ap_address(extLog2MaxOneSpan-1-2 downto 0), --tmpApAddr,
+			apOutAddrOff				=> dprRpdo2Buf_s.ap.addrOff,
 			apOutSelVBuf				=> selVBufApOneHot
 		);
 		
@@ -1046,7 +1056,7 @@ entity pdiControlStatusReg is
 			--apIrqValue					: out	std_logic_vector(31 downto 0); --pcp only
 			apIrqControl				: out	std_logic_vector(7 downto 0);
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						: out	std_logic_vector(iDprAddrWidth_g-1 downto 0);
+			dprAddrOff					: out	std_logic_vector(iDprAddrWidth_g downto 0);
 			dprDin						: out	std_logic_vector(31 downto 0);
 			dprDout						: in	std_logic_vector(31 downto 0);
 			dprBe						: out	std_logic_vector(3 downto 0);
@@ -1058,7 +1068,7 @@ end entity pdiControlStatusReg;
 architecture rtl of pdiControlStatusReg is
 signal selDpr							:		std_logic; --if '1' get/write content from/to dpr
 signal nonDprDout						:		std_logic_vector(31 downto 0);
-signal addrRes							:		std_logic_vector(dprAddr'range);
+signal addrRes							:		std_logic_vector(dprAddrOff'range);
 --signal apIrqValue_s						: 		std_logic_vector(31 downto 0); --pcp only
 signal apIrqControl_s					: 		std_logic_vector(7 downto 0);
 begin	
@@ -1072,19 +1082,19 @@ begin
 						else	'0';
 
 	--assign content depending on selDpr
-	dprDin	<=	din;
-	dprBe	<=	be;
-	dprWr	<=	wr		when	selDpr = '1'	else
-				'0';
-	dout	<=	dprDout	when	selDpr = '1'	else
-				nonDprDout;
-	dprAddr	<=	addrRes when	selDpr = '1'	else
-				(others => '0');
+	dprDin		<=	din;
+	dprBe		<=	be;
+	dprWr		<=	wr		when	selDpr = '1'	else
+					'0';
+	dout		<=	dprDout	when	selDpr = '1'	else
+					nonDprDout;
+	dprAddrOff	<=	addrRes when	selDpr = '1'	else
+					(others => '0');
 	
 	--address conversion
 	---map external address mapping into dpr
-	---e.g. external address 0x4 converts to internal address 0x0
-	addrRes <=	conv_std_logic_vector(conv_integer(addr) - iBaseDpr_g + iBaseMap2_g, addrRes'length);
+	addrRes <= 	conv_std_logic_vector(iBaseMap2_g - iBaseDpr_g, addrRes'length);
+	--addrRes <=	conv_std_logic_vector(conv_integer(addr) - iBaseDpr_g + iBaseMap2_g, addrRes'length);
 	
 	--non dpr content
 	process(clk, rst)
@@ -1290,7 +1300,7 @@ entity pdiSimpleReg is
 			din							: in	std_logic_vector(31 downto 0);
 			dout						: out	std_logic_vector(31 downto 0);
 			--dpr interface (from PCP/AP to DPR)
-			dprAddr						: out	std_logic_vector(iDprAddrWidth_g-1 downto 0);
+			dprAddrOff					: out	std_logic_vector(iDprAddrWidth_g downto 0);
 			dprDin						: out	std_logic_vector(31 downto 0);
 			dprDout						: in	std_logic_vector(31 downto 0);
 			dprBe						: out	std_logic_vector(3 downto 0);
@@ -1300,23 +1310,23 @@ entity pdiSimpleReg is
 end entity pdiSimpleReg;
 
 architecture rtl of pdiSimpleReg is
-signal addrRes							:		std_logic_vector(dprAddr'range);
+signal addrRes							:		std_logic_vector(dprAddrOff'range);
 begin
 	
 	--assign content to dpr
-	dprDin	<=	din;
-	dprBe	<=	be;
-	dprWr	<=	wr		when	sel = '1'		else
-				'0';
-	dout	<=	dprDout	when	sel = '1'		else
-				(others => '0');
-	dprAddr	<=	addrRes when	sel = '1'		else
-				(others => '0');
+	dprDin		<=	din;
+	dprBe		<=	be;
+	dprWr		<=	wr		when	sel = '1'		else
+					'0';
+	dout		<=	dprDout	when	sel = '1'		else
+					(others => '0');
+	dprAddrOff	<=	addrRes when	sel = '1'		else
+					(others => '0');
 	
 	--address conversion
 	---map external address mapping into dpr
-	---e.g. external address 0x4 converts to internal address 0x0
-	addrRes <=	conv_std_logic_vector(conv_integer(addr) + iBaseMap2_g, addrRes'length);
+	addrRes <= '0' & conv_std_logic_vector(iBaseMap2_g, addrRes'length - 1);
+	--addrRes <=	conv_std_logic_vector(conv_integer(addr) + iBaseMap2_g, addrRes'length);
 		
 end architecture rtl;
 

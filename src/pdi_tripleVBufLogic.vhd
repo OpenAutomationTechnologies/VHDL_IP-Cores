@@ -35,11 +35,12 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2010-08-16  V0.01	zelenkaj        First version
--- 2010-10-11  V0.02	zelenkaj		Bugfix: PCP can't be producer in any case => added generic
+-- 2010-08-16  	V0.01	zelenkaj    First version
+-- 2010-10-11  	V0.02	zelenkaj	Bugfix: PCP can't be producer in any case => added generic
+-- 2010-10-25	V0.03	zelenkaj	Use one Address Adder per DPR port side (reduces LE usage)
 ------------------------------------------------------------------------------------------------------------------------
---	This logic implements the virtual triple buffers, by changing an input address to the appropriate
---	output address. The output address is connected to a RAM implementing the virtual buffers.
+--	This logic implements the virtual triple buffers, by selecting the appropriate address offset
+--	The output address offset has to be added to the input address.
 --	The trigger signal switches to the next available buffer. The switch mechanism is implemented in the
 --	PCP's clock domain. Thus the switch over on the PCP side is performed without delay. An AP switch over crosses
 --  from AP to PCP clock domain (2x pcpClk) and back from PCP to AP (2x apClk).
@@ -68,14 +69,14 @@ ENTITY tripleVBufLogic IS
 			pcpClk						: IN	STD_LOGIC;
 			pcpReset					: IN	STD_LOGIC;
 			pcpTrigger					: IN	STD_LOGIC;									--trigger virtual buffer change
-			pcpInAddr					: IN	STD_LOGIC_VECTOR(iInAddrWidth_g-1 DOWNTO 0);
-			pcpOutAddr					: OUT	STD_LOGIC_VECTOR(iOutAddrWidth_g-1 DOWNTO 0);
+			--pcpInAddr					: IN	STD_LOGIC_VECTOR(iInAddrWidth_g-1 DOWNTO 0);
+			pcpOutAddrOff				: OUT	STD_LOGIC_VECTOR(iOutAddrWidth_g DOWNTO 0);
 			pcpOutSelVBuf				: OUT	STD_LOGIC_VECTOR(2 DOWNTO 0);				--selected virtual buffer (one-hot coded)
 			apClk						: IN	STD_LOGIC;
 			apReset						: IN	STD_LOGIC;
 			apTrigger					: IN	STD_LOGIC;									--trigger virtual buffer change
-			apInAddr					: IN	STD_LOGIC_VECTOR(iInAddrWidth_g-1 DOWNTO 0);
-			apOutAddr					: OUT	STD_LOGIC_VECTOR(iOutAddrWidth_g-1 DOWNTO 0);
+			--apInAddr					: IN	STD_LOGIC_VECTOR(iInAddrWidth_g-1 DOWNTO 0);
+			apOutAddrOff				: OUT	STD_LOGIC_VECTOR(iOutAddrWidth_g DOWNTO 0);
 			apOutSelVBuf				: OUT	STD_LOGIC_VECTOR(2 DOWNTO 0)				--selected virtual buffer (one-hot coded)
 	);
 END ENTITY tripleVBufLogic;
@@ -109,8 +110,8 @@ BEGIN
 	-- "001"		| ???InAddr + iVirtualBufferBase0_c
 	-- "010"		| ???InAddr + iVirtualBufferBase1_c
 	-- "100"		| ???InAddr + iVirtualBufferBase2_c
-	SIGNAL	pcpAddrOffset, apAddrOffset:		STD_LOGIC_VECTOR(iOutAddrWidth_g-1 DOWNTO 0);
-	SIGNAL	pcpSum, apSum				:		STD_LOGIC_VECTOR(iOutAddrWidth_g   DOWNTO 0);
+	SIGNAL	pcpAddrOffset, apAddrOffset:		STD_LOGIC_VECTOR(iOutAddrWidth_g DOWNTO 0);
+	--SIGNAL	pcpSum, apSum				:		STD_LOGIC_VECTOR(iOutAddrWidth_g   DOWNTO 0);
 	BEGIN
 		
 		--select address offset
@@ -118,18 +119,20 @@ BEGIN
 							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase1_c, pcpAddrOffset'LENGTH) WHEN pcpSelVBuf_s = "010" ELSE
 							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase2_c, pcpAddrOffset'LENGTH) WHEN pcpSelVBuf_s = "100" ELSE
 							(OTHERS => '0');
+		pcpOutAddrOff <= pcpAddrOffset;
 		--calculate address for dpr, leading zero is a sign!
-		pcpSum <= ('0' & conv_std_logic_vector(conv_integer(pcpInAddr), iOutAddrWidth_g-1)) + ('0' & pcpAddrOffset);
-		pcpOutAddr <= pcpSum(pcpOutAddr'RANGE);
+		--pcpSum <= ('0' & conv_std_logic_vector(conv_integer(pcpInAddr), iOutAddrWidth_g-1)) + ('0' & pcpAddrOffset);
+		--pcpOutAddr <= pcpSum(pcpOutAddr'RANGE);
 		
 		--select address offset
 		apAddrOffset <= 	CONV_STD_LOGIC_VECTOR(iVirtualBufferBase0_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = "001" ELSE
 							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase1_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = "010" ELSE
 							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase2_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = "100" ELSE
 							(OTHERS => '0');
+		apOutAddrOff <= apAddrOffset;
 		--calculate address for dpr, leading zero is a sign!
-		apSum <= ('0' & conv_std_logic_vector(conv_integer(apInAddr), iOutAddrWidth_g-1)) + ('0' & apAddrOffset);
-		apOutAddr <= apSum(apOutAddr'RANGE);
+		--apSum <= ('0' & conv_std_logic_vector(conv_integer(apInAddr), iOutAddrWidth_g-1)) + ('0' & apAddrOffset);
+		--apOutAddr <= apSum(apOutAddr'RANGE);
 		
 	END BLOCK theAddrCalcer;
 		
