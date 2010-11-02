@@ -1,4 +1,4 @@
-/* pdi_spi.c - Library for FPGA PDI via SPI */
+/* cnApiPdiSpi.c - Library for FPGA PDI via SPI */
 /*
 ------------------------------------------------------------------------------
 Copyright (c) 2010, B&R
@@ -33,8 +33,8 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------------
- Module:    pdi_spi
- File:      pdi_spi.c
+ Module:    cnApiPdiSpi
+ File:      cnApiPdiSpi.c
  Author:    Joerg Zelenka (zelenkaj)
  Created:   2010/09/09
  Revised:   -
@@ -42,11 +42,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ------------------------------------------------------------------------------
 
  Functions:
-            pdiSpiInit      initialize the PDI SPI driver
+            CnApi_initSpiMaster     initialize the PDI SPI driver
             
-            pdiSpiWrite     write given byte to given address
+            CnApi_Spi_write         write given data size from PDI
+
+            CnApi_Spi_read          read given data size to PDI
+
+            CnApi_Spi_writeByte     write given byte to given address
             
-            pdiSpiRead      read a byte from given address
+            CnApi_Spi_readByte      read a byte from given address
             
             
             setPdiAddrReg   build addressing commands for given address
@@ -60,10 +64,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ------------------------------------------------------------------------------
  History:
     2010/09/09  zelenkaj    created
+	2010/10/25	hoggerm		added function for scalable data size transfers
 
 ----------------------------------------------------------------------------*/
 
-#include "pdi_spi.h"
+#include "cnApiPdiSpi.h"
+#include "cnApiDebug.h"
 
 /***************************************************************************************
  * LOCAL DEFINES
@@ -143,7 +149,7 @@ static tPdiSpiInstance PdiSpiInstance_l;
  *  PDISPI_OK ... init done successfully
  *  PDISPI_ERROR ... otherwise
  */
-int pdiSpiInit
+int CnApi_initSpiMaster
 (
     tSpiMasterTxHandler     SpiMasterTxH_p, //SPI Master Tx Handler 
     tSpiMasterRxHandler     SpiMasterRxH_p  //SPI MASTER Rx Handler
@@ -184,10 +190,10 @@ exit:
  *  PDISPI_OK ... write done successfully
  *  PDISPI_ERROR ... otherwise
  */
-int pdiSpiWrite
+int CnApi_Spi_writeByte
 (
-    unsigned short          uwAddr_p,       //PDI Address to be written to
-    unsigned char           ubData_p        //Write data
+    WORD          uwAddr_p,       //PDI Address to be written to
+    BYTE           ubData_p        //Write data
 )
 {
     int             iRet = PDISPI_OK;
@@ -232,10 +238,10 @@ exit:
  *  PDISPI_OK ... read done successfully
  *  PDISPI_ERROR ... otherwise
  */
-int pdiSpiRead
+int CnApi_Spi_readByte
 (
-    unsigned short          uwAddr_p,       //PDI Address to be read from
-    unsigned char           *pData_p        //Read data
+    WORD          uwAddr_p,       //PDI Address to be read from
+    BYTE           *pData_p        //Read data
 )
 {
     int             iRet = PDISPI_OK;
@@ -285,6 +291,113 @@ exit:
     return iRet;
 }
 
+/**
+********************************************************************************
+\brief	read data from the CN PDI via SPI
+
+CnApi_Spi_read() reads a certain amount of data from the POWERLINK CN PDI
+via SPI. This data will be read from PDI address and stored to a local address.
+
+\param	wAddr_p		PDI address to be read from
+\param	wSize_p		Size of transmitted data in Bytes
+\param  pTgtVar     (Byte-) Pointer to local target address
+
+\retval	iRet		can be PDISPI_OK if transfer was successful
+					or PDISPI_ERROR otherwise
+*******************************************************************************/
+int CnApi_Spi_read
+(
+   WORD   wPcpAddr_p,      ///< PDI Address to be read from
+   WORD   wSize_p,         ///< size in Bytes
+   BYTE*  pApTgtVar_p      ///< ptr to local target
+)
+{
+    int iRet = PDISPI_OK;
+
+    /* Depending on data size, choose different SPI processing*/
+    if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
+    {
+        TRACE("Error: SPI PDI data size invalid!");
+        iRet = PDISPI_ERROR;
+        goto exit;
+    }
+    else if(wSize_p > SPI_THRSHLD_SIZE) /* use automatic address increment */
+    {
+
+        /*TODO: implement internal function using special command for 32 byte transfers */
+        /* and decrease SPI_THRSHLD_SIZE to apprx. "4" */
+
+    }
+    else /* transfer single bytes - in this case, better use CnApi_Spi_readByte() directly! */
+    {
+        for(; 0 < wSize_p; wSize_p--)
+         {
+             iRet = CnApi_Spi_readByte(wPcpAddr_p++, (BYTE*) (pApTgtVar_p++));
+             if( iRet != PDISPI_OK )
+             {
+                 iRet = PDISPI_ERROR;
+                 goto exit;
+             }
+         }
+    }
+
+    exit:
+        return iRet;
+}
+
+/**
+********************************************************************************
+\brief  write data to the CN PDI via SPI
+
+CnCnApi_Spi_writerites a certain amount of data to the POWERLINK CN PDI
+via SPI. This data will be read from a local address and stored to a PDI address.
+
+\param  wAddr_p     PDI Address to be written to
+\param  wSize_p     Size of transmitted data in Bytes
+\param  pSrcVar     (Byte-) Pointer to local source address
+
+\retval iRet        can be PDISPI_OK if transfer was successful
+                    or PDISPI_ERROR otherwise
+*******************************************************************************/
+int CnApi_Spi_write
+(
+    WORD   wPcpAddr_p,    ///< PDI Address to be written to
+    WORD   wSize_p,                             ///< size in Bytes
+    BYTE*  pApSrcVar_p                          ///< ptr to local source
+)
+{
+    int iRet = PDISPI_OK;
+
+    /* Depending on data size, choose different SPI processing*/
+    if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
+    {
+        TRACE("Error: SPI PDI data size invalid!");
+        iRet = PDISPI_ERROR;
+        goto exit;
+    }
+    else if(wSize_p > SPI_THRSHLD_SIZE) /* use automatic address increment */
+    {
+
+        /*TODO: implement internal function using special command for 32 byte transfers */
+        /* and decrease SPI_THRSHLD_SIZE to apprx. "4" */
+
+    }
+    else /* transfer single bytes - in this case, better use CnApi_Spi_writeByte directly! */
+    {
+        for(; 0 < wSize_p; wSize_p--)
+         {
+          CnApi_Spi_writeByte(wPcpAddr_p++, (BYTE) *(pApSrcVar_p++));
+             if( iRet != PDISPI_OK )
+             {
+                 iRet = PDISPI_ERROR;
+                 goto exit;
+             }
+         }
+    }
+
+    exit:
+        return iRet;
+}
 /***************************************************************************************
  * LOCAL FUNCTIONS
  ***************************************************************************************/

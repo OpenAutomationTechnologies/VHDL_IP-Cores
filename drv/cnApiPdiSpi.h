@@ -1,4 +1,4 @@
-/* pdi_spi.h - Library for FPGA PDI via SPI */
+/* cnApiPdiSpi.h - Library for FPGA PDI via SPI */
 /*
 ------------------------------------------------------------------------------
 Copyright (c) 2010, B&R
@@ -33,8 +33,8 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------------
- Module:    pdi_spi
- File:      pdi_spi.h
+ Module:    cnApiPdiSpi
+ File:      cnApiPdiSpi.h
  Author:    Joerg Zelenka (zelenkaj)
  Created:   2010/09/09
  Revised:   -
@@ -42,20 +42,27 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ------------------------------------------------------------------------------
 
  Functions:
-            pdiSpiInit      initialize the PDI SPI driver
+            CnApi_initSpiMaster     initialize the PDI SPI driver
             
-            pdiSpiWrite     write given byte to given address
+            CnApi_Spi_write         write given data size from PDI
+
+            CnApi_Spi_read          read given data size to PDI
+
+            CnApi_Spi_writeByte      write given byte to given address
             
-            pdiSpiRead      read a byte from given address
+            CnApi_Spi_readByte      read a byte from given address
 
 ------------------------------------------------------------------------------
  History:
     2010/09/09  zelenkaj    created
+	2010/10/25	hoggerm		added function for scalable data size transfers
 
 ----------------------------------------------------------------------------*/
 
-#ifndef PDI_SPI_H_
-#define PDI_SPI_H_
+#ifndef _CNAPI_PDI_SPI_H_
+#define _CNAPI_PDI_SPI_H_
+
+#include "cnApiGlobal.h"
 
 //errors
 #define PDISPI_OK                       (0)
@@ -64,6 +71,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //general define
 #define PDISPI_MAX_TX                   (4)
 #define PDISPI_MAX_RX                   (1)
+#define PDISPI_MAX_SIZE                 (32768)                 ///< max Nr. of bytes able to address (2^15)
+#define PDISPI_MAX_ADR_OFFSET           (PDISPI_MAX_SIZE - 1)   ///< highest possible address of PDI SPI
+#define SPI_THRSHLD_SIZE                (3000)                  ///< according to this SPI transfer size, the transfer mode is chosen
+                                                                /*   (automatic address increment or single byte transfer) */
 
 //CMD Frame:
 // CMD(2..0) | DATA(4..0)
@@ -83,16 +94,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PDISPI_ADDR_MIDADDR_MASK        PDISPI_ADDR_MASK << PDISPI_ADDR_MIDADDR_OFFSET
 #define PDISPI_ADDR_ADDR_MASK           PDISPI_ADDR_MASK << PDISPI_ADDR_ADDR_OFFSET
 
-
-/* SPI Master Tx/Rx Handler
- * Tx Handler: Is called to transmit n bytes of data. pTxBuf_p points
- *  to the first byte to be transmitted.
- * Rx Handler: Is called to receive 1 byte of data.
- *  Note: The Master must send a byte with MSB '0', when receiving data.
-  * return:
- *  PDISPI_OK ... Tx/Rx done successfully
- *  PDISPI_ERROR ... otherwise
- */
 typedef int (*tSpiMasterTxHandler) (unsigned char *pTxBuf_p, int iBytes_p);
 typedef int (*tSpiMasterRxHandler) (unsigned char *pRxBuf_p, int iBytes_p);
 
@@ -114,45 +115,36 @@ typedef struct _tPdiSpiInstance
     int                     m_toBeRx;
 } tPdiSpiInstance;
 
-/* PDI SPI Driver Init
- *  Has to be called before using any other function of this library to register the
- *  SPI Master Tx/Rx handler.
- *  Furthermore the function sets the Address Register of the PDI SPI Slave to a known
- *  state.
- * return:
- *  PDISPI_OK ... init done successfully
- *  PDISPI_ERROR ... otherwise
- */
-int pdiSpiInit
+int CnApi_initSpiMaster
 (
     tSpiMasterTxHandler     SpiMasterTxH_p, //SPI Master Tx Handler 
     tSpiMasterRxHandler     SpiMasterRxH_p  //SPI MASTER Rx Handler
 );
 
-/* PDI SPI Driver Write
- *  This function writes a byte (ubData_p) to the PDI at the given address
- *  (uwAddr_p).
- * return:
- *  PDISPI_OK ... write done successfully
- *  PDISPI_ERROR ... otherwise
- */
-int pdiSpiWrite
+int CnApi_Spi_writeByte
 (
-    unsigned short          uwAddr_p,       //PDI Address to be written to
-    unsigned char           ubData_p        //Write data
+    WORD           uwAddr_p,       //PDI Address to be written to
+    BYTE           ubData_p        //Write data
 );
 
-/* PDI SPI Driver Read
- *  This function reads a byte (pData_p) from the PDI at a given address
- *  (uwAddr_p).
- * return:
- *  PDISPI_OK ... read done successfully
- *  PDISPI_ERROR ... otherwise
- */
-int pdiSpiRead
+int CnApi_Spi_readByte
 (
-    unsigned short          uwAddr_p,       //PDI Address to be read from
-    unsigned char           *pData_p        //Read data
+    WORD          uwAddr_p,       //PDI Address to be read from
+    BYTE           *pData_p        //Read data
 );
 
-#endif /* PDI_SPI_H_ */
+int CnApi_Spi_read
+(
+   WORD   wPcpAddr_p,      ///< PDI Address to be read from
+   WORD   wSize_p,         ///< size in Bytes
+   BYTE*  pApTgtVar_p      ///< ptr to local target
+);
+
+int CnApi_Spi_write
+(
+   WORD   wPcpAddr_p,      ///< PDI Address to be written to
+   WORD   wSize_p,         ///< size in Bytes
+   BYTE*  pApSrcVar_p      ///< ptr to local source
+);
+
+#endif /* _CNAPI_PDI_SPI_H_ */
