@@ -39,8 +39,9 @@
 #-- 2010-09-13	V0.02	zelenkaj	added selection Rmii / Mii
 #-- 2010-10-04  V0.03	zelenkaj	bugfix: Rmii / Mii selection was faulty
 #-- 2010-10-11  V0.04	zelenkaj	changed pdi dpr size calculation
-#-- 2010-10-18	V0.02	zelenkaj	added selection Big/Little Endian (pdi_par)
+#-- 2010-10-18	V0.05	zelenkaj	added selection Big/Little Endian (pdi_par)
 #--									use bidirectional data bus (pdi_par)
+#-- 2010-11-15	V0.06	zelenkaj	bugfix: rpdo header was calculated twice
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -324,6 +325,7 @@ proc my_validation_callback {} {
 	set rpdo0size 					[expr $rpdo0size + 16]
 	set rpdo1size 					[expr $rpdo1size + 16]
 	set rpdo2size 					[expr $rpdo2size + 16]
+	set tpdo0size 					[expr $tpdo0size + 0]
 	set asyncTxBufSize				[expr $asyncTxBufSize + 4]
 	set asyncRxBufSize				[expr $asyncRxBufSize + 4]
 	
@@ -407,23 +409,23 @@ proc my_validation_callback {} {
 			set rpdo1size 0
 			set rpdo2size 0
 			set macRxBuffers 4
-			set memRpdo [expr ($rpdo0size + 16)*3]
+			set memRpdo [expr ($rpdo0size)*3]
 		} elseif {$rpdos == 2} {
 			set_parameter_property rpdo0size VISIBLE true
 			set_parameter_property rpdo1size VISIBLE true
 			set_parameter_property rpdo2size VISIBLE false
 			set rpdo2size 0
 			set macRxBuffers 5
-			set memRpdo [expr ($rpdo0size + 16 + $rpdo1size + 16)*3]
+			set memRpdo [expr ($rpdo0size + $rpdo1size)*3]
 		} elseif {$rpdos == 3} {
 			set_parameter_property rpdo0size VISIBLE true
 			set_parameter_property rpdo1size VISIBLE true
 			set_parameter_property rpdo2size VISIBLE true
 			set macRxBuffers 6
-			set memRpdo [expr ($rpdo0size + 16 + $rpdo1size + 16 + $rpdo2size + 16)*3]
+			set memRpdo [expr ($rpdo0size + $rpdo1size + $rpdo2size )*3]
 		}
 		set_parameter_property tpdo0size VISIBLE true
-		set memTpdo [expr ($tpdo0size + 0)*3]
+		set memTpdo [expr ($tpdo0size)*3]
 		
 		if {$configApInterface == "Avalon"} {
 			#avalon is used for the ap!

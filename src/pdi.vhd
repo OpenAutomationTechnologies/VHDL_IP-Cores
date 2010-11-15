@@ -43,6 +43,7 @@
 -- 2010-10-04  	V0.12	zelenkaj	Changed memory size calculation (e.g. generics must include header size)
 -- 2010-10-11  	V0.13	zelenkaj	Bugfix: PCP can't be producer in any case => added generic
 -- 2010-10-25	V0.14	zelenkaj	Use one Address Adder per DPR port side (reduces LE usage)
+-- 2010-11-08	V0.15	zelenkaj	Add 8 bytes to control reg of pdi mapped to dpr
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -122,7 +123,7 @@ type pdi32Bit_t is
 constant	extMaxOneSpan				: integer := 2 * 1024; --2kB
 constant	extLog2MaxOneSpan			: integer := integer(ceil(log2(real(extMaxOneSpan))));
 ----control / status register
-constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#3C#);
+constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#44#);
 ----asynchronous buffers
 constant	extTAsynBuf_c				: memoryMapping_t := (16#0800#, iAsyTxBufSize_g); --header is included in generic value!
 constant	extRAsynBuf_c				: memoryMapping_t := (16#1000#, iAsyRxBufSize_g); --header is included in generic value!
@@ -136,7 +137,7 @@ constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g); --he
 constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g); --header is included in generic value!
 ---memory mapping inside the PDI's DPR
 ----control / status register
-constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 16#C#);
+constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 5 * 4); --bytes mapped to dpr (dword alignment!!!)
 ----asynchronous buffers
 constant	intTAsynBuf_c				: memoryMapping_t := (intCntStReg_c.base + intCntStReg_c.span, align32(extTAsynBuf_c.span));
 constant	intRAsynBuf_c				: memoryMapping_t := (intTAsynBuf_c.base + intTAsynBuf_c.span, align32(extRAsynBuf_c.span));
@@ -399,7 +400,6 @@ begin
 	generic map (
 			bIsPcp						=> true,
 			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			--memory map from 0x4 to 0x0f into dpr
 			iBaseDpr_g					=> 16#4#/4, --base address of content to be mapped to dpr
 			iSpanDpr_g					=> intCntStReg_c.span/4, --size of content to be mapped to dpr
 			iBaseMap2_g					=> intCntStReg_c.base/4, --base address in dpr
@@ -456,7 +456,6 @@ begin
 	generic map (
 			bIsPcp						=> false,
 			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			--memory map from 0x4 to 0x0f into dpr
 			iBaseDpr_g					=> 16#4#/4, --base address of content to be mapped to dpr
 			iSpanDpr_g					=> intCntStReg_c.span/4, --size of content to be mapped to dpr
 			iBaseMap2_g					=> intCntStReg_c.base/4, --base address in dpr
@@ -1115,43 +1114,45 @@ begin
 				case conv_integer(addr)*4 is
 					when 16#00# =>
 						nonDprDout	<=	magicNumber;
-					when 16#10# =>
-						nonDprDout	<=	tPdoBuffer;
-					when 16#14# =>
-						nonDprDout	<=	rPdo0Buffer;
 					when 16#18# =>
+						nonDprDout	<=	tPdoBuffer;
+					when 16#1C# =>
+						nonDprDout	<=	rPdo0Buffer;
+					when 16#20# =>
 						if iRpdos_g >= 2 then
 							nonDprDout	<=	rPdo1Buffer;
 						else
 							nonDprDout <= x"00C0FFEE";
 						end if;
-					when 16#1C# =>
+					when 16#24# =>
 						if iRpdos_g >= 3 then
 							nonDprDout	<=	rPdo2Buffer;
 						else
 							nonDprDout <= x"00C0FFEE";
 						end if;
-					when 16#20# =>
-						nonDprDout	<=	tPdoDesc;
-					when 16#24# =>
-						nonDprDout	<=	rPdoDesc;
 					when 16#28# =>
-						nonDprDout	<=	tAsyncBuffer;
+						nonDprDout	<=	tPdoDesc;
 					when 16#2C# =>
-						nonDprDout	<=	rAsyncBuffer;
+						nonDprDout	<=	rPdoDesc;
 					when 16#30# =>
-						nonDprDout	<=	pdoVirtualBufferSel;
+						nonDprDout	<=	tAsyncBuffer;
+					when 16#34# =>
+						nonDprDout	<=	rAsyncBuffer;
 					when 16#38# =>
+						nonDprDout	<=	pdoVirtualBufferSel;
+					when 16#3C# =>
+						nonDprDout	<=	x"DEADC0DE";
+					when 16#40# =>
 						nonDprDout	<=	x"000000" & apIrqControl_s; 
 					when others =>
 						nonDprDout	<=	x"DEADC0DE";
 				end case;
 			elsif wr = '1' and sel = '1' and selDpr = '0' then
 				case conv_integer(addr)*4 is
-					when 16#30# =>
+					when 16#38# =>
 						tPdoTrigger <= be(3);
 						rPdoTrigger(2 downto 0) <= be(2 downto 0);
-					when 16#38# =>
+					when 16#40# =>
 						if be(0) = '1' then
 							apIrqControl_s <= din(7 downto 0);
 						end if;

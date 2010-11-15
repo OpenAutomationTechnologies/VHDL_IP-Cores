@@ -38,6 +38,7 @@
 -- 2010-08-31  	V0.01	zelenkaj    First version
 -- 2010-10-18	V0.02	zelenkaj	added selection Big/Little Endian
 --									use bidirectional data bus
+-- 2010-11-15	V0.03	zelenkaj	bug fix for 16bit parallel interface
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -140,11 +141,11 @@ begin
 		ap_byteenable <= ap_byteenable_s;
 		
 		pap_rddata <= 		(others => '0') when pap_doe_s = '0' else
-							ap_readdata( 7 downto  0) when ap_byteenable_s = "0001" else
-							ap_readdata(15 downto  8) when ap_byteenable_s = "0010" else
+							ap_readdata( 7 downto  0) & ap_readdata( 7 downto  0) when ap_byteenable_s = "0001" else
+							ap_readdata(15 downto  8) & ap_readdata(15 downto  8) when ap_byteenable_s = "0010" else
 							ap_readdata(15 downto  0) when ap_byteenable_s = "0011" else
-							ap_readdata(23 downto 16) when ap_byteenable_s = "0100" else
-							ap_readdata(31 downto 24) when ap_byteenable_s = "1000" else
+							ap_readdata(23 downto 16) & ap_readdata(23 downto 16) when ap_byteenable_s = "0100" else
+							ap_readdata(31 downto 24) & ap_readdata(31 downto 24) when ap_byteenable_s = "1000" else
 							ap_readdata(31 downto 16) when ap_byteenable_s = "1100" else
 							(others => '0'); --may not be the case
 		ap_writedata <=		pap_wrdata & pap_wrdata;
