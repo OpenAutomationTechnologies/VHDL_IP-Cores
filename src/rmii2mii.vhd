@@ -41,6 +41,7 @@
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
 -- 2010-09-13	V0.01		first version
+-- 2010-11-15	V0.02		bug fix: increased size of rx fifo, because of errors with marvel 88e1111 mii phy
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -134,8 +135,8 @@ begin
 		signal fifo_wr, fifo_rd : std_logic;
 		signal fifo_din : std_logic_vector(3 downto 0);
 		signal fifo_dout : std_logic_vector(1 downto 0);
-		signal fifo_rdUsedWord : std_logic_vector(3 downto 0);
-		signal fifo_wrUsedWord : std_logic_vector(2 downto 0);
+		signal fifo_rdUsedWord : std_logic_vector(4 downto 0);
+		signal fifo_wrUsedWord : std_logic_vector(3 downto 0);
 	begin
 		
 		fifo_din <= mRxDat;
@@ -208,10 +209,10 @@ ENTITY rxFifo IS
 		q		: OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
 		rdempty		: OUT STD_LOGIC ;
 		rdfull		: OUT STD_LOGIC ;
-		rdusedw		: OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
+		rdusedw		: OUT STD_LOGIC_VECTOR (4 DOWNTO 0);
 		wrempty		: OUT STD_LOGIC ;
 		wrfull		: OUT STD_LOGIC ;
-		wrusedw		: OUT STD_LOGIC_VECTOR (2 DOWNTO 0)
+		wrusedw		: OUT STD_LOGIC_VECTOR (3 DOWNTO 0)
 	);
 END rxFifo;
 
@@ -223,8 +224,8 @@ ARCHITECTURE SYN OF rxFifo IS
 	SIGNAL sub_wire2	: STD_LOGIC_VECTOR (1 DOWNTO 0);
 	SIGNAL sub_wire3	: STD_LOGIC ;
 	SIGNAL sub_wire4	: STD_LOGIC ;
-	SIGNAL sub_wire5	: STD_LOGIC_VECTOR (2 DOWNTO 0);
-	SIGNAL sub_wire6	: STD_LOGIC_VECTOR (3 DOWNTO 0);
+	SIGNAL sub_wire5	: STD_LOGIC_VECTOR (3 DOWNTO 0);
+	SIGNAL sub_wire6	: STD_LOGIC_VECTOR (4 DOWNTO 0);
 
 
 
@@ -252,10 +253,10 @@ ARCHITECTURE SYN OF rxFifo IS
 			rdfull	: OUT STD_LOGIC ;
 			wrclk	: IN STD_LOGIC ;
 			wrreq	: IN STD_LOGIC ;
-			wrusedw	: OUT STD_LOGIC_VECTOR (2 DOWNTO 0);
+			wrusedw	: OUT STD_LOGIC_VECTOR (3 DOWNTO 0);
 			data	: IN STD_LOGIC_VECTOR (3 DOWNTO 0);
 			rdreq	: IN STD_LOGIC ;
-			rdusedw	: OUT STD_LOGIC_VECTOR (3 DOWNTO 0)
+			rdusedw	: OUT STD_LOGIC_VECTOR (4 DOWNTO 0)
 	);
 	END COMPONENT;
 
@@ -265,19 +266,19 @@ BEGIN
 	q    <= sub_wire2(1 DOWNTO 0);
 	rdempty    <= sub_wire3;
 	rdfull    <= sub_wire4;
-	wrusedw    <= sub_wire5(2 DOWNTO 0);
-	rdusedw    <= sub_wire6(3 DOWNTO 0);
+	wrusedw    <= sub_wire5(3 DOWNTO 0);
+	rdusedw    <= sub_wire6(4 DOWNTO 0);
 
 	dcfifo_mixed_widths_component : dcfifo_mixed_widths
 	GENERIC MAP (
 		clocks_are_synchronized => "FALSE",
 		intended_device_family => "Cyclone III",
-		lpm_numwords => 8,
+		lpm_numwords => 16,
 		lpm_showahead => "OFF",
 		lpm_type => "dcfifo",
 		lpm_width => 4,
-		lpm_widthu => 3,
-		lpm_widthu_r => 4,
+		lpm_widthu => 4,
+		lpm_widthu_r => 5,
 		lpm_width_r => 2,
 		overflow_checking => "ON",
 		underflow_checking => "ON",
