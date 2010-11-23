@@ -35,7 +35,8 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2010-08-31  V0.01	zelenkaj    First version
+-- 2010-08-31  	V0.01	zelenkaj    First version
+-- 2010-11-23	V0.02	zelenkaj	Added write/read sequence feature (WRSQ and RDSQ)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -76,7 +77,10 @@ constant cmdHighaddr_c		:		std_logic_vector(2 downto 0)	:= "100";
 constant cmdMidaddr_c		:		std_logic_vector(2 downto 0)	:= "101";
 constant cmdWr_c			:		std_logic_vector(2 downto 0)	:= "110";
 constant cmdRd_c			:		std_logic_vector(2 downto 0)	:= "111";
-constant cmdIdle_c			:		std_logic_vector(2 downto 0)	:= "0--";
+constant cmdWRSQ_c			:		std_logic_vector(2 downto 0)	:= "001";
+constant cmdRDSQ_c			:		std_logic_vector(2 downto 0)	:= "010";
+constant cmdLowaddr_c		:		std_logic_vector(2 downto 0)	:= "011";
+constant cmdIdle_c			:		std_logic_vector(2 downto 0)	:= "000";
 --pdi_spi control signals
 type fsm_t is (idle, decode, waitwr, waitrd, wr, rd);
 signal	fsm					:		fsm_t;
@@ -89,6 +93,8 @@ signal	din					:  		std_logic_vector(spiSize_g-1 downto 0);
 signal	load				: 		std_logic;
 signal	dout				:  		std_logic_vector(spiSize_g-1 downto 0);
 signal	valid				: 		std_logic;
+--
+signal ap_byteenable_s		:		std_logic_vector(ap_byteenable'range);
 begin
 	
 	clk <= ap_clk;
@@ -98,22 +104,20 @@ begin
 	ap_write <= '1' when fsm = wr else '0';
 	ap_read <= '1' when fsm = waitrd or fsm = rd else '0';
 	ap_address <= addrReg(addrReg'left downto 2);
-	ap_byteenable <=	"0001" when addrReg(1 downto 0) = "00" else
+	
+	ap_byteenable	<=	ap_byteenable_s;
+	ap_byteenable_s <=	"0001" when addrReg(1 downto 0) = "00" else
 						"0010" when addrReg(1 downto 0) = "01" else
 						"0100" when addrReg(1 downto 0) = "10" else
 						"1000" when addrReg(1 downto 0) = "11" else
 						"0000";
 	
-	ap_writedata <=		(x"00" & x"00" & x"00" & dout)	when addrReg(1 downto 0) = "00" else
-						(x"00" & x"00" & dout & x"00")	when addrReg(1 downto 0) = "01" else
-						(x"00" & dout & x"00" & x"00")	when addrReg(1 downto 0) = "10" else
-						(dout & x"00" & x"00" & x"00")	when addrReg(1 downto 0) = "11" else
-						(others => '0');
+	ap_writedata <=		(dout & dout & dout & dout);
 	
-	din <=				ap_readdata( 7 downto  0) when addrReg(1 downto 0) = "00" else
-						ap_readdata(15 downto  8) when addrReg(1 downto 0) = "01" else
-						ap_readdata(23 downto 16) when addrReg(1 downto 0) = "10" else
-						ap_readdata(31 downto 24) when addrReg(1 downto 0) = "11" else
+	din <=				ap_readdata( 7 downto  0) when ap_byteenable_s = "0001" else
+						ap_readdata(15 downto  8) when ap_byteenable_s = "0010" else
+						ap_readdata(23 downto 16) when ap_byteenable_s = "0100" else
+						ap_readdata(31 downto 24) when ap_byteenable_s = "1000" else
 						(others => '0');
 	
 	load <= '1' when fsm = rd else '0'; --load data from pdi to spi shift register
@@ -122,16 +126,23 @@ begin
 	
 	thePdiSpiFsm : process(clk, rst)
 	variable timeout : integer range 0 to 3;
+	variable writes : integer range 0 to 32;
+	variable reads : integer range 0 to 32;
 	begin
 		if rst = '1' then
 			fsm <= idle;
 			timeout := 0;
+			writes := 0; reads := 0;
 			addrReg <= (others => '0');
 		elsif clk = '1' and clk'event then
 			
 			case fsm is
 				when idle =>
-					if valid = '1' then
+					if writes /= 0 then
+						fsm <= waitwr;
+					elsif reads /= 0 and valid = '1' then
+						fsm <= waitrd;
+					elsif valid = '1' then
 						fsm <= decode;
 					else
 						fsm <= idle;
@@ -144,23 +155,32 @@ begin
 							addrReg(addrReg'left downto addrReg'left-4) <= dout(spiSize_g-4 downto 0);
 						when cmdMidaddr_c =>
 							addrReg(addrReg'left-5 downto addrReg'left-9) <= dout(spiSize_g-4 downto 0);
+						when cmdLowaddr_c =>
+							addrReg(addrReg'left-10 downto 0) <= dout(spiSize_g-4 downto 0);
 						when cmdWr_c =>
 							addrReg(addrReg'left-10 downto 0) <= dout(spiSize_g-4 downto 0);
 							fsm <= waitwr;
+							writes := 1;
 						when cmdRd_c =>
 							addrReg(addrReg'left-10 downto 0) <= dout(spiSize_g-4 downto 0);
 							fsm <= waitrd;
+							reads := 1;
+						when cmdWRSQ_c =>
+							fsm <= waitwr;
+							writes := conv_integer(dout(spiSize_g-4 downto 0)) + 1; --BYTES byte are written
+						when cmdRDSQ_c =>
+							fsm <= waitrd;
+							reads := conv_integer(dout(spiSize_g-4 downto 0)) + 1; --BYTES byte are read
 						when cmdIdle_c =>
-							--don't interpret the command 
+							--don't interpret the command, goto idle
 						when others =>
-							--error => idle
+							--error, goto idle
 					end case;
 					
 				when waitwr =>
 					--wait for data from spi master
 					if valid = '1' then
 						fsm <= wr;
-						--data is stored in dout
 					else
 						fsm <= waitwr;
 					end if;
@@ -178,9 +198,13 @@ begin
 					
 				when wr =>
 					fsm <= idle;
-				
+					writes := writes - 1;
+					addrReg <= addrReg + 1;
+									
 				when rd =>
 					fsm <= idle;
+					reads := reads - 1;
+					addrReg <= addrReg + 1;
 				
 			end case;
 			

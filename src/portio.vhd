@@ -35,8 +35,10 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2010-08-16  V0.01	zelenkaj    First version
--- 2010-10-04  V0.02	zelenkaj	Bugfix: PORTDIR was mapped incorrectly (according to doc) to Avalon bus
+-- 2010-08-16  	V0.01	zelenkaj    First version
+-- 2010-10-04  	V0.02	zelenkaj	Bugfix: PORTDIR was mapped incorrectly (according to doc) to Avalon bus
+-- 2010-11-23	V0.03	zelenkaj	Added Operational Flag to portio
+--									Added counter for valid assertion duration
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -45,19 +47,23 @@ USE ieee.std_logic_arith.all;
 USE ieee.std_logic_unsigned.all;
 
 entity portio is
+	generic (
+		pioValLen_g 	:		integer := 50 --clock ticks of pcp_clk
+	);
 	port (
-		s0_address    : in    std_logic;
-		s0_read       : in    std_logic;
-		s0_readdata   : out   std_logic_vector(31 downto 0);
-		s0_write      : in    std_logic;
-		s0_writedata  : in    std_logic_vector(31 downto 0);
-		s0_byteenable : in    std_logic_vector(3 downto 0);
-		clk        : in    std_logic;
-		reset      : in    std_logic;
-		x_pconfig    : in    std_logic_vector(3 downto 0);
-		x_portInLatch	: in std_logic_vector(3 downto 0);
-		x_portOutValid : out std_logic_vector(3 downto 0);
-		x_portio     : inout std_logic_vector(31 downto 0)
+		s0_address    	: in    std_logic;
+		s0_read       	: in    std_logic;
+		s0_readdata   	: out   std_logic_vector(31 downto 0);
+		s0_write      	: in    std_logic;
+		s0_writedata  	: in    std_logic_vector(31 downto 0);
+		s0_byteenable 	: in    std_logic_vector(3 downto 0);
+		clk        		: in    std_logic;
+		reset      		: in    std_logic;
+		x_pconfig    	: in    std_logic_vector(3 downto 0);
+		x_portInLatch	: in 	std_logic_vector(3 downto 0);
+		x_portOutValid 	: out 	std_logic_vector(3 downto 0);
+		x_portio     	: inout std_logic_vector(31 downto 0);
+		x_operational 	: out 	std_logic
 	);
 end entity portio;
 
@@ -65,9 +71,12 @@ architecture rtl of portio is
 	signal sPortConfig : std_logic_vector(x_pconfig'range);
 	signal sPortOut : std_logic_vector(x_portio'range);
 	signal sPortIn, sPortInL : std_logic_vector(x_portio'range);
+	signal x_operational_s : std_logic;
+	signal x_portOutValid_s : std_logic_vector(x_portOutValid'range);
 begin
 
 	sPortConfig <= x_pconfig;
+	x_operational <= x_operational_s;
 	
 	portGen : for i in 3 downto 0 generate
 		--if port configuration bit is set to '0', the appropriate port-byte is an output
@@ -81,12 +90,13 @@ begin
 	begin
 		if reset = '1' then
 			s0_readdata <= (others => '0');
-			x_portOutValid <= (others => '0');
+			x_portOutValid_s <= (others => '0');
 			sPortOut <= (others => '0');
+			x_operational_s <= '0';
 			
 		elsif clk = '1' and clk'event then
 			s0_readdata <= (others => '0');
-			x_portOutValid <= (others => '0');
+			x_portOutValid_s <= (others => '0');
 			
 			if s0_write = '1' then
 				case s0_address is
@@ -94,9 +104,11 @@ begin
 						for i in 3 downto 0 loop
 							if s0_byteenable(i) = '1' then
 								sPortOut((i+1)*8-1 downto (i+1)*8-8) <= s0_writedata((i+1)*8-1 downto (i+1)*8-8);
-								x_portOutValid(i) <= '1';
+								x_portOutValid_s(i) <= '1';
 							end if;
 						end loop;
+					when '1' => --write to config register operational flag
+						x_operational_s <= s0_writedata(s0_writedata'left);
 					when others =>
 				end case;
 				
@@ -105,7 +117,7 @@ begin
 					when '0' =>	--read port
 						s0_readdata <= sPortInL;
 					when '1' =>	--read port config
-						s0_readdata <= x"000000" & x"0" & sPortConfig;
+						s0_readdata <= x_operational_s & "000" & x"00000" & x"0" & sPortConfig;
 					when others =>
 							s0_readdata <= x"deadc0de";
 				end case;
@@ -113,6 +125,19 @@ begin
 			end if;
 		end if;
 	end process;
+	
+	thePortioCnters : for i in 0 to 3 generate
+		thePortioCnt : entity work.portio_cnt
+		generic map (
+			maxVal =>	pioValLen_g
+		)
+		port map (
+			clk => clk,
+			rst => reset,
+			pulse => x_portOutValid_s(i),
+			valid => x_portOutValid(i)
+		);
+	end generate;
 	
 	--latch input signals
 	latchInPro : process(clk, reset)
@@ -129,5 +154,65 @@ begin
 			
 		end if;
 	end process;
+	
+end architecture rtl;
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+USE ieee.std_logic_arith.all;
+USE ieee.std_logic_unsigned.all;
+
+entity portio_cnt is
+	generic (
+		maxVal 			:		integer := 50 --clock ticks of pcp_clk
+	);
+	port (
+		clk				:		in std_logic;
+		rst				:		in std_logic;
+		pulse			:		in std_logic;
+		valid			:		out std_logic
+	);
+end entity portio_cnt;
+
+architecture rtl of portio_cnt is
+signal cnt : integer range 0 to maxVal-2;
+signal tc, en : std_logic;
+begin
+	genCnter : if maxVal > 1 generate
+		tc <= '1' when cnt = maxVal-2 else '0';
+		valid <= en or pulse;
+		
+		counter : process(clk, rst)
+		begin
+			if rst = '1' then
+				cnt <= 0;
+			elsif clk = '1' and clk'event then
+				if tc = '1' then
+					cnt <= 0;
+				elsif en = '1' then
+					cnt <= cnt + 1;
+				else
+					cnt <= 0;
+				end if;
+			end if;
+		end process;
+		
+		enGen : process(clk, rst)
+		begin
+			if rst = '1' then
+				en <= '0';
+			elsif clk = '1' and clk'event then
+				if pulse = '1' then
+					en <= '1';
+				elsif tc = '1' then
+					en <= '0';
+				end if;
+			end if;
+		end process;
+	end generate;
+	
+	genSimple : if maxVal = 1 generate
+		valid <= pulse;
+	end generate;
 	
 end architecture rtl;

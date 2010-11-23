@@ -39,6 +39,7 @@
 -- 2010-10-18	V0.02	zelenkaj	added selection Big/Little Endian
 --									use bidirectional data bus
 -- 2010-11-15	V0.03	zelenkaj	bug fix for 16bit parallel interface
+-- 2010-11-23	V0.04	zelenkaj	added 2 GPIO pins driving "00"
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -75,7 +76,9 @@ entity pdi_par is
             ap_byteenable             	: out	std_logic_vector(3 DOWNTO 0);
             ap_address                  : out	std_logic_vector(12 DOWNTO 0);
             ap_writedata                : out	std_logic_vector(31 DOWNTO 0);
-            ap_readdata                 : in	std_logic_vector(31 DOWNTO 0)
+            ap_readdata                 : in	std_logic_vector(31 DOWNTO 0);
+		-- GPIO
+			pap_gpio					: inout	std_logic_vector(1 downto 0)
 	);
 end entity pdi_par;
 
@@ -85,8 +88,14 @@ architecture rtl of pdi_par is
 	
 	signal ap_byteenable_s				:		std_logic_vector(ap_byteenable'range);
 	signal pap_doe_s					:		std_logic;
+	signal pap_gpiooe_s					:		std_logic_vector(pap_gpio'range);
 	signal pap_wrdata, pap_rddata		:		std_logic_vector(papDataWidth_g-1 downto 0);
+	signal pap_rddata_s					:		std_logic_vector(pap_rddata'range);
 begin
+	
+	--reserved for further features not yet defined
+	pap_gpiooe_s <= (others => '1');
+	pap_gpio <= "00" when pap_gpiooe_s = "11" else (others => 'Z');
 	
 	pap_ready <= '1' when fsm = wr_ack or fsm = rd_ack else '0';
 	pap_doe_s <= '1' when fsm = rd or fsm = rd_ack else '0';
@@ -119,19 +128,14 @@ begin
 	end generate gen8bitSigs;
 	
 	genBeSigs16bit : if papDataWidth_g = 16 generate
-		--tri-state buffer + endian consideration
-		pap_data <= pap_rddata 	when pap_doe_s = '1' and papBigEnd_g = false else
-					pap_rddata(papDataWidth_g/2-1 downto 0) &
-					pap_rddata(papDataWidth_g-1 downto papDataWidth_g/2)
-								when pap_doe_s = '1' and papBigEnd_g = true else
+		--tri-state buffer
+		pap_data <= pap_rddata 	when pap_doe_s = '1' else
 					(others => 'Z');
-		pap_wrdata <= pap_data 	when papBigEnd_g = false else
-					pap_data(papDataWidth_g/2-1 downto 0) &
-					pap_data(papDataWidth_g-1 downto papDataWidth_g/2)
-								when papBigEnd_g = true else
-					(others => '0');
+		pap_wrdata <= 	pap_data when papBigEnd_g = false else
+						pap_data(7 downto 0) & pap_data(15 downto 8) when papBigEnd_g = true else
+						(others => '0');
 		
-		ap_byteenable_s <= 	"0001" when pap_addr(1 downto 1) = "0" and pap_be = "01" else
+		ap_byteenable_s <=	"0001" when pap_addr(1 downto 1) = "0" and pap_be = "01" else
 							"0010" when pap_addr(1 downto 1) = "0" and pap_be = "10" else
 							"0011" when pap_addr(1 downto 1) = "0" and pap_be = "11" else
 							"0100" when pap_addr(1 downto 1) = "1" and pap_be = "01" else
@@ -140,7 +144,7 @@ begin
 							(others => '0');
 		ap_byteenable <= ap_byteenable_s;
 		
-		pap_rddata <= 		(others => '0') when pap_doe_s = '0' else
+		pap_rddata_s <=		(others => '0') when pap_doe_s = '0' else
 							ap_readdata( 7 downto  0) & ap_readdata( 7 downto  0) when ap_byteenable_s = "0001" else
 							ap_readdata(15 downto  8) & ap_readdata(15 downto  8) when ap_byteenable_s = "0010" else
 							ap_readdata(15 downto  0) when ap_byteenable_s = "0011" else
@@ -148,7 +152,12 @@ begin
 							ap_readdata(31 downto 24) & ap_readdata(31 downto 24) when ap_byteenable_s = "1000" else
 							ap_readdata(31 downto 16) when ap_byteenable_s = "1100" else
 							(others => '0'); --may not be the case
-		ap_writedata <=		pap_wrdata & pap_wrdata;
+		
+		pap_rddata <= 	pap_rddata_s when papBigEnd_g = false else
+						pap_rddata_s(7 downto 0) & pap_rddata_s(15 downto 8) when papBigEnd_g = true else
+						(others => '0');
+		
+		ap_writedata <=	pap_wrdata & pap_wrdata;
 	end generate genBeSigs16bit;
 	
 	theFsm : process(ap_clk, ap_reset)

@@ -44,6 +44,8 @@
 -- 2010-10-11  	V0.13	zelenkaj	Bugfix: PCP can't be producer in any case => added generic
 -- 2010-10-25	V0.14	zelenkaj	Use one Address Adder per DPR port side (reduces LE usage)
 -- 2010-11-08	V0.15	zelenkaj	Add 8 bytes to control reg of pdi mapped to dpr
+-- 2010-11-23	V0.16	zelenkaj	Omitted T/RPDO descriptor sections in DPR
+--									Omitted "HEX Words" (e.g. DEADC0DE, C00FFEE) and replaced with ZEROS
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -63,9 +65,9 @@ entity pdi is
 			iRpdo0BufSize_g				:		integer := 116; --includes header
 			iRpdo1BufSize_g				:		integer := 116; --includes header
 			iRpdo2BufSize_g				:		integer := 116; --includes header
-			--PDO-objects
-			iTpdoObjNumber_g			:		integer := 10;
-			iRpdoObjNumber_g			:		integer := 10; --includes all PDOs!!!
+--			--PDO-objects
+--			iTpdoObjNumber_g			:		integer := 10;
+--			iRpdoObjNumber_g			:		integer := 10; --includes all PDOs!!!
 			--asynchronous TX and RX buffer size
 			iAsyTxBufSize_g				:		integer := 1504; --includes header
 			iAsyRxBufSize_g				:		integer := 1504  --includes header
@@ -127,25 +129,26 @@ constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#44#);
 ----asynchronous buffers
 constant	extTAsynBuf_c				: memoryMapping_t := (16#0800#, iAsyTxBufSize_g); --header is included in generic value!
 constant	extRAsynBuf_c				: memoryMapping_t := (16#1000#, iAsyRxBufSize_g); --header is included in generic value!
-----pdo descriptors
-constant	extTpdoDesc_c				: memoryMapping_t := (16#1800#, iTpdoObjNumber_g * 8);
-constant	extRpdoDesc_c				: memoryMapping_t := (16#2000#, iRpdoObjNumber_g * 8);
+------pdo descriptors
+--constant	extTpdoDesc_c				: memoryMapping_t := (16#1800#, iTpdoObjNumber_g * 8);
+--constant	extRpdoDesc_c				: memoryMapping_t := (16#2000#, iRpdoObjNumber_g * 8);
 ----pdo buffer
-constant	extTpdoBuf_c				: memoryMapping_t := (16#2800#, iTpdoBufSize_g); --header is included in generic value!
-constant	extRpdo0Buf_c				: memoryMapping_t := (16#3000#, iRpdo0BufSize_g); --header is included in generic value!
-constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g); --header is included in generic value!
-constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g); --header is included in generic value!
+constant	extTpdoBuf_c				: memoryMapping_t := (16#1800#, iTpdoBufSize_g); --header is included in generic value!
+constant	extRpdo0Buf_c				: memoryMapping_t := (16#2000#, iRpdo0BufSize_g); --header is included in generic value!
+constant	extRpdo1Buf_c				: memoryMapping_t := (16#2800#, iRpdo1BufSize_g); --header is included in generic value!
+constant	extRpdo2Buf_c				: memoryMapping_t := (16#3000#, iRpdo2BufSize_g); --header is included in generic value!
 ---memory mapping inside the PDI's DPR
 ----control / status register
 constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 5 * 4); --bytes mapped to dpr (dword alignment!!!)
 ----asynchronous buffers
 constant	intTAsynBuf_c				: memoryMapping_t := (intCntStReg_c.base + intCntStReg_c.span, align32(extTAsynBuf_c.span));
 constant	intRAsynBuf_c				: memoryMapping_t := (intTAsynBuf_c.base + intTAsynBuf_c.span, align32(extRAsynBuf_c.span));
-----pdo descriptors
-constant	intTpdoDesc_c				: memoryMapping_t := (intRAsynBuf_c.base + intRAsynBuf_c.span, align32(extTpdoDesc_c.span));
-constant	intRpdoDesc_c				: memoryMapping_t := (intTpdoDesc_c.base + intTpdoDesc_c.span, align32(extRpdoDesc_c.span));
+------pdo descriptors
+--constant	intTpdoDesc_c				: memoryMapping_t := (intRAsynBuf_c.base + intRAsynBuf_c.span, align32(extTpdoDesc_c.span));
+--constant	intRpdoDesc_c				: memoryMapping_t := (intTpdoDesc_c.base + intTpdoDesc_c.span, align32(extRpdoDesc_c.span));
 ----pdo buffers (triple buffers considered!)
-constant	intTpdoBuf_c				: memoryMapping_t := (intRpdoDesc_c.base + intRpdoDesc_c.span, align32(extTpdoBuf_c.span) *3);
+--constant	intTpdoBuf_c				: memoryMapping_t := (intRpdoDesc_c.base + intRpdoDesc_c.span, align32(extTpdoBuf_c.span) *3);
+constant	intTpdoBuf_c				: memoryMapping_t := (intRAsynBuf_c.base + intRAsynBuf_c.span, align32(extTpdoBuf_c.span) *3);
 constant	intRpdo0Buf_c				: memoryMapping_t := (intTpdoBuf_c.base  + intTpdoBuf_c.span,  align32(extRpdo0Buf_c.span)*3);
 constant	intRpdo1Buf_c				: memoryMapping_t := (intRpdo0Buf_c.base + intRpdo0Buf_c.span, align32(extRpdo1Buf_c.span)*3);
 constant	intRpdo2Buf_c				: memoryMapping_t := (intRpdo1Buf_c.base + intRpdo1Buf_c.span, align32(extRpdo2Buf_c.span)*3);
@@ -153,8 +156,8 @@ constant	intRpdo2Buf_c				: memoryMapping_t := (intRpdo1Buf_c.base + intRpdo1Buf
 constant	dprSize_c					: integer := (	intCntStReg_c.span +
 														intTAsynBuf_c.span +
 														intRAsynBuf_c.span +
-														intTpdoDesc_c.span +
-														intRpdoDesc_c.span +
+--														intTpdoDesc_c.span +
+--														intRpdoDesc_c.span +
 														intTpdoBuf_c.span  +
 														intRpdo0Buf_c.span +
 														intRpdo1Buf_c.span +
@@ -187,9 +190,9 @@ signal		dprCntStReg_s				: dprPdi_t;
 ----asynchronous buffers
 signal		dprTAsynBuf_s				: dprPdi_t;
 signal		dprRAsynBuf_s				: dprPdi_t;
-----pdo descriptors
-signal		dprTpdoDesc_s				: dprPdi_t;
-signal		dprRpdoDesc_s				: dprPdi_t;
+------pdo descriptors
+--signal		dprTpdoDesc_s				: dprPdi_t;
+--signal		dprRpdoDesc_s				: dprPdi_t;
 ----pdo buffers (triple buffers considered!)
 signal		dprTpdoBuf_s				: dprPdi_t;
 signal		dprRpdo0Buf_s				: dprPdi_t;
@@ -201,9 +204,9 @@ signal		selCntStReg_s				: pdiSel_t;
 ----asynchronous buffers
 signal		selTAsynBuf_s				: pdiSel_t;
 signal		selRAsynBuf_s				: pdiSel_t;
-----pdo descriptors
-signal		selTpdoDesc_s				: pdiSel_t;
-signal		selRpdoDesc_s				: pdiSel_t;
+------pdo descriptors
+--signal		selTpdoDesc_s				: pdiSel_t;
+--signal		selRpdoDesc_s				: pdiSel_t;
 ----pdo buffers (triple buffers considered!)
 signal		selTpdoBuf_s				: pdiSel_t;
 signal		selRpdo0Buf_s				: pdiSel_t;
@@ -215,9 +218,9 @@ signal		outCntStReg_s				: pdi32Bit_t;
 ----asynchronous buffers
 signal		outTAsynBuf_s				: pdi32Bit_t;
 signal		outRAsynBuf_s				: pdi32Bit_t;
-----pdo descriptors
-signal		outTpdoDesc_s				: pdi32Bit_t;
-signal		outRpdoDesc_s				: pdi32Bit_t;
+------pdo descriptors
+--signal		outTpdoDesc_s				: pdi32Bit_t;
+--signal		outRpdoDesc_s				: pdi32Bit_t;
 ----pdo buffers (triple buffers considered!)
 signal		outTpdoBuf_s				: pdi32Bit_t;
 signal		outRpdo0Buf_s				: pdi32Bit_t;
@@ -250,8 +253,8 @@ begin
 		pcp_readdata	<=	outCntStReg_s.pcp	when 	selCntStReg_s.pcp = '1' else
 							outTAsynBuf_s.pcp	when	selTAsynBuf_s.pcp = '1' else
 							outRAsynBuf_s.pcp	when	selRAsynBuf_s.pcp = '1' else
-							outTpdoDesc_s.pcp	when	selTpdoDesc_s.pcp = '1' else
-							outRpdoDesc_s.pcp	when	selRpdoDesc_s.pcp = '1' else
+--							outTpdoDesc_s.pcp	when	selTpdoDesc_s.pcp = '1' else
+--							outRpdoDesc_s.pcp	when	selRpdoDesc_s.pcp = '1' else
 							outTpdoBuf_s.pcp	when	selTpdoBuf_s.pcp  = '1' else
 							outRpdo0Buf_s.pcp	when	selRpdo0Buf_s.pcp = '1' else
 							outRpdo1Buf_s.pcp	when	selRpdo1Buf_s.pcp = '1'	else
@@ -261,8 +264,8 @@ begin
 		ap_readdata	<=		outCntStReg_s.ap	when 	selCntStReg_s.ap = '1' else
 							outTAsynBuf_s.ap	when	selTAsynBuf_s.ap = '1' else
 							outRAsynBuf_s.ap	when	selRAsynBuf_s.ap = '1' else
-							outTpdoDesc_s.ap	when	selTpdoDesc_s.ap = '1' else
-							outRpdoDesc_s.ap	when	selRpdoDesc_s.ap = '1' else
+--							outTpdoDesc_s.ap	when	selTpdoDesc_s.ap = '1' else
+--							outRpdoDesc_s.ap	when	selRpdoDesc_s.ap = '1' else
 							outTpdoBuf_s.ap		when	selTpdoBuf_s.ap  = '1' else
 							outRpdo0Buf_s.ap	when	selRpdo0Buf_s.ap = '1' else
 							outRpdo1Buf_s.ap	when	selRpdo1Buf_s.ap = '1' else
@@ -299,8 +302,8 @@ begin
 	dpr.pcp	<=	dprCntStReg_s.pcp	when	selCntStReg_s.pcp = '1'	else
 				dprTAsynBuf_s.pcp	when	selTAsynBuf_s.pcp = '1' else
 				dprRAsynBuf_s.pcp	when	selRAsynBuf_s.pcp = '1' else
-				dprTpdoDesc_s.pcp	when	selTpdoDesc_s.pcp = '1' else
-				dprRpdoDesc_s.pcp	when	selRpdoDesc_s.pcp = '1' else
+--				dprTpdoDesc_s.pcp	when	selTpdoDesc_s.pcp = '1' else
+--				dprRpdoDesc_s.pcp	when	selRpdoDesc_s.pcp = '1' else
 				dprTpdoBuf_s.pcp	when	selTpdoBuf_s.pcp = '1'	else
 				dprRpdo0Buf_s.pcp	when	selRpdo0Buf_s.pcp = '1' and iRpdos_g >= 1 else
 				dprRpdo1Buf_s.pcp	when	selRpdo1Buf_s.pcp = '1' and iRpdos_g >= 2 else
@@ -313,8 +316,8 @@ begin
 	dpr.ap	<=	dprCntStReg_s.ap	when	selCntStReg_s.ap = '1'	else
 				dprTAsynBuf_s.ap	when	selTAsynBuf_s.ap = '1' 	else
 				dprRAsynBuf_s.ap	when	selRAsynBuf_s.ap = '1' 	else
-				dprTpdoDesc_s.ap	when	selTpdoDesc_s.ap = '1' 	else
-				dprRpdoDesc_s.ap	when	selRpdoDesc_s.ap = '1' 	else
+--				dprTpdoDesc_s.ap	when	selTpdoDesc_s.ap = '1' 	else
+--				dprRpdoDesc_s.ap	when	selRpdoDesc_s.ap = '1' 	else
 				dprTpdoBuf_s.ap		when	selTpdoBuf_s.ap = '1'	else
 				dprRpdo0Buf_s.ap	when	selRpdo0Buf_s.ap = '1' 	and iRpdos_g >= 1 else
 				dprRpdo1Buf_s.ap	when	selRpdo1Buf_s.ap = '1' 	and iRpdos_g >= 2 else
@@ -338,13 +341,13 @@ begin
 		selRAsynBuf_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extRAsynBuf_c.base and 
 														 (conv_integer(pcp_address)*4 < extRAsynBuf_c.base + extRAsynBuf_c.span))
 												else	'0';
-		---pdo descriptors
-		selTpdoDesc_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extTpdoDesc_c.base and 
-														 (conv_integer(pcp_address)*4 < extTpdoDesc_c.base + extTpdoDesc_c.span))
-												else	'0';
-		selRpdoDesc_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extRpdoDesc_c.base and 
-														 (conv_integer(pcp_address)*4 < extRpdoDesc_c.base + extRpdoDesc_c.span))
-												else	'0';
+--		---pdo descriptors
+--		selTpdoDesc_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extTpdoDesc_c.base and 
+--														 (conv_integer(pcp_address)*4 < extTpdoDesc_c.base + extTpdoDesc_c.span))
+--												else	'0';
+--		selRpdoDesc_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extRpdoDesc_c.base and 
+--														 (conv_integer(pcp_address)*4 < extRpdoDesc_c.base + extRpdoDesc_c.span))
+--												else	'0';
 		---pdo buffers (triple buffers considered!)
 		selTpdoBuf_s.pcp	<=	pcp_chipselect	when	(conv_integer(pcp_address)*4 >= extTpdoBuf_c.base and 
 														 (conv_integer(pcp_address)*4 < extTpdoBuf_c.base + extTpdoBuf_c.span))
@@ -371,13 +374,13 @@ begin
 		selRAsynBuf_s.ap	<=	ap_chipselect	when	(conv_integer(ap_address)*4 >= extRAsynBuf_c.base and 
 														 (conv_integer(ap_address)*4 < extRAsynBuf_c.base + extRAsynBuf_c.span))
 												else	'0';
-		---pdo descriptors
-		selTpdoDesc_s.ap	<=	ap_chipselect	when	(conv_integer(ap_address)*4 >= extTpdoDesc_c.base and 
-														 (conv_integer(ap_address)*4 < extTpdoDesc_c.base + extTpdoDesc_c.span))
-												else	'0';
-		selRpdoDesc_s.ap	<=	ap_chipselect	when	(conv_integer(ap_address)*4 >= extRpdoDesc_c.base and 
-														 (conv_integer(ap_address)*4 < extRpdoDesc_c.base + extRpdoDesc_c.span))
-												else	'0';
+--		---pdo descriptors
+--		selTpdoDesc_s.ap	<=	ap_chipselect	when	(conv_integer(ap_address)*4 >= extTpdoDesc_c.base and 
+--														 (conv_integer(ap_address)*4 < extTpdoDesc_c.base + extTpdoDesc_c.span))
+--												else	'0';
+--		selRpdoDesc_s.ap	<=	ap_chipselect	when	(conv_integer(ap_address)*4 >= extRpdoDesc_c.base and 
+--														 (conv_integer(ap_address)*4 < extRpdoDesc_c.base + extRpdoDesc_c.span))
+--												else	'0';
 		---pdo buffers (triple buffers considered!)
 		selTpdoBuf_s.ap		<=	ap_chipselect	when	(conv_integer(ap_address)*4 >= extTpdoBuf_c.base and 
 														 (conv_integer(ap_address)*4 < extTpdoBuf_c.base + extTpdoBuf_c.span))
@@ -429,10 +432,10 @@ begin
 											conv_std_logic_vector(extRpdo1Buf_c.span, 16),
 			rPdo2Buffer					=> conv_std_logic_vector(extRpdo2Buf_c.base, 16) & 
 											conv_std_logic_vector(extRpdo2Buf_c.span, 16),
-			tPdoDesc					=> conv_std_logic_vector(extTpdoDesc_c.base, 16) & 
-											conv_std_logic_vector(extTpdoDesc_c.span, 16),
-			rPdoDesc					=> conv_std_logic_vector(extRpdoDesc_c.base, 16) & 
-											conv_std_logic_vector(extRpdoDesc_c.span, 16),
+--			tPdoDesc					=> conv_std_logic_vector(extTpdoDesc_c.base, 16) & 
+--											conv_std_logic_vector(extTpdoDesc_c.span, 16),
+--			rPdoDesc					=> conv_std_logic_vector(extRpdoDesc_c.base, 16) & 
+--											conv_std_logic_vector(extRpdoDesc_c.span, 16),
 			rAsyncBuffer				=> conv_std_logic_vector(extRAsynBuf_c.base, 16) & 
 											conv_std_logic_vector(extRAsynBuf_c.span, 16),
 			tAsyncBuffer				=> conv_std_logic_vector(extTAsynBuf_c.base, 16) & 
@@ -485,10 +488,10 @@ begin
 											conv_std_logic_vector(extRpdo1Buf_c.span, 16),
 			rPdo2Buffer					=> conv_std_logic_vector(extRpdo2Buf_c.base, 16) & 
 											conv_std_logic_vector(extRpdo2Buf_c.span, 16),
-			tPdoDesc					=> conv_std_logic_vector(extTpdoDesc_c.base, 16) & 
-											conv_std_logic_vector(extTpdoDesc_c.span, 16),
-			rPdoDesc					=> conv_std_logic_vector(extRpdoDesc_c.base, 16) & 
-											conv_std_logic_vector(extRpdoDesc_c.span, 16),
+--			tPdoDesc					=> conv_std_logic_vector(extTpdoDesc_c.base, 16) & 
+--											conv_std_logic_vector(extTpdoDesc_c.span, 16),
+--			rPdoDesc					=> conv_std_logic_vector(extRpdoDesc_c.base, 16) & 
+--											conv_std_logic_vector(extRpdoDesc_c.span, 16),
 			rAsyncBuffer				=> conv_std_logic_vector(extRAsynBuf_c.base, 16) & 
 											conv_std_logic_vector(extRAsynBuf_c.span, 16),
 			tAsyncBuffer				=> conv_std_logic_vector(extTAsynBuf_c.base, 16) & 
@@ -628,109 +631,109 @@ begin
 	);
 ------------------------------------------------------------------------------------------------------------------------
 
-------------------------------------------------------------------------------------------------------------------------
--- TPDO descriptors
-	theTpdoDesc4Pcp : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intTpdoDesc_c.base/4,
-			iDprAddrWidth_g				=> dprTpdoDesc_s.pcp.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selTpdoDesc_s.pcp,
-			wr							=> pcp_write,
-			rd							=> pcp_read,
-			addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> pcp_byteenable,
-			din							=> pcp_writedata,
-			dout						=> outTpdoDesc_s.pcp,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprTpdoDesc_s.pcp.addrOff,
-			dprDin						=> dprTpdoDesc_s.pcp.din,
-			dprDout						=> dprOut.pcp,
-			dprBe						=> dprTpdoDesc_s.pcp.be,
-			dprWr						=> dprTpdoDesc_s.pcp.wr
-	);
-	
-	theTpdoDesc4Ap : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intTpdoDesc_c.base/4,
-			iDprAddrWidth_g				=> dprTpdoDesc_s.ap.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selTpdoDesc_s.ap,
-			wr							=> ap_write,
-			rd							=> ap_read,
-			addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> ap_byteenable,
-			din							=> ap_writedata,
-			dout						=> outTpdoDesc_s.ap,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprTpdoDesc_s.ap.addrOff,
-			dprDin						=> dprTpdoDesc_s.ap.din,
-			dprDout						=> dprOut.ap,
-			dprBe						=> dprTpdoDesc_s.ap.be,
-			dprWr						=> dprTpdoDesc_s.ap.wr
-	);
+--------------------------------------------------------------------------------------------------------------------------
+---- TPDO descriptors
+--	theTpdoDesc4Pcp : entity work.pdiSimpleReg
+--	generic map (
+--			iAddrWidth_g				=> extLog2MaxOneSpan-2,
+--			iBaseMap2_g					=> intTpdoDesc_c.base/4,
+--			iDprAddrWidth_g				=> dprTpdoDesc_s.pcp.addr'length
+--	)
+--			
+--	port map (   
+--			--memory mapped interface
+--			sel							=> selTpdoDesc_s.pcp,
+--			wr							=> pcp_write,
+--			rd							=> pcp_read,
+--			addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
+--			be							=> pcp_byteenable,
+--			din							=> pcp_writedata,
+--			dout						=> outTpdoDesc_s.pcp,
+--			--dpr interface (from PCP/AP to DPR)
+--			dprAddrOff					=> dprTpdoDesc_s.pcp.addrOff,
+--			dprDin						=> dprTpdoDesc_s.pcp.din,
+--			dprDout						=> dprOut.pcp,
+--			dprBe						=> dprTpdoDesc_s.pcp.be,
+--			dprWr						=> dprTpdoDesc_s.pcp.wr
+--	);
+--	
+--	theTpdoDesc4Ap : entity work.pdiSimpleReg
+--	generic map (
+--			iAddrWidth_g				=> extLog2MaxOneSpan-2,
+--			iBaseMap2_g					=> intTpdoDesc_c.base/4,
+--			iDprAddrWidth_g				=> dprTpdoDesc_s.ap.addr'length
+--	)
+--			
+--	port map (   
+--			--memory mapped interface
+--			sel							=> selTpdoDesc_s.ap,
+--			wr							=> ap_write,
+--			rd							=> ap_read,
+--			addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
+--			be							=> ap_byteenable,
+--			din							=> ap_writedata,
+--			dout						=> outTpdoDesc_s.ap,
+--			--dpr interface (from PCP/AP to DPR)
+--			dprAddrOff					=> dprTpdoDesc_s.ap.addrOff,
+--			dprDin						=> dprTpdoDesc_s.ap.din,
+--			dprDout						=> dprOut.ap,
+--			dprBe						=> dprTpdoDesc_s.ap.be,
+--			dprWr						=> dprTpdoDesc_s.ap.wr
+--	);
+----
+--------------------------------------------------------------------------------------------------------------------------
 --
-------------------------------------------------------------------------------------------------------------------------
-
-------------------------------------------------------------------------------------------------------------------------
--- RPDO descriptors
-	theRpdoDesc4Pcp : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intRpdoDesc_c.base/4,
-			iDprAddrWidth_g				=> dprRpdoDesc_s.pcp.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selRpdoDesc_s.pcp,
-			wr							=> pcp_write,
-			rd							=> pcp_read,
-			addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> pcp_byteenable,
-			din							=> pcp_writedata,
-			dout						=> outRpdoDesc_s.pcp,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprRpdoDesc_s.pcp.addrOff,
-			dprDin						=> dprRpdoDesc_s.pcp.din,
-			dprDout						=> dprOut.pcp,
-			dprBe						=> dprRpdoDesc_s.pcp.be,
-			dprWr						=> dprRpdoDesc_s.pcp.wr
-	);
-	
-	theRpdoDesc4Ap : entity work.pdiSimpleReg
-	generic map (
-			iAddrWidth_g				=> extLog2MaxOneSpan-2,
-			iBaseMap2_g					=> intRpdoDesc_c.base/4,
-			iDprAddrWidth_g				=> dprRpdoDesc_s.ap.addr'length
-	)
-			
-	port map (   
-			--memory mapped interface
-			sel							=> selRpdoDesc_s.ap,
-			wr							=> ap_write,
-			rd							=> ap_read,
-			addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
-			be							=> ap_byteenable,
-			din							=> ap_writedata,
-			dout						=> outRpdoDesc_s.ap,
-			--dpr interface (from PCP/AP to DPR)
-			dprAddrOff					=> dprRpdoDesc_s.ap.addrOff,
-			dprDin						=> dprRpdoDesc_s.ap.din,
-			dprDout						=> dprOut.ap,
-			dprBe						=> dprRpdoDesc_s.ap.be,
-			dprWr						=> dprRpdoDesc_s.ap.wr
-	);
---
-------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
+---- RPDO descriptors
+--	theRpdoDesc4Pcp : entity work.pdiSimpleReg
+--	generic map (
+--			iAddrWidth_g				=> extLog2MaxOneSpan-2,
+--			iBaseMap2_g					=> intRpdoDesc_c.base/4,
+--			iDprAddrWidth_g				=> dprRpdoDesc_s.pcp.addr'length
+--	)
+--			
+--	port map (   
+--			--memory mapped interface
+--			sel							=> selRpdoDesc_s.pcp,
+--			wr							=> pcp_write,
+--			rd							=> pcp_read,
+--			addr						=> pcp_address(extLog2MaxOneSpan-1-2 downto 0),
+--			be							=> pcp_byteenable,
+--			din							=> pcp_writedata,
+--			dout						=> outRpdoDesc_s.pcp,
+--			--dpr interface (from PCP/AP to DPR)
+--			dprAddrOff					=> dprRpdoDesc_s.pcp.addrOff,
+--			dprDin						=> dprRpdoDesc_s.pcp.din,
+--			dprDout						=> dprOut.pcp,
+--			dprBe						=> dprRpdoDesc_s.pcp.be,
+--			dprWr						=> dprRpdoDesc_s.pcp.wr
+--	);
+--	
+--	theRpdoDesc4Ap : entity work.pdiSimpleReg
+--	generic map (
+--			iAddrWidth_g				=> extLog2MaxOneSpan-2,
+--			iBaseMap2_g					=> intRpdoDesc_c.base/4,
+--			iDprAddrWidth_g				=> dprRpdoDesc_s.ap.addr'length
+--	)
+--			
+--	port map (   
+--			--memory mapped interface
+--			sel							=> selRpdoDesc_s.ap,
+--			wr							=> ap_write,
+--			rd							=> ap_read,
+--			addr						=> ap_address(extLog2MaxOneSpan-1-2 downto 0),
+--			be							=> ap_byteenable,
+--			din							=> ap_writedata,
+--			dout						=> outRpdoDesc_s.ap,
+--			--dpr interface (from PCP/AP to DPR)
+--			dprAddrOff					=> dprRpdoDesc_s.ap.addrOff,
+--			dprDin						=> dprRpdoDesc_s.ap.din,
+--			dprDout						=> dprOut.ap,
+--			dprBe						=> dprRpdoDesc_s.ap.be,
+--			dprWr						=> dprRpdoDesc_s.ap.wr
+--	);
+----
+--------------------------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------------------------------
 --TPDO buffer
@@ -1043,8 +1046,8 @@ entity pdiControlStatusReg is
 			rPdo0Buffer					: in	std_logic_vector(31 downto 0);
 			rPdo1Buffer					: in	std_logic_vector(31 downto 0);
 			rPdo2Buffer					: in	std_logic_vector(31 downto 0);
-			tPdoDesc					: in	std_logic_vector(31 downto 0);
-			rPdoDesc					: in	std_logic_vector(31 downto 0);
+--			tPdoDesc					: in	std_logic_vector(31 downto 0);
+--			rPdoDesc					: in	std_logic_vector(31 downto 0);
 			rAsyncBuffer				: in	std_logic_vector(31 downto 0);
 			tAsyncBuffer				: in	std_logic_vector(31 downto 0);
 			---virtual buffer control signals
@@ -1122,18 +1125,18 @@ begin
 						if iRpdos_g >= 2 then
 							nonDprDout	<=	rPdo1Buffer;
 						else
-							nonDprDout <= x"00C0FFEE";
+							nonDprDout <= (others => '0');
 						end if;
 					when 16#24# =>
 						if iRpdos_g >= 3 then
 							nonDprDout	<=	rPdo2Buffer;
 						else
-							nonDprDout <= x"00C0FFEE";
+							nonDprDout <= (others => '0');
 						end if;
-					when 16#28# =>
-						nonDprDout	<=	tPdoDesc;
-					when 16#2C# =>
-						nonDprDout	<=	rPdoDesc;
+--					when 16#28# =>
+--						nonDprDout	<=	tPdoDesc;
+--					when 16#2C# =>
+--						nonDprDout	<=	rPdoDesc;
 					when 16#30# =>
 						nonDprDout	<=	tAsyncBuffer;
 					when 16#34# =>
@@ -1141,11 +1144,11 @@ begin
 					when 16#38# =>
 						nonDprDout	<=	pdoVirtualBufferSel;
 					when 16#3C# =>
-						nonDprDout	<=	x"DEADC0DE";
+						nonDprDout	<=	(others => '0');
 					when 16#40# =>
 						nonDprDout	<=	x"000000" & apIrqControl_s; 
 					when others =>
-						nonDprDout	<=	x"DEADC0DE";
+						nonDprDout	<=	(others => '0');
 				end case;
 			elsif wr = '1' and sel = '1' and selDpr = '0' then
 				case conv_integer(addr)*4 is

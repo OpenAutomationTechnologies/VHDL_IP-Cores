@@ -42,6 +42,11 @@
 #-- 2010-10-18	V0.05	zelenkaj	added selection Big/Little Endian (pdi_par)
 #--									use bidirectional data bus (pdi_par)
 #-- 2010-11-15	V0.06	zelenkaj	bugfix: rpdo header was calculated twice
+#-- 2010-11-22	V0.07	zelenkaj	Added 2 GPIO signals to parallel interface
+#--									Added Operational Flag to simple I/O interface
+#--									Omitted T/RPDO descriptor sections in DPR
+#--									Added ability to verify connected clock rates (to clkEth and clk50meg)
+#--									Added generic to set duration of valid assertion (portio)
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -84,6 +89,18 @@ set_module_property VALIDATION_CALLBACK my_validation_callback
 set_module_property ELABORATION_CALLBACK my_elaboration_callback
 
 #parameters
+add_parameter clkRateEth INTEGER 0
+set_parameter_property clkRateEth SYSTEM_INFO {CLOCK_RATE clkEth}
+set_parameter_property clkRateEth VISIBLE false
+
+add_parameter clkRate50 INTEGER 0
+set_parameter_property clkRate50 SYSTEM_INFO {CLOCK_RATE clk50meg}
+set_parameter_property clkRate50 VISIBLE false
+
+add_parameter clkRatePcp INTEGER 0
+set_parameter_property clkRatePcp SYSTEM_INFO {CLOCK_RATE pcp_clk}
+set_parameter_property clkRatePcp VISIBLE false
+
 add_parameter configPowerlink STRING "CN with AP"
 set_parameter_property configPowerlink DISPLAY_NAME "POWERLINK Slave Design Configuration"
 set_parameter_property configPowerlink ALLOWED_RANGES {"Simple I/O CN" "CN with AP"}
@@ -114,7 +131,6 @@ add_parameter configApParEndian STRING "Little"
 set_parameter_property configApParEndian VISIBLE false
 set_parameter_property configApParEndian DISPLAY_NAME "Endian"
 set_parameter_property configApParEndian ALLOWED_RANGES {"Little" "Big"}
-#set_parameter_property configApParEndian DISPLAY_HINT radio
 
 add_parameter configApSpi_CPOL STRING "0"
 set_parameter_property configApSpi_CPOL VISIBLE false
@@ -170,6 +186,18 @@ set_parameter_property phyIF DISPLAY_NAME "Ethernet Phy Interface"
 set_parameter_property phyIF ALLOWED_RANGES {"RMII" "MII"}
 set_parameter_property phyIF DISPLAY_HINT radio
 
+add_parameter validSet INTEGER "1"
+set_parameter_property validSet VISIBLE false
+set_parameter_property validSet ALLOWED_RANGES 1:128
+set_parameter_property validSet DISPLAY_NAME "Valid signal set Clock Cycles"
+
+add_parameter validAssertDuration STRING "1000"
+set_parameter_property validAssertDuration VISIBLE false
+set_parameter_property validAssertDuration DISPLAY_NAME "Implemented Valid signal set duration (Clock Cycles x Clock Period)"
+set_parameter_property validAssertDuration DISPLAY_UNITS "ns"
+set_parameter_property validAssertDuration ENABLED false
+set_parameter_property validAssertDuration DERIVED TRUE
+
 #parameters for PDI HDL
 add_parameter genPdi_g BOOLEAN true
 set_parameter_property genPdi_g HDL_PARAMETER true
@@ -223,15 +251,15 @@ set_parameter_property iRpdo2BufSize_g HDL_PARAMETER true
 set_parameter_property iRpdo2BufSize_g VISIBLE false
 set_parameter_property iRpdo2BufSize_g DERIVED TRUE
 
-add_parameter iTpdoObjNumber_g INTEGER 1
-set_parameter_property iTpdoObjNumber_g HDL_PARAMETER true
-set_parameter_property iTpdoObjNumber_g ALLOWED_RANGES 1:1490
-set_parameter_property iTpdoObjNumber_g DISPLAY_NAME "Maximum Mapped TPDO Objects"
+#add_parameter iTpdoObjNumber_g INTEGER 1
+#set_parameter_property iTpdoObjNumber_g HDL_PARAMETER true
+#set_parameter_property iTpdoObjNumber_g ALLOWED_RANGES 1:1490
+#set_parameter_property iTpdoObjNumber_g DISPLAY_NAME "Maximum Mapped TPDO Objects"
 
-add_parameter iRpdoObjNumber_g INTEGER 1
-set_parameter_property iRpdoObjNumber_g HDL_PARAMETER true
-set_parameter_property iRpdoObjNumber_g ALLOWED_RANGES 1:1490
-set_parameter_property iRpdoObjNumber_g DISPLAY_NAME "Maximum Mapped RPDO Objects"
+#add_parameter iRpdoObjNumber_g INTEGER 1
+#set_parameter_property iRpdoObjNumber_g HDL_PARAMETER true
+#set_parameter_property iRpdoObjNumber_g ALLOWED_RANGES 1:1490
+#set_parameter_property iRpdoObjNumber_g DISPLAY_NAME "Maximum Mapped RPDO Objects"
 
 add_parameter iAsyTxBufSize_g INTEGER 1514
 set_parameter_property iAsyTxBufSize_g HDL_PARAMETER true
@@ -291,6 +319,12 @@ set_parameter_property spiCPHA_g HDL_PARAMETER true
 set_parameter_property spiCPHA_g VISIBLE false
 set_parameter_property spiCPHA_g DERIVED TRUE
 
+#parameters for portio
+add_parameter pioValLen_g INTEGER 50
+set_parameter_property pioValLen_g HDL_PARAMETER true
+set_parameter_property pioValLen_g VISIBLE false
+set_parameter_property pioValLen_g DERIVED TRUE
+
 proc my_validation_callback {} {
 #do some preparation stuff
 	set configPowerlink 			[get_parameter_value configPowerlink]
@@ -304,8 +338,8 @@ proc my_validation_callback {} {
 	set rpdo1size					[get_parameter_value rpdo1size]
 	set rpdo2size					[get_parameter_value rpdo2size]
 	set tpdo0size					[get_parameter_value tpdo0size]
-	set rpdoDesc					[get_parameter_value iRpdoObjNumber_g]
-	set tpdoDesc					[get_parameter_value iTpdoObjNumber_g]
+#	set rpdoDesc					[get_parameter_value iRpdoObjNumber_g]
+#	set tpdoDesc					[get_parameter_value iTpdoObjNumber_g]
 	set asyncTxBufSize				[get_parameter_value asyncTxBufSize]
 	set asyncRxBufSize				[get_parameter_value asyncRxBufSize]
 	
@@ -361,12 +395,14 @@ proc my_validation_callback {} {
 	set_parameter_property configApSpi_CPHA VISIBLE false
 	set_parameter_property asyncTxBufSize VISIBLE false
 	set_parameter_property asyncRxBufSize VISIBLE false
-	set_parameter_property iRpdoObjNumber_g VISIBLE false
-	set_parameter_property iTpdoObjNumber_g VISIBLE false
+#	set_parameter_property iRpdoObjNumber_g VISIBLE false
+#	set_parameter_property iTpdoObjNumber_g VISIBLE false
 	set_parameter_property rpdo0size VISIBLE false
 	set_parameter_property rpdo1size VISIBLE false
 	set_parameter_property rpdo2size VISIBLE false
 	set_parameter_property tpdo0size VISIBLE false
+	set_parameter_property validAssertDuration VISIBLE false
+	set_parameter_property validSet VISIBLE false
 	
 	if {$configPowerlink == "Simple I/O CN"} {
 		#CN is only a simple I/O CN, so there are only 4bytes I/Os
@@ -391,13 +427,16 @@ proc my_validation_callback {} {
 		
 		set genSimpleIO true
 		
+		set_parameter_property validAssertDuration VISIBLE true
+		set_parameter_property validSet VISIBLE true
+		
 	} elseif {$configPowerlink == "CN with AP"} {
 		#CN is connected to AP processor, so enable everything for this
 		set_parameter_property configApInterface VISIBLE true
 		set_parameter_property asyncTxBufSize VISIBLE true
 		set_parameter_property asyncRxBufSize VISIBLE true
-		set_parameter_property iRpdoObjNumber_g  VISIBLE true
-		set_parameter_property iTpdoObjNumber_g  VISIBLE true
+#		set_parameter_property iRpdoObjNumber_g  VISIBLE true
+#		set_parameter_property iTpdoObjNumber_g  VISIBLE true
 		
 		set genPdi true
 		
@@ -540,8 +579,8 @@ proc my_validation_callback {} {
 	set_module_assignment embeddedsw.CMacro.CONFIG					$configPowerlink
 	if {$configPowerlink == "CN with AP"} {
 		set_module_assignment embeddedsw.CMacro.CONFIGAPIF			$configApInterface
-		set_module_assignment embeddedsw.CMacro.PDIRPDOOBJ			$rpdoDesc
-		set_module_assignment embeddedsw.CMacro.PDITPDOOBJ			$tpdoDesc
+		#set_module_assignment embeddedsw.CMacro.PDIRPDOOBJ			$rpdoDesc
+		#set_module_assignment embeddedsw.CMacro.PDITPDOOBJ			$tpdoDesc
 	}
 	set_module_assignment embeddedsw.CMacro.MACBUFSIZE				$macBufSize
 	set_module_assignment embeddedsw.CMacro.MACRXBUFSIZE			$rxBufSize
@@ -562,14 +601,16 @@ add_display_item "Process Data Interface Settings" configApParSigs PARAMETER
 add_display_item "Process Data Interface Settings" configApParEndian PARAMETER
 add_display_item "Process Data Interface Settings" configApSpi_CPOL PARAMETER
 add_display_item "Process Data Interface Settings" configApSpi_CPHA PARAMETER
+add_display_item "Process Data Interface Settings" validSet PARAMETER
+add_display_item "Process Data Interface Settings" validAssertDuration PARAMETER
 add_display_item "Receive Process Data" rpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdo0size PARAMETER
 add_display_item "Receive Process Data" rpdo0size PARAMETER
 add_display_item "Receive Process Data" rpdo1size PARAMETER
 add_display_item "Receive Process Data" rpdo2size PARAMETER
-add_display_item "Transmit Process Data" iTpdoObjNumber_g PARAMETER
-add_display_item "Receive Process Data" iRpdoObjNumber_g PARAMETER
+#add_display_item "Transmit Process Data" iTpdoObjNumber_g PARAMETER
+#add_display_item "Receive Process Data" iRpdoObjNumber_g PARAMETER
 add_display_item "Asynchronous Buffer" asyncTxBufSize  PARAMETER
 add_display_item "Asynchronous Buffer" asyncRxBufSize  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
@@ -839,6 +880,8 @@ add_interface_port PAR_AP ap_irq export Output 1
 add_interface_port PAR_AP pap_ready export Output 1
 add_interface_port PAR_AP ap_irq_n export Output 1
 add_interface_port PAR_AP pap_ready_n export Output 1
+###GPIO
+add_interface_port PAR_AP pap_gpio export Bidir 2
 
 #Simple I/O
 ##Avalon Memory Mapped Slave: SMP
@@ -873,8 +916,31 @@ add_interface_port SMP_PIO pio_pconfig export Input 4
 add_interface_port SMP_PIO pio_portInLatch export Input 4
 add_interface_port SMP_PIO pio_portOutValid export Output 4
 add_interface_port SMP_PIO pio_portio export Bidir 32
+add_interface_port SMP_PIO pio_operational export Output 1
 
 proc my_elaboration_callback {} {
+#get system info...
+set EthernetClkRate [get_parameter_value clkRateEth]
+set ClkRate50meg [get_parameter_value clkRate50]
+
+#valid set
+set ClkPcp [get_parameter_value clkRatePcp]
+set ClkPcpPeriod [expr 1. / $ClkPcp * 1000 * 1000 * 1000]
+set validTicks [get_parameter_value validSet]
+if {$validTicks <= 0} {
+	set validTicks 1
+}
+set validLength [expr $validTicks * $ClkPcpPeriod]
+
+set_parameter_value validAssertDuration $validLength
+set_parameter_value pioValLen_g %validTicks
+
+if {$ClkRate50meg == 50000000} {
+
+} else {
+	send_message error "MAC_CMP and MAC_REG must be connected to 50MHz Clock!"
+}
+
 #find out, which interfaces (avalon, exports, etc) are not necessary for the configurated device!
 	#set defaults
 	set_interface_property ap_clk ENABLED false
@@ -892,6 +958,11 @@ proc my_elaboration_callback {} {
 		set_interface_property MII0 ENABLED false
 		set_interface_property MII1 ENABLED false
 		set_interface_property clkEth ENABLED true
+		if {$EthernetClkRate == 100000000} {
+		
+		} else {
+			send_message error "Clock Source of 100MHz required!"
+		}
 	} else {
 		set_interface_property RMII0 ENABLED false
 		set_interface_property RMII1 ENABLED false
