@@ -40,6 +40,7 @@
 --									use bidirectional data bus
 -- 2010-11-15	V0.03	zelenkaj	bug fix for 16bit parallel interface
 -- 2010-11-23	V0.04	zelenkaj	added 2 GPIO pins driving "00"
+-- 2010-11-29	V0.05	zelenkaj	full endianness consideration
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -111,10 +112,16 @@ begin
 		pap_data <= pap_rddata when pap_doe_s = '1' else (others => 'Z');
 		pap_wrdata <= pap_data;
 		
-		ap_byteenable_s <= 	"0001" when pap_addr(1 downto 0) = "00" else
-							"0010" when pap_addr(1 downto 0) = "01" else
-							"0100" when pap_addr(1 downto 0) = "10" else
-							"1000" when pap_addr(1 downto 0) = "11" else
+		ap_byteenable_s <= 	--little endian
+							"0001" when pap_addr(1 downto 0) = "00" and papBigEnd_g = false else
+							"0010" when pap_addr(1 downto 0) = "01" and papBigEnd_g = false else
+							"0100" when pap_addr(1 downto 0) = "10" and papBigEnd_g = false else
+							"1000" when pap_addr(1 downto 0) = "11" and papBigEnd_g = false else
+							--big endian
+							"0001" when pap_addr(1 downto 0) = "11" and papBigEnd_g = true else
+							"0010" when pap_addr(1 downto 0) = "10" and papBigEnd_g = true else
+							"0100" when pap_addr(1 downto 0) = "01" and papBigEnd_g = true else
+							"1000" when pap_addr(1 downto 0) = "00" and papBigEnd_g = true else
 							(others => '0');
 		ap_byteenable <= ap_byteenable_s;
 		
@@ -135,12 +142,20 @@ begin
 						pap_data(7 downto 0) & pap_data(15 downto 8) when papBigEnd_g = true else
 						(others => '0');
 		
-		ap_byteenable_s <=	"0001" when pap_addr(1 downto 1) = "0" and pap_be = "01" else
-							"0010" when pap_addr(1 downto 1) = "0" and pap_be = "10" else
-							"0011" when pap_addr(1 downto 1) = "0" and pap_be = "11" else
-							"0100" when pap_addr(1 downto 1) = "1" and pap_be = "01" else
-							"1000" when pap_addr(1 downto 1) = "1" and pap_be = "10" else
-							"1100" when pap_addr(1 downto 1) = "1" and pap_be = "11" else
+		ap_byteenable_s <=	--little endian
+							"0001" when pap_addr(1 downto 1) = "0" and pap_be = "01" and papBigEnd_g = false else
+							"0010" when pap_addr(1 downto 1) = "0" and pap_be = "10" and papBigEnd_g = false else
+							"0011" when pap_addr(1 downto 1) = "0" and pap_be = "11" and papBigEnd_g = false else
+							"0100" when pap_addr(1 downto 1) = "1" and pap_be = "01" and papBigEnd_g = false else
+							"1000" when pap_addr(1 downto 1) = "1" and pap_be = "10" and papBigEnd_g = false else
+							"1100" when pap_addr(1 downto 1) = "1" and pap_be = "11" and papBigEnd_g = false else
+							--big endian
+							"0001" when pap_addr(1 downto 1) = "1" and pap_be = "10" and papBigEnd_g = true else
+							"0010" when pap_addr(1 downto 1) = "1" and pap_be = "01" and papBigEnd_g = true else
+							"0011" when pap_addr(1 downto 1) = "1" and pap_be = "00" and papBigEnd_g = true else
+							"0100" when pap_addr(1 downto 1) = "0" and pap_be = "10" and papBigEnd_g = true else
+							"1000" when pap_addr(1 downto 1) = "0" and pap_be = "01" and papBigEnd_g = true else
+							"1100" when pap_addr(1 downto 1) = "0" and pap_be = "00" and papBigEnd_g = true else
 							(others => '0');
 		ap_byteenable <= ap_byteenable_s;
 		
@@ -151,7 +166,7 @@ begin
 							ap_readdata(23 downto 16) & ap_readdata(23 downto 16) when ap_byteenable_s = "0100" else
 							ap_readdata(31 downto 24) & ap_readdata(31 downto 24) when ap_byteenable_s = "1000" else
 							ap_readdata(31 downto 16) when ap_byteenable_s = "1100" else
-							(others => '0'); --may not be the case
+							(others => '0');
 		
 		pap_rddata <= 	pap_rddata_s when papBigEnd_g = false else
 						pap_rddata_s(7 downto 0) & pap_rddata_s(15 downto 8) when papBigEnd_g = true else

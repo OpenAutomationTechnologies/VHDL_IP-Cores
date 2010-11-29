@@ -43,6 +43,7 @@
 --									Added Operational Flag to simple I/O interface
 --									Omitted T/RPDO descriptor sections in DPR
 --									Added generic to set duration of valid assertion (portio)
+-- 2010-11-29	V0.05	zelenkaj	Added Big/Little Endian (pdi_spi)
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -83,6 +84,7 @@ entity powerlink is
 	-- SPI GENERICS
 		spiCPOL_g					:		boolean 							:= false;
 		spiCPHA_g					:		boolean 							:= false;
+		spiBigEnd_g					:		boolean								:= false;
 	-- PORTIO
 		pioValLen_g					:		integer								:= 50 --clock ticks of pcp_clk
 	);
@@ -434,7 +436,8 @@ begin
 			generic map (
 				spiSize_g					=> 8, --fixed value!
 				cpol_g 						=> spiCPOL_g,
-				cpha_g 						=> spiCPHA_g
+				cpha_g 						=> spiCPHA_g,
+				spiBigEnd_g					=> spiBigEnd_g
 			)
 			port map (
 				-- SPI

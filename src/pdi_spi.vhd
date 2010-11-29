@@ -37,6 +37,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- 2010-08-31  	V0.01	zelenkaj    First version
 -- 2010-11-23	V0.02	zelenkaj	Added write/read sequence feature (WRSQ and RDSQ)
+-- 2010-11-29	V0.03	zelenkaj	Added endian generic
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -48,7 +49,8 @@ entity pdi_spi is
 	generic (
 		spiSize_g			: integer	:= 8;
 		cpol_g				: boolean	:= false;
-		cpha_g				: boolean	:= false
+		cpha_g				: boolean	:= false;
+		spiBigEnd_g			: boolean	:= false
 	);
 			
 	port (   
@@ -106,10 +108,16 @@ begin
 	ap_address <= addrReg(addrReg'left downto 2);
 	
 	ap_byteenable	<=	ap_byteenable_s;
-	ap_byteenable_s <=	"0001" when addrReg(1 downto 0) = "00" else
-						"0010" when addrReg(1 downto 0) = "01" else
-						"0100" when addrReg(1 downto 0) = "10" else
-						"1000" when addrReg(1 downto 0) = "11" else
+	ap_byteenable_s <=	--little endian
+						"0001" when addrReg(1 downto 0) = "00" and spiBigEnd_g = false else
+						"0010" when addrReg(1 downto 0) = "01" and spiBigEnd_g = false else
+						"0100" when addrReg(1 downto 0) = "10" and spiBigEnd_g = false else
+						"1000" when addrReg(1 downto 0) = "11" and spiBigEnd_g = false else
+						--big endian
+						"0001" when addrReg(1 downto 0) = "11" and spiBigEnd_g = true else
+						"0010" when addrReg(1 downto 0) = "10" and spiBigEnd_g = true else
+						"0100" when addrReg(1 downto 0) = "01" and spiBigEnd_g = true else
+						"1000" when addrReg(1 downto 0) = "00" and spiBigEnd_g = true else
 						"0000";
 	
 	ap_writedata <=		(dout & dout & dout & dout);
