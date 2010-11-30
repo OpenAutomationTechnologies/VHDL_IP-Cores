@@ -42,6 +42,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- 2010-09-13	V0.01		first version
 -- 2010-11-15	V0.02		bug fix: increased size of rx fifo, because of errors with marvel 88e1111 mii phy
+-- 2010-11-30	V0.03		bug fix: in case of no link some phys confuse tx fifo during tx => aclr fifo
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -72,13 +73,15 @@ architecture rtl of rmii2mii is
 begin
 	
 	TX_BLOCK : block
-		signal fifo_half, fifo_full, fifo_empty, fifo_valid : std_logic;
+		signal fifo_half, fifo_full, fifo_empty, fifo_valid, fifo_wrempty : std_logic;
 		signal fifo_wr, fifo_rd : std_logic;
 		signal fifo_din : std_logic_vector(1 downto 0);
 		signal fifo_dout : std_logic_vector(3 downto 0);
 		signal fifo_rdUsedWord : std_logic_vector (3 downto 0);
 		signal fifo_wrUsedWord : std_logic_vector (4 downto 0);
 		signal clk50_n : std_logic;
+		--necessary for clr fifo
+		signal aclr, mTxEn_s, mTxEn_ss : std_logic;
 	begin
 		clk50_n <= not clk50;
 		
@@ -90,30 +93,29 @@ begin
 		
 		fifo_half <= fifo_rdUsedWord(fifo_rdUsedWord'left);
 		
-		process(mTxClk)
+		process(mTxClk, rst)
 		begin
-			if mTxClk = '1' and mTxClk'event then
-				if rst = '1' then
+			if rst = '1' then
+				fifo_rd <= '0';
+				fifo_valid <= '0';
+			elsif mTxClk = '1' and mTxClk'event then
+				if fifo_rd = '0' and fifo_half = '1' then
+					fifo_rd <= '1';
+				elsif fifo_rd = '1' and fifo_empty = '1' then
 					fifo_rd <= '0';
-					fifo_valid <= '0';
+				end if;
+				
+				if fifo_rd = '1' and fifo_rdUsedWord > conv_std_logic_vector(1, fifo_rdUsedWord'length) then
+					fifo_valid <= '1';
 				else
-					if fifo_rd = '0' and fifo_half = '1' then
-						fifo_rd <= '1';
-					elsif fifo_rd = '1' and fifo_empty = '1' then
-						fifo_rd <= '0';
-					end if;
-					
-					if fifo_rd = '1' and fifo_rdUsedWord > conv_std_logic_vector(1, fifo_rdUsedWord'length) then
-						fifo_valid <= '1';
-					else
-						fifo_valid <= '0';
-					end if;
+					fifo_valid <= '0';
 				end if;
 			end if;
 		end process;
 		
 		theTxFifo : entity work.txFifo
 			port map (
+				aclr		=> aclr,
 				data		=> fifo_din,
 				rdclk		=> mTxClk,
 				rdreq		=> fifo_rd,
@@ -123,10 +125,30 @@ begin
 				rdempty		=> fifo_empty,
 				rdfull		=> open,
 				rdusedw		=> fifo_rdUsedWord,
-				wrempty		=> open,
+				wrempty		=> fifo_wrempty,
 				wrfull		=> fifo_full,
 				wrusedw		=> fifo_wrUsedWord
 			);
+		
+		--sync Mii Tx En (=fifo_valid) to wr clk
+		process(clk50_n, rst)
+		begin
+			if rst = '1' then
+				aclr <= '1'; --reset fifo
+				mTxEn_s <= '0';
+				mTxEn_ss <= '0';
+			elsif clk50_n = '1' and clk50_n'event then
+				aclr <= '0'; --default
+				
+				mTxEn_ss <= fifo_valid;
+				mTxEn_s <= mTxEn_ss;
+				
+				--clear fifo if no tx is in progress and fifo is filled
+				if mTxEn_s = '0' and rTxEn = '0' and (fifo_full = '1' or fifo_wrempty = '0') then
+					aclr <= '1';
+				end if;				
+			end if;
+		end process;
 		
 	end block;
 	
@@ -147,30 +169,29 @@ begin
 		
 		fifo_half <= fifo_rdUsedWord(fifo_rdUsedWord'left);
 		
-		process(clk50)
+		process(clk50, rst)
 		begin
-			if clk50 = '1' and clk50'event then
-				if rst = '1' then
+			if rst = '1' then
+				fifo_rd <= '0';
+				fifo_valid <= '0';
+			elsif clk50 = '1' and clk50'event then
+				if fifo_rd = '0' and fifo_half = '1' then
+					fifo_rd <= '1';
+				elsif fifo_rd = '1' and fifo_empty = '1' then
 					fifo_rd <= '0';
-					fifo_valid <= '0';
+				end if;
+				
+				if fifo_rd = '1' and fifo_rdUsedWord > conv_std_logic_vector(1, fifo_rdUsedWord'length) then
+					fifo_valid <= '1';
 				else
-					if fifo_rd = '0' and fifo_half = '1' then
-						fifo_rd <= '1';
-					elsif fifo_rd = '1' and fifo_empty = '1' then
-						fifo_rd <= '0';
-					end if;
-					
-					if fifo_rd = '1' and fifo_rdUsedWord > conv_std_logic_vector(1, fifo_rdUsedWord'length) then
-						fifo_valid <= '1';
-					else
-						fifo_valid <= '0';
-					end if;
+					fifo_valid <= '0';
 				end if;
 			end if;
 		end process;
 		
 		theRxFifo : entity work.rxFifo
 			port map (
+				aclr		=> rst,
 				data		=> fifo_din,
 				rdclk		=> clk50,
 				rdreq		=> fifo_rd,
@@ -201,6 +222,7 @@ USE altera_mf.all;
 ENTITY rxFifo IS
 	PORT
 	(
+		aclr		: IN STD_LOGIC;
 		data		: IN STD_LOGIC_VECTOR (3 DOWNTO 0);
 		rdclk		: IN STD_LOGIC ;
 		rdreq		: IN STD_LOGIC ;
@@ -245,6 +267,7 @@ ARCHITECTURE SYN OF rxFifo IS
 		use_eab		: STRING
 	);
 	PORT (
+			aclr	: IN STD_LOGIC;
 			rdclk	: IN STD_LOGIC ;
 			wrempty	: OUT STD_LOGIC ;
 			wrfull	: OUT STD_LOGIC ;
@@ -285,6 +308,7 @@ BEGIN
 		use_eab => "OFF"
 	)
 	PORT MAP (
+		aclr => aclr,
 		rdclk => rdclk,
 		wrclk => wrclk,
 		wrreq => wrreq,
@@ -315,6 +339,7 @@ USE altera_mf.all;
 ENTITY txFifo IS
 	PORT
 	(
+		aclr		: IN STD_LOGIC;
 		data		: IN STD_LOGIC_VECTOR (1 DOWNTO 0);
 		rdclk		: IN STD_LOGIC ;
 		rdreq		: IN STD_LOGIC ;
@@ -359,6 +384,7 @@ ARCHITECTURE SYN OF txFifo IS
 		use_eab		: STRING
 	);
 	PORT (
+			aclr	: IN STD_LOGIC ;
 			rdclk	: IN STD_LOGIC ;
 			wrempty	: OUT STD_LOGIC ;
 			wrfull	: OUT STD_LOGIC ;
@@ -399,6 +425,7 @@ BEGIN
 		use_eab => "OFF"
 	)
 	PORT MAP (
+		aclr => aclr,
 		rdclk => rdclk,
 		wrclk => wrclk,
 		wrreq => wrreq,

@@ -49,6 +49,7 @@
 #--									Added generic to set duration of valid assertion (portio)
 #-- 2010-11-29	V0.08	zelenkaj	Changed several Endianness sel. to one for AP
 #--									Allocation of ping-pong tx buffers (necessary by openPOWERLINK stack)
+#-- 2010-11-30	V0.09	zelenkaj	Added other picture as Block Diagram (3 design approaches)
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -105,7 +106,7 @@ set_parameter_property clkRatePcp VISIBLE false
 
 add_parameter configPowerlink STRING "CN with AP"
 set_parameter_property configPowerlink DISPLAY_NAME "POWERLINK Slave Design Configuration"
-set_parameter_property configPowerlink ALLOWED_RANGES {"Simple I/O CN" "CN with AP"}
+set_parameter_property configPowerlink ALLOWED_RANGES {"Direct I/O CN" "CN with AP"}
 set_parameter_property configPowerlink DISPLAY_HINT radio
 
 add_parameter configApInterface STRING "Avalon"
@@ -411,8 +412,8 @@ proc my_validation_callback {} {
 	set_parameter_property validAssertDuration VISIBLE false
 	set_parameter_property validSet VISIBLE false
 	
-	if {$configPowerlink == "Simple I/O CN"} {
-		#CN is only a simple I/O CN, so there are only 4bytes I/Os
+	if {$configPowerlink == "Direct I/O CN"} {
+		#CN is only a Direct I/O CN, so there are only 4bytes I/Os
 		if {$rpdos == 1} {
 			set rpdo0size [expr 4 + 16]
 			set rpdo1size 0
@@ -590,7 +591,7 @@ proc my_validation_callback {} {
 	#forward parameters to system.h
 	
 	# workaround: strings are erroneous => no blanks, etc.
-	if {$configPowerlink == "Simple I/O CN"} {
+	if {$configPowerlink == "Direct I/O CN"} {
 		set_module_assignment embeddedsw.CMacro.CONFIG				"Simple_IO_CN"
 	} else {
 		set_module_assignment embeddedsw.CMacro.CONFIG				"CN_with_AP"
@@ -622,7 +623,7 @@ proc my_validation_callback {} {
 }
 
 #display
-add_display_item "Block Diagram" id0 icon img/POWERLINK.png
+add_display_item "Block Diagram" id0 icon img/designs.png
 add_display_item "General Settings" configPowerlink PARAMETER
 add_display_item "Process Data Interface Settings" configApInterface PARAMETER
 add_display_item "Process Data Interface Settings" configApParallelInterface PARAMETER
@@ -1001,8 +1002,8 @@ if {$ClkRate50meg == 50000000} {
 		set_interface_property clkEth ENABLED false
 	}
 	
-	if {[get_parameter_value configPowerlink] == "Simple I/O CN"} {
-		#the Simple I/O CN requires:
+	if {[get_parameter_value configPowerlink] == "Direct I/O CN"} {
+		#the Direct I/O CN requires:
 		# MAC stuff
 		# portio export
 		# Avalon SMP
