@@ -50,6 +50,9 @@
 #-- 2010-11-29	V0.08	zelenkaj	Changed several Endianness sel. to one for AP
 #--									Allocation of ping-pong tx buffers (necessary by openPOWERLINK stack)
 #-- 2010-11-30	V0.09	zelenkaj	Added other picture as Block Diagram (3 design approaches)
+#-- 2010-12-06	V0.10	zelenkaj	Changed Cmacros
+#--									Added openMAC only parameter
+#--									Added SPI IRQ active high/low choice
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -106,7 +109,7 @@ set_parameter_property clkRatePcp VISIBLE false
 
 add_parameter configPowerlink STRING "CN with AP"
 set_parameter_property configPowerlink DISPLAY_NAME "POWERLINK Slave Design Configuration"
-set_parameter_property configPowerlink ALLOWED_RANGES {"Direct I/O CN" "CN with AP"}
+set_parameter_property configPowerlink ALLOWED_RANGES {"Direct I/O CN" "CN with AP" "openMAC only"}
 set_parameter_property configPowerlink DISPLAY_HINT radio
 
 add_parameter configApInterface STRING "Avalon"
@@ -144,6 +147,11 @@ add_parameter configApSpi_CPHA STRING "0"
 set_parameter_property configApSpi_CPHA VISIBLE false
 set_parameter_property configApSpi_CPHA DISPLAY_NAME "SPI CPHA"
 set_parameter_property configApSpi_CPHA ALLOWED_RANGES {"0" "1"}
+
+add_parameter configApSpi_IRQ STRING "High Active"
+set_parameter_property configApSpi_IRQ VISIBLE false
+set_parameter_property configApSpi_IRQ DISPLAY_NAME "Active State of Output Signals (Irq)"
+set_parameter_property configApSpi_IRQ ALLOWED_RANGES {"High Active" "Low Active"}
 
 add_parameter rpdoNum INTEGER 3
 set_parameter_property rpdoNum ALLOWED_RANGES {1 2 3}
@@ -201,6 +209,14 @@ set_parameter_property validAssertDuration DISPLAY_UNITS "ns"
 set_parameter_property validAssertDuration ENABLED false
 set_parameter_property validAssertDuration DERIVED TRUE
 
+add_parameter macTxBuf INTEGER 1514
+set_parameter_property macTxBuf UNITS bytes
+set_parameter_property macTxBuf DISPLAY_NAME "openMAC TX Buffer Size"
+
+add_parameter macRxBuf INTEGER 1514
+set_parameter_property macRxBuf UNITS bytes
+set_parameter_property macRxBuf DISPLAY_NAME "openMAC RX Buffer Size"
+
 #parameters for PDI HDL
 add_parameter genPdi_g BOOLEAN true
 set_parameter_property genPdi_g HDL_PARAMETER true
@@ -224,13 +240,13 @@ set_parameter_property genSpiAp_g DERIVED TRUE
 
 add_parameter iRpdos_g INTEGER 1
 set_parameter_property iRpdos_g HDL_PARAMETER true
-set_parameter_property iRpdos_g ALLOWED_RANGES {1 2 3}
+set_parameter_property iRpdos_g ALLOWED_RANGES {0 1 2 3}
 set_parameter_property iRpdos_g VISIBLE false
 set_parameter_property iRpdos_g DERIVED TRUE
 
 add_parameter iTpdos_g INTEGER 1
 set_parameter_property iTpdos_g HDL_PARAMETER true
-set_parameter_property iTpdos_g ALLOWED_RANGES 1
+set_parameter_property iTpdos_g ALLOWED_RANGES {0 1}
 set_parameter_property iTpdos_g VISIBLE false
 set_parameter_property iTpdos_g DERIVED TRUE
 
@@ -350,6 +366,8 @@ proc my_validation_callback {} {
 #	set tpdoDesc					[get_parameter_value iTpdoObjNumber_g]
 	set asyncTxBufSize				[get_parameter_value asyncTxBufSize]
 	set asyncRxBufSize				[get_parameter_value asyncRxBufSize]
+	set macTxBuf					[get_parameter_value macTxBuf]
+	set macRxBuf					[get_parameter_value macRxBuf]
 	
 	set mii							[get_parameter_value phyIF]
 	
@@ -401,6 +419,7 @@ proc my_validation_callback {} {
 	set_parameter_property configApEndian VISIBLE false
 	set_parameter_property configApSpi_CPOL VISIBLE false
 	set_parameter_property configApSpi_CPHA VISIBLE false
+	set_parameter_property configApSpi_IRQ VISIBLE false
 	set_parameter_property asyncTxBufSize VISIBLE false
 	set_parameter_property asyncRxBufSize VISIBLE false
 #	set_parameter_property iRpdoObjNumber_g VISIBLE false
@@ -411,8 +430,20 @@ proc my_validation_callback {} {
 	set_parameter_property tpdo0size VISIBLE false
 	set_parameter_property validAssertDuration VISIBLE false
 	set_parameter_property validSet VISIBLE false
+	set_parameter_property macTxBuf VISIBLE false
+	set_parameter_property macRxBuf VISIBLE false
 	
-	if {$configPowerlink == "Direct I/O CN"} {
+	set_parameter_property rpdoNum VISIBLE true
+	set_parameter_property tpdoNum VISIBLE true
+	
+	if {$configPowerlink == "openMAC only"} {
+		#no PDI, only openMAC
+		set_parameter_property macTxBuf VISIBLE true
+		set_parameter_property macRxBuf VISIBLE true
+		
+		set_parameter_property rpdoNum VISIBLE false
+		set_parameter_property tpdoNum VISIBLE false
+	} elseif {$configPowerlink == "Direct I/O CN"} {
 		#CN is only a Direct I/O CN, so there are only 4bytes I/Os
 		if {$rpdos == 1} {
 			set rpdo0size [expr 4 + 16]
@@ -491,6 +522,7 @@ proc my_validation_callback {} {
 			#let's use spi
 			set_parameter_property configApSpi_CPOL VISIBLE true
 			set_parameter_property configApSpi_CPHA VISIBLE true
+			set_parameter_property configApSpi_IRQ VISIBLE true
 			
 			set genSpiAp true
 			
@@ -525,6 +557,24 @@ proc my_validation_callback {} {
 	#calculate rx buffer size out of packets per cycle
 	#TODO: maybe increment rx buffer number, since asnd may be executed over several cycles!
 	set rxBufSize [expr $macRxBuffers * ($ethHd + $mtu + $crc + $macRxHd)]
+	
+	if {$configPowerlink == "openMAC only"} {
+		#overwrite done calulations
+		set txBufSize $macTxBuf
+		set rxBufSize $macRxBuf
+		
+		#set unsupported to zeros or allowed range
+		set macTxBuffers 0
+		set macRxBuffers 0
+		set rpdos 0
+		set tpdos 0
+		set rpdo0size 0
+		set rpdo1size 0
+		set rpdo2size 0
+		set tpdo0size 0
+		set asyncTxBufSize 0
+		set asyncRxBufSize 0
+	}
 	
 	set macBufSize [expr $txBufSize + $rxBufSize]
 	#align macBufSize to 1 double word!!!
@@ -592,25 +642,35 @@ proc my_validation_callback {} {
 	
 	# workaround: strings are erroneous => no blanks, etc.
 	if {$configPowerlink == "Direct I/O CN"} {
-		set_module_assignment embeddedsw.CMacro.CONFIG				"Simple_IO_CN"
-	} else {
-		set_module_assignment embeddedsw.CMacro.CONFIG				"CN_with_AP"
-	}
-	
-	if {$configPowerlink == "CN with AP"} {
+																	#direct I/O
+		set_module_assignment embeddedsw.CMacro.CONFIG				0
+	} elseif {$configPowerlink == "CN with AP"} {
 		if {$configApInterface == "Avalon"} {
-			set_module_assignment embeddedsw.CMacro.CONFIGAPIF		"Avalon"
+																	#Avalon
+			set_module_assignment embeddedsw.CMacro.CONFIG			4
 		} elseif {$configApInterface == "Parallel"} {
-			set_module_assignment embeddedsw.CMacro.CONFIGAPIF		"Parallel"
+			if {[get_parameter_value configApParallelInterface] == "8bit"} {
+																	#parallel 8bit
+				set_module_assignment embeddedsw.CMacro.CONFIG		1
+			} else {
+																	#parallel 16bit
+				set_module_assignment embeddedsw.CMacro.CONFIG		2
+			}
 		} else {
-			set_module_assignment embeddedsw.CMacro.CONFIGAPIF		"SPI"
+																	#SPI
+			set_module_assignment embeddedsw.CMacro.CONFIG			3
 		}
+	} elseif {$configPowerlink == "openMAC only"} {
+																	#openMAC only
+		set_module_assignment embeddedsw.CMacro.CONFIG				5
 	}
 	
 	if {[get_parameter_value configApEndian] == "Little"} {
-		set_module_assignment embeddedsw.CMacro.CONFIGAPENDIAN		"Little_Endian"
+																	#little endian
+		set_module_assignment embeddedsw.CMacro.CONFIGAPENDIAN		0
 	} else {
-		set_module_assignment embeddedsw.CMacro.CONFIGAPENDIAN		"Big_Endian"
+																	#big endian
+		set_module_assignment embeddedsw.CMacro.CONFIGAPENDIAN		1
 	}
 	
 	set_module_assignment embeddedsw.CMacro.MACBUFSIZE				$macBufSize
@@ -629,6 +689,7 @@ add_display_item "Process Data Interface Settings" configApInterface PARAMETER
 add_display_item "Process Data Interface Settings" configApParallelInterface PARAMETER
 add_display_item "Process Data Interface Settings" configApParOutSigs PARAMETER
 add_display_item "Process Data Interface Settings" configApParSigs PARAMETER
+add_display_item "Process Data Interface Settings" configApSpi_IRQ PARAMETER
 add_display_item "Process Data Interface Settings" configApEndian PARAMETER
 add_display_item "Process Data Interface Settings" configApSpi_CPOL PARAMETER
 add_display_item "Process Data Interface Settings" configApSpi_CPHA PARAMETER
@@ -645,6 +706,8 @@ add_display_item "Receive Process Data" rpdo2size PARAMETER
 add_display_item "Asynchronous Buffer" asyncTxBufSize  PARAMETER
 add_display_item "Asynchronous Buffer" asyncRxBufSize  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
+add_display_item "openMAC" macTxBuf  PARAMETER
+add_display_item "openMAC" macRxBuf  PARAMETER
 
 #INTERFACES
 
@@ -887,6 +950,7 @@ add_interface_port SPI_AP spi_sel_n export Input 1
 add_interface_port SPI_AP spi_mosi export Input 1
 add_interface_port SPI_AP spi_miso export Output 1
 add_interface_port SPI_AP ap_irq export Output 1
+add_interface_port SPI_AP ap_irq_n export Output 1
 
 ##Parallel AP Interface export
 add_interface PAR_AP conduit end
@@ -1002,7 +1066,9 @@ if {$ClkRate50meg == 50000000} {
 		set_interface_property clkEth ENABLED false
 	}
 	
-	if {[get_parameter_value configPowerlink] == "Direct I/O CN"} {
+	if {[get_parameter_value configPowerlink] == "openMAC only"} {
+		#do nothing...
+	} elseif {[get_parameter_value configPowerlink] == "Direct I/O CN"} {
 		#the Direct I/O CN requires:
 		# MAC stuff
 		# portio export
@@ -1052,6 +1118,13 @@ if {$ClkRate50meg == 50000000} {
 		} elseif {[get_parameter_value configApInterface] == "SPI"} {
 		# AP is external via SPI (SPI_AP)
 			set_interface_property SPI_AP ENABLED true
+			if {[get_parameter_value configApSpi_IRQ] == "High Active"} {
+				set_port_property ap_irq termination false
+				set_port_property ap_irq_n termination true
+			} else {
+				set_port_property ap_irq termination true
+				set_port_property ap_irq_n termination false
+			}
 		}
 	}
 }

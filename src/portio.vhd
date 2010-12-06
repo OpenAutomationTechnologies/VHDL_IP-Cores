@@ -108,7 +108,9 @@ begin
 							end if;
 						end loop;
 					when '1' => --write to config register operational flag
-						x_operational_s <= s0_writedata(s0_writedata'left);
+						if s0_byteenable(3) = '1' then
+							x_operational_s <= s0_writedata(s0_writedata'left);
+						end if;
 					when others =>
 				end case;
 				

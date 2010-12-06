@@ -44,6 +44,7 @@
 --									Omitted T/RPDO descriptor sections in DPR
 --									Added generic to set duration of valid assertion (portio)
 -- 2010-11-29	V0.05	zelenkaj	Added Big/Little Endian (pdi_spi)
+-- 2010-12-06	V0.06	zelenkaj	Bugfix: ap_irq was not driven in SPI configuration
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -431,6 +432,9 @@ begin
 	genPdiSpi : if genPdi_g and genSpiAp_g generate
 		
 		spi_sel_s <= not spi_sel_n;
+		
+		ap_irq <= ap_irq_s;
+		ap_irq_n <= not ap_irq_s;
 		
 		thePdiSpi : entity work.pdi_spi
 			generic map (
