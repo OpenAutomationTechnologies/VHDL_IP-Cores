@@ -53,6 +53,8 @@
 #-- 2010-12-06	V0.10	zelenkaj	Changed Cmacros
 #--									Added openMAC only parameter
 #--									Added SPI IRQ active high/low choice
+#-- 2010-12-07	V0.11	zelenkaj	Bugfix: AP IRQ was generated incorrect for SPI
+#--									Code clean up
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -270,16 +272,6 @@ set_parameter_property iRpdo2BufSize_g HDL_PARAMETER true
 set_parameter_property iRpdo2BufSize_g VISIBLE false
 set_parameter_property iRpdo2BufSize_g DERIVED TRUE
 
-#add_parameter iTpdoObjNumber_g INTEGER 1
-#set_parameter_property iTpdoObjNumber_g HDL_PARAMETER true
-#set_parameter_property iTpdoObjNumber_g ALLOWED_RANGES 1:1490
-#set_parameter_property iTpdoObjNumber_g DISPLAY_NAME "Maximum Mapped TPDO Objects"
-
-#add_parameter iRpdoObjNumber_g INTEGER 1
-#set_parameter_property iRpdoObjNumber_g HDL_PARAMETER true
-#set_parameter_property iRpdoObjNumber_g ALLOWED_RANGES 1:1490
-#set_parameter_property iRpdoObjNumber_g DISPLAY_NAME "Maximum Mapped RPDO Objects"
-
 add_parameter iAsyTxBufSize_g INTEGER 1514
 set_parameter_property iAsyTxBufSize_g HDL_PARAMETER true
 set_parameter_property iAsyTxBufSize_g VISIBLE false
@@ -362,8 +354,6 @@ proc my_validation_callback {} {
 	set rpdo1size					[get_parameter_value rpdo1size]
 	set rpdo2size					[get_parameter_value rpdo2size]
 	set tpdo0size					[get_parameter_value tpdo0size]
-#	set rpdoDesc					[get_parameter_value iRpdoObjNumber_g]
-#	set tpdoDesc					[get_parameter_value iTpdoObjNumber_g]
 	set asyncTxBufSize				[get_parameter_value asyncTxBufSize]
 	set asyncRxBufSize				[get_parameter_value asyncRxBufSize]
 	set macTxBuf					[get_parameter_value macTxBuf]
@@ -422,8 +412,6 @@ proc my_validation_callback {} {
 	set_parameter_property configApSpi_IRQ VISIBLE false
 	set_parameter_property asyncTxBufSize VISIBLE false
 	set_parameter_property asyncRxBufSize VISIBLE false
-#	set_parameter_property iRpdoObjNumber_g VISIBLE false
-#	set_parameter_property iTpdoObjNumber_g VISIBLE false
 	set_parameter_property rpdo0size VISIBLE false
 	set_parameter_property rpdo1size VISIBLE false
 	set_parameter_property rpdo2size VISIBLE false
@@ -476,8 +464,6 @@ proc my_validation_callback {} {
 		set_parameter_property asyncRxBufSize VISIBLE true
 		#AP can be big or little endian - allow choice
 		set_parameter_property configApEndian VISIBLE true
-#		set_parameter_property iRpdoObjNumber_g  VISIBLE true
-#		set_parameter_property iTpdoObjNumber_g  VISIBLE true
 		
 		set genPdi true
 		
@@ -579,7 +565,6 @@ proc my_validation_callback {} {
 	set macBufSize [expr $txBufSize + $rxBufSize]
 	#align macBufSize to 1 double word!!!
 	set macBufSize [expr ($macBufSize + 3) & ~3]
-#	set macM9K [expr int(ceil($macBufSize / 1024.))]
 	set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
 	
 	#set pdi generics
@@ -591,14 +576,6 @@ proc my_validation_callback {} {
 	set_parameter_value iRpdo2BufSize_g		$rpdo2size
 	set_parameter_value iAsyTxBufSize_g		$asyncTxBufSize
 	set_parameter_value iAsyRxBufSize_g		$asyncRxBufSize
-	
-#	#align pdi buffers for pdi memor
-#	set rpdo0size [expr ($rpdo0size + 3) & ~3]
-#	set rpdo1size [expr ($rpdo1size + 3) & ~3]
-#	set rpdo2size [expr ($rpdo2size + 3) & ~3]
-#	set tpdo0size [expr ($tpdo0size + 3) & ~3]
-#	set asyncTxBufSize [expr ($asyncTxBufSize + 3) & ~3]
-#	set asyncRxBufSize [expr ($asyncRxBufSize + 3) & ~3]
 	
 #now, let's set generics to HDL
 	set_parameter_value genPdi_g			$genPdi
@@ -701,8 +678,6 @@ add_display_item "Transmit Process Data" tpdo0size PARAMETER
 add_display_item "Receive Process Data" rpdo0size PARAMETER
 add_display_item "Receive Process Data" rpdo1size PARAMETER
 add_display_item "Receive Process Data" rpdo2size PARAMETER
-#add_display_item "Transmit Process Data" iTpdoObjNumber_g PARAMETER
-#add_display_item "Receive Process Data" iRpdoObjNumber_g PARAMETER
 add_display_item "Asynchronous Buffer" asyncTxBufSize  PARAMETER
 add_display_item "Asynchronous Buffer" asyncRxBufSize  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
@@ -942,6 +917,12 @@ set_interface_property PDI_AP_IRQ ASSOCIATED_CLOCK clk50meg
 set_interface_property PDI_AP_IRQ ENABLED true
 add_interface_port PDI_AP_IRQ ap_irq irq Output 1
 
+##AP external IRQ
+add_interface AP_EX_IRQ conduit end
+set_interface_property AP_EX_IRQ ENABLED false
+add_interface_port AP_EX_IRQ ap_irq export Output 1
+add_interface_port AP_EX_IRQ ap_irq_n export Output 1
+
 ##SPI AP export
 add_interface SPI_AP conduit end
 set_interface_property SPI_AP ENABLED false
@@ -949,8 +930,6 @@ add_interface_port SPI_AP spi_clk export Input 1
 add_interface_port SPI_AP spi_sel_n export Input 1
 add_interface_port SPI_AP spi_mosi export Input 1
 add_interface_port SPI_AP spi_miso export Output 1
-add_interface_port SPI_AP ap_irq export Output 1
-add_interface_port SPI_AP ap_irq_n export Output 1
 
 ##Parallel AP Interface export
 add_interface PAR_AP conduit end
@@ -967,13 +946,8 @@ add_interface_port PAR_AP pap_be_n export Input papDataWidth_g/8
 ###bus
 add_interface_port PAR_AP pap_addr export Input 16
 add_interface_port PAR_AP pap_data export Bidir papDataWidth_g
-#add_interface_port PAR_AP pap_wrdata export Input papDataWidth_g
-#add_interface_port PAR_AP pap_rddata export Output papDataWidth_g
-#add_interface_port PAR_AP pap_doe export Output 1
-###irq/ready
-add_interface_port PAR_AP ap_irq export Output 1
+###ready
 add_interface_port PAR_AP pap_ready export Output 1
-add_interface_port PAR_AP ap_irq_n export Output 1
 add_interface_port PAR_AP pap_ready_n export Output 1
 ###GPIO
 add_interface_port PAR_AP pap_gpio export Bidir 2
@@ -1046,6 +1020,7 @@ if {$ClkRate50meg == 50000000} {
 	set_interface_property PAR_AP ENABLED false
 	set_interface_property SMP ENABLED false
 	set_interface_property SMP_PIO ENABLED false
+	set_interface_property AP_EX_IRQ ENABLED false
 	
 	if {[get_parameter_value useRmii_g]} {
 		set_interface_property RMII0 ENABLED true
@@ -1089,6 +1064,7 @@ if {$ClkRate50meg == 50000000} {
 		} elseif {[get_parameter_value configApInterface] == "Parallel"} {
 		# AP is external (PAR_AP)
 			set_interface_property PAR_AP ENABLED true
+			set_interface_property AP_EX_IRQ ENABLED true
 			if {[get_parameter_value papDataWidth_g] == 8} {
 				#we don't need byteenable for 8bit data bus width!
 				set_port_property pap_be termination true
@@ -1118,12 +1094,13 @@ if {$ClkRate50meg == 50000000} {
 		} elseif {[get_parameter_value configApInterface] == "SPI"} {
 		# AP is external via SPI (SPI_AP)
 			set_interface_property SPI_AP ENABLED true
-			if {[get_parameter_value configApSpi_IRQ] == "High Active"} {
-				set_port_property ap_irq termination false
-				set_port_property ap_irq_n termination true
-			} else {
+			set_interface_property AP_EX_IRQ ENABLED true
+			if {[get_parameter_value configApSpi_IRQ] == "Low Active"} {
+				#low active output signal (irq_n) is used
 				set_port_property ap_irq termination true
-				set_port_property ap_irq_n termination false
+			} else {
+				#high active output signal (irq) is used
+				set_port_property ap_irq_n termination true
 			}
 		}
 	}
