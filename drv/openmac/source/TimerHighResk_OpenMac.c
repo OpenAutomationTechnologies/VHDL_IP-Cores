@@ -98,9 +98,15 @@
 #define TIMERCMP_REG_OFF_STATUS     4
 #define TIMERCMP_REG_OFF_TIME_VAL   0
 
+#ifdef __POWERLINK
+#define HIGHRES_TIMER_IRQ           POWERLINK_0_MAC_CMP_IRQ
+#define HIGHRES_TIMER_BASE          POWERLINK_0_MAC_CMP_BASE
+#elif defined(__OPENMAC)
 #define HIGHRES_TIMER_IRQ           OPENMAC_0_CMP_IRQ
 #define HIGHRES_TIMER_BASE          OPENMAC_0_CMP_BASE
-
+#else
+#error "Configuration unknown!"
+#endif
 
 #define TIMERHDL_MASK               0x0FFFFFFF
 #define TIMERHDL_SHIFT              28

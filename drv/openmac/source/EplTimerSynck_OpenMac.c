@@ -94,8 +94,15 @@
 #define EPL_TIMER_SYNC_SECOND_LOSS_OF_SYNC      FALSE
 #endif
 
+#ifdef __POWERLINK
 #define EPL_TIMER_SYNC_BASE		POWERLINK_0_MAC_CMP_BASE //from system.h
 #define EPL_TIMER_SYNC_IRQ		POWERLINK_0_MAC_CMP_IRQ
+#elif defined(__OPENMAC)
+#define EPL_TIMER_SYNC_BASE		OPENMAC_0_CMP_BASE //from system.h
+#define EPL_TIMER_SYNC_IRQ		OPENMAC_0_CMP_IRQ
+#else
+#error "Configuration unknown!"
+#endif
 
 /***************************************************************************/
 /*                                                                         */

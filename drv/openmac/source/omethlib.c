@@ -160,6 +160,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MICREL_KS8721_PHY_ID	0x22161
 #define	MICREL_KS8721_IPG		40			// due to phy runtime of 460ns the ipg can be reduced to 40 (40+2*460 = 960 ... minimum ipg)
 
+//IPG compensation valid for EBV DBC3C40 with two National phys...
+#define NATIONAL_DP83640_PHY_ID	0x5ce1200
+#define NATIONAL_DP83640_IPG	~0	//TODO: measure IPG and compensate
+
+#define MARVELL_88E1111_PHY_ID	0x5678
+#define MARVELL_88E1111_IPG		~0	//TODO: measure IPG and compensate
+
+
 #define PHY_MICREL_REG1F_NOAUTOMDIX	0x2000
 
 
@@ -541,6 +549,15 @@ static OMETH_H		omethCreateInt
 	else if (hEth->phyCount==1)
 	{
 		if(phyId==MICREL_KS8721_PHY_ID)	i = MICREL_KS8721_IPG;
+	}
+	// reduce IPG automatically depending on phy type (if there are 2 phy existing)
+	else if (hEth->phyCount==2)
+	{
+		//e.g. EBV DB3C40 BOARD (Cyclone 3)
+		if(phyId==NATIONAL_DP83640_PHY_ID) i = NATIONAL_DP83640_IPG;
+		//e.g. TERASIC DE2-115 (Cyclone 4)
+		else if(phyId==MARVELL_88E1111_PHY_ID) i = MARVELL_88E1111_IPG;
+		//...add more if needed
 	}
 
 	// response IPG is defined, calculate value and write to descriptor

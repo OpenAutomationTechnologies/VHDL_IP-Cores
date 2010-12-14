@@ -48,6 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  2009/08/14     d.k.        adapted to new Ethernet driver interface
  2010/05/03     zelenkaj    adapted to new MAC-internal packet buffer
  2010/07/12     hoggerm     adapted for auto response delay
+ 2010/12/14		zelenkaj	bugfix: use correct EDRV_PKT_SPAN,
+							adapted MAC configuration and phy management
 
 ----------------------------------------------------------------------------*/
 
@@ -72,23 +74,48 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //---------------------------------------------------------------------------
 
 //------------------------------------------------------
+//--- set number of connected phys ---
+#define EDRV_PHY_NUM				2
+#if (EDRV_PHY_NUM < 1)
+	#error "At least one phy is necessary!"
+#endif
+//set phy AC timing behavior (ref. to data sheet)
+#define EDRV_PHY_RST_PULSE_US		10000 //length of reset pulse (rst_n = 0)
+#define EDRV_PHY_RST_READY_US		 5000 //time after phy is ready to operate
+
 //--- set the system's base addresses ---
-#define EDRV_MAC_BASE                   (void *)POWERLINK_0_MAC_REG_BASE
-#define EDRV_MAC_SPAN                           POWERLINK_0_MAC_REG_SPAN
-#define EDRV_MAC_IRQ                            POWERLINK_0_MAC_REG_IRQ
-#define EDRV_RAM_BASE                   (void *)(EDRV_MAC_BASE + 0x0800)
-#define EDRV_MII_BASE                   (void *)(EDRV_MAC_BASE + 0x1000)
-#define EDRV_IRQ_BASE                   (void *)(EDRV_MAC_BASE + 0x1010)
-#define EDRV_PKT_BASE                   (void *)POWERLINK_0_MAC_BUF_BASE
-#define EDRV_PKT_SPAN                           POWERLINK_0_MAC_BUF_SPAN
-#define EDRV_CMP_BASE                   (void *)POWERLINK_0_MAC_CMP_BASE
-#define EDRV_CMP_SPAN                           POWERLINK_0_MAC_CMP_SPAN
+#ifdef __POWERLINK //POWERLINK IP-core used
+	#define EDRV_MAC_BASE           (void *)POWERLINK_0_MAC_REG_BASE
+	#define EDRV_MAC_SPAN                   POWERLINK_0_MAC_REG_SPAN
+	#define EDRV_MAC_IRQ                    POWERLINK_0_MAC_REG_IRQ
+	#define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
+	#define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
+	#define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
+	#define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
+	#define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE //POWERLINK_0_MAC_BUF_SPAN
+	#define EDRV_CMP_BASE           (void *)POWERLINK_0_MAC_CMP_BASE
+	#define EDRV_CMP_SPAN                   POWERLINK_0_MAC_CMP_SPAN
+
+	#define EDRV_MAX_RX_BUFFERS         POWERLINK_0_MAC_REG_MACRXBUFFERS //TODO: Check correct value with Joerg
+#elif defined(__OPENMAC) //OPENMAC IP-core used
+	#define EDRV_MAC_BASE           (void*)(OPENMAC_0_REG_BASE)
+	#define EDRV_MAC_SPAN                  (OPENMAC_0_REG_SPAN)
+	#define EDRV_MAC_IRQ                   (OPENMAC_0_REG_IRQ)
+	#define EDRV_RAM_BASE                  (EDRV_MAC_BASE + 0x0800)
+	#define EDRV_MII_BASE                  (EDRV_MAC_BASE + 0x1000)
+	#define EDRV_IRQ_BASE                  (EDRV_MAC_BASE + 0x1010)
+	#define EDRV_PKT_BASE           (void*)(OPENMAC_0_IBUF_BASE)
+	#define EDRV_PKT_SPAN                  (OPENMAC_0_IBUF_TXBUFSIZE + OPENMAC_0_IBUF_RXBUFSIZE)
+	#define EDRV_CMP_BASE           (void *)OPENMAC_0_CMP_BASE
+	#define EDRV_CMP_SPAN                   OPENMAC_0_CMP_SPAN
+
+	#define EDRV_MAX_RX_BUFFERS         OPENMAC_0_REG_RXBUFFERS
+#else
+	#error "Configuration is unknown!"
+#endif
 
 //--- set driver's MTU ---
 #define EDRV_MAX_BUFFER_SIZE        1518
-
-//--- set driver's RX buffers ---
-#define EDRV_MAX_RX_BUFFERS         POWERLINK_0_MAC_REG_MACRXBUFFERS //TODO: Check correct value with Joerg
 
 //--- set driver's filters ---
 #define EDRV_MAX_FILTERS            16
@@ -98,16 +125,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #if (EDRV_MAX_RX_BUFFERS > 16)
-	#error This MAC version can handle 16 rx buffers, not more!
+	#error "This MAC version can handle 16 rx buffers, not more!""
 #endif
 
-//MAC-internal buffer size estimation
-//#if ( ((EDRV_MAX_BUFFER_SIZE+16)*EDRV_MAX_RX_BUFFERS) > EDRV_PKT_LENGTH )
-//    #error The MAC-internal buffer size is to small!
-//#endif //TODO: MAC Buffer big enough?
-
 #if (EDRV_AUTO_RESPONSE == FALSE)
-    #error Please enable EDRV_AUTO_RESPONSE in EplCfg.h!
+    #error "Please enable EDRV_AUTO_RESPONSE in EplCfg.h!""
 #endif
 
 
@@ -115,6 +137,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GET_TYPE_BASE(typ, element, ptr)    \
     ((typ*)( ((size_t)ptr) - (size_t)&((typ*)0)->element ))
 
+#include "unistd.h"
+#define EDRV_USLEEP(time)			usleep(time)
 
 //---------------------------------------------------------------------------
 // local types
@@ -131,18 +155,19 @@ typedef struct _tEdrvInstance
     OMETH_HOOK_H            m_hHook;
     OMETH_FILTER_H          m_ahFilter[EDRV_MAX_FILTERS];
 
-    phy_reg_typ*            m_pPhy;
+    phy_reg_typ*            m_pPhy[EDRV_PHY_NUM];
+    BYTE					m_ubPhyCnt;
 
     // auto-response Tx buffers
     tEdrvTxBuffer*          m_apTxBuffer[EDRV_MAX_FILTERS];
 
     //tx msg counter
-    DWORD                     msgfree;
-    DWORD                     msgsent;
+    DWORD                   m_dwMsgFree;
+    DWORD                   m_dwMsgSent;
     //needed for buffer management
-    void                    *pRxBufBase;
-    void                    *pTxBufBase;
-    BYTE                    txBufferCnt;
+    void*                   m_pRxBufBase;
+    void*                   m_pTxBufBase;
+    BYTE                    m_ubTxBufCnt;
 
 } tEdrvInstance;
 
@@ -218,17 +243,10 @@ BYTE            abFilterMask[31],
     ////////////////////
     // initialize phy //
     ////////////////////
-    EdrvInstance_l.m_pPhy = omethPhyInfo(EdrvInstance_l.m_hOpenMac, 0);
-    //printf("Phy activation ... ");
     omethMiiControl(EDRV_MII_BASE, MII_CTRL_RESET);
-    for(i=0;i<1000;i++) asm("NOP;");
+    EDRV_USLEEP(EDRV_PHY_RST_PULSE_US);
     omethMiiControl(EDRV_MII_BASE, MII_CTRL_ACTIVE);
-    for(i=0;i<1000;i++) asm("NOP;");
-    omethMiiControl(EDRV_MII_BASE, MII_CTRL_RESET);
-    for(i=0;i<1000;i++) asm("NOP;");
-    omethMiiControl(EDRV_MII_BASE, MII_CTRL_ACTIVE);
-    for(i=0;i<1000;i++) asm("NOP;");
-    //printf("done\n");
+    EDRV_USLEEP(EDRV_PHY_RST_READY_US);
 
     ////////////////////////////////
     // initialize ethernet driver //
@@ -237,8 +255,12 @@ BYTE            abFilterMask[31],
 
     EdrvInstance_l.m_EthConf.adapter = 0; //adapter number
     EdrvInstance_l.m_EthConf.macType = OMETH_MAC_TYPE_01;    // more info in omethlib.h
-    EdrvInstance_l.m_EthConf.mode = /*OMETH_MODE_FULLDUPLEX +*/
-                       OMETH_MODE_HALFDUPLEX;   // supported modes
+
+    EdrvInstance_l.m_EthConf.mode = 0; //set supported modes
+    EdrvInstance_l.m_EthConf.mode |= OMETH_MODE_HALFDUPLEX; //only half-duplex allowed
+    EdrvInstance_l.m_EthConf.mode |= OMETH_MODE_100MBIT; //only 100Mbps mode allowed
+    //TODO: Marvell 88E1111 dislikes disabling auto-negotiation - workaround will follow
+    //EdrvInstance_l.m_EthConf.mode |= OMETH_MODE_DIS_AUTO_NEG; //phys are fixed to selected mode (no auto-negotiation)
 
     alt_remap_uncached((void*)EDRV_MAC_BASE, EDRV_MAC_SPAN);
     alt_remap_uncached((void*)EDRV_CMP_BASE, EDRV_CMP_SPAN);
@@ -262,12 +284,33 @@ BYTE            abFilterMask[31],
     }
 
     //get rx/tx buffer base
-    EdrvInstance_l.pRxBufBase = omethGetRxBufBase(EdrvInstance_l.m_hOpenMac);
-    EdrvInstance_l.pTxBufBase = omethGetTxBufBase(EdrvInstance_l.m_hOpenMac);
+    EdrvInstance_l.m_pRxBufBase = omethGetRxBufBase(EdrvInstance_l.m_hOpenMac);
+    EdrvInstance_l.m_pTxBufBase = omethGetTxBufBase(EdrvInstance_l.m_hOpenMac);
 
     //init driver struct
-    EdrvInstance_l.msgfree = 0;
-    EdrvInstance_l.msgsent = 0;
+    EdrvInstance_l.m_dwMsgFree = 0;
+    EdrvInstance_l.m_dwMsgSent = 0;
+
+    //verify phy management
+    EdrvInstance_l.m_ubPhyCnt = 0;
+
+    for(i=0; i<EDRV_PHY_NUM; i++)
+    {
+		EdrvInstance_l.m_pPhy[i] = omethPhyInfo(EdrvInstance_l.m_hOpenMac, i);
+		if(EdrvInstance_l.m_pPhy[i] != 0)
+		{
+			EdrvInstance_l.m_ubPhyCnt++;
+		}
+    }
+
+    printf("%i phy found\n", EdrvInstance_l.m_ubPhyCnt);
+
+    if(EdrvInstance_l.m_ubPhyCnt != EDRV_PHY_NUM)
+    {
+		printf(" -> but %i phy should be found!\n", EDRV_PHY_NUM);
+    	Ret = kEplNoResource;
+		goto Exit;
+    }
 
     // initialize the filters, so that they won't match any normal Ethernet frame
     EPL_MEMSET(abFilterMask, 0, sizeof(abFilterMask));
@@ -396,8 +439,8 @@ ometh_packet_typ*   pPacket = NULL;
     //pPacket = (ometh_packet_typ*) alt_uncached_malloc(pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length));
     {
         static void *pNextBuffer = NULL;
-        if ( EdrvInstance_l.txBufferCnt == 0 ) //Edrv instance stores tx buffer numbers
-            pPacket = (ometh_packet_typ*) EdrvInstance_l.pTxBufBase; //no tx buffers set
+        if ( EdrvInstance_l.m_ubTxBufCnt == 0 ) //Edrv instance stores tx buffer numbers
+            pPacket = (ometh_packet_typ*) EdrvInstance_l.m_pTxBufBase; //no tx buffers set
         else
             pPacket = (ometh_packet_typ*)pNextBuffer; //one/more buffers set
 
@@ -411,13 +454,13 @@ ometh_packet_typ*   pPacket = NULL;
             tmp += 3; tmp &= ~3;
             pNextBuffer = (void*)tmp;
         }
-        if ( (void*)pNextBuffer > EDRV_PKT_SPAN + EdrvInstance_l.pRxBufBase )
+        if ( (void*)pNextBuffer > EDRV_PKT_SPAN + EdrvInstance_l.m_pRxBufBase )
         {   //mac-internal buffer overflow
             printf("MAC-internal buffer overflow!\n");
             Ret = kEplEdrvNoFreeBufEntry;
             goto Exit;
         }
-        EdrvInstance_l.txBufferCnt++; //add new buffer to cntr
+        EdrvInstance_l.m_ubTxBufCnt++; //add new buffer to cntr
     }
     if (pPacket == NULL)
     {
@@ -474,7 +517,7 @@ ometh_packet_typ*   pPacket = NULL;
 
     //free tx buffer
     // buffers are not in heap, decr Edrvinstance buffer cnt
-    EdrvInstance_l.txBufferCnt--;//alt_uncached_free(pPacket);
+    EdrvInstance_l.m_ubTxBufCnt--;//alt_uncached_free(pPacket);
 
 Exit:
     return Ret;
@@ -560,7 +603,7 @@ unsigned long       ulTxLength;
                         EdrvCbSendAck, pBuffer_p);
     if (ulTxLength > 0)
     {
-        EdrvInstance_l.msgsent++;
+        EdrvInstance_l.m_dwMsgSent++;
         Ret = kEplSuccessful;
     }
     else
@@ -900,8 +943,8 @@ static void EdrvIrqHandler (void* pArg_p, alt_u32 dwInt_p)
     if(*((unsigned short *)EDRV_IRQ_BASE) & 0x2)
     {
         omethRxIrqHandler(pArg_p);
-    }	
-	// omethRxTxIrqHandlerMux(); // TODO: Test this function and comment the lines obove
+    }
+	// omethRxTxIrqHandlerMux(); // TODO: Test this function and comment the lines above
 }
 
 //---------------------------------------------------------------------------
@@ -919,7 +962,7 @@ static void EdrvIrqHandler (void* pArg_p, alt_u32 dwInt_p)
 //---------------------------------------------------------------------------
 static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long time)
 {
-    EdrvInstance_l.msgfree++;
+    EdrvInstance_l.m_dwMsgFree++;
     BENCHMARK_MOD_01_SET(1);
     if (arg != NULL)
     {
