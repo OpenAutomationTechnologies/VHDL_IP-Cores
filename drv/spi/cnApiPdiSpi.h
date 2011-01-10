@@ -48,28 +48,16 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
             CnApi_Spi_read          read given data size to PDI
 
-            
             CnApi_Spi_writeByte     write given byte to given address
 
             CnApi_Spi_readByte      read a byte from given address
-
-            CnApi_Spi_writeSq     	write given bytes to given address
-
-            CnApi_Spi_readSq      	read bytes from given address
-
-            setPdiAddrReg   build addressing commands for given address
-
-            sendTxBuffer    finally send the Tx Buffers in the driver instance
-
-            recRxBuffer     receive one byte and store to driver instance
-
-            buildCmdFrame   build a CMD Frame
 
 ------------------------------------------------------------------------------
  History:
     2010/09/09  zelenkaj    created
 	2010/10/25	hoggerm		added function for scalable data size transfers
 	2010/12/13	zelenkaj	added sq-functionality
+	2011/01/10	zelenkaj	added wake up functionality
 
 *******************************************************************************/
 
@@ -90,6 +78,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define PDISPI_MAX_SIZE                 32768                   ///< max Nr. of bytes able to address (2^15)
 #define PDISPI_MAX_ADR_OFFSET           (PDISPI_MAX_SIZE - 1)   ///< highest possible address of PDI SPI
+
+//WAKEUP
+#define PDISPI_WAKEUP					0x03
+#define PDISPI_WAKEUP1					0x0A
 
 //CMD Frame:
 // CMD(2..0) | DATA(4..0)

@@ -38,6 +38,7 @@
 -- 2010-08-31  	V0.01	zelenkaj    First version
 -- 2010-11-23	V0.02	zelenkaj	Added write/read sequence feature (WRSQ and RDSQ)
 -- 2010-11-29	V0.03	zelenkaj	Added endian generic
+-- 2011-01-10	V0.04	zelenkaj	Added wake up feature
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -74,6 +75,9 @@ entity pdi_spi is
 end entity pdi_spi;
 
 architecture rtl of pdi_spi is
+--wake up command
+constant cmdWakeUp			:		std_logic_vector(7 downto 0)	:= x"03";
+constant cmdWakeUp1			:		std_logic_vector(7 downto 0)	:= x"0A";
 --spi frame constants
 constant cmdHighaddr_c		:		std_logic_vector(2 downto 0)	:= "100";
 constant cmdMidaddr_c		:		std_logic_vector(2 downto 0)	:= "101";
@@ -84,7 +88,7 @@ constant cmdRDSQ_c			:		std_logic_vector(2 downto 0)	:= "010";
 constant cmdLowaddr_c		:		std_logic_vector(2 downto 0)	:= "011";
 constant cmdIdle_c			:		std_logic_vector(2 downto 0)	:= "000";
 --pdi_spi control signals
-type fsm_t is (idle, decode, waitwr, waitrd, wr, rd);
+type fsm_t is (reset, reset1, idle, decode, waitwr, waitrd, wr, rd);
 signal	fsm					:		fsm_t;
 signal	addrReg				:		std_logic_vector(ap_address'left+2 downto 0);
 signal	cmd					:		std_logic_vector(2 downto 0);
@@ -138,13 +142,34 @@ begin
 	variable reads : integer range 0 to 32;
 	begin
 		if rst = '1' then
-			fsm <= idle;
+			fsm <= reset;
 			timeout := 0;
 			writes := 0; reads := 0;
 			addrReg <= (others => '0');
 		elsif clk = '1' and clk'event then
 			
 			case fsm is
+				when reset =>
+					fsm <= reset;
+					if valid = '1' then
+						if dout = cmdWakeUp then
+							--wake up command (1/2) received
+							fsm <= reset1;
+						end if;
+					end if;
+					
+				when reset1 =>
+					fsm <= reset1;
+					if valid = '1' then
+						if dout = cmdWakeUp1 then
+							--wake up command (2/2) sequence was correctly decoded!
+							fsm <= idle;
+						else
+							--wake up command not decoded correctly
+							fsm <= reset;
+						end if;
+					end if;
+				
 				when idle =>
 					if writes /= 0 then
 						fsm <= waitwr;

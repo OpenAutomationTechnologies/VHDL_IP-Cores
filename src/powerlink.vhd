@@ -45,6 +45,7 @@
 --									Added generic to set duration of valid assertion (portio)
 -- 2010-11-29	V0.05	zelenkaj	Added Big/Little Endian (pdi_spi)
 -- 2010-12-06	V0.06	zelenkaj	Bugfix: ap_irq was not driven in SPI configuration
+-- 2011-01-10	V0.07	zelenkaj	Added 2-stage sync to SPI input pins
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -241,6 +242,12 @@ architecture rtl of powerlink is
 	signal ap_irq_s					:		std_logic;
 	
 	signal spi_sel_s				:		std_logic;
+	signal spi_sel_s1				:		std_logic;
+	signal spi_sel_s2				:		std_logic;
+	signal spi_clk_s1				:		std_logic;
+	signal spi_clk_s2				:		std_logic;
+	signal spi_mosi_s1				:		std_logic;
+	signal spi_mosi_s2				:		std_logic;
 begin
 	--general signals
 	rstPcp_n <= not rstPcp;
@@ -436,6 +443,27 @@ begin
 		ap_irq <= ap_irq_s;
 		ap_irq_n <= not ap_irq_s;
 		
+		theSyncProc : process(clk50, rstPcp)
+		begin
+			if rstPcp = '1' then
+				spi_sel_s1 <= '0';
+				spi_sel_s2 <= '0';
+				spi_clk_s1 <= '0';
+				spi_clk_s2 <= '0';
+				spi_mosi_s1 <= '0';
+				spi_mosi_s2 <= '0';
+			elsif clk50 = '1' and clk50'event then
+				spi_sel_s1 <= spi_sel_s;
+				spi_sel_s2 <= spi_sel_s1;
+				
+				spi_clk_s1 <= spi_clk;
+				spi_clk_s2 <= spi_clk_s1;
+				
+				spi_mosi_s1 <= spi_mosi;
+				spi_mosi_s2 <= spi_mosi_s1;
+			end if;
+		end process;
+		
 		thePdiSpi : entity work.pdi_spi
 			generic map (
 				spiSize_g					=> 8, --fixed value!
@@ -445,10 +473,10 @@ begin
 			)
 			port map (
 				-- SPI
-				spi_clk						=> spi_clk,
-				spi_sel						=> spi_sel_s,
+				spi_clk						=> spi_clk_s2,
+				spi_sel						=> spi_sel_s2,
 				spi_miso					=> spi_miso,
-				spi_mosi					=> spi_mosi,
+				spi_mosi					=> spi_mosi_s2,
 				-- clock for AP side
 				ap_reset					=> rstPcp,
 				ap_clk						=> clk50,

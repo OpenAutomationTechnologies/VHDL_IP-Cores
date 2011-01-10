@@ -48,21 +48,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
             CnApi_Spi_read          read given data size to PDI
 
-
             CnApi_Spi_writeByte     write given byte to given address
-            
-            CnApi_Spi_readByte      read a byte from given address
-            
-            CnApi_Spi_writeSq     	write given bytes to given address
 
-            CnApi_Spi_readSq      	read bytes from given address
+            CnApi_Spi_readByte      read a byte from given address
+
             
+            writeSq     	write given bytes to given address
+
+            readSq      	read bytes from given address
+
             setPdiAddrReg   build addressing commands for given address
-            
+
             sendTxBuffer    finally send the Tx Buffers in the driver instance
-            
+
             recRxBuffer     receive one byte and store to driver instance
-            
+
             buildCmdFrame   build a CMD Frame
 
 ------------------------------------------------------------------------------
@@ -70,6 +70,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     2010/09/09  zelenkaj    created
 	2010/10/25	hoggerm		added function for scalable data size transfers
 	2010/12/13	zelenkaj	added sq-functionality
+	2011/01/10	zelenkaj	added wake up functionality
 
 *******************************************************************************/
 
@@ -84,9 +85,25 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADDR_WR_DOWN_LO 3
 #define ADDR_CHECK_LO   4
 
+#define PDISPI_USLEEP(x)	usleep(x)
+
 /***************************************************************************************
  * LOCALS
  ***************************************************************************************/
+
+static int writeSq
+(
+    WORD            uwAddr_p,       ///< PDI Address to be written to
+    WORD            uwSize_p,       ///< Write data size (bytes)
+    BYTE            *pData_p        ///< Write data
+);
+
+static int readSq
+(
+    WORD            uwAddr_p,       ///< PDI Address to be read from
+    WORD            uwSize_p,       ///< Read data size
+    BYTE            *pData_p        ///< Read data
+);
 
 static int setPdiAddrReg
 (
@@ -154,12 +171,50 @@ int CnApi_initSpiMaster
     PdiSpiInstance_l.m_SpiMasterTxHandler = SpiMasterTxH_p;
     PdiSpiInstance_l.m_SpiMasterRxHandler = SpiMasterRxH_p;
     
-    //send out idle frames to enter idle surely!
-    // note: fsm could be in WRSQ or RDSQ
-    PdiSpiInstance_l.m_toBeTx = PDISPI_MAX_SQ;
+    while(1)
+    {
+		//send out wake up frame to enter idle surely!
+		PdiSpiInstance_l.m_txBuffer[0] = PDISPI_WAKEUP;
+		PdiSpiInstance_l.m_txBuffer[1] = PDISPI_WAKEUP1;
+		PdiSpiInstance_l.m_toBeTx = 2;
 
-    //send bytes in Tx buffer
-    iRet = sendTxBuffer();
+		//send byte in Tx buffer
+		iRet = sendTxBuffer();
+
+		if( iRet != PDISPI_OK )
+		{
+			goto exit;
+		}
+
+		//receive one byte
+		PdiSpiInstance_l.m_toBeRx = 1;
+
+		iRet = recRxBuffer();
+
+		if( iRet != PDISPI_OK )
+		{
+			goto exit;
+		}
+
+		if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP1)
+		{
+			//received last wake up pattern
+			break;
+		}
+
+		PDISPI_USLEEP(1000);
+    }
+
+    //send out some idle frames
+    PdiSpiInstance_l.m_toBeTx = PDISPI_MAX_TX;
+    memset(&PdiSpiInstance_l.m_txBuffer, PDISPI_CMD_IDLE, PDISPI_MAX_TX);
+
+	iRet = sendTxBuffer();
+
+	if( iRet != PDISPI_OK )
+	{
+		goto exit;
+	}
 
     //set address register in pdi to zero
     iRet = setPdiAddrReg(0, ADDR_WR_DOWN_LO);
@@ -226,88 +281,6 @@ int CnApi_Spi_writeByte
     iRet = sendTxBuffer();
 
     PdiSpiInstance_l.m_addrReg++;
-
-exit:
-    return iRet;
-}
-
-/**
-********************************************************************************
-\brief  write data to the CN PDI via SPI
-
-CnApi_Spi_writeSq() writes several bytes to the POWERLINK CN PDI via SPI.
-This data will be written to PDI address.
-
-\param  uwAddr_p    PDI address to be written to
-\param  uwSize_p    Write data size
-\param  pData_p     Write data
-
-\retval iRet        can be PDISPI_OK if transfer was successful
-                    or PDISPI_ERROR otherwise
-*******************************************************************************/
-int CnApi_Spi_writeSq
-(
-    WORD            uwAddr_p,       ///< PDI Address to be written to
-    WORD            uwSize_p,       ///< Write data size (bytes)
-    BYTE            *pData_p        ///< Write data
-)
-{
-    int             iRet = PDISPI_OK;
-    unsigned char   ubTxData;
-    WORD            uwTxSize = 0;
-
-    //check the pdi's address register for the following cmd
-    iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK_LO);
-    if( iRet != PDISPI_OK )
-    {
-        goto exit;
-    }
-
-    do
-    {
-        if( uwSize_p > PDISPI_MAX_SQ )
-        {
-            uwTxSize = PDISPI_MAX_SQ;
-            uwSize_p -= PDISPI_MAX_SQ;
-        }
-        else
-        {
-            uwTxSize = uwSize_p;
-            uwSize_p = 0;
-        }
-
-        //build WRSQ command with bytes-1 as payload
-        buildCmdFrame(uwTxSize-1, &ubTxData, PDISPI_CMD_WRSQ);
-
-        //store CMD to Tx Buffer
-        if( PdiSpiInstance_l.m_toBeTx >= PDISPI_MAX_TX )
-        {   //buffer full
-            iRet = PDISPI_ERROR;
-            goto exit;
-        }
-        PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx++] = ubTxData;
-
-        //add tx data to tx buffer
-        if( (PdiSpiInstance_l.m_toBeTx-1 + uwTxSize) >= PDISPI_MAX_TX )
-        {   //buffer full
-            iRet = PDISPI_ERROR;
-            goto exit;
-        }
-
-        memcpy((BYTE*)&PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx], pData_p, uwTxSize);
-        pData_p += uwTxSize; //increment to next buffer position
-        PdiSpiInstance_l.m_toBeTx += uwTxSize;
-
-        //send bytes in Tx buffer
-        iRet = sendTxBuffer();
-        if( iRet != PDISPI_OK )
-        {
-            goto exit;
-        }
-
-        PdiSpiInstance_l.m_addrReg += uwTxSize; //increment local copy too!
-    }
-    while( uwSize_p );
 
 exit:
     return iRet;
@@ -383,9 +356,211 @@ exit:
 
 /**
 ********************************************************************************
+\brief  write data to the CN PDI via SPI
+
+CnCnApi_Spi_writerites a certain amount of data to the POWERLINK CN PDI
+via SPI. This data will be read from a local address and stored to a PDI address.
+
+\param  wAddr_p     PDI Address to be written to
+\param  wSize_p     Size of transmitted data in Bytes
+\param  pSrcVar     (Byte-) Pointer to local source address
+
+\retval iRet        can be PDISPI_OK if transfer was successful
+                    or PDISPI_ERROR otherwise
+*******************************************************************************/
+int CnApi_Spi_write
+(
+    WORD   wPcpAddr_p,    ///< PDI Address to be written to
+    WORD   wSize_p,                             ///< size in Bytes
+    BYTE*  pApSrcVar_p                          ///< ptr to local source
+)
+{
+    int iRet = PDISPI_OK;
+
+    /* Depending on data size, choose different SPI processing*/
+    if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
+    {
+        TRACE("Error: SPI PDI data size invalid!");
+        iRet = PDISPI_ERROR;
+        goto exit;
+    }
+    else if(wSize_p > PDISPI_THRSHLD_SIZE) /* use automatic address increment */
+    {
+
+    	iRet = writeSq(wPcpAddr_p, wSize_p, pApSrcVar_p);
+        if( iRet != PDISPI_OK )
+        {
+            iRet = PDISPI_ERROR;
+            goto exit;
+        }
+
+    }
+    else /* transfer single bytes - in this case, better use CnApi_Spi_writeByte directly! */
+    {
+        for(; 0 < wSize_p; wSize_p--)
+         {
+          iRet = CnApi_Spi_writeByte(wPcpAddr_p++, (BYTE) *(pApSrcVar_p++));
+             if( iRet != PDISPI_OK )
+             {
+                 iRet = PDISPI_ERROR;
+                 goto exit;
+             }
+         }
+    }
+
+    exit:
+        return iRet;
+}
+
+/**
+********************************************************************************
+\brief	read data from the CN PDI via SPI
+
+CnApi_Spi_read() reads a certain amount of data from the POWERLINK CN PDI
+via SPI. This data will be read from PDI address and stored to a local address.
+
+\param	wAddr_p		PDI address to be read from
+\param	wSize_p		Size of transmitted data in Bytes
+\param  pTgtVar     (Byte-) Pointer to local target address
+
+\retval	iRet		can be PDISPI_OK if transfer was successful
+					or PDISPI_ERROR otherwise
+*******************************************************************************/
+int CnApi_Spi_read
+(
+   WORD   wPcpAddr_p,      ///< PDI Address to be read from
+   WORD   wSize_p,         ///< size in Bytes
+   BYTE*  pApTgtVar_p      ///< ptr to local target
+)
+{
+    int iRet = PDISPI_OK;
+
+    /* Depending on data size, choose different SPI processing*/
+    if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
+    {
+        TRACE("Error: SPI PDI data size invalid!");
+        iRet = PDISPI_ERROR;
+        goto exit;
+    }
+    else if(wSize_p > PDISPI_THRSHLD_SIZE) /* use automatic address increment */
+    {
+
+    	iRet = readSq(wPcpAddr_p, wSize_p, pApTgtVar_p);
+        if( iRet != PDISPI_OK )
+        {
+            iRet = PDISPI_ERROR;
+            goto exit;
+        }
+
+    }
+    else /* transfer single bytes - in this case, better use CnApi_Spi_readByte() directly! */
+    {
+        for(; 0 < wSize_p; wSize_p--)
+         {
+             iRet = CnApi_Spi_readByte(wPcpAddr_p++, (BYTE*) (pApTgtVar_p++));
+             if( iRet != PDISPI_OK )
+             {
+                 iRet = PDISPI_ERROR;
+                 goto exit;
+             }
+         }
+    }
+
+    exit:
+        return iRet;
+}
+
+/***************************************************************************************
+ * LOCAL FUNCTIONS
+ ***************************************************************************************/
+
+/**
+********************************************************************************
+\brief  write data to the CN PDI via SPI
+
+writeSq() writes several bytes to the POWERLINK CN PDI via SPI.
+This data will be written to PDI address.
+
+\param  uwAddr_p    PDI address to be written to
+\param  uwSize_p    Write data size
+\param  pData_p     Write data
+
+\retval iRet        can be PDISPI_OK if transfer was successful
+                    or PDISPI_ERROR otherwise
+*******************************************************************************/
+static int writeSq
+(
+    WORD            uwAddr_p,       ///< PDI Address to be written to
+    WORD            uwSize_p,       ///< Write data size (bytes)
+    BYTE            *pData_p        ///< Write data
+)
+{
+    int             iRet = PDISPI_OK;
+    unsigned char   ubTxData;
+    WORD            uwTxSize = 0;
+
+    //check the pdi's address register for the following cmd
+    iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK_LO);
+    if( iRet != PDISPI_OK )
+    {
+        goto exit;
+    }
+
+    do
+    {
+        if( uwSize_p > PDISPI_MAX_SQ )
+        {
+            uwTxSize = PDISPI_MAX_SQ;
+            uwSize_p -= PDISPI_MAX_SQ;
+        }
+        else
+        {
+            uwTxSize = uwSize_p;
+            uwSize_p = 0;
+        }
+
+        //build WRSQ command with bytes-1 as payload
+        buildCmdFrame(uwTxSize-1, &ubTxData, PDISPI_CMD_WRSQ);
+
+        //store CMD to Tx Buffer
+        if( PdiSpiInstance_l.m_toBeTx >= PDISPI_MAX_TX )
+        {   //buffer full
+            iRet = PDISPI_ERROR;
+            goto exit;
+        }
+        PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx++] = ubTxData;
+
+        //add tx data to tx buffer
+        if( (PdiSpiInstance_l.m_toBeTx-1 + uwTxSize) >= PDISPI_MAX_TX )
+        {   //buffer full
+            iRet = PDISPI_ERROR;
+            goto exit;
+        }
+
+        memcpy((BYTE*)&PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx], pData_p, uwTxSize);
+        pData_p += uwTxSize; //increment to next buffer position
+        PdiSpiInstance_l.m_toBeTx += uwTxSize;
+
+        //send bytes in Tx buffer
+        iRet = sendTxBuffer();
+        if( iRet != PDISPI_OK )
+        {
+            goto exit;
+        }
+
+        PdiSpiInstance_l.m_addrReg += uwTxSize; //increment local copy too!
+    }
+    while( uwSize_p );
+
+exit:
+    return iRet;
+}
+
+/**
+********************************************************************************
 \brief  read data from the CN PDI via SPI
 
-CnApi_Spi_readSq() reads several bytes from the POWERLINK CN PDI via SPI.
+readSq() reads several bytes from the POWERLINK CN PDI via SPI.
 This data will be read from PDI address and stored to a local address.
 
 \param  uwAddr_p     PDI address to be read from
@@ -395,7 +570,7 @@ This data will be read from PDI address and stored to a local address.
 \retval iRet        can be PDISPI_OK if transfer was successful
                     or PDISPI_ERROR otherwise
 *******************************************************************************/
-int CnApi_Spi_readSq
+static int readSq
 (
     WORD            uwAddr_p,       ///< PDI Address to be read from
     WORD            uwSize_p,       ///< Read data size
@@ -468,125 +643,6 @@ int CnApi_Spi_readSq
 exit:
     return iRet;
 }
-
-/**
-********************************************************************************
-\brief	read data from the CN PDI via SPI
-
-CnApi_Spi_read() reads a certain amount of data from the POWERLINK CN PDI
-via SPI. This data will be read from PDI address and stored to a local address.
-
-\param	wAddr_p		PDI address to be read from
-\param	wSize_p		Size of transmitted data in Bytes
-\param  pTgtVar     (Byte-) Pointer to local target address
-
-\retval	iRet		can be PDISPI_OK if transfer was successful
-					or PDISPI_ERROR otherwise
-*******************************************************************************/
-int CnApi_Spi_read
-(
-   WORD   wPcpAddr_p,      ///< PDI Address to be read from
-   WORD   wSize_p,         ///< size in Bytes
-   BYTE*  pApTgtVar_p      ///< ptr to local target
-)
-{
-    int iRet = PDISPI_OK;
-
-    /* Depending on data size, choose different SPI processing*/
-    if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
-    {
-        TRACE("Error: SPI PDI data size invalid!");
-        iRet = PDISPI_ERROR;
-        goto exit;
-    }
-    else if(wSize_p > PDISPI_THRSHLD_SIZE) /* use automatic address increment */
-    {
-
-    	iRet = CnApi_Spi_readSq(wPcpAddr_p, wSize_p, pApTgtVar_p);
-        if( iRet != PDISPI_OK )
-        {
-            iRet = PDISPI_ERROR;
-            goto exit;
-        }
-
-    }
-    else /* transfer single bytes - in this case, better use CnApi_Spi_readByte() directly! */
-    {
-        for(; 0 < wSize_p; wSize_p--)
-         {
-             iRet = CnApi_Spi_readByte(wPcpAddr_p++, (BYTE*) (pApTgtVar_p++));
-             if( iRet != PDISPI_OK )
-             {
-                 iRet = PDISPI_ERROR;
-                 goto exit;
-             }
-         }
-    }
-
-    exit:
-        return iRet;
-}
-
-/**
-********************************************************************************
-\brief  write data to the CN PDI via SPI
-
-CnCnApi_Spi_writerites a certain amount of data to the POWERLINK CN PDI
-via SPI. This data will be read from a local address and stored to a PDI address.
-
-\param  wAddr_p     PDI Address to be written to
-\param  wSize_p     Size of transmitted data in Bytes
-\param  pSrcVar     (Byte-) Pointer to local source address
-
-\retval iRet        can be PDISPI_OK if transfer was successful
-                    or PDISPI_ERROR otherwise
-*******************************************************************************/
-int CnApi_Spi_write
-(
-    WORD   wPcpAddr_p,    ///< PDI Address to be written to
-    WORD   wSize_p,                             ///< size in Bytes
-    BYTE*  pApSrcVar_p                          ///< ptr to local source
-)
-{
-    int iRet = PDISPI_OK;
-
-    /* Depending on data size, choose different SPI processing*/
-    if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
-    {
-        TRACE("Error: SPI PDI data size invalid!");
-        iRet = PDISPI_ERROR;
-        goto exit;
-    }
-    else if(wSize_p > PDISPI_THRSHLD_SIZE) /* use automatic address increment */
-    {
-
-    	iRet = CnApi_Spi_writeSq(wPcpAddr_p, wSize_p, pApSrcVar_p);
-        if( iRet != PDISPI_OK )
-        {
-            iRet = PDISPI_ERROR;
-            goto exit;
-        }
-
-    }
-    else /* transfer single bytes - in this case, better use CnApi_Spi_writeByte directly! */
-    {
-        for(; 0 < wSize_p; wSize_p--)
-         {
-          iRet = CnApi_Spi_writeByte(wPcpAddr_p++, (BYTE) *(pApSrcVar_p++));
-             if( iRet != PDISPI_OK )
-             {
-                 iRet = PDISPI_ERROR;
-                 goto exit;
-             }
-         }
-    }
-
-    exit:
-        return iRet;
-}
-/***************************************************************************************
- * LOCAL FUNCTIONS
- ***************************************************************************************/
 
 /**
 ********************************************************************************
