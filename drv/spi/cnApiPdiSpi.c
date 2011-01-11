@@ -74,6 +74,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+/* target specific header files */
+#include <unistd.h> // for usleep()
+#include <string.h> // for memcpy() memset()
+
+/* Cn API header files */
 #include "cnApiPdiSpi.h"
 #include "cnApiDebug.h"
 
@@ -157,7 +162,9 @@ int CnApi_initSpiMaster
     tSpiMasterRxHandler     SpiMasterRxH_p  ///< SPI MASTER Rx Handler
 )
 {
-    int             iRet = PDISPI_OK;
+    int     iRet = PDISPI_OK;
+    int     iCnt;
+    BOOL    fPcpSpiPresent = FALSE;
     
     if( (SpiMasterTxH_p == 0) || (SpiMasterRxH_p == 0) )
     {
@@ -171,7 +178,10 @@ int CnApi_initSpiMaster
     PdiSpiInstance_l.m_SpiMasterTxHandler = SpiMasterTxH_p;
     PdiSpiInstance_l.m_SpiMasterRxHandler = SpiMasterRxH_p;
     
-    while(1)
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "\nStarting SPI connection..");
+
+    /* check if PCP SPI slave is present */
+    for(iCnt = 0; iCnt < PCP_SPI_PRESENCE_TIMEOUT; iCnt++)
     {
 		//send out wake up frame to enter idle surely!
 		PdiSpiInstance_l.m_txBuffer[0] = PDISPI_WAKEUP;
@@ -199,10 +209,25 @@ int CnApi_initSpiMaster
 		if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP1)
 		{
 			//received last wake up pattern
+		    fPcpSpiPresent = TRUE;
 			break;
 		}
 
-		PDISPI_USLEEP(1000);
+		PDISPI_USLEEP(10000);
+    }
+
+    if(!fPcpSpiPresent)
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".ERROR!\n\n");
+
+        /* PCP_SPI_PRESENCE_TIMEOUT exceeded */
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: No connection to PCP! Spi initialization failed!\n");
+        iRet = PDISPI_ERROR;
+        goto exit;
+    }
+    else
+    {
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".OK!\n");
     }
 
     //send out some idle frames
@@ -370,17 +395,19 @@ via SPI. This data will be read from a local address and stored to a PDI address
 *******************************************************************************/
 int CnApi_Spi_write
 (
-    WORD   wPcpAddr_p,    ///< PDI Address to be written to
-    WORD   wSize_p,                             ///< size in Bytes
-    BYTE*  pApSrcVar_p                          ///< ptr to local source
+    WORD   wPcpAddr_p,          ///< PDI Address to be written to
+    WORD   wSize_p,             ///< size in Bytes
+    BYTE*  pApSrcVar_p          ///< ptr to local source
 )
 {
     int iRet = PDISPI_OK;
 
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_SPI, "SPI write: %d byte\n", wSize_p);
+
     /* Depending on data size, choose different SPI processing*/
     if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
     {
-        TRACE("Error: SPI PDI data size invalid!");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: SPI PDI data size invalid!");
         iRet = PDISPI_ERROR;
         goto exit;
     }
@@ -435,10 +462,12 @@ int CnApi_Spi_read
 {
     int iRet = PDISPI_OK;
 
+    DEBUG_TRACE1(DEBUG_LVL_CNAPI_SPI, "SPI read: %d byte\n", wSize_p);
+
     /* Depending on data size, choose different SPI processing*/
     if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
     {
-        TRACE("Error: SPI PDI data size invalid!");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "ERROR: SPI PDI data size invalid!");
         iRet = PDISPI_ERROR;
         goto exit;
     }

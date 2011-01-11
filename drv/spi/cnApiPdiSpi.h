@@ -65,10 +65,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _CNAPI_PDI_SPI_H_
 
 #include "cnApiGlobal.h"
+#include "cnApiDebug.h"
 
 //errors
 #define PDISPI_OK                       (0)
 #define PDISPI_ERROR                    (-1)
+
+//timeouts
+#define PCP_SPI_PRESENCE_TIMEOUT        500
 
 //general define
 #define PDISPI_MAX_SQ                   (32)                ///< max number of bytes in sequence (WRSQ/RDSQ)
