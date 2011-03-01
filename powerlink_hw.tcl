@@ -55,6 +55,9 @@
 #--									Added SPI IRQ active high/low choice
 #-- 2010-12-07	V0.11	zelenkaj	Bugfix: AP IRQ was generated incorrect for SPI
 #--									Code clean up
+#-- 2011-01-25	V0.12	zelenkaj	Added generic internal/external packet storage
+#-- 2011-02-24	V0.13	zelenkaj	Bugfix: openMAC only with RMII generates division by zero
+#--									minor changes (naming conventions Mii->SMI)
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -84,6 +87,7 @@ add_file src/OpenHUB.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_AvalonIF.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_DPR_Altera.vhd {SYNTHESIS SIMULATION}
+add_file src/OpenMAC_DMAFifo.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_PHYMI.vhd {SYNTHESIS SIMULATION}
 add_file src/rmii2mii.vhd {SYNTHESIS SIMULATION}
 add_file src/portio.vhd {SYNTHESIS SIMULATION}
@@ -109,9 +113,9 @@ add_parameter clkRatePcp INTEGER 0
 set_parameter_property clkRatePcp SYSTEM_INFO {CLOCK_RATE pcp_clk}
 set_parameter_property clkRatePcp VISIBLE false
 
-add_parameter configPowerlink STRING "CN with AP"
+add_parameter configPowerlink STRING "CN with Processor Interface"
 set_parameter_property configPowerlink DISPLAY_NAME "POWERLINK Slave Design Configuration"
-set_parameter_property configPowerlink ALLOWED_RANGES {"Direct I/O CN" "CN with AP" "openMAC only"}
+set_parameter_property configPowerlink ALLOWED_RANGES {"Direct I/O CN" "CN with Processor Interface" "openMAC only"}
 set_parameter_property configPowerlink DISPLAY_HINT radio
 
 add_parameter configApInterface STRING "Avalon"
@@ -198,6 +202,13 @@ set_parameter_property phyIF VISIBLE true
 set_parameter_property phyIF DISPLAY_NAME "Ethernet Phy Interface"
 set_parameter_property phyIF ALLOWED_RANGES {"RMII" "MII"}
 set_parameter_property phyIF DISPLAY_HINT radio
+
+add_parameter packetLoc STRING "DPRAM"
+set_parameter_property packetLoc VISIBLE true
+set_parameter_property packetLoc DISPLAY_NAME "TX and RX Packet Location"
+#set_parameter_property packetLoc ALLOWED_RANGES {"DPRAM" "Avalon Master"}
+set_parameter_property packetLoc ALLOWED_RANGES {"DPRAM"}
+set_parameter_property packetLoc DISPLAY_HINT radio
 
 add_parameter validSet INTEGER "1"
 set_parameter_property validSet VISIBLE false
@@ -303,6 +314,11 @@ set_parameter_property useRmii_g HDL_PARAMETER true
 set_parameter_property useRmii_g VISIBLE false
 set_parameter_property useRmii_g DERIVED true
 
+add_parameter useIntPacketBuf_g BOOLEAN true
+set_parameter_property useIntPacketBuf_g HDL_PARAMETER true
+set_parameter_property useIntPacketBuf_g VISIBLE false
+set_parameter_property useIntPacketBuf_g DERIVED true
+
 #parameters for parallel interface
 add_parameter papDataWidth_g INTEGER 16
 set_parameter_property papDataWidth_g HDL_PARAMETER true
@@ -360,12 +376,20 @@ proc my_validation_callback {} {
 	set macRxBuf					[get_parameter_value macRxBuf]
 	
 	set mii							[get_parameter_value phyIF]
+	set ploc						[get_parameter_value packetLoc]
 	
 	if {$mii == "RMII"} {
 		set_parameter_value useRmii_g true
 	} else {
 		set_parameter_value useRmii_g false
 		send_message info "Consider to use RMII to reduce resource usage!"
+	}
+	
+	if {$ploc == "DPRAM"} {
+		set_parameter_value useIntPacketBuf_g true
+	} else {
+		set_parameter_value useIntPacketBuf_g false
+		send_message warning "Connect the Avalon Master 'DMA' to low latency memory! Heap must be located in the same memory!"
 	}
 	
 	set memRpdo 0
@@ -426,8 +450,10 @@ proc my_validation_callback {} {
 	
 	if {$configPowerlink == "openMAC only"} {
 		#no PDI, only openMAC
-		set_parameter_property macTxBuf VISIBLE true
-		set_parameter_property macRxBuf VISIBLE true
+		if {$ploc == "DPRAM"} {
+			set_parameter_property macTxBuf VISIBLE true
+			set_parameter_property macRxBuf VISIBLE true
+		}
 		
 		set_parameter_property rpdoNum VISIBLE false
 		set_parameter_property tpdoNum VISIBLE false
@@ -457,7 +483,7 @@ proc my_validation_callback {} {
 		set_parameter_property validAssertDuration VISIBLE true
 		set_parameter_property validSet VISIBLE true
 		
-	} elseif {$configPowerlink == "CN with AP"} {
+	} elseif {$configPowerlink == "CN with Processor Interface"} {
 		#CN is connected to AP processor, so enable everything for this
 		set_parameter_property configApInterface VISIBLE true
 		set_parameter_property asyncTxBufSize VISIBLE true
@@ -621,7 +647,7 @@ proc my_validation_callback {} {
 	if {$configPowerlink == "Direct I/O CN"} {
 																	#direct I/O
 		set_module_assignment embeddedsw.CMacro.CONFIG				0
-	} elseif {$configPowerlink == "CN with AP"} {
+	} elseif {$configPowerlink == "CN with Processor Interface"} {
 		if {$configApInterface == "Avalon"} {
 																	#Avalon
 			set_module_assignment embeddedsw.CMacro.CONFIG			4
@@ -648,6 +674,12 @@ proc my_validation_callback {} {
 	} else {
 																	#big endian
 		set_module_assignment embeddedsw.CMacro.CONFIGAPENDIAN		1
+	}
+	
+	if {$ploc == "DPRAM"} {											#packets stored in openMAC DPRAM
+		set_module_assignment embeddedsw.CMacro.PKTLOC				0
+	} else {														#packets stored in heap
+		set_module_assignment embeddedsw.CMacro.PKTLOC				1
 	}
 	
 	set_module_assignment embeddedsw.CMacro.MACBUFSIZE				$macBufSize
@@ -683,6 +715,7 @@ add_display_item "Asynchronous Buffer" asyncRxBufSize  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
 add_display_item "openMAC" macTxBuf  PARAMETER
 add_display_item "openMAC" macRxBuf  PARAMETER
+add_display_item "openMAC" packetLoc  PARAMETER
 
 #INTERFACES
 
@@ -779,16 +812,16 @@ add_interface_port MAC_IRQ mac_irq irq Output 1
 ##Export Phy Management 0
 add_interface PHYM0 conduit end
 set_interface_property PHYM0 ENABLED true
-add_interface_port PHYM0 phy0_MiiClk export Output 1
-add_interface_port PHYM0 phy0_MiiDat export Bidir 1
-add_interface_port PHYM0 phy0_MiiRst_n export Output 1
+add_interface_port PHYM0 phy0_SMIClk export Output 1
+add_interface_port PHYM0 phy0_SMIDat export Bidir 1
+add_interface_port PHYM0 phy0_Rst_n export Output 1
 
 ##Export Phy Management 1
 add_interface PHYM1 conduit end
 set_interface_property PHYM1 ENABLED true
-add_interface_port PHYM1 phy1_MiiClk export Output 1
-add_interface_port PHYM1 phy1_MiiDat export Bidir 1
-add_interface_port PHYM1 phy1_MiiRst_n export Output 1
+add_interface_port PHYM1 phy1_SMIClk export Output 1
+add_interface_port PHYM1 phy1_SMIDat export Bidir 1
+add_interface_port PHYM1 phy1_Rst_n export Output 1
 
 ##Export Rmii Phy 0
 add_interface RMII0 conduit end
@@ -854,6 +887,24 @@ add_interface_port MAC_BUF mbf_byteenable byteenable Input 4
 add_interface_port MAC_BUF mbf_address address Input "(iBufSizeLOG2_g-3) - (0) + 1"
 add_interface_port MAC_BUF mbf_writedata writedata Input 32
 add_interface_port MAC_BUF mbf_readdata readdata Output 32
+
+##Avalon Memory Mapped Master: DMA
+add_interface DMA avalon start
+set_interface_property DMA adaptsTo ""
+set_interface_property DMA burstOnBurstBoundariesOnly false
+set_interface_property DMA doStreamReads false
+set_interface_property DMA doStreamWrites false
+set_interface_property DMA linewrapBursts false
+set_interface_property DMA ASSOCIATED_CLOCK clk50meg
+set_interface_property DMA ENABLED false
+add_interface_port DMA m_read_n read_n Output 1
+add_interface_port DMA m_write_n write_n Output 1
+add_interface_port DMA m_byteenable_n byteenable_n Output 2
+add_interface_port DMA m_address address Output 32
+add_interface_port DMA m_writedata writedata Output 16
+add_interface_port DMA m_readdata readdata Input 16
+add_interface_port DMA m_waitrequest waitrequest Input 1
+add_interface_port DMA m_arbiterlock arbiterlock Output 1
 
 #PDI
 ##Avalon Memory Mapped Slave: PCP
@@ -994,6 +1045,10 @@ set ClkRate50meg [get_parameter_value clkRate50]
 
 #valid set
 set ClkPcp [get_parameter_value clkRatePcp]
+if {$ClkPcp == 0} {
+	# avoid 1 / zero!
+	set ClkPcp 1
+}
 set ClkPcpPeriod [expr 1. / $ClkPcp * 1000 * 1000 * 1000]
 set validTicks [get_parameter_value validSet]
 if {$validTicks <= 0} {
@@ -1022,6 +1077,18 @@ if {$ClkRate50meg == 50000000} {
 	set_interface_property SMP_PIO ENABLED false
 	set_interface_property AP_EX_IRQ ENABLED false
 	
+	set_interface_property DMA ENABLED false
+	set_interface_property MAC_BUF ENABLED false
+	
+	#verify which packet location is set and disable/enable dma/dpr
+	if {[get_parameter_value packetLoc] == "DPRAM"} {
+		#use internal packet buffering
+		set_interface_property MAC_BUF ENABLED true
+	} else {
+		#use external packet buffering
+		set_interface_property DMA ENABLED true
+	}
+	
 	if {[get_parameter_value useRmii_g]} {
 		set_interface_property RMII0 ENABLED true
 		set_interface_property RMII1 ENABLED true
@@ -1042,7 +1109,12 @@ if {$ClkRate50meg == 50000000} {
 	}
 	
 	if {[get_parameter_value configPowerlink] == "openMAC only"} {
-		#do nothing...
+		if {[get_parameter_value packetLoc] == "DPRAM"} {
+			#pcp_clk necessary!
+		} else {
+			#pcp_clk not necessary!
+			set_interface_property pcp_clk ENABLED false
+		}
 	} elseif {[get_parameter_value configPowerlink] == "Direct I/O CN"} {
 		#the Direct I/O CN requires:
 		# MAC stuff
@@ -1051,7 +1123,7 @@ if {$ClkRate50meg == 50000000} {
 		set_interface_property SMP ENABLED true
 		set_interface_property SMP_PIO ENABLED true
 	} else {
-		#CN with AP requires:
+		#CN with Processor Interface requires:
 		# MAC stuff
 		# PDI_PCP
 		set_interface_property PDI_PCP ENABLED true

@@ -50,6 +50,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  2010/07/12     hoggerm     adapted for auto response delay
  2010/12/14		zelenkaj	bugfix: use correct EDRV_PKT_SPAN,
 							adapted MAC configuration and phy management
+ 2010/02/28		zelenkaj	packet storage location is controlled by generics,
+							output number of phys found,
 
 ----------------------------------------------------------------------------*/
 
@@ -91,12 +93,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
 	#define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
 	#define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
-	#define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
-	#define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE //POWERLINK_0_MAC_BUF_SPAN
 	#define EDRV_CMP_BASE           (void *)POWERLINK_0_MAC_CMP_BASE
 	#define EDRV_CMP_SPAN                   POWERLINK_0_MAC_CMP_SPAN
-
-	#define EDRV_MAX_RX_BUFFERS         POWERLINK_0_MAC_REG_MACRXBUFFERS //TODO: Check correct value with Joerg
+#if POWERLINK_0_MAC_REG_PKTLOC == 0
+	#define EDRV_MAX_RX_BUFFERS         	POWERLINK_0_MAC_REG_MACRXBUFFERS
+	#define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
+	#define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
+#else
+	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
+	#define EDRV_PKT_BASE           (void *)0 //not used
+	#define EDRV_PKT_SPAN                   0 //not used
+#endif
+	#define EDRV_PKT_LOC					POWERLINK_0_MAC_REG_PKTLOC
 #elif defined(__OPENMAC) //OPENMAC IP-core used
 	#define EDRV_MAC_BASE           (void*)(OPENMAC_0_REG_BASE)
 	#define EDRV_MAC_SPAN                  (OPENMAC_0_REG_SPAN)
@@ -109,10 +117,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_CMP_BASE           (void *)OPENMAC_0_CMP_BASE
 	#define EDRV_CMP_SPAN                   OPENMAC_0_CMP_SPAN
 
-	#define EDRV_MAX_RX_BUFFERS         OPENMAC_0_REG_RXBUFFERS
+	#define EDRV_MAX_RX_BUFFERS         	OPENMAC_0_REG_RXBUFFERS
+	#define EDRV_PKT_LOC					0 //TODO: use generic from SOPC
 #else
 	#error "Configuration is unknown!"
 #endif
+
+#define EDRV_GET_MAC_TIME()			*((DWORD*)EDRV_CMP_BASE)
 
 //--- set driver's MTU ---
 #define EDRV_MAX_BUFFER_SIZE        1518
@@ -121,15 +132,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define EDRV_MAX_FILTERS            16
 
 //--- set driver's auto-response frames ---
-#define EDRV_MAX_AUTO_RESPONSES     14
+#define EDRV_MAX_AUTO_RESPONSES     14 //TODO: reduce to consume less TX descriptors!
 
 
 #if (EDRV_MAX_RX_BUFFERS > 16)
-	#error "This MAC version can handle 16 rx buffers, not more!""
+	#error "This MAC version can handle 16 rx buffers, not more!"
 #endif
 
 #if (EDRV_AUTO_RESPONSE == FALSE)
-    #error "Please enable EDRV_AUTO_RESPONSE in EplCfg.h!""
+    #error "Please enable EDRV_AUTO_RESPONSE in EplCfg.h!"
 #endif
 
 
@@ -164,10 +175,12 @@ typedef struct _tEdrvInstance
     //tx msg counter
     DWORD                   m_dwMsgFree;
     DWORD                   m_dwMsgSent;
-    //needed for buffer management
+#if EDRV_PKT_LOC == 0
+    //needed for buffer management not located in heap
     void*                   m_pRxBufBase;
     void*                   m_pTxBufBase;
     BYTE                    m_ubTxBufCnt;
+#endif
 
 } tEdrvInstance;
 
@@ -226,7 +239,9 @@ BYTE            abFilterMask[31],
 
     printf("initalize Ethernet Driver for openMAC\n");
     memset(&EdrvInstance_l, 0, sizeof(EdrvInstance_l)); //reset driver struct
+#if EDRV_PKT_LOC == 0
     memset(EDRV_PKT_BASE, 0, EDRV_PKT_SPAN); //reset MAC-internal buffers
+#endif
 
     EdrvInstance_l.m_InitParam = *pEdrvInitParam_p;
 
@@ -268,8 +283,17 @@ BYTE            abFilterMask[31],
     EdrvInstance_l.m_EthConf.pPhyBase = EDRV_MII_BASE;
     EdrvInstance_l.m_EthConf.pRamBase = EDRV_RAM_BASE;
     EdrvInstance_l.m_EthConf.pRegBase = EDRV_MAC_BASE;
+#if EDRV_PKT_LOC == 0
     //set mac-internal buffer base
     EdrvInstance_l.m_EthConf.pBufBase = (void*) alt_remap_uncached(EDRV_PKT_BASE, EDRV_PKT_SPAN);
+    EdrvInstance_l.m_EthConf.pktLoc = OMETH_PKT_LOC_MACINT;
+#elif EDRV_PKT_LOC == 1
+    //use heap as packet buffer
+    EdrvInstance_l.m_EthConf.pBufBase = 0;
+    EdrvInstance_l.m_EthConf.pktLoc = OMETH_PKT_LOC_HEAP;
+#else
+#error "Configuration unknown!"
+#endif
 
     EdrvInstance_l.m_EthConf.rxBuffers = EDRV_MAX_RX_BUFFERS;
     EdrvInstance_l.m_EthConf.rxMtu = EDRV_MAX_BUFFER_SIZE;
@@ -283,9 +307,11 @@ BYTE            abFilterMask[31],
         goto Exit;
     }
 
+#if EDRV_PKT_LOC == 0
     //get rx/tx buffer base
     EdrvInstance_l.m_pRxBufBase = omethGetRxBufBase(EdrvInstance_l.m_hOpenMac);
     EdrvInstance_l.m_pTxBufBase = omethGetTxBufBase(EdrvInstance_l.m_hOpenMac);
+#endif
 
     //init driver struct
     EdrvInstance_l.m_dwMsgFree = 0;
@@ -335,8 +361,7 @@ BYTE            abFilterMask[31],
         }
 
         omethFilterDisable(EdrvInstance_l.m_ahFilter[i]);
-
-        if (i < EDRV_MAX_AUTO_RESPONSES)
+		if (i < EDRV_MAX_AUTO_RESPONSES)
         {
             // initialize the auto response for each filter ...
             iRet = omethResponseInit(EdrvInstance_l.m_ahFilter[i]);
@@ -369,6 +394,9 @@ BYTE            abFilterMask[31],
     {
         Ret = kEplNoResource;
     }
+
+    //wait some time (phy may not be ready...)
+    EDRV_USLEEP(1*1000*1000);
 
 Exit:
     return Ret;
@@ -434,9 +462,11 @@ ometh_packet_typ*   pPacket = NULL;
         goto Exit;
     }
 
+#if EDRV_PKT_LOC == 1
     // malloc aligns each allocated buffer so every type fits into this buffer.
     // this means 8 Byte alignment.
-    //pPacket = (ometh_packet_typ*) alt_uncached_malloc(pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length));
+    pPacket = (ometh_packet_typ*) alt_uncached_malloc(pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length));
+#elif EDRV_PKT_LOC == 0
     {
         static void *pNextBuffer = NULL;
         if ( EdrvInstance_l.m_ubTxBufCnt == 0 ) //Edrv instance stores tx buffer numbers
@@ -462,6 +492,9 @@ ometh_packet_typ*   pPacket = NULL;
         }
         EdrvInstance_l.m_ubTxBufCnt++; //add new buffer to cntr
     }
+#else
+#error "Configuration unknown!"
+#endif
     if (pPacket == NULL)
     {
         Ret = kEplEdrvNoFreeBufEntry;
@@ -514,10 +547,14 @@ ometh_packet_typ*   pPacket = NULL;
 
     // mark buffer as free, before actually freeing it
     pBuffer_p->m_pbBuffer = NULL;
-
+#if EDRV_PKT_LOC == 1
     //free tx buffer
-    // buffers are not in heap, decr Edrvinstance buffer cnt
-    EdrvInstance_l.m_ubTxBufCnt--;//alt_uncached_free(pPacket);
+    alt_uncached_free(pPacket);
+#elif EDRV_PKT_LOC == 0
+    EdrvInstance_l.m_ubTxBufCnt--;
+#else
+#error "Configuration unknown"
+#endif
 
 Exit:
     return Ret;
@@ -589,27 +626,28 @@ tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 unsigned long       ulTxLength;
 
-    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
-    {
-        Ret = kEplEdrvInvalidParam;
-        goto Exit;
-    }
-
+//    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
+//    {
+//        Ret = kEplEdrvInvalidParam;
+//        goto Exit;
+//    }
+	
     pPacket = GET_TYPE_BASE(ometh_packet_typ, data, pBuffer_p->m_pbBuffer);
-
+	
     pPacket->length = pBuffer_p->m_uiTxMsgLen;
+	
+	ulTxLength = omethTransmitArg(EdrvInstance_l.m_hOpenMac, pPacket,
+						EdrvCbSendAck, pBuffer_p);
 
-    ulTxLength = omethTransmitArg(EdrvInstance_l.m_hOpenMac, pPacket,
-                        EdrvCbSendAck, pBuffer_p);
     if (ulTxLength > 0)
     {
         EdrvInstance_l.m_dwMsgSent++;
         Ret = kEplSuccessful;
     }
-    else
-    {
-        Ret = kEplEdrvNoFreeBufEntry;
-    }
+	else
+	{
+		Ret = kEplEdrvNoFreeBufEntry;
+	}
 
 Exit:
     return Ret;
@@ -944,7 +982,6 @@ static void EdrvIrqHandler (void* pArg_p, alt_u32 dwInt_p)
     {
         omethRxIrqHandler(pArg_p);
     }
-	// omethRxTxIrqHandlerMux(); // TODO: Test this function and comment the lines above
 }
 
 //---------------------------------------------------------------------------
@@ -962,7 +999,7 @@ static void EdrvIrqHandler (void* pArg_p, alt_u32 dwInt_p)
 //---------------------------------------------------------------------------
 static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long time)
 {
-    EdrvInstance_l.m_dwMsgFree++;
+	EdrvInstance_l.m_dwMsgFree++;
     BENCHMARK_MOD_01_SET(1);
     if (arg != NULL)
     {
@@ -973,6 +1010,7 @@ static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long ti
         	pTxBuffer->m_pfnTxHandler(pTxBuffer);
         }
     }
+
     BENCHMARK_MOD_01_RESET(1);
 }
 

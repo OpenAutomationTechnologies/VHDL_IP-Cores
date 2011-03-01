@@ -56,6 +56,9 @@
 --							100MHz Clk for RMII ports (better for timing)
 -- 2010-09-07  V0.74		Bugfix: Rx packets are not stored to DPRAM (Dma_Dout/Dma_Dout_s mixed up)
 -- 2010-09-13  V0.75		added selection Rmii / Mii
+-- 2011-01-25  V0.76		added packet location choice (internal or external)
+--							Fix: Dma_Ack signal is asserted for one clock cycle only
+-- 2011-02-24  V0.77		minor changes (naming conventions Mii->SMI)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -67,7 +70,8 @@ ENTITY AlteraOpenMACIF IS
    GENERIC( Simulate                    : 		boolean := false;
    			iBufSize_g					: 		integer := 1024;
    			iBufSizeLOG2_g				: 		integer := 10;
-			useRmii_g					: 		boolean := true);
+			useRmii_g					: 		boolean := true;
+			useIntPacketBuf_g			:		boolean := true);
    PORT (   Reset_n						: IN    STD_LOGIC;
 			Clk50                  		: IN    STD_LOGIC;
 			ClkFaster					: IN	STD_LOGIC;
@@ -99,6 +103,15 @@ ENTITY AlteraOpenMACIF IS
             iBuf_address                : IN    STD_LOGIC_VECTOR(iBufSizeLOG2_g-3 DOWNTO 0);
             iBuf_writedata              : IN    STD_LOGIC_VECTOR(31 DOWNTO 0);
             iBuf_readdata               : OUT   STD_LOGIC_VECTOR(31 DOWNTO 0);
+		-- Avalon Master Interface
+            m_read_n					: OUT   STD_LOGIC;
+            m_write_n					: OUT   STD_LOGIC;
+            m_byteenable_n              : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0);
+            m_address                   : OUT   STD_LOGIC_VECTOR(31 DOWNTO 0);
+            m_writedata                 : OUT   STD_LOGIC_VECTOR(15 DOWNTO 0);
+            m_readdata                  : IN    STD_LOGIC_VECTOR(15 DOWNTO 0);
+            m_waitrequest               : IN    STD_LOGIC;
+            m_arbiterlock				: OUT   STD_LOGIC;
 		-- RMII Port 0
             rRx_Dat_0                   : IN    STD_LOGIC_VECTOR(1 DOWNTO 0);  -- RMII Rx Daten
             rCrs_Dv_0                   : IN    STD_LOGIC;                     -- RMII Carrier Sense / Data Valid
@@ -125,11 +138,11 @@ ENTITY AlteraOpenMACIF IS
 			phyMii1_TxEn                : out   std_logic;
 			phyMii1_TxEr                : out   std_logic;
 --		-- Serial Management Interface (the_Mii)	
-			mii_Clk						: OUT	STD_LOGIC;
-			mii_Di						: IN	STD_LOGIC;
-			mii_Do						: OUT	STD_LOGIC;
-			mii_Doe						: OUT	STD_LOGIC;
-			mii_nResetOut				: OUT	STD_LOGIC
+			smi_Clk						: OUT	STD_LOGIC;
+			smi_Di						: IN	STD_LOGIC;
+			smi_Do						: OUT	STD_LOGIC;
+			smi_Doe						: OUT	STD_LOGIC;
+			phy_nResetOut				: OUT	STD_LOGIC
         );
 END ENTITY AlteraOpenMACIF;
 
@@ -197,7 +210,7 @@ ARCHITECTURE struct OF AlteraOpenMACIF IS
 	SIGNAL Phy1RxDv							: STD_LOGIC;
 	SIGNAL Phy1RxDat							: STD_LOGIC_VECTOR(1 downto 0);
 -- Mii Signals
-	SIGNAL mii_Doei						: STD_LOGIC;
+	SIGNAL smi_Doei						: STD_LOGIC;
 BEGIN
 	
 	rst <= not Reset_n;
@@ -213,13 +226,13 @@ BEGIN
 					Data_In  => mii_writedata,
 					Data_Out => mii_readdata,
 					--Export
-					Mii_Clk   => mii_Clk,
-					Mii_Di    => mii_Di,
-					Mii_Do	  => mii_Do,
-					Mii_Doe   => mii_Doei, -- '1' ... Input / '0' ... Output
-					nResetOut => mii_nResetOut
+					Mii_Clk   => smi_Clk,
+					Mii_Di    => smi_Di,
+					Mii_Do	  => smi_Do,
+					Mii_Doe   => smi_Doei, -- '1' ... Input / '0' ... Output
+					nResetOut => phy_nResetOut
 				   );	
-	mii_Doe <= not mii_Doei;
+	smi_Doe <= not smi_Doei;
 
 	the_Mac : ENTITY work.OpenMAC
 		GENERIC MAP (	HighAdr  => Dma_Addr'HIGH,
@@ -424,7 +437,7 @@ BEGIN
 		mii_address <= s_address(2 DOWNTO 0);
 		
 		
-		s_readdata <= 	x"ADDE" WHEN SelShadow = '1' ELSE --when packet filters are selected
+		s_readdata <= 	(others => '0') WHEN SelShadow = '1' ELSE --when packet filters are selected
 						mac_readdata(15 DOWNTO 8) & mac_readdata(7 DOWNTO 0)  WHEN ( ( mac_chipselect_ram = '1' OR mac_chipselect_cont = '1') AND s_byteenable_n = "00" ) ELSE
 						mac_readdata(7 DOWNTO 0)  & mac_readdata(15 DOWNTO 8) WHEN ( mac_chipselect_ram = '1' OR mac_chipselect_cont = '1') ELSE
 						mii_readdata WHEN mii_chipselect = '1' ELSE
@@ -439,55 +452,299 @@ BEGIN
 	--- PORT A => MAC
 	--- PORT B => AVALON BUS
 	-----------------------------------------------------------------------
-	intPcktbfr: BLOCK
-		signal Dma_Din_s : std_logic_vector(Dma_Din'range);
-		signal Dma_Dout_s : std_logic_vector(Dma_Dout'range);
-		signal readA_s, readB_s : std_logic;
-		signal writeA_s, writeB_s : std_logic;
-	BEGIN
-	
-	Dma_Din <= Dma_Din_s(7 downto 0) & Dma_Din_s(15 downto 8);
-	Dma_Dout_s <= Dma_Dout(7 downto 0) & Dma_Dout(15 downto 8);
-	readA_s <= Dma_Req and Dma_Rw;
-	readB_s <= not iBuf_read_n and iBuf_chipselect;
-	writeA_s <= Dma_Req and not Dma_Rw;
-	writeB_s <= not iBuf_write_n and iBuf_chipselect;
-	
-	genAck : process(Clk50, Reset_n)
-	begin
-		if Reset_n = '0' then
-			Dma_Ack <= '0';
-		elsif Clk50 = '1' and Clk50'event then
-			if Dma_Req = '1' then
-				Dma_Ack <= '1';
-			else
+	genPcktbfr : if useIntPacketBuf_g = true generate
+		intPcktbfr: BLOCK
+			signal Dma_Din_s : std_logic_vector(Dma_Din'range);
+			signal Dma_Dout_s : std_logic_vector(Dma_Dout'range);
+			signal readA_s, readB_s : std_logic;
+			signal writeA_s, writeB_s : std_logic;
+		BEGIN
+		
+		Dma_Din <= Dma_Din_s(7 downto 0) & Dma_Din_s(15 downto 8);
+		Dma_Dout_s <= Dma_Dout(7 downto 0) & Dma_Dout(15 downto 8);
+		readA_s <= Dma_Req and Dma_Rw;
+		readB_s <= not iBuf_read_n and iBuf_chipselect;
+		writeA_s <= Dma_Req and not Dma_Rw;
+		writeB_s <= not iBuf_write_n and iBuf_chipselect;
+		
+		genAck : process(Clk50, Reset_n)
+		begin
+			if Reset_n = '0' then
 				Dma_Ack <= '0';
+			elsif Clk50 = '1' and Clk50'event then
+				if Dma_Req = '1' and Dma_Ack = '0' then
+					Dma_Ack <= '1';
+				else
+					Dma_Ack <= '0';
+				end if;
 			end if;
-		end if;
-	end process genAck;
+		end process genAck;
+		
+		packetBuffer:	ENTITY	work.OpenMAC_DPRpackets
+			GENERIC MAP(memSizeLOG2_g => iBufSizeLOG2_g,
+						memSize_g => iBufSize_g)
+			PORT MAP
+			(	
+				address_a => Dma_Addr(iBufSizeLOG2_g-1 downto 1),
+				address_b => iBuf_address,
+				byteena_a => "11",
+				byteena_b => iBuf_byteenable,
+				clock_a => Clk50,
+				clock_b => ClkFaster,
+				data_a => Dma_Dout_s,
+				data_b => iBuf_writedata,
+				rden_a => readA_s,
+				rden_b => readB_s,
+				wren_a => writeA_s,
+				wren_b => writeB_s,
+				q_a => Dma_Din_s,
+				q_b => iBuf_readdata
+			);
+		END BLOCK intPcktbfr;
+	end generate;
 	
-	packetBuffer:	ENTITY	work.OpenMAC_DPRpackets
-		GENERIC MAP(memSizeLOG2_g => iBufSizeLOG2_g,
-					memSize_g => iBufSize_g)
-		PORT MAP
-		(	
-			address_a => Dma_Addr(iBufSizeLOG2_g-1 downto 1),
-			address_b => iBuf_address,
-			byteena_a => "11",
-			byteena_b => iBuf_byteenable,
-			clock_a => Clk50,
-			clock_b => ClkFaster,
-			data_a => Dma_Dout_s,
-			data_b => iBuf_writedata,
-			rden_a => readA_s,
-			rden_b => readB_s,
-			wren_a => writeA_s,
-			wren_b => writeB_s,
-			q_a => Dma_Din_s,
-			q_b => iBuf_readdata
-		);
-	END BLOCK intPcktbfr;
-
+	-----------------------------------------------------------------------
+	-- openMAC external packet buffer
+	--------------------------------------
+	--- Avalon Master interface
+	-----------------------------------------------------------------------
+	genAvalonMaster : if useIntPacketBuf_g = false generate
+		extPcktbfr: BLOCK
+			-- Control
+			TYPE	SM_Active	IS	(sIdle, sAct);
+			SIGNAL	SM_Act      	:  SM_Active;
+			SIGNAL  Tx_Act          :  STD_LOGIC;
+			SIGNAL  Rx_Act, Rx_ActL :  STD_LOGIC;
+			SIGNAL  Rx_ActLL        :  STD_LOGIC;
+			SIGNAL  Fifo_AClr       :  STD_LOGIC;
+			-- Avalon
+			SIGNAL  m_rd_n          :  STD_LOGIC;
+			SIGNAL  m_rd_cnt        :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+			SIGNAL  m_wr_n          :  STD_LOGIC;
+			SIGNAL  m_wr_cnt        :  STD_LOGIC_VECTOR(1 DOWNTO 0);
+			-- TX
+			SIGNAL  TXFifo_Clr		:  STD_LOGIC;
+			SIGNAL  TXFifo_Rd		:  STD_LOGIC;
+			SIGNAL  TXFifo_Wr		:  STD_LOGIC;
+			SIGNAL  TXFifo_AE		:  STD_LOGIC;
+			SIGNAL  TXFifo_AF		:  STD_LOGIC;
+			SIGNAL  TXFifo_E		:  STD_LOGIC;
+			SIGNAL  TXFifo_F		:  STD_LOGIC;
+			SIGNAL 	TXFifo_Addr		:  STD_LOGIC_VECTOR(31 DOWNTO 0);
+			-- RX
+			SIGNAL  RXFifo_Clr		:  STD_LOGIC;
+			SIGNAL  RXFifo_Rd		:  STD_LOGIC;
+			SIGNAL  RXFifo_Wr		:  STD_LOGIC;
+			SIGNAL  RXFifo_AE		:  STD_LOGIC;
+			SIGNAL  RXFifo_AF		:  STD_LOGIC;
+			SIGNAL  RXFifo_E		:  STD_LOGIC;
+			SIGNAL  RXFifo_F		:  STD_LOGIC;
+			SIGNAL 	RXFifo_Addr		:  STD_LOGIC_VECTOR(31 DOWNTO 0);
+			SIGNAL  RXTimeout       :  STD_LOGIC_VECTOR( 5 DOWNTO 0);
+			SIGNAL  RXFirstRead		:  STD_LOGIC;
+			SIGNAL  RXLastWrite 	:  STD_LOGIC;
+			-- DMA
+			SIGNAL  Dma_Acki        :  STD_LOGIC;
+			SIGNAL	Dma_Dout_s		:  std_logic_vector(Dma_Dout'range);
+			SIGNAL	m_readdata_s	:  std_logic_vector(m_readdata'range);
+			-- MAC
+			SIGNAL  rTx_EnL			:  STD_LOGIC;
+			SIGNAL  rCrs_DvL		:  STD_LOGIC;
+			signal	monitorCrsDv	:  std_logic_vector(3 downto 0); --monitor Crs Dv signal
+			signal  rCrs_DvF		:  STD_LOGIC; --filtered CrsDv Signal (no toggle at the end!!!)
+		BEGIN
+			Fifo_AClr <= NOT Reset_n;
+			
+			m_readdata_s <= m_readdata(7 downto 0) & m_readdata(15 downto 8);
+			Dma_Dout_s <= Dma_Dout(7 downto 0) & Dma_Dout(15 downto 8);
+			
+			the_TxFifo : ENTITY work.OpenMAC_DMAFifo
+			PORT MAP	(	aclr     	 => Fifo_AClr,
+							clock	 	 => Clk50,
+							data	 	 => m_readdata_s,
+							rdreq	 	 => TXFifo_Rd,
+							sclr	 	 => TXFifo_Clr,
+							wrreq	 	 => TXFifo_Wr,
+							almost_empty => TXFifo_AE,
+							almost_full	 => TXFifo_AF,
+							empty		 => TXFifo_E,
+							full		 => TXFifo_F,
+							q			 => Dma_Din
+						);
+			
+			the_RxFifo : ENTITY work.OpenMAC_DMAFifo
+			PORT MAP	(	aclr     	 => Fifo_AClr,
+							clock	 	 => Clk50,
+							data	 	 => Dma_Dout_s,
+							rdreq	 	 => RXFifo_Rd,
+							sclr	 	 => RXFifo_Clr,
+							wrreq	 	 => RXFifo_Wr,
+							almost_empty => RXFifo_AE,
+							almost_full	 => RXFifo_AF,
+							empty		 => RXFifo_E,
+							full		 => RXFifo_F,
+							q			 => m_writedata
+						);
+			
+			-- Avalon Control
+			m_byteenable_n <= "00";
+			m_read_n       <= m_rd_n;
+			m_write_n      <= m_wr_n;
+			m_address      <= TXFifo_Addr WHEN m_rd_n = '0' ELSE
+							  RXFifo_Addr;
+			-- MAC Control
+			Dma_Ack <= Dma_Acki;
+	
+			-- TXFifo Control 
+			TXFifo_Rd <= Dma_Req AND Dma_Acki AND Dma_Rw;
+			TXFifo_Wr <= NOT m_rd_n AND NOT m_waitrequest;
+	
+			-- RXFifo Control
+			RXFifo_Wr <= Dma_Req AND Dma_Acki AND NOT Dma_Rw;
+			RXFifo_Rd <= ( NOT m_wr_n AND NOT m_waitrequest AND NOT RXFifo_E ) OR RXFirstRead;
+	
+			p_DMAFifo : PROCESS ( Reset_n, Clk50 )	
+			BEGIN
+			
+				IF ( Reset_n = '0' ) THEN
+					rTx_EnL       <= '0';
+					TXFifo_Clr    <= '0';
+					TXFifo_Addr   <= (others => '0');
+					Tx_Act        <= '0';
+					
+					rCrs_DvL      <= '0';
+					RXFifo_Clr    <= '0';
+					RXFifo_Addr   <= (others => '0');
+					RXTimeout     <= (others => '0');
+					Rx_Act        <= '0';
+					RXFirstRead   <= '0';
+					RXLastWrite   <= '0';
+	
+					SM_Act        <= sIdle;
+	
+					Dma_Acki      <= '0';
+	
+					m_rd_n        <= '1';
+					m_rd_cnt      <= (others => '0');
+					m_wr_n        <= '1';
+					m_wr_cnt      <= (others => '0');
+					m_arbiterlock <= '0';
+					
+				ELSIF rising_edge( Clk50 ) THEN
+					--default
+					--
+					
+					--assignments necessary for state change observation
+					rTx_EnL  <= MacTxEn;
+					rCrs_DvL <= rCrs_DvF;
+					Rx_ActL  <= Rx_Act;
+					Rx_ActLL <= Rx_ActL;
+				
+				-- CrsDv Filter
+					--monitor CrsDv to eleminate toggle at the end of frames
+					monitorCrsDv <= monitorCrsDv(2 downto 0) & MacRxDv; --shift into monitor vector
+					--filter CrsDv signal
+					if monitorCrsDv = "1100" then
+						--found going-low edge (no toggles!)
+						rCrs_DvF <= '0';
+					elsif monitorCrsDv = "0011" then
+						--found going-high edge (no toggles!)
+						rCrs_DvF <= '1';
+					end if;
+					
+					IF Dma_Req = '1' AND Dma_Acki = '0' THEN
+						IF    Dma_Rw = '1' AND TXFifo_E = '0' AND TXFifo_AE = '0' THEN Dma_Acki <= '1'; 
+						ELSIF Dma_Rw = '0' AND RXFifo_F = '0'                     THEN Dma_Acki <= '1'; 
+						END IF;
+					ELSE                                                               Dma_Acki <= '0';
+					END IF;
+	
+				-- Tx Control
+					IF    Dma_Req = '1' AND Dma_Rw = '1'  THEN Tx_Act <= '1';
+					ELSIF rTx_EnL = '1' AND MacTxEn = '0' THEN Tx_Act <= '0';
+					END IF;
+	
+					IF    Dma_Req = '1' AND Dma_Rw = '1' AND Tx_Act = '0' THEN TXFifo_Addr <= Dma_Addr & '0';
+					ELSIF m_rd_n = '0'  AND m_waitrequest = '0'           THEN TXFifo_Addr <= TXFifo_Addr + 2;
+					END IF;
+	
+					IF    m_rd_n = '0'  AND m_waitrequest = '0'           THEN m_rd_cnt <= m_rd_cnt + 1;
+					END IF;
+	
+					IF Tx_Act = '1' THEN
+						IF TXFifo_AF = '0' AND m_rd_cnt(m_rd_cnt'HIGH) = '0' AND m_wr_n = '1' THEN 
+							m_arbiterlock <= '1';
+							m_rd_n        <= '0';
+						ELSIF m_waitrequest = '0' AND m_rd_n = '0' THEN 
+							m_arbiterlock <= '0';
+							m_rd_n        <= '1';
+							m_rd_cnt      <= (others => '0');
+						END IF;
+					ELSE
+						IF m_rd_n = '0' THEN
+							IF m_waitrequest = '0' THEN
+								m_arbiterlock <= '0';
+								m_rd_n        <= '1';
+								m_rd_cnt      <= (others => '0');
+							END IF;
+						ELSIF TXFifo_E = '0' THEN 
+							TXFifo_Clr <= '1';
+						ELSE
+							TXFifo_Clr <= '0';
+						END IF;
+					END IF;
+	
+				-- Rx Control
+					IF    Dma_Req = '1' AND Dma_Rw = '0'                    THEN Rx_Act <= '1';
+					ELSIF rCrs_DvF = '0' AND RXTimeout(RXTimeout'HIGH) = '1' THEN Rx_Act <= '0';
+					END IF;
+	
+					IF    Dma_Req = '1' AND Dma_Rw = '0' AND Rx_Act = '0'   THEN RXFifo_Addr <= Dma_Addr & '0';
+					ELSIF m_wr_n = '0'  AND m_waitrequest = '0'             THEN RXFifo_Addr <= RXFifo_Addr + 2;
+					END IF;
+	
+					IF    m_wr_n = '0'  AND m_waitrequest = '0'             THEN m_wr_cnt <= m_wr_cnt + 1;
+					END IF;
+	
+					IF Rx_Act = '1' OR m_wr_n = '0' OR RXLastWrite = '1' THEN
+						IF   (RXFifo_AE = '0' OR (RXFifo_E = '0' AND rCrs_DvL = '0') OR RXLastWrite = '1') AND 
+							  m_wr_cnt(m_wr_cnt'HIGH) = '0' AND m_rd_n = '1'                               AND
+							 (Tx_Act = '0' OR TXFifo_AF = '1' OR m_rd_cnt(m_rd_cnt'HIGH) = '1')            THEN
+							m_arbiterlock <= '1';
+							m_wr_n        <= '0';
+							RXLastWrite   <= '0';
+						ELSIF m_waitrequest = '0' AND m_wr_n = '0' THEN 
+							m_arbiterlock <= '0';
+							m_wr_n        <= '1';
+							m_wr_cnt      <= (others => '0');
+							IF m_wr_cnt(m_wr_cnt'HIGH) = '1' AND RXFifo_E = '0' AND rCrs_DvL = '0' THEN RXLastWrite <= '1';
+							END IF;
+						END IF;
+					END IF;
+	
+					IF    rCrs_DvL = '1' AND rCrs_DvF = '1' THEN RXTimeout <= (others => '0');
+					ELSIF RXTimeout(RXTimeout'HIGH) = '0'  THEN RXTimeout <= RXTimeout + 1;
+					END IF;
+					
+					IF Rx_ActLL = '0' AND Rx_ActL = '1'    THEN RXFirstRead <= '1';
+					ELSE                                        RXFirstRead <= '0';
+					END IF;
+					
+					if Rx_ActL = '0' and Rx_ActLL = '1' and --RX gets inactive
+						RXLastWrite = '0' and --last write was done or never done
+						RXFifo_E = '0' then --RXFifo is not empty
+						--clr RXFifo
+						RXFifo_Clr <= '1';
+					else
+						RXFifo_Clr <= '0';
+					end if;
+					
+				END IF;
+				
+			END PROCESS p_DMAFifo;
+		end block;
+	end generate;
+	
 	-----------------------------------------------------------------------
 	-- MAC-Time compare
 	-- Mac Time output

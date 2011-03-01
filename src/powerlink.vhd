@@ -46,6 +46,7 @@
 -- 2010-11-29	V0.05	zelenkaj	Added Big/Little Endian (pdi_spi)
 -- 2010-12-06	V0.06	zelenkaj	Bugfix: ap_irq was not driven in SPI configuration
 -- 2011-01-10	V0.07	zelenkaj	Added 2-stage sync to SPI input pins
+-- 2011-02-24	V0.08	zelenkaj	minor changes (naming conventions Mii->SMI)
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -65,6 +66,7 @@ entity powerlink is
    		iBufSize_g					: 		integer 							:= 1024;
    		iBufSizeLOG2_g				: 		integer 							:= 10;
 		useRmii_g					:		boolean								:= true; --use Rmii
+		useIntPacketBuf_g			:		boolean								:= true;
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
 		iTpdos_g					:		integer 							:= 1;
@@ -125,6 +127,15 @@ entity powerlink is
 		mbf_address                	: in    std_logic_vector(ibufsizelog2_g-3 downto 0);
 		mbf_writedata              	: in    std_logic_vector(31 downto 0);
 		mbf_readdata               	: out   std_logic_vector(31 downto 0);
+	--- OPENMAC DMA PORTS
+        m_read_n					: OUT   STD_LOGIC;
+        m_write_n					: OUT   STD_LOGIC;
+        m_byteenable_n              : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0);
+        m_address                   : OUT   STD_LOGIC_VECTOR(31 DOWNTO 0);
+        m_writedata                 : OUT   STD_LOGIC_VECTOR(15 DOWNTO 0);
+        m_readdata                  : IN    STD_LOGIC_VECTOR(15 DOWNTO 0);
+        m_waitrequest               : IN    STD_LOGIC;
+        m_arbiterlock				: OUT   STD_LOGIC;
 	-- PDI
 	--- PCP PORTS
 	    pcp_chipselect              : in    std_logic;
@@ -185,16 +196,16 @@ entity powerlink is
 		phy0_RxDv                  	: in    std_logic;
 		phy0_TxDat                 	: out   std_logic_vector(1 downto 0);
 		phy0_TxEn                  	: out   std_logic;
-		phy0_MiiClk					: out	std_logic;
-		phy0_MiiDat					: inout	std_logic 							:= '1';
-		phy0_MiiRst_n				: out	std_logic 							:= '0';
+		phy0_SMIClk					: out	std_logic;
+		phy0_SMIDat					: inout	std_logic 							:= '1';
+		phy0_Rst_n					: out	std_logic 							:= '0';
 		phy1_RxDat                 	: in    std_logic_vector(1 downto 0);
 		phy1_RxDv                  	: in    std_logic;
 		phy1_TxDat                 	: out   std_logic_vector(1 downto 0);
 		phy1_TxEn                  	: out   std_logic;
-		phy1_MiiClk					: out	std_logic;
-		phy1_MiiDat					: inout	std_logic 							:= '1';
-		phy1_MiiRst_n				: out	std_logic 							:= '0';
+		phy1_SMIClk					: out	std_logic;
+		phy1_SMIDat					: inout	std_logic 							:= '1';
+		phy1_Rst_n					: out	std_logic 							:= '0';
 	--- MII PORTS
 		phyMii0_RxClk				: in	std_logic;
 		phyMii0_RxDat               : in    std_logic_vector(3 downto 0);
@@ -214,11 +225,11 @@ entity powerlink is
 end powerlink;
 
 architecture rtl of powerlink is
-	signal mii_Clk					:		std_logic							:= '0';
-	signal mii_Di					:		std_logic							:= '0';
-	signal mii_Do					:		std_logic							:= '0';
-	signal mii_Doe					:		std_logic							:= '0';
-	signal mii_nResetOut			:		std_logic							:= '0';
+	signal smi_Clk					:		std_logic							:= '0';
+	signal smi_Di					:		std_logic							:= '0';
+	signal smi_Do					:		std_logic							:= '0';
+	signal smi_Doe					:		std_logic							:= '0';
+	signal phy_nResetOut			:		std_logic							:= '0';
 	signal rstPcp_n					:		std_logic							:= '0';
 	signal rstAp_n					:		std_logic							:= '0';
 	signal irqToggle				:		std_logic							:= '0';
@@ -244,8 +255,10 @@ architecture rtl of powerlink is
 	signal spi_sel_s				:		std_logic;
 	signal spi_sel_s1				:		std_logic;
 	signal spi_sel_s2				:		std_logic;
+	signal spi_clk_s				:		std_logic;
 	signal spi_clk_s1				:		std_logic;
 	signal spi_clk_s2				:		std_logic;
+	signal spi_mosi_s				:		std_logic;
 	signal spi_mosi_s1				:		std_logic;
 	signal spi_mosi_s2				:		std_logic;
 begin
@@ -438,10 +451,12 @@ begin
 --AP is extern connected via SPI
 	genPdiSpi : if genPdi_g and genSpiAp_g generate
 		
-		spi_sel_s <= not spi_sel_n;
-		
 		ap_irq <= ap_irq_s;
 		ap_irq_n <= not ap_irq_s;
+		
+		spi_clk_s <= spi_clk;
+		spi_sel_s <= not spi_sel_n;
+		spi_mosi_s <= spi_mosi;
 		
 		theSyncProc : process(clk50, rstPcp)
 		begin
@@ -456,13 +471,14 @@ begin
 				spi_sel_s1 <= spi_sel_s;
 				spi_sel_s2 <= spi_sel_s1;
 				
-				spi_clk_s1 <= spi_clk;
+				spi_clk_s1 <= spi_clk_s;
 				spi_clk_s2 <= spi_clk_s1;
 				
-				spi_mosi_s1 <= spi_mosi;
+				spi_mosi_s1 <= spi_mosi_s;
 				spi_mosi_s2 <= spi_mosi_s1;
 			end if;
 		end process;
+------------------------------------------------------------------------------------------------------------------------
 		
 		thePdiSpi : entity work.pdi_spi
 			generic map (
@@ -567,7 +583,8 @@ begin
 			Simulate				=> Simulate,
 			iBufSize_g				=> iBufSize_g,
 			iBufSizeLOG2_g			=> iBufSizeLOG2_g,
-			useRmii_g				=> useRmii_g
+			useRmii_g				=> useRmii_g,
+			useIntPacketBuf_g		=> useIntPacketBuf_g
 		)
 		port map (
 			Reset_n					=> rstPcp_n,
@@ -598,6 +615,14 @@ begin
 			iBuf_address            => mbf_address,
 			iBuf_writedata          => mbf_writedata,
 			iBuf_readdata           => mbf_readdata,
+            m_read_n				=> m_read_n,
+            m_write_n				=> m_write_n,
+            m_byteenable_n			=> m_byteenable_n,
+            m_address				=> m_address,
+            m_writedata				=> m_writedata,
+            m_readdata				=> m_readdata,
+            m_waitrequest			=> m_waitrequest,
+            m_arbiterlock			=> m_arbiterlock,
 			rRx_Dat_0               => phy0_RxDat,
 			rCrs_Dv_0               => phy0_RxDv,
 			rTx_Dat_0               => phy0_TxDat,
@@ -621,20 +646,20 @@ begin
 			phyMii1_TxDat           => phyMii1_TxDat,
 			phyMii1_TxEn            => phyMii1_TxEn,
 			phyMii1_TxEr            => phyMii1_TxEr,
-			mii_Clk					=> mii_Clk,
-			mii_Di					=> mii_Di,
-			mii_Do					=> mii_Do,
-			mii_Doe					=> mii_Doe,
-			mii_nResetOut			=> mii_nResetOut
+			smi_Clk					=> smi_Clk,
+			smi_Di					=> smi_Di,
+			smi_Do					=> smi_Do,
+			smi_Doe					=> smi_Doe,
+			phy_nResetOut			=> phy_nResetOut
 		);
 	--Phy SMI signals
-	phy0_MiiClk <= mii_Clk;
-	phy0_MiiDat <= mii_Do when mii_Doe = '1' else 'Z';
-	phy0_MiiRst_n <= mii_nResetOut;
-	phy1_MiiClk <= mii_Clk;
-	phy1_MiiDat <= mii_Do when mii_Doe = '1' else 'Z';
-	phy1_MiiRst_n <= mii_nResetOut;
-	mii_Di <= phy0_MiiDat and phy1_MiiDat;
+	phy0_SMIClk <= smi_Clk;
+	phy0_SMIDat <= smi_Do when smi_Doe = '1' else 'Z';
+	phy0_Rst_n <= phy_nResetOut;
+	phy1_SMIClk <= smi_Clk;
+	phy1_SMIDat <= smi_Do when smi_Doe = '1' else 'Z';
+	phy1_Rst_n <= phy_nResetOut;
+	smi_Di <= phy0_SMIDat and phy1_SMIDat;
 --
 ------------------------------------------------------------------------------------------------------------------------
 		

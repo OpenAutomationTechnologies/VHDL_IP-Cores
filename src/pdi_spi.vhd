@@ -39,6 +39,7 @@
 -- 2010-11-23	V0.02	zelenkaj	Added write/read sequence feature (WRSQ and RDSQ)
 -- 2010-11-29	V0.03	zelenkaj	Added endian generic
 -- 2011-01-10	V0.04	zelenkaj	Added wake up feature
+-- 2011-02-28	V0.05	zelenkaj	Added inversion of wake up command
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -76,8 +77,10 @@ end entity pdi_spi;
 
 architecture rtl of pdi_spi is
 --wake up command
-constant cmdWakeUp			:		std_logic_vector(7 downto 0)	:= x"03";
-constant cmdWakeUp1			:		std_logic_vector(7 downto 0)	:= x"0A";
+constant cmdWakeUp			:		std_logic_vector(7 downto 0)	:= x"03"; --0b00000011
+constant cmdWakeUp1			:		std_logic_vector(7 downto 0)	:= x"0A"; --0b00001010
+constant cmdWakeUp2			:		std_logic_vector(7 downto 0)	:= x"0C"; --0b00001100
+constant cmdWakeUp3			:		std_logic_vector(7 downto 0)	:= x"0F"; --0b00001111
 --spi frame constants
 constant cmdHighaddr_c		:		std_logic_vector(2 downto 0)	:= "100";
 constant cmdMidaddr_c		:		std_logic_vector(2 downto 0)	:= "101";
@@ -88,10 +91,12 @@ constant cmdRDSQ_c			:		std_logic_vector(2 downto 0)	:= "010";
 constant cmdLowaddr_c		:		std_logic_vector(2 downto 0)	:= "011";
 constant cmdIdle_c			:		std_logic_vector(2 downto 0)	:= "000";
 --pdi_spi control signals
-type fsm_t is (reset, reset1, idle, decode, waitwr, waitrd, wr, rd);
+type fsm_t is (reset, reset1, reset2, reset3, idle, decode, waitwr, waitrd, wr, rd);
 signal	fsm					:		fsm_t;
 signal	addrReg				:		std_logic_vector(ap_address'left+2 downto 0);
 signal	cmd					:		std_logic_vector(2 downto 0);
+signal	highPriorLoad		:		std_logic;
+signal	highPriorLoadVal	:		std_logic_vector(spiSize_g-1 downto 0);
 --spi core signals
 signal	clk					:  		std_logic;
 signal	rst					:  		std_logic;
@@ -126,15 +131,20 @@ begin
 	
 	ap_writedata <=		(dout & dout & dout & dout);
 	
-	din <=				ap_readdata( 7 downto  0) when ap_byteenable_s = "0001" else
+	din <=				highPriorLoadVal when highPriorLoad = '1' else --load value that was just received
+						ap_readdata( 7 downto  0) when ap_byteenable_s = "0001" else
 						ap_readdata(15 downto  8) when ap_byteenable_s = "0010" else
 						ap_readdata(23 downto 16) when ap_byteenable_s = "0100" else
 						ap_readdata(31 downto 24) when ap_byteenable_s = "1000" else
 						(others => '0');
 	
-	load <= '1' when fsm = rd else '0'; --load data from pdi to spi shift register
+	load <= 			'1' when highPriorLoad = '1' else --load value that was just received
+						'1' when fsm = rd else --load data from pdi to spi shift register
+						'0';
 	
 	cmd <= dout(dout'left downto dout'left-2); --get cmd pattern
+	
+	highPriorLoadVal <= not dout; --create inverse of received pattern
 	
 	thePdiSpiFsm : process(clk, rst)
 	variable timeout : integer range 0 to 3;
@@ -146,23 +156,65 @@ begin
 			timeout := 0;
 			writes := 0; reads := 0;
 			addrReg <= (others => '0');
+			highPriorLoad <= '0';
 		elsif clk = '1' and clk'event then
+			--default assignment
+			highPriorLoad <= '0';
 			
 			case fsm is
 				when reset =>
 					fsm <= reset;
 					if valid = '1' then
+						--load inverse pattern of received pattern
+						highPriorLoad <= '1';
+						
 						if dout = cmdWakeUp then
-							--wake up command (1/2) received
+							--wake up command (1/4) received
 							fsm <= reset1;
+						else
+							--wake up command not decoded correctly
+							fsm <= reset;
 						end if;
 					end if;
 					
 				when reset1 =>
 					fsm <= reset1;
 					if valid = '1' then
+						--load inverse pattern of received pattern
+						highPriorLoad <= '1';
+						
 						if dout = cmdWakeUp1 then
-							--wake up command (2/2) sequence was correctly decoded!
+							--wake up command (2/4) sequence was correctly decoded!
+							fsm <= reset2;
+						else
+							--wake up command not decoded correctly
+							fsm <= reset;
+						end if;
+					end if;
+				
+				when reset2 =>
+					fsm <= reset2;
+					if valid = '1' then
+						--load inverse pattern of received pattern
+						highPriorLoad <= '1';
+						
+						if dout = cmdWakeUp2 then
+							--wake up command (3/4) sequence was correctly decoded!
+							fsm <= reset3;
+						else
+							--wake up command not decoded correctly
+							fsm <= reset;
+						end if;
+					end if;
+				
+				when reset3 =>
+					fsm <= reset3;
+					if valid = '1' then
+						--load inverse pattern of received pattern
+						highPriorLoad <= '1';
+						
+						if dout = cmdWakeUp3 then
+							--wake up command (4/4) sequence was correctly decoded!
 							fsm <= idle;
 						else
 							--wake up command not decoded correctly
@@ -205,7 +257,7 @@ begin
 							fsm <= waitrd;
 							reads := conv_integer(dout(spiSize_g-4 downto 0)) + 1; --BYTES byte are read
 						when cmdIdle_c =>
-							--don't interpret the command, goto idle
+							--don't interpret the command, inverse pattern and goto idle
 						when others =>
 							--error, goto idle
 					end case;

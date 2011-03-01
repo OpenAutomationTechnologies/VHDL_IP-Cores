@@ -44,6 +44,7 @@
 -- 2010-04-12  V0.40		Added Auto-Response Delay functionality (TxDel)
 -- 2010-06-28  V0.41		Bug Fix: exit sDel if Tx_Off, set Tx_Del_Run without Ipg consideration
 -- 2010-08-02  V0.42		Added Timer triggered TX functionality (TxSyncOn)
+-- 2011-01-25  V0.43		Changed IPG preload value from 900ns to 960ns
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -660,7 +661,7 @@ BEGIN
 		Tx_On   <= '0'; Tx_Ie <= '0'; Tx_Half  <= '0'; Tx_Wait  <= '0'; nTx_BegInt <= '0';
 		Tx_Desc_One <= (OTHERS => '0');
 		Tx_Icnt <= (OTHERS => '0'); TxInt <= '0'; Tx_SoftInt <= '0'; Tx_BegInt  <= '0';
-		Tx_Ipg  <= conv_std_logic_vector( 39, 6);	--( 42, 6);	
+		Tx_Ipg  <= conv_std_logic_vector( 42, 6);	
 	ELSIF	rising_edge( Clk )	THEN
 
 		IF	Sel_TxL = '1'	THEN

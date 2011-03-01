@@ -71,6 +71,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	2010/10/25	hoggerm		added function for scalable data size transfers
 	2010/12/13	zelenkaj	added sq-functionality
 	2011/01/10	zelenkaj	added wake up functionality
+	2011/03/01	zelenkaj	extend wake up (4 wake up pattern, inversion)
 
 *******************************************************************************/
 
@@ -112,8 +113,8 @@ static int readSq
 
 static int setPdiAddrReg
 (
-    unsigned short          uwAddr_p,   //address to be accessed at PDI
-    int                     fWr_p       //way of handle address change
+    WORD			uwAddr_p,   //address to be accessed at PDI
+    int             fWr_p       //way of handle address change
 );
 
 static int sendTxBuffer
@@ -128,9 +129,9 @@ static int recRxBuffer
 
 static int buildCmdFrame
 (
-    unsigned short          uwPayload_p,   //CMD frame address
-    unsigned char           *pFrame_p,  //buffer for CMD frame to be built
-    unsigned char           ubTyp_p     //CMD frame type
+    WORD			uwPayload_p,   //CMD frame address
+    BYTE			*pFrame_p,  //buffer for CMD frame to be built
+    BYTE			ubTyp_p     //CMD frame type
 );
 
 /* PDI SPI Driver Instance
@@ -186,7 +187,9 @@ int CnApi_initSpiMaster
 		//send out wake up frame to enter idle surely!
 		PdiSpiInstance_l.m_txBuffer[0] = PDISPI_WAKEUP;
 		PdiSpiInstance_l.m_txBuffer[1] = PDISPI_WAKEUP1;
-		PdiSpiInstance_l.m_toBeTx = 2;
+		PdiSpiInstance_l.m_txBuffer[2] = PDISPI_WAKEUP2;
+		PdiSpiInstance_l.m_txBuffer[3] = PDISPI_WAKEUP3;
+		PdiSpiInstance_l.m_toBeTx = 4;
 
 		//send byte in Tx buffer
 		iRet = sendTxBuffer();
@@ -206,10 +209,22 @@ int CnApi_initSpiMaster
 			goto exit;
 		}
 
-		if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP1)
+		if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP3)
 		{
-			//received last wake up pattern
-		    fPcpSpiPresent = TRUE;
+			//received last wake up pattern without inversion
+			//=> pcpSpi has already woken up
+			fPcpSpiPresent = TRUE;
+			break;
+		}
+
+		//invert received packet
+		PdiSpiInstance_l.m_rxBuffer[0] = ~PdiSpiInstance_l.m_rxBuffer[0];
+
+		if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP3)
+		{
+			//received last wake up pattern with inversion
+			//=> wake up was successful
+			fPcpSpiPresent = TRUE;
 			break;
 		}
 
@@ -275,7 +290,7 @@ int CnApi_Spi_writeByte
 )
 {
     int             iRet = PDISPI_OK;
-    unsigned char   ubTxData;
+    BYTE			ubTxData;
     
     //check the pdi's address register for the following cmd
     iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK);
@@ -331,7 +346,7 @@ int CnApi_Spi_readByte
 )
 {
     int             iRet = PDISPI_OK;
-    unsigned char   ubTxData;
+    BYTE			ubTxData;
     
     //check the pdi's address register for the following cmd
     iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK);
@@ -525,7 +540,7 @@ static int writeSq
 )
 {
     int             iRet = PDISPI_OK;
-    unsigned char   ubTxData;
+    BYTE			ubTxData;
     WORD            uwTxSize = 0;
 
     //check the pdi's address register for the following cmd
@@ -607,7 +622,7 @@ static int readSq
 )
 {
     int             iRet = PDISPI_OK;
-    unsigned char   ubTxData;
+    BYTE			ubTxData;
     WORD            uwRxSize = 0;
 
     //check the pdi's address register for the following cmd
@@ -690,12 +705,12 @@ written down without verification.
 *******************************************************************************/
 static int setPdiAddrReg
 (
-    unsigned short          uwAddr_p,   ///< address to be accessed at PDI
-    int                     fWr_p       ///< way of handle address change
+    WORD			uwAddr_p,   ///< address to be accessed at PDI
+    int             fWr_p       ///< way of handle address change
 )
 {
     int             iRet = PDISPI_OK;
-    unsigned char   ubTxData;
+    BYTE			ubTxData;
     
     //check high address first
     switch(fWr_p)
@@ -894,9 +909,9 @@ uwPayload_p. ubType_p gives the command type (use defines).
 *******************************************************************************/
 static int buildCmdFrame
 (
-    unsigned short          uwPayload_p,   ///< CMD frame payload
-    unsigned char           *pFrame_p,  ///< buffer for CMD frame to be built
-    unsigned char           ubTyp_p     ///< CMD frame type
+    WORD			uwPayload_p,   ///< CMD frame payload
+    BYTE			*pFrame_p,  ///< buffer for CMD frame to be built
+    BYTE			ubTyp_p     ///< CMD frame type
 )
 {
     int         iRet = PDISPI_OK;
@@ -904,43 +919,43 @@ static int buildCmdFrame
     switch(ubTyp_p)
     {
         case PDISPI_CMD_HIGHADDR :
-            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_HIGHADDR_MASK) \
+            *pFrame_p = (BYTE) ((uwPayload_p & PDISPI_ADDR_HIGHADDR_MASK) \
                                         >> PDISPI_ADDR_HIGHADDR_OFFSET \
                                         | PDISPI_CMD_HIGHADDR);
             break;
         case PDISPI_CMD_MIDADDR :
-            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_MIDADDR_MASK) \
+            *pFrame_p = (BYTE) ((uwPayload_p & PDISPI_ADDR_MIDADDR_MASK) \
                                         >> PDISPI_ADDR_MIDADDR_OFFSET \
                                         | PDISPI_CMD_MIDADDR);
             break;
         case PDISPI_CMD_LOWADDR :
-            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_LOWADDR_MASK) \
+            *pFrame_p = (BYTE) ((uwPayload_p & PDISPI_ADDR_LOWADDR_MASK) \
                                         >> PDISPI_ADDR_LOWADDR_OFFSET \
                                         | PDISPI_CMD_LOWADDR);
             break;
         case PDISPI_CMD_WR :
-            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
+            *pFrame_p = (BYTE) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
                                         >> 0 \
                                         | PDISPI_CMD_WR);
             break;
         case PDISPI_CMD_RD :
-            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
+            *pFrame_p = (BYTE) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
                                         >> 0 \
                                         | PDISPI_CMD_RD);
             break;
         case PDISPI_CMD_WRSQ :
-            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
+            *pFrame_p = (BYTE) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
                                         >> 0 \
                                         | PDISPI_CMD_WRSQ);
             break;
         case PDISPI_CMD_RDSQ :
-            *pFrame_p = (unsigned char) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
+            *pFrame_p = (BYTE) ((uwPayload_p & PDISPI_ADDR_ADDR_MASK) \
                                         >> 0 \
                                         | PDISPI_CMD_RDSQ);
             break;
         case PDISPI_CMD_IDLE :
         default :
-            *pFrame_p = (unsigned char) (0 | PDISPI_CMD_IDLE);
+            *pFrame_p = (BYTE) (0 | PDISPI_CMD_IDLE);
             break;
     }
     

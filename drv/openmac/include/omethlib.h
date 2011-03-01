@@ -169,6 +169,9 @@ typedef struct OMETH_FILTER*	OMETH_FILTER_H;	// handle for receive filter
 
 #define OMETH_MAX_PHY_CNT	8		// maximum number of supported phys
 
+#define OMETH_PKT_LOC_HEAP		0
+#define OMETH_PKT_LOC_MACINT	1
+
 //********************* network configuration ******************************
 typedef struct
 {
@@ -178,7 +181,9 @@ typedef struct
 
 	void			*pRamBase;	// base address of MAC RAM (filters+descriptors)
 	void			*pRegBase;	// base address of MAC control registers
-    void            *pBufBase;  // base address of MAC-internal memory
+
+	void            *pBufBase;  // base address of MAC-internal memory
+    unsigned char	pktLoc;		// use heap or MAC-internal memory
 
 	unsigned short	rxBuffers;	// number of rx buffers (2<=rxBuffers<=max)
 	unsigned short	rxMtu;		// MTU for buffers
