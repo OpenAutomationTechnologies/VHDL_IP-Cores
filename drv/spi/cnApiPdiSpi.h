@@ -59,6 +59,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	2010/12/13	zelenkaj	added sq-functionality
 	2011/01/10	zelenkaj	added wake up functionality
 	2011/03/01	zelenkaj	extend wake up (4 wake up pattern, inversion)
+    2011/03/03  hoggerm     added SPI HW Layer test
 
 *******************************************************************************/
 
@@ -73,7 +74,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PDISPI_ERROR                    (-1)
 
 //timeouts
-#define PCP_SPI_PRESENCE_TIMEOUT        500
+#define PCP_SPI_PRESENCE_TIMEOUT        50
+
+//test mudules
+#define DEBUG_VERIFY_SPI_HW_CONNECTION
+
+#ifdef DEBUG_VERIFY_SPI_HW_CONNECTION
+#define SPI_L1_TESTS                    (256 * 10 )         ///< SPI HW test with pattern 0x00 - 0xff (10 times)
+#endif
 
 //general define
 #define PDISPI_MAX_SQ                   (32)                ///< max number of bytes in sequence (WRSQ/RDSQ)
@@ -113,6 +121,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PDISPI_ADDR_LOWADDR_MASK        PDISPI_ADDR_MASK << PDISPI_ADDR_LOWADDR_OFFSET
 #define PDISPI_ADDR_ADDR_MASK           PDISPI_ADDR_MASK << PDISPI_ADDR_ADDR_OFFSET
 
+//function definitions
+#define PDISPI_USLEEP(x)                usleep(x)
+
+//type definitions
 typedef int (*tSpiMasterTxHandler) (BYTE *pTxBuf_p, int iBytes_p);
 typedef int (*tSpiMasterRxHandler) (BYTE *pRxBuf_p, int iBytes_p);
 
@@ -134,6 +146,7 @@ typedef struct _tPdiSpiInstance
     int                     m_toBeRx;
 } tPdiSpiInstance;
 
+//function declarations
 int CnApi_initSpiMaster
 (
     tSpiMasterTxHandler     SpiMasterTxH_p, ///< SPI Master Tx Handler

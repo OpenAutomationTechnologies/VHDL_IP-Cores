@@ -72,6 +72,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	2010/12/13	zelenkaj	added sq-functionality
 	2011/01/10	zelenkaj	added wake up functionality
 	2011/03/01	zelenkaj	extend wake up (4 wake up pattern, inversion)
+	2011/03/03  hoggerm     added SPI HW Layer test
 
 *******************************************************************************/
 
@@ -90,8 +91,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADDR_CHECK      2
 #define ADDR_WR_DOWN_LO 3
 #define ADDR_CHECK_LO   4
-
-#define PDISPI_USLEEP(x)	usleep(x)
 
 /***************************************************************************************
  * LOCALS
@@ -165,6 +164,10 @@ int CnApi_initSpiMaster
 {
     int     iRet = PDISPI_OK;
     int     iCnt;
+    DWORD   dwCnt;
+    BYTE    bPattern = 0;
+    BYTE    bnegPattern = 0;
+    WORD    wSpiErrors = 0;
     BOOL    fPcpSpiPresent = FALSE;
     
     if( (SpiMasterTxH_p == 0) || (SpiMasterRxH_p == 0) )
@@ -178,6 +181,65 @@ int CnApi_initSpiMaster
     
     PdiSpiInstance_l.m_SpiMasterTxHandler = SpiMasterTxH_p;
     PdiSpiInstance_l.m_SpiMasterRxHandler = SpiMasterRxH_p;
+
+#ifdef DEBUG_VERIFY_SPI_HW_CONNECTION
+    DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "\nVerifying HW layer of SPI connection.\n");
+    PDISPI_USLEEP(1000000);
+    //IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0x1); //indicate start
+
+    /* check if SPI HW layer is working correctly */
+    for(dwCnt = 0; dwCnt < SPI_L1_TESTS; dwCnt++)
+    {
+        PdiSpiInstance_l.m_txBuffer[0] = bPattern;
+        PdiSpiInstance_l.m_toBeTx = 1;
+
+        //send one byte
+        iRet = sendTxBuffer();
+
+        if( iRet != PDISPI_OK )
+        {
+            goto exit;
+        }
+
+        //receive one byte
+        PdiSpiInstance_l.m_toBeRx = 1;
+
+        iRet = recRxBuffer();
+
+        if( iRet != PDISPI_OK )
+        {
+            goto exit;
+        }
+
+        bnegPattern = ~bPattern;
+
+        //check if SPI inverts the byte (indicates SPI boot state)
+        if(PdiSpiInstance_l.m_rxBuffer[0] != bnegPattern)
+        {
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nTx Byte: 0x%02X", PdiSpiInstance_l.m_txBuffer[0]);
+            DEBUG_TRACE1(DEBUG_LVL_CNAPI_INFO, "\nRx Byte: 0x%02X", PdiSpiInstance_l.m_rxBuffer[0]);
+            // Count Errors
+            wSpiErrors++;
+            DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, " ...Error!\n");
+
+            //IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0x7); //indicate end
+        }
+
+        bPattern++;
+    }
+    //end of SPI HW Test
+
+    //IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0x8); //indicate end
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_INFO, "\nSPI Errors: %d of %d transmissions.\n", wSpiErrors, SPI_L1_TESTS);
+
+    if (wSpiErrors > 0)
+    {   //SPI HW Test failed
+
+        //IOWR_ALTERA_AVALON_PIO_DATA(OUTPORT_AP_BASE, 0xf); //indicate error & end
+        iRet = PDISPI_ERROR;
+        goto exit;
+    }
+#endif /* DEBUG_VERIFY_SPI_HW_CONNECTION */
     
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "\nStarting SPI connection..");
 
@@ -236,7 +298,7 @@ int CnApi_initSpiMaster
         DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, ".ERROR!\n\n");
 
         /* PCP_SPI_PRESENCE_TIMEOUT exceeded */
-        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: No connection to PCP! Spi initialization failed!\n");
+        DEBUG_TRACE0(DEBUG_LVL_CNAPI_ERR, "TIMEOUT: No connection to PCP! SPI initialization failed!\n");
         iRet = PDISPI_ERROR;
         goto exit;
     }
@@ -256,7 +318,7 @@ int CnApi_initSpiMaster
 		goto exit;
 	}
 
-    //set address register in pdi to zero
+    //set address register in PDI to zero
     iRet = setPdiAddrReg(0, ADDR_WR_DOWN_LO);
     
     if( iRet != PDISPI_OK )
