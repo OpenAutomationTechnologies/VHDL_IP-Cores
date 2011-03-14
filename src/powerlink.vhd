@@ -47,6 +47,7 @@
 -- 2010-12-06	V0.06	zelenkaj	Bugfix: ap_irq was not driven in SPI configuration
 -- 2011-01-10	V0.07	zelenkaj	Added 2-stage sync to SPI input pins
 -- 2011-02-24	V0.08	zelenkaj	minor changes (naming conventions Mii->SMI)
+-- 2011-03-14	V0.09	zelenkaj	minor change, added generic for rx packet buffer location
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -66,7 +67,8 @@ entity powerlink is
    		iBufSize_g					: 		integer 							:= 1024;
    		iBufSizeLOG2_g				: 		integer 							:= 10;
 		useRmii_g					:		boolean								:= true; --use Rmii
-		useIntPacketBuf_g			:		boolean								:= true;
+		useIntPacketBuf_g			:		boolean								:= true; --internal packet buffer
+		useRxIntPacketBuf_g			:		boolean								:= true; --rx buffer located in internal packet buffer
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
 		iTpdos_g					:		integer 							:= 1;
@@ -131,7 +133,7 @@ entity powerlink is
         m_read_n					: OUT   STD_LOGIC;
         m_write_n					: OUT   STD_LOGIC;
         m_byteenable_n              : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0);
-        m_address                   : OUT   STD_LOGIC_VECTOR(31 DOWNTO 0);
+        m_address                   : OUT   STD_LOGIC_VECTOR(29 DOWNTO 0);
         m_writedata                 : OUT   STD_LOGIC_VECTOR(15 DOWNTO 0);
         m_readdata                  : IN    STD_LOGIC_VECTOR(15 DOWNTO 0);
         m_waitrequest               : IN    STD_LOGIC;
@@ -584,7 +586,8 @@ begin
 			iBufSize_g				=> iBufSize_g,
 			iBufSizeLOG2_g			=> iBufSizeLOG2_g,
 			useRmii_g				=> useRmii_g,
-			useIntPacketBuf_g		=> useIntPacketBuf_g
+			useIntPacketBuf_g		=> useIntPacketBuf_g,
+			useRxIntPacketBuf_g		=> useRxIntPacketBuf_g
 		)
 		port map (
 			Reset_n					=> rstPcp_n,

@@ -58,6 +58,7 @@
 #-- 2011-01-25	V0.12	zelenkaj	Added generic internal/external packet storage
 #-- 2011-02-24	V0.13	zelenkaj	Bugfix: openMAC only with RMII generates division by zero
 #--									minor changes (naming conventions Mii->SMI)
+#-- 2011-03-14	V0.14	zelenkaj	Added generic for packet storage (RX int/ext)
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -203,11 +204,10 @@ set_parameter_property phyIF DISPLAY_NAME "Ethernet Phy Interface"
 set_parameter_property phyIF ALLOWED_RANGES {"RMII" "MII"}
 set_parameter_property phyIF DISPLAY_HINT radio
 
-add_parameter packetLoc STRING "DPRAM"
+add_parameter packetLoc STRING "TX and RX into DPRAM"
 set_parameter_property packetLoc VISIBLE true
-set_parameter_property packetLoc DISPLAY_NAME "TX and RX Packet Location"
-#set_parameter_property packetLoc ALLOWED_RANGES {"DPRAM" "Avalon Master"}
-set_parameter_property packetLoc ALLOWED_RANGES {"DPRAM"}
+set_parameter_property packetLoc DISPLAY_NAME "Packet Buffer Location"
+set_parameter_property packetLoc ALLOWED_RANGES {"TX and RX into DPRAM" "TX into DPRAM and RX over Avalon Master" "TX and RX over Avalon Master"}
 set_parameter_property packetLoc DISPLAY_HINT radio
 
 add_parameter validSet INTEGER "1"
@@ -319,6 +319,11 @@ set_parameter_property useIntPacketBuf_g HDL_PARAMETER true
 set_parameter_property useIntPacketBuf_g VISIBLE false
 set_parameter_property useIntPacketBuf_g DERIVED true
 
+add_parameter useRxIntPacketBuf_g BOOLEAN true
+set_parameter_property useRxIntPacketBuf_g HDL_PARAMETER true
+set_parameter_property useRxIntPacketBuf_g VISIBLE false
+set_parameter_property useRxIntPacketBuf_g DERIVED true
+
 #parameters for parallel interface
 add_parameter papDataWidth_g INTEGER 16
 set_parameter_property papDataWidth_g HDL_PARAMETER true
@@ -385,11 +390,19 @@ proc my_validation_callback {} {
 		send_message info "Consider to use RMII to reduce resource usage!"
 	}
 	
-	if {$ploc == "DPRAM"} {
+	if {$ploc == "TX and RX into DPRAM"} {
 		set_parameter_value useIntPacketBuf_g true
-	} else {
+		set_parameter_value useRxIntPacketBuf_g true
+	} elseif {$ploc == "TX into DPRAM and RX over Avalon Master" } {
+		set_parameter_value useIntPacketBuf_g true
+		set_parameter_value useRxIntPacketBuf_g false
+		send_message info "Connect the Avalon Master 'MAC_DMA' to the memory where Heap is located!"
+	} elseif {$ploc == "TX and RX over Avalon Master"} {
 		set_parameter_value useIntPacketBuf_g false
-		send_message warning "Connect the Avalon Master 'DMA' to low latency memory! Heap must be located in the same memory!"
+		set_parameter_value useRxIntPacketBuf_g false
+		send_message info "Connect the Avalon Master 'MAC_DMA' to low latency memory! Heap must be located in the same memory!"
+	} else {
+		send_message error "error 0x01"
 	}
 	
 	set memRpdo 0
@@ -409,10 +422,11 @@ proc my_validation_callback {} {
 	set genSpiAp false
 	
 	#some constants from openMAC
+	set macPktLength	4
 	# tx buffer header (header + packet length)
-	set macTxHd			[expr  0 + 2]
+	set macTxHd			[expr  0 + $macPktLength]
 	# rx buffer header (header + packet length)
-	set macRxHd 		[expr 12 + 2]
+	set macRxHd 		[expr 12 + $macPktLength]
 	# max rx buffers
 	set macRxBuffers 	16
 	# max tx buffers
@@ -450,9 +464,15 @@ proc my_validation_callback {} {
 	
 	if {$configPowerlink == "openMAC only"} {
 		#no PDI, only openMAC
-		if {$ploc == "DPRAM"} {
+		if {$ploc == "TX and RX into DPRAM"} {
 			set_parameter_property macTxBuf VISIBLE true
 			set_parameter_property macRxBuf VISIBLE true
+		} elseif {$ploc == "TX into DPRAM and RX over Avalon Master"} {
+			set_parameter_property macTxBuf VISIBLE true
+		} elseif {$ploc == "TX and RX over Avalon Master"} {
+			#nothing to set
+		} else {
+			send_message error "error 0x02"
 		}
 		
 		set_parameter_property rpdoNum VISIBLE false
@@ -567,8 +587,9 @@ proc my_validation_callback {} {
 	set macTxBuffers [expr $macTxBuffers * 2]
 	
 	#calculate rx buffer size out of packets per cycle
-	#TODO: maybe increment rx buffer number, since asnd may be executed over several cycles!
-	set rxBufSize [expr $macRxBuffers * ($ethHd + $mtu + $crc + $macRxHd)]
+	set rxBufSize [expr $ethHd + $mtu + $crc + $macRxHd]
+	set rxBufSize [expr ($rxBufSize + 3) & ~3]
+	set rxBufSize [expr $macRxBuffers * $rxBufSize]
 	
 	if {$configPowerlink == "openMAC only"} {
 		#overwrite done calulations
@@ -588,10 +609,28 @@ proc my_validation_callback {} {
 		set asyncRxBufSize 0
 	}
 	
-	set macBufSize [expr $txBufSize + $rxBufSize]
-	#align macBufSize to 1 double word!!!
-	set macBufSize [expr ($macBufSize + 3) & ~3]
-	set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
+	if {$ploc == "TX and RX into DPRAM"} {
+		set macBufSize [expr $txBufSize + $rxBufSize]
+		set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
+	} elseif {$ploc == "TX into DPRAM and RX over Avalon Master" } {
+		set macBufSize $txBufSize
+		#no rx buffers are stored in dpram => set to zero
+		set rxBufSize 0
+		set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
+		set macRxBuffers 16
+	} elseif {$ploc == "TX and RX over Avalon Master"} {
+		#any value to avoid errors in SOPC
+		set macBufSize 0
+		#no rx and tx buffers are stored in dpram => set to zero
+		set rxBufSize 0
+		set txBufSize 0
+		set log2MacBufSize 3
+	} else {
+		set macBufSize 0
+		set rxBufSize 0
+		set txBufSize 0
+		set log2MacBufSize 3
+	}
 	
 	#set pdi generics
 	set_parameter_value iRpdos_g			$rpdos
@@ -676,10 +715,14 @@ proc my_validation_callback {} {
 		set_module_assignment embeddedsw.CMacro.CONFIGAPENDIAN		1
 	}
 	
-	if {$ploc == "DPRAM"} {											#packets stored in openMAC DPRAM
+	if {$ploc == "TX and RX into DPRAM"} {							#all packets stored in openMAC DPRAM
 		set_module_assignment embeddedsw.CMacro.PKTLOC				0
-	} else {														#packets stored in heap
+	} elseif {$ploc == "TX into DPRAM and RX over Avalon Master"} {	#Rx packets stored in heap
+		set_module_assignment embeddedsw.CMacro.PKTLOC				2
+	} elseif {$ploc == "TX and RX over Avalon Master"} {			#all packets stored in heap
 		set_module_assignment embeddedsw.CMacro.PKTLOC				1
+	} else {
+		send_message error "error 0x03"
 	}
 	
 	set_module_assignment embeddedsw.CMacro.MACBUFSIZE				$macBufSize
@@ -884,27 +927,27 @@ add_interface_port MAC_BUF mbf_chipselect chipselect Input 1
 add_interface_port MAC_BUF mbf_read_n read_n Input 1
 add_interface_port MAC_BUF mbf_write_n write_n Input 1
 add_interface_port MAC_BUF mbf_byteenable byteenable Input 4
-add_interface_port MAC_BUF mbf_address address Input "(iBufSizeLOG2_g-3) - (0) + 1"
+add_interface_port MAC_BUF mbf_address address Input "(iBufSizeLOG2_g-2)"
 add_interface_port MAC_BUF mbf_writedata writedata Input 32
 add_interface_port MAC_BUF mbf_readdata readdata Output 32
 
-##Avalon Memory Mapped Master: DMA
-add_interface DMA avalon start
-set_interface_property DMA adaptsTo ""
-set_interface_property DMA burstOnBurstBoundariesOnly false
-set_interface_property DMA doStreamReads false
-set_interface_property DMA doStreamWrites false
-set_interface_property DMA linewrapBursts false
-set_interface_property DMA ASSOCIATED_CLOCK clk50meg
-set_interface_property DMA ENABLED false
-add_interface_port DMA m_read_n read_n Output 1
-add_interface_port DMA m_write_n write_n Output 1
-add_interface_port DMA m_byteenable_n byteenable_n Output 2
-add_interface_port DMA m_address address Output 32
-add_interface_port DMA m_writedata writedata Output 16
-add_interface_port DMA m_readdata readdata Input 16
-add_interface_port DMA m_waitrequest waitrequest Input 1
-add_interface_port DMA m_arbiterlock arbiterlock Output 1
+##Avalon Memory Mapped Master: MAC_DMA
+add_interface MAC_DMA avalon start
+set_interface_property MAC_DMA adaptsTo ""
+set_interface_property MAC_DMA burstOnBurstBoundariesOnly false
+set_interface_property MAC_DMA doStreamReads false
+set_interface_property MAC_DMA doStreamWrites false
+set_interface_property MAC_DMA linewrapBursts false
+set_interface_property MAC_DMA ASSOCIATED_CLOCK clk50meg
+set_interface_property MAC_DMA ENABLED false
+add_interface_port MAC_DMA m_read_n read_n Output 1
+add_interface_port MAC_DMA m_write_n write_n Output 1
+add_interface_port MAC_DMA m_byteenable_n byteenable_n Output 2
+add_interface_port MAC_DMA m_address address Output 30
+add_interface_port MAC_DMA m_writedata writedata Output 16
+add_interface_port MAC_DMA m_readdata readdata Input 16
+add_interface_port MAC_DMA m_waitrequest waitrequest Input 1
+add_interface_port MAC_DMA m_arbiterlock arbiterlock Output 1
 
 #PDI
 ##Avalon Memory Mapped Slave: PCP
@@ -1057,7 +1100,7 @@ if {$validTicks <= 0} {
 set validLength [expr $validTicks * $ClkPcpPeriod]
 
 set_parameter_value validAssertDuration $validLength
-set_parameter_value pioValLen_g %validTicks
+set_parameter_value pioValLen_g $validTicks
 
 if {$ClkRate50meg == 50000000} {
 
@@ -1077,16 +1120,23 @@ if {$ClkRate50meg == 50000000} {
 	set_interface_property SMP_PIO ENABLED false
 	set_interface_property AP_EX_IRQ ENABLED false
 	
-	set_interface_property DMA ENABLED false
+	set_interface_property MAC_DMA ENABLED false
 	set_interface_property MAC_BUF ENABLED false
 	
 	#verify which packet location is set and disable/enable dma/dpr
-	if {[get_parameter_value packetLoc] == "DPRAM"} {
+	if {[get_parameter_value packetLoc] == "TX and RX into DPRAM"} {
 		#use internal packet buffering
 		set_interface_property MAC_BUF ENABLED true
-	} else {
+	} elseif {[get_parameter_value packetLoc] == "TX into DPRAM and RX over Avalon Master"} {
+		#use internal packet buffering
+		set_interface_property MAC_BUF ENABLED true
+		#use DMA for Rx packets
+		set_interface_property MAC_DMA ENABLED true
+	} elseif {[get_parameter_value packetLoc] == "TX and RX over Avalon Master"} {
 		#use external packet buffering
-		set_interface_property DMA ENABLED true
+		set_interface_property MAC_DMA ENABLED true
+	} else {
+		send_message error "error 0x04"
 	}
 	
 	if {[get_parameter_value useRmii_g]} {
@@ -1109,11 +1159,15 @@ if {$ClkRate50meg == 50000000} {
 	}
 	
 	if {[get_parameter_value configPowerlink] == "openMAC only"} {
-		if {[get_parameter_value packetLoc] == "DPRAM"} {
+		if {[get_parameter_value packetLoc] == "TX and RX into DPRAM"} {
 			#pcp_clk necessary!
-		} else {
+		} elseif {[get_parameter_value packetLoc] == "TX into DPRAM and RX over Avalon Master"} {
+			#pcp_clk necessary!
+		} elseif {[get_parameter_value packetLoc] == "TX and RX over Avalon Master"} {
 			#pcp_clk not necessary!
 			set_interface_property pcp_clk ENABLED false
+		} else {
+			send_message error "error 0x05"
 		}
 	} elseif {[get_parameter_value configPowerlink] == "Direct I/O CN"} {
 		#the Direct I/O CN requires:
