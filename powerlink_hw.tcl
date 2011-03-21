@@ -59,6 +59,7 @@
 #-- 2011-02-24	V0.13	zelenkaj	Bugfix: openMAC only with RMII generates division by zero
 #--									minor changes (naming conventions Mii->SMI)
 #-- 2011-03-14	V0.14	zelenkaj	Added generic for packet storage (RX int/ext)
+#-- 2011-03-21	V0.15	zelenkaj	bugfix: packet buffer padding wasn't considered
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -437,6 +438,12 @@ proc my_validation_callback {} {
 	set ethHd			14
 	# crc size by ieee
 	set crc				4
+	# min data size of a packet
+	set minDatSize		46
+	# min packet size (ethheader + mindata + crc + tx buffer header)
+	set minPktBufSize	[expr $ethHd + $minDatSize + $crc + $macTxHd]
+	# max packet size (ethheader + mtu + crc + tx buffer header)
+	set maxPktBufSize	[expr $ethHd + $mtu + $crc + $macTxHd]
 
 #so, now verify which configuration should be set
 	#default assignments...
@@ -569,6 +576,16 @@ proc my_validation_callback {} {
 	set PRes	[expr 24 + $tpdo0size	+ $crc + $macTxHd]
 	#sync response for poll-resp-ch (44 bytes + padding = 60bytes)
 	set SyncRes [expr 60				+ $crc + $macTxHd]
+	
+	if {$PRes < $minPktBufSize} {
+		#PRes buffer is smaller 64 bytes => padding!
+		set PRes $minPktBufSize
+	}
+	
+	#the following error is catched by the allowed range of pdo size
+	if {$PRes > $maxPktBufSize} {
+		send_message error "TPDO Size is too large. Allowed Range 1...1490 bytes!"
+	}
 	
 	#align all tx buffers
 	set IdRes 	[expr ($IdRes + 3) & ~3]

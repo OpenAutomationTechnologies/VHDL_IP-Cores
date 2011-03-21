@@ -61,6 +61,8 @@
 -- 2011-02-24  V0.77		minor changes (naming conventions Mii->SMI)
 -- 2011-03-02  V0.78		redesign of external packet buffer implementation
 -- 2011-03-14  V0.79		added rx packet buffer location set ability
+-- 2011-03-21  V0.80		area opt.: one adder is used for write/read addr.
+--							performance opt.: read (TX) overrules write (RX) command of Avalon master (e.g. auto-resp)
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -763,7 +765,7 @@ architecture rtl of openMACdmaAvalonMaster is
 	signal Mac_TxEnL : std_logic;
 	signal Mac_TxOnP : std_logic; --pulse if tx starts
 	signal Mac_TxOffP : std_logic; --pulse if tx stops
-	signal Mac_CrsDvFilter : std_logic_vector(15 downto 0);
+	signal Mac_CrsDvFilter : std_logic_vector(11 downto 0);
 	signal Mac_CrsDvOnP : std_logic; --pulse if rx starts
 	signal Mac_CrsDvOffP : std_logic; --pulse if rx stops
 	--
@@ -790,6 +792,7 @@ architecture rtl of openMACdmaAvalonMaster is
 	signal  RXFifo_E		:  std_logic;
 	signal  RXFifo_F		:  std_logic;
 	signal	RXFifo_FirstRd	:  std_logic;
+	signal	RXFifo_FirstRd_p:  std_logic;
 	--------------------------------------------------------------
 begin
 	
@@ -831,11 +834,11 @@ begin
 				Mac_TxOffP <= '1';
 			end if;
 			
-			if Mac_CrsDvFilter = x"0003" then --"0000000000000011"
+			if Mac_CrsDvFilter = x"003" then
 				Mac_CrsDvOnP <= '1';
 			end if;
 			
-			if Mac_CrsDvFilter = x"8000" then --"1000000000000000"
+			if Mac_CrsDvFilter = x"800" then
 				Mac_CrsDvOffP <= '1';
 			end if;
 		end if;
@@ -844,42 +847,49 @@ begin
 	--------------------------------------------------------------
 	--FSM
 	--------------------------------------------------------------
-	txFsmProc : process(clk, arst)
-	begin
-		if arst = '1' then
-			txFsm <= idle;
-			m_addrBase_tx <= (others => '0');
-		elsif clk = '1' and clk'event then
-			case txFsm is
-				when idle =>
-				--default
-					txFsm <= idle;
-				--dma transfer for tx is started by assertion of Dma_Req and Dma_Rw
-					if Dma_Req = '1' and Dma_Rw = '1' then
-					--the first req sets the base address of the transfer
-						m_addrBase_tx <= Dma_Addr & '0';
-						txFsm <= transfer; --exit to transfer
-					end if;
-					
-				when transfer =>
-				--default
-					txFsm <= transfer;
-				--the transfer is surely over if Mac_TxEn is deasserted
-					if Mac_TxOffP = '1' then
-						txFsm <= finish;
-					end if;
-					
-				when finish =>
-				--default
-					txFsm <= finish;
-					if txFsmRst = '1' then
+	genTxFsm : if rxOnly_g = false generate
+		txFsmProc : process(clk, arst)
+		begin
+			if arst = '1' then
+				txFsm <= idle;
+				m_addrBase_tx <= (others => '0');
+			elsif clk = '1' and clk'event then
+				case txFsm is
+					when idle =>
+					--default
 						txFsm <= idle;
-					end if;
-					
-			end case;
-		end if;
-	end process txFsmProc;
+					--dma transfer for tx is started by assertion of Dma_Req and Dma_Rw
+						if Dma_Req = '1' and Dma_Rw = '1' then
+						--the first req sets the base address of the transfer
+							m_addrBase_tx <= Dma_Addr & '0';
+							txFsm <= transfer; --exit to transfer
+						end if;
+						
+					when transfer =>
+					--default
+						txFsm <= transfer;
+					--the transfer is surely over if Mac_TxEn is deasserted
+						if Mac_TxOffP = '1' then
+							txFsm <= finish;
+						end if;
+						
+					when finish =>
+					--default
+						txFsm <= finish;
+						if txFsmRst = '1' then
+							txFsm <= idle;
+						end if;
+						
+				end case;
+			end if;
+		end process txFsmProc;
+	end generate;
 	
+	genTxFsmStub : if rxOnly_g = true generate
+		--tx data is provided by other source
+		txFsm <= idle;
+	end generate;
+		
 	rxFsmProc : process(clk, arst)
 	begin
 		if arst = '1' then
@@ -919,9 +929,27 @@ begin
 	--------------------------------------------------------------
 	--Transfer handling
 	--------------------------------------------------------------
-	m_address <=		m_addrBase_tx + m_addrOffset_tx when m_read = '1' and rxOnly_g = false else
-						m_addrBase_rx + m_addrOffset_rx when m_write = '1' else
+	theAddrCalcer : block
+		signal add_base : std_logic_vector(m_addrBase_tx'range);
+		signal add_offs : std_logic_vector(m_addrOffset_tx'range);
+		signal add_resu : std_logic_vector(m_address'range);
+	begin
+		--forward base addend to the adder
+		add_base <=		m_addrBase_tx when m_read = '1' and rxOnly_g = false else
+						m_addrBase_rx when m_write = '1' else
 						(others => '0');
+		--forward offset addend to the adder
+		add_offs <=		m_addrOffset_tx when m_read = '1' and rxOnly_g = false else
+						m_addrOffset_rx when m_write = '1' else
+						(others => '0');
+		
+		--adder
+		add_resu <= 	add_base + add_offs;
+		
+		--forward result
+		m_address <= 	add_resu;
+		
+	end block theAddrCalcer;
 	
 	m_byteenable <= 	(others => '1') when m_read = '1' or m_write = '1' else
 						(others => '0');
@@ -931,6 +959,11 @@ begin
 	--arbitration lock if master writes or reads
 	m_arbiterlock <= m_write or m_read;
 	
+	--do Fifo Read concurrent => read data is available by assertion of Avalon transfer signals
+	RXFifo_Rd <= 	'1' when RXFifo_FirstRd_p = '1' else --first read to get first value
+					'1' when m_write = '1' and m_waitrequest = '0' else --read during transfer
+					'0';
+	
 	theTrHdlProc : process(clk, arst)
 	begin
 		if arst = '1' then
@@ -938,9 +971,9 @@ begin
 			m_write <= '0';
 			
 			TXFifo_Wr <= '0'; RXFifo_Wr <= '0';
-			TXFifo_Rd <= '0'; RXFifo_Rd <= '0';
+			TXFifo_Rd <= '0';
 			TXFifo_Clr <= '0'; RXFifo_Clr <= '0';
-			RXFifo_FirstRd <= '0';
+			RXFifo_FirstRd <= '0'; RXFifo_FirstRd_p <= '0';
 			Dma_Ack_s <= '0';
 			txFsmRst <= '0'; rxFsmRst <= '0';
 			
@@ -948,10 +981,11 @@ begin
 		elsif clk = '1' and clk'event then
 			--default
 			TXFifo_Wr <= '0'; RXFifo_Wr <= '0';
-			TXFifo_Rd <= '0'; RXFifo_Rd <= '0';
+			TXFifo_Rd <= '0';
 			TXFifo_Clr <= '0'; RXFifo_Clr <= '0';
 			Dma_Ack_s <= '0';
 			txFsmRst <= '0'; rxFsmRst <= '0';
+			RXFifo_FirstRd_p <= '0';
 			
 			--Dma control
 			if Dma_Req = '1' and Dma_Rw = '1' and TXFifo_E = '0' and Dma_Ack_s = '0' and rxOnly_g = false then
@@ -967,7 +1001,6 @@ begin
 			--Avalon Master control
 			if m_write = '1' and m_waitrequest = '0' then
 				--write was successful -> read from rx fifo
-				RXFifo_Rd <= '1';
 				m_addrOffset_rx <= m_addrOffset_rx + 2;
 			elsif m_read = '1' and m_waitrequest = '0' and rxOnly_g = false then
 				--read was successful -> write to tx fifo
@@ -1002,8 +1035,8 @@ begin
 			--RX
 			if rxFsm = transfer then
 				--fsm is in transfer state -> empty the fifo to almost empty
-				--only start write if no read is pending
-				if RXFifo_AE = '0' and m_read = '0' then
+				--only start write if tx fsm is in idle
+				if RXFifo_AE = '0' and txFsm = idle then
 					m_write <= '1';
 				elsif m_write = '1' and m_waitrequest = '0' then
 					m_write <= '0';
@@ -1011,12 +1044,12 @@ begin
 				
 				--fifo does not watch ahead -> read to get valid value
 				if RXFifo_FirstRd = '0' and RXFifo_E = '0' then
-					RXFifo_Rd <= '1';
 					RXFifo_FirstRd <= '1'; --rst of RXFifo_FirstRd is done in finish state
+					RXFifo_FirstRd_p <= '1'; --set a pulse
 				end if;
 			elsif rxFsm = finish then
 				--fsm is in finish state -> empty the fifo
-				if RXFifo_E = '0' and m_read = '0' then
+				if RXFifo_E = '0' and txFsm = idle then
 					m_write <= '1';
 				elsif m_write = '1' and m_waitrequest = '0' then
 					m_write <= '0';

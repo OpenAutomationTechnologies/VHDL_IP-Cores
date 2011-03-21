@@ -50,9 +50,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  2010/07/12     hoggerm     adapted for auto response delay
  2010/12/14		zelenkaj	bugfix: use correct EDRV_PKT_SPAN,
 							adapted MAC configuration and phy management
- 2010/02/28		zelenkaj	packet storage location is controlled by generics,
-							output number of phys found,
-
+ 2011/02/28		zelenkaj	packet storage location is controlled by generics,
+							output number of phys found
+ 2011/03/21		zelenkaj	buffer allocation defined by hardware generics
 ----------------------------------------------------------------------------*/
 
 
@@ -305,8 +305,6 @@ BYTE            abFilterMask[31],
     //use heap as packet buffer
     EdrvInstance_l.m_EthConf.pBufBase = 0;
     EdrvInstance_l.m_EthConf.pktLoc = OMETH_PKT_LOC_HEAP;
-    EdrvInstance_l.m_pBufBase = NULL;
-    EdrvInstance_l.m_dwBufSpan = 0;
 #elif EDRV_PKT_LOC == 2
     //use heap as rx packet buffer
     EdrvInstance_l.m_EthConf.pBufBase = 0;
@@ -485,6 +483,12 @@ ometh_packet_typ*   pPacket = NULL;
     {
         Ret = kEplEdrvNoFreeBufEntry;
         goto Exit;
+    }
+
+    //openMAC does no padding, use memory for padding
+    if( pBuffer_p->m_uiMaxBufferLen < MIN_ETH_SIZE)
+    {
+    	pBuffer_p->m_uiMaxBufferLen = MIN_ETH_SIZE;
     }
 
 #if EDRV_PKT_LOC == 1
