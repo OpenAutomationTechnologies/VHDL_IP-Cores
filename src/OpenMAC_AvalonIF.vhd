@@ -63,6 +63,7 @@
 -- 2011-03-14  V0.79		added rx packet buffer location set ability
 -- 2011-03-21  V0.80		area opt.: one adder is used for write/read addr.
 --							performance opt.: read (TX) overrules write (RX) command of Avalon master (e.g. auto-resp)
+-- 2011-03-28  V0.81		phy activity generator (for led)
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -147,7 +148,9 @@ entity AlteraOpenMACIF is
 			smi_Di						: in	std_logic;
 			smi_Do						: out	std_logic;
 			smi_Doe						: out	std_logic;
-			phy_nResetOut				: out	std_logic
+			phy_nResetOut				: out	std_logic;
+		-- LED
+			led_activity				: out	std_logic
         );
 end entity AlteraOpenMACIF;
 
@@ -275,6 +278,18 @@ begin
 						-- Hub
 						Hub_Rx => RxPort
 					);
+	
+	the_ActivityLed : entity work.phyActGen
+		generic map (
+				iBlinkFreq_g				=> 50
+		)
+		port map (
+				clk50						=> Clk50,
+				arst						=> rst,
+				TxEn						=> MacTxEn,
+				CrsDv						=> MacRxDv,
+				actLed						=> led_activity
+		);
 	
 	the_Hub : entity work.OpenHub
 		generic map (	Ports => 3
@@ -1107,4 +1122,71 @@ begin
 					);
 	end block theFifos;
 	
+end architecture rtl;
+
+--------------------------
+--phy activity generator--
+--------------------------
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+USE ieee.math_real.log2;
+USE ieee.math_real.ceil;
+
+entity phyActGen is
+	generic (
+			iBlinkFreq_g				:		integer := 50 --in Hz
+	);
+	port (
+			clk50						: in	std_logic;
+			arst						: in	std_logic;
+			TxEn						: in	std_logic;
+			CrsDv						: in	std_logic;
+			actLed						: out	std_logic
+	);
+end entity phyActGen;
+
+architecture rtl of phyActGen is
+constant 	iMaxCnt 					: integer := 50e6 / iBlinkFreq_g;
+constant	iLog2MaxCnt					: integer := integer(ceil(log2(real(iMaxCnt))));
+
+signal		cnt_enable					: std_logic;
+signal		cnt_s						: std_logic_vector(iLog2MaxCnt-1 downto 0);
+signal		cnt_tc						: std_logic;
+
+begin
+	
+	actLed <= not cnt_s(cnt_s'high);
+	
+	theMonoFlop : process(clk50, arst)
+	begin
+		if arst = '1' then
+			cnt_enable <= '0';
+		elsif clk50 = '1' and clk50'event then
+			--of course no default -> monoflop
+			if (TxEn = '1' or CrsDv = '1') and cnt_enable = '0' then
+				cnt_enable <= '1';
+			elsif cnt_tc = '1' then
+				cnt_enable <= '0';
+			end if;
+		end if;
+	end process;
+	
+	cnt_tc <= '1' when cnt_s = iMaxCnt else '0';
+	
+	theCounter : process(clk50, arst)
+	begin
+		if arst = '1' then
+			cnt_s <= (others => '1');
+		elsif clk50 = '1' and clk50'event then
+			if cnt_enable = '1' then
+				if cnt_tc = '1' then
+					cnt_s <= (others => '1');
+				else
+					cnt_s <= cnt_s + 1;
+				end if;
+			end if;
+		end if;
+	end process;
 end architecture rtl;

@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  2011/02/28		zelenkaj	packet storage location is controlled by generics,
 							output number of phys found
  2011/03/21		zelenkaj	buffer allocation defined by hardware generics
+ 2011/03/29		zelenkaj	tx buffer allocation fixes
 ----------------------------------------------------------------------------*/
 
 
@@ -144,7 +145,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #elif (EDRV_MAX_RX_BUFFERS == 0)
 #warning "Rx buffers set to zero -> set value by yourself!"
 #undef EDRV_MAX_RX_BUFFERS
-#define EDRV_MAX_RX_BUFFERS 4
+#define EDRV_MAX_RX_BUFFERS 6
 #endif
 
 #if (EDRV_AUTO_RESPONSE == FALSE)
@@ -498,28 +499,55 @@ ometh_packet_typ*   pPacket = NULL;
 #elif (EDRV_PKT_LOC == 0 || EDRV_PKT_LOC == 2)
     {
         static void *pNextBuffer = NULL;
-        if ( EdrvInstance_l.m_ubTxBufCnt == 0 ) //Edrv instance stores tx buffer numbers
-            pPacket = (ometh_packet_typ*) EdrvInstance_l.m_pTxBufBase; //no tx buffers set
+			//stores the next buffer to be allocated
+        int iBufLength = pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length);
+			//gives the length of the buffer to be allocated
+        void *pBufHighAddr = (void*)(EdrvInstance_l.m_pBufBase + EdrvInstance_l.m_dwBufSpan);
+			//gives the high address of the packet buffer (upper limit)
+        void *pBufBaseAddr = (void*)(EdrvInstance_l.m_pTxBufBase);
+			//gives the base address of the TX part in the packet buffer (lower limit)
+
+        //check if buffers are allocated
+        if ( EdrvInstance_l.m_ubTxBufCnt == 0 )
+        {
+            pPacket = (ometh_packet_typ*)EdrvInstance_l.m_pTxBufBase; //first buffer allocation
+        }
         else
-            pPacket = (ometh_packet_typ*)pNextBuffer; //one/more buffers set
+        {
+            pPacket = (ometh_packet_typ*)pNextBuffer; //use next buffer for allocation
+        }
 
-        //set new buffer to zeros (on-chip mem cont. is unknown!)
-        memset(pPacket, 0, (pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length))); //set zeros
+        //check if new buffer is within buffer limits
+        {
+        	void *p = (void*)pPacket;
+        	int i;
 
-        //calc next buffer for next allocation
-        pNextBuffer = (((void*)pPacket) + (pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length)));
+        	//first, test if packet buffer base is within range
+        	//second, test if packet buffer high is within range
+        	for(i=0; i<2; i++)
+        	{
+    			if( (p > pBufHighAddr) || (p < pBufBaseAddr) )
+    			{
+    				printf("MAC-internal buffer overflow!\n");
+    				Ret = kEplEdrvNoFreeBufEntry;
+    				goto Exit;
+    			}
+    			p += iBufLength;
+        	}
+        }
+
+        //set new buffer to zeros
+        memset((void*)pPacket, 0, iBufLength); //set zeros
+
+        //calculate next buffer for next allocation
+        pNextBuffer = (((void*)pPacket) + iBufLength);
         //align buffer
         {   DWORD tmp = (DWORD)pNextBuffer;
             tmp += 3; tmp &= ~3;
             pNextBuffer = (void*)tmp;
         }
-        if ( (void*)pNextBuffer > (void*)(EdrvInstance_l.m_pBufBase + EdrvInstance_l.m_dwBufSpan) )
-        {   //mac-internal buffer overflow
-            printf("MAC-internal buffer overflow!\n");
-            Ret = kEplEdrvNoFreeBufEntry;
-            goto Exit;
-        }
-        EdrvInstance_l.m_ubTxBufCnt++; //add new buffer to cntr
+
+        EdrvInstance_l.m_ubTxBufCnt++; //new buffer added
     }
 #else
 #error "Configuration unknown!"

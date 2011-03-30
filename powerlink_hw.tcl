@@ -60,6 +60,9 @@
 #--									minor changes (naming conventions Mii->SMI)
 #-- 2011-03-14	V0.14	zelenkaj	Added generic for packet storage (RX int/ext)
 #-- 2011-03-21	V0.15	zelenkaj	bugfix: packet buffer padding wasn't considered
+#-- 2011-03-28	V0.20	zelenkaj	Added: LED
+#--									Added: Events
+#--									Added/Changed: Asynchronous buffer 2x Ping-Pong
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -101,6 +104,12 @@ add_file src/pdi_spi.vhd {SYNTHESIS SIMULATION}
 #callbacks
 set_module_property VALIDATION_CALLBACK my_validation_callback
 set_module_property ELABORATION_CALLBACK my_elaboration_callback
+
+#FPGA REVISION
+add_parameter iFpgaRev_g INTEGER 0x0020
+set_parameter_property iFpgaRev_g HDL_PARAMETER true
+set_parameter_property iFpgaRev_g VISIBLE false
+set_parameter_property iFpgaRev_g DERIVED false
 
 #parameters
 add_parameter clkRateEth INTEGER 0
@@ -189,15 +198,15 @@ set_parameter_property tpdo0size ALLOWED_RANGES 1:1490
 set_parameter_property tpdo0size UNITS bytes
 set_parameter_property tpdo0size DISPLAY_NAME "1st TPDO Buffer Size"
 
-add_parameter asyncTxBufSize INTEGER 1514
-set_parameter_property asyncTxBufSize ALLOWED_RANGES 1:1518
-set_parameter_property asyncTxBufSize UNITS bytes
-set_parameter_property asyncTxBufSize DISPLAY_NAME "Asynchronous TX Buffer Size"
+add_parameter asyncBuf1Size INTEGER 1514
+set_parameter_property asyncBuf1Size ALLOWED_RANGES 1:1518
+set_parameter_property asyncBuf1Size UNITS bytes
+set_parameter_property asyncBuf1Size DISPLAY_NAME "Asynchronous Buffer Nr. 1 Size"
 
-add_parameter asyncRxBufSize INTEGER 1514
-set_parameter_property asyncRxBufSize ALLOWED_RANGES 1:1518
-set_parameter_property asyncRxBufSize UNITS bytes
-set_parameter_property asyncRxBufSize DISPLAY_NAME "Asynchronous RX Buffer Size"
+add_parameter asyncBuf2Size INTEGER 1514
+set_parameter_property asyncBuf2Size ALLOWED_RANGES 1:1518
+set_parameter_property asyncBuf2Size UNITS bytes
+set_parameter_property asyncBuf2Size DISPLAY_NAME "Asynchronous Buffer Nr. 2 Size"
 
 add_parameter phyIF STRING "RMII"
 set_parameter_property phyIF VISIBLE true
@@ -284,15 +293,15 @@ set_parameter_property iRpdo2BufSize_g HDL_PARAMETER true
 set_parameter_property iRpdo2BufSize_g VISIBLE false
 set_parameter_property iRpdo2BufSize_g DERIVED TRUE
 
-add_parameter iAsyTxBufSize_g INTEGER 1514
-set_parameter_property iAsyTxBufSize_g HDL_PARAMETER true
-set_parameter_property iAsyTxBufSize_g VISIBLE false
-set_parameter_property iAsyTxBufSize_g DERIVED TRUE
+add_parameter iAsyBuf1Size_g INTEGER 1514
+set_parameter_property iAsyBuf1Size_g HDL_PARAMETER true
+set_parameter_property iAsyBuf1Size_g VISIBLE false
+set_parameter_property iAsyBuf1Size_g DERIVED TRUE
 
-add_parameter iAsyRxBufSize_g INTEGER 1514
-set_parameter_property iAsyRxBufSize_g HDL_PARAMETER true
-set_parameter_property iAsyRxBufSize_g VISIBLE false
-set_parameter_property iAsyRxBufSize_g DERIVED TRUE
+add_parameter iAsyBuf2Size_g INTEGER 1514
+set_parameter_property iAsyBuf2Size_g HDL_PARAMETER true
+set_parameter_property iAsyBuf2Size_g VISIBLE false
+set_parameter_property iAsyBuf2Size_g DERIVED TRUE
 
 #parameters for OPENMAC HDL
 add_parameter Simulate BOOLEAN false
@@ -376,8 +385,8 @@ proc my_validation_callback {} {
 	set rpdo1size					[get_parameter_value rpdo1size]
 	set rpdo2size					[get_parameter_value rpdo2size]
 	set tpdo0size					[get_parameter_value tpdo0size]
-	set asyncTxBufSize				[get_parameter_value asyncTxBufSize]
-	set asyncRxBufSize				[get_parameter_value asyncRxBufSize]
+	set asyncBuf1Size				[get_parameter_value asyncBuf1Size]
+	set asyncBuf2Size				[get_parameter_value asyncBuf2Size]
 	set macTxBuf					[get_parameter_value macTxBuf]
 	set macRxBuf					[get_parameter_value macRxBuf]
 	
@@ -414,8 +423,8 @@ proc my_validation_callback {} {
 	set rpdo1size 					[expr $rpdo1size + 16]
 	set rpdo2size 					[expr $rpdo2size + 16]
 	set tpdo0size 					[expr $tpdo0size + 0]
-	set asyncTxBufSize				[expr $asyncTxBufSize + 4]
-	set asyncRxBufSize				[expr $asyncRxBufSize + 4]
+	set asyncBuf1Size				[expr $asyncBuf1Size + 4]
+	set asyncBuf2Size				[expr $asyncBuf2Size + 4]
 	
 	set genPdi false
 	set genAvalonAp false
@@ -427,7 +436,7 @@ proc my_validation_callback {} {
 	# tx buffer header (header + packet length)
 	set macTxHd			[expr  0 + $macPktLength]
 	# rx buffer header (header + packet length)
-	set macRxHd 		[expr 12 + $macPktLength]
+	set macRxHd 		[expr 26 + $macPktLength]
 	# max rx buffers
 	set macRxBuffers 	16
 	# max tx buffers
@@ -455,8 +464,8 @@ proc my_validation_callback {} {
 	set_parameter_property configApSpi_CPOL VISIBLE false
 	set_parameter_property configApSpi_CPHA VISIBLE false
 	set_parameter_property configApSpi_IRQ VISIBLE false
-	set_parameter_property asyncTxBufSize VISIBLE false
-	set_parameter_property asyncRxBufSize VISIBLE false
+	set_parameter_property asyncBuf1Size VISIBLE false
+	set_parameter_property asyncBuf2Size VISIBLE false
 	set_parameter_property rpdo0size VISIBLE false
 	set_parameter_property rpdo1size VISIBLE false
 	set_parameter_property rpdo2size VISIBLE false
@@ -513,8 +522,8 @@ proc my_validation_callback {} {
 	} elseif {$configPowerlink == "CN with Processor Interface"} {
 		#CN is connected to AP processor, so enable everything for this
 		set_parameter_property configApInterface VISIBLE true
-		set_parameter_property asyncTxBufSize VISIBLE true
-		set_parameter_property asyncRxBufSize VISIBLE true
+		set_parameter_property asyncBuf1Size VISIBLE true
+		set_parameter_property asyncBuf2Size VISIBLE true
 		#AP can be big or little endian - allow choice
 		set_parameter_property configApEndian VISIBLE true
 		
@@ -622,8 +631,8 @@ proc my_validation_callback {} {
 		set rpdo1size 0
 		set rpdo2size 0
 		set tpdo0size 0
-		set asyncTxBufSize 0
-		set asyncRxBufSize 0
+		set asyncBuf1Size 0
+		set asyncBuf2Size 0
 	}
 	
 	if {$ploc == "TX and RX into DPRAM"} {
@@ -656,8 +665,8 @@ proc my_validation_callback {} {
 	set_parameter_value iRpdo0BufSize_g		$rpdo0size
 	set_parameter_value iRpdo1BufSize_g		$rpdo1size
 	set_parameter_value iRpdo2BufSize_g		$rpdo2size
-	set_parameter_value iAsyTxBufSize_g		$asyncTxBufSize
-	set_parameter_value iAsyRxBufSize_g		$asyncRxBufSize
+	set_parameter_value iAsyBuf1Size_g		$asyncBuf1Size
+	set_parameter_value iAsyBuf2Size_g		$asyncBuf2Size
 	
 #now, let's set generics to HDL
 	set_parameter_value genPdi_g			$genPdi
@@ -749,6 +758,7 @@ proc my_validation_callback {} {
 	set_module_assignment embeddedsw.CMacro.MACTXBUFFERS			$macTxBuffers
 	set_module_assignment embeddedsw.CMacro.PDIRPDOS				$rpdos
 	set_module_assignment embeddedsw.CMacro.PDITPDOS				$tpdos
+	set_module_assignment embeddedsw.CMacro.FPGAREV					[get_parameter_value iFpgaRev_g]
 }
 
 #display
@@ -770,8 +780,8 @@ add_display_item "Transmit Process Data" tpdo0size PARAMETER
 add_display_item "Receive Process Data" rpdo0size PARAMETER
 add_display_item "Receive Process Data" rpdo1size PARAMETER
 add_display_item "Receive Process Data" rpdo2size PARAMETER
-add_display_item "Asynchronous Buffer" asyncTxBufSize  PARAMETER
-add_display_item "Asynchronous Buffer" asyncRxBufSize  PARAMETER
+add_display_item "Asynchronous Buffer" asyncBuf1Size  PARAMETER
+add_display_item "Asynchronous Buffer" asyncBuf2Size  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
 add_display_item "openMAC" macTxBuf  PARAMETER
 add_display_item "openMAC" macRxBuf  PARAMETER
@@ -1033,6 +1043,8 @@ add_interface AP_EX_IRQ conduit end
 set_interface_property AP_EX_IRQ ENABLED false
 add_interface_port AP_EX_IRQ ap_irq export Output 1
 add_interface_port AP_EX_IRQ ap_irq_n export Output 1
+add_interface_port AP_EX_IRQ ap_asyncIrq export Output 1
+add_interface_port AP_EX_IRQ ap_asyncIrq_n export Output 1
 
 ##SPI AP export
 add_interface SPI_AP conduit end
@@ -1098,6 +1110,17 @@ add_interface_port SMP_PIO pio_portOutValid export Output 4
 add_interface_port SMP_PIO pio_portio export Bidir 32
 add_interface_port SMP_PIO pio_operational export Output 1
 
+#LED gadget
+add_interface LED_GADGET conduit end
+set_interface_property LED_GADGET ENABLED false
+add_interface_port LED_GADGET led_error export Output 1
+add_interface_port LED_GADGET led_state export Output 1
+add_interface_port LED_GADGET led_phyLink export Output 2
+add_interface_port LED_GADGET led_phyAct export Output 2
+add_interface_port LED_GADGET led_opt export Output 2
+add_interface_port LED_GADGET phy0_link export Input 1
+add_interface_port LED_GADGET phy1_link export Input 1
+
 proc my_elaboration_callback {} {
 #get system info...
 set EthernetClkRate [get_parameter_value clkRateEth]
@@ -1136,6 +1159,7 @@ if {$ClkRate50meg == 50000000} {
 	set_interface_property SMP ENABLED false
 	set_interface_property SMP_PIO ENABLED false
 	set_interface_property AP_EX_IRQ ENABLED false
+	set_interface_property LED_GADGET ENABLED false
 	
 	set_interface_property MAC_DMA ENABLED false
 	set_interface_property MAC_BUF ENABLED false
@@ -1204,10 +1228,15 @@ if {$ClkRate50meg == 50000000} {
 			set_interface_property PDI_AP_IRQ ENABLED true
 			set_interface_property ap_clk ENABLED true
 			
+			set_interface_property LED_GADGET ENABLED true
+			
 		} elseif {[get_parameter_value configApInterface] == "Parallel"} {
 		# AP is external (PAR_AP)
 			set_interface_property PAR_AP ENABLED true
 			set_interface_property AP_EX_IRQ ENABLED true
+			
+			set_interface_property LED_GADGET ENABLED true
+			
 			if {[get_parameter_value papDataWidth_g] == 8} {
 				#we don't need byteenable for 8bit data bus width!
 				set_port_property pap_be termination true
@@ -1216,10 +1245,12 @@ if {$ClkRate50meg == 50000000} {
 				#low active output signals (ap_irq_n and pap_ready_n) are used
 				set_port_property pap_ready termination true
 				set_port_property ap_irq termination true
+				set_port_property ap_asyncIrq termination true
 			} else {
 				#high active output signals (ap_irq and pap_ready) are used
 				set_port_property pap_ready_n termination true
 				set_port_property ap_irq_n termination true
+				set_port_property ap_asyncIrq_n termination true
 			}
 			if {[get_parameter_value configApParSigs] == "Low Active"} {
 				#low active input signals (pap_cs_n, pap_rd_n, pap_wr_n and pap_be_n) are used
@@ -1238,6 +1269,9 @@ if {$ClkRate50meg == 50000000} {
 		# AP is external via SPI (SPI_AP)
 			set_interface_property SPI_AP ENABLED true
 			set_interface_property AP_EX_IRQ ENABLED true
+			
+			set_interface_property LED_GADGET ENABLED true
+			
 			if {[get_parameter_value configApSpi_IRQ] == "Low Active"} {
 				#low active output signal (irq_n) is used
 				set_port_property ap_irq termination true

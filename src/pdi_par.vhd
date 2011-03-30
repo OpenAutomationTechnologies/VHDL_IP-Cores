@@ -41,6 +41,7 @@
 -- 2010-11-15	V0.03	zelenkaj	bug fix for 16bit parallel interface
 -- 2010-11-23	V0.04	zelenkaj	added 2 GPIO pins driving "00"
 -- 2010-11-29	V0.05	zelenkaj	full endianness consideration
+-- 2011-03-21	V0.06	zeelnkaj	clean up
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -62,9 +63,6 @@ entity pdi_par is
 			pap_wr 						: in    std_logic;
 			pap_be						: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
 			pap_addr 					: in    std_logic_vector(15 downto 0);
---			pap_wrdata					: in    std_logic_vector(papDataWidth_g-1 downto 0);
---			pap_rddata					: out   std_logic_vector(papDataWidth_g-1 downto 0);
---			pap_doe						: out	std_logic;
 			pap_data					: inout	std_logic_vector(papDataWidth_g-1 downto 0);
 			pap_ready					: out	std_logic;
 		-- clock for AP side
@@ -100,7 +98,6 @@ begin
 	
 	pap_ready <= '1' when fsm = wr_ack or fsm = rd_ack else '0';
 	pap_doe_s <= '1' when fsm = rd or fsm = rd_ack else '0';
---	pap_doe <= pap_doe_s;
 	
 	ap_chipselect <= '1' when fsm = wr or fsm = rd or fsm = rd_ack else '0';
 	ap_write <= '1' when fsm = wr else '0';
@@ -136,8 +133,7 @@ begin
 	
 	genBeSigs16bit : if papDataWidth_g = 16 generate
 		--tri-state buffer
-		pap_data <= pap_rddata 	when pap_doe_s = '1' else
-					(others => 'Z');
+		pap_data <= pap_rddata 	when pap_doe_s = '1' else (others => 'Z');
 		pap_wrdata <= 	pap_data when papBigEnd_g = false else
 						pap_data(7 downto 0) & pap_data(15 downto 8) when papBigEnd_g = true else
 						(others => '0');

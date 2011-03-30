@@ -48,6 +48,11 @@
 -- 2011-01-10	V0.07	zelenkaj	Added 2-stage sync to SPI input pins
 -- 2011-02-24	V0.08	zelenkaj	minor changes (naming conventions Mii->SMI)
 -- 2011-03-14	V0.09	zelenkaj	minor change, added generic for rx packet buffer location
+-- 2011-03-21	V0.10	zelenkaj	clean up
+-- 2011-03-28	V0.20	zelenkaj	Changed: Structure of Control/Status Register
+--									Added: LED
+--									Added: Events
+--									Added/Changed: Asynchronous buffer 2x Ping-Pong
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -77,12 +82,10 @@ entity powerlink is
 		iRpdo0BufSize_g				:		integer 							:= 100;
 		iRpdo1BufSize_g				:		integer 							:= 100;
 		iRpdo2BufSize_g				:		integer 							:= 100;
---		--PDO-objects
---		iTpdoObjNumber_g			:		integer 							:= 10;
---		iRpdoObjNumber_g			:		integer 							:= 10; --includes all PDOs!!!
-		--asynchronous TX and RX buffer size
-		iAsyTxBufSize_g				:		integer 							:= 1500;
-		iAsyRxBufSize_g				:		integer 							:= 1500;
+		--asynchronous buffer size
+		iAsyBuf1Size_g				:		integer 							:= 100;
+		iAsyBuf2Size_g				:		integer 							:= 100;
+		iFpgaRev_g					:		integer								:= 16#55AA#;
 	-- 8/16bit PARALLEL PDI GENERICS
 		papDataWidth_g				:		integer 							:= 8;
 		papLowAct_g					:		boolean								:= false;
@@ -110,8 +113,8 @@ entity powerlink is
 		mac_byteenable_n            : in    std_logic_vector(1 downto 0);
 		mac_address                 : in    std_logic_vector(11 downto 0);
 		mac_writedata               : in    std_logic_vector(15 downto 0);
-		mac_readdata                : out   std_logic_vector(15 downto 0);
-		mac_irq						: out 	std_logic;
+		mac_readdata                : out   std_logic_vector(15 downto 0) := (others => '0');
+		mac_irq						: out 	std_logic := '0';
 	--- TIMER COMPARE PORTS
 		tcp_chipselect              : in    std_logic;
 		tcp_read_n					: in    std_logic;
@@ -119,8 +122,8 @@ entity powerlink is
 		tcp_byteenable_n            : in    std_logic_vector(3 downto 0);
 		tcp_address                 : in    std_logic_vector(1 downto 0);
 		tcp_writedata               : in    std_logic_vector(31 downto 0);
-		tcp_readdata                : out   std_logic_vector(31 downto 0);
-		tcp_irq						: out 	std_logic;
+		tcp_readdata                : out   std_logic_vector(31 downto 0) := (others => '0');
+		tcp_irq						: out 	std_logic := '0';
 	--- MAC BUFFER PORTS
 		mbf_chipselect             	: in    std_logic;
 		mbf_read_n					: in    std_logic;
@@ -128,16 +131,16 @@ entity powerlink is
 		mbf_byteenable             	: in    std_logic_vector(3 downto 0);
 		mbf_address                	: in    std_logic_vector(ibufsizelog2_g-3 downto 0);
 		mbf_writedata              	: in    std_logic_vector(31 downto 0);
-		mbf_readdata               	: out   std_logic_vector(31 downto 0);
+		mbf_readdata               	: out   std_logic_vector(31 downto 0) := (others => '0');
 	--- OPENMAC DMA PORTS
-        m_read_n					: OUT   STD_LOGIC;
-        m_write_n					: OUT   STD_LOGIC;
-        m_byteenable_n              : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0);
-        m_address                   : OUT   STD_LOGIC_VECTOR(29 DOWNTO 0);
-        m_writedata                 : OUT   STD_LOGIC_VECTOR(15 DOWNTO 0);
-        m_readdata                  : IN    STD_LOGIC_VECTOR(15 DOWNTO 0);
+        m_read_n					: OUT   STD_LOGIC := '1';
+        m_write_n					: OUT   STD_LOGIC := '1';
+        m_byteenable_n              : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0) := (others => '1');
+        m_address                   : OUT   STD_LOGIC_VECTOR(29 DOWNTO 0) := (others => '0');
+        m_writedata                 : OUT   STD_LOGIC_VECTOR(15 DOWNTO 0) := (others => '0');
+        m_readdata                  : IN    STD_LOGIC_VECTOR(15 DOWNTO 0) := (others => '0');
         m_waitrequest               : IN    STD_LOGIC;
-        m_arbiterlock				: OUT   STD_LOGIC;
+        m_arbiterlock				: OUT   STD_LOGIC := '0';
 	-- PDI
 	--- PCP PORTS
 	    pcp_chipselect              : in    std_logic;
@@ -146,10 +149,12 @@ entity powerlink is
 	    pcp_byteenable	            : in    std_logic_vector(3 downto 0);
 	    pcp_address                 : in    std_logic_vector(12 downto 0);
 	    pcp_writedata               : in    std_logic_vector(31 downto 0);
-	    pcp_readdata                : out   std_logic_vector(31 downto 0);
+	    pcp_readdata                : out   std_logic_vector(31 downto 0) := (others => '0');
 	--- AP PORTS
-		ap_irq						: out	std_logic;
-		ap_irq_n					: out	std_logic;
+		ap_irq						: out	std_logic := '0';
+		ap_irq_n					: out	std_logic := '1';
+		ap_asyncIrq					: out	std_logic := '0';
+		ap_asyncIrq_n				: out	std_logic := '1';
 	---- AVALON
 		ap_chipselect               : in    std_logic;
 		ap_read						: in    std_logic;
@@ -157,7 +162,7 @@ entity powerlink is
 		ap_byteenable             	: in    std_logic_vector(3 downto 0);
 		ap_address                  : in    std_logic_vector(12 downto 0);
 		ap_writedata                : in    std_logic_vector(31 downto 0);
-		ap_readdata                 : out   std_logic_vector(31 downto 0);
+		ap_readdata                 : out   std_logic_vector(31 downto 0) := (others => '0');
 	---- 8/16bit parallel
 		pap_cs						: in    std_logic;
 		pap_rd						: in    std_logic;
@@ -168,61 +173,66 @@ entity powerlink is
 		pap_wr_n					: in    std_logic;
 		pap_be_n					: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
 		pap_addr 					: in    std_logic_vector(15 downto 0);
-		pap_data					: inout std_logic_vector(papDataWidth_g-1 downto 0);
---		pap_wrdata					: in    std_logic_vector(papDataWidth_g-1 downto 0);
---		pap_rddata					: out   std_logic_vector(papDataWidth_g-1 downto 0);
---		pap_doe						: out	std_logic;
-		pap_ready					: out	std_logic;
-		pap_ready_n					: out	std_logic;
-		pap_gpio					: inout	std_logic_vector(1 downto 0);
+		pap_data					: inout std_logic_vector(papDataWidth_g-1 downto 0) := (others => '0');
+		pap_ready					: out	std_logic := '0';
+		pap_ready_n					: out	std_logic := '1';
+		pap_gpio					: inout	std_logic_vector(1 downto 0) := (others => '0');
 	---- SPI
 		spi_clk						: in	std_logic;
 		spi_sel_n					: in	std_logic;
 		spi_mosi					: in 	std_logic;
-		spi_miso					: out	std_logic;
+		spi_miso					: out	std_logic := '0';
 	---- simple I/O
 		smp_address    				: in    std_logic;
 		smp_read       				: in    std_logic;
-		smp_readdata   				: out   std_logic_vector(31 downto 0);
+		smp_readdata   				: out   std_logic_vector(31 downto 0) := (others => '0');
 		smp_write      				: in    std_logic;
 		smp_writedata  				: in    std_logic_vector(31 downto 0);
 		smp_byteenable 				: in    std_logic_vector(3 downto 0);
 		pio_pconfig    				: in    std_logic_vector(3 downto 0);
 		pio_portInLatch				: in 	std_logic_vector(3 downto 0);
-		pio_portOutValid 			: out 	std_logic_vector(3 downto 0);
-		pio_portio     				: inout std_logic_vector(31 downto 0);
-		pio_operational				: out	std_logic;
+		pio_portOutValid 			: out 	std_logic_vector(3 downto 0) := (others => '0');
+		pio_portio     				: inout std_logic_vector(31 downto 0) := (others => '0');
+		pio_operational				: out	std_logic := '0';
 	-- EXTERNAL
 	--- RMII PORTS
 		phy0_RxDat                 	: in    std_logic_vector(1 downto 0);
 		phy0_RxDv                  	: in    std_logic;
-		phy0_TxDat                 	: out   std_logic_vector(1 downto 0);
-		phy0_TxEn                  	: out   std_logic;
-		phy0_SMIClk					: out	std_logic;
+		phy0_TxDat                 	: out   std_logic_vector(1 downto 0) := (others => '0');
+		phy0_TxEn                  	: out   std_logic := '0';
+		phy0_SMIClk					: out	std_logic := '0';
 		phy0_SMIDat					: inout	std_logic 							:= '1';
-		phy0_Rst_n					: out	std_logic 							:= '0';
-		phy1_RxDat                 	: in    std_logic_vector(1 downto 0);
+		phy0_Rst_n					: out	std_logic 							:= '1';
+		phy0_link					: in	std_logic							:= '0';
+		phy1_RxDat                 	: in    std_logic_vector(1 downto 0) := (others => '0');
 		phy1_RxDv                  	: in    std_logic;
-		phy1_TxDat                 	: out   std_logic_vector(1 downto 0);
-		phy1_TxEn                  	: out   std_logic;
-		phy1_SMIClk					: out	std_logic;
+		phy1_TxDat                 	: out   std_logic_vector(1 downto 0) := (others => '0');
+		phy1_TxEn                  	: out   std_logic := '0';
+		phy1_SMIClk					: out	std_logic := '0';
 		phy1_SMIDat					: inout	std_logic 							:= '1';
-		phy1_Rst_n					: out	std_logic 							:= '0';
+		phy1_Rst_n					: out	std_logic 							:= '1';
+		phy1_link					: in	std_logic							:= '0';
 	--- MII PORTS
 		phyMii0_RxClk				: in	std_logic;
-		phyMii0_RxDat               : in    std_logic_vector(3 downto 0);
+		phyMii0_RxDat               : in    std_logic_vector(3 downto 0) := (others => '0');
 		phyMii0_RxDv                : in    std_logic;
 		phyMii0_TxClk				: in	std_logic;
-		phyMii0_TxDat               : out   std_logic_vector(3 downto 0);
-		phyMii0_TxEn                : out   std_logic;
-		phyMii0_TxEr                : out   std_logic;
+		phyMii0_TxDat               : out   std_logic_vector(3 downto 0) := (others => '0');
+		phyMii0_TxEn                : out   std_logic := '0';
+		phyMii0_TxEr                : out   std_logic := '0';
 		phyMii1_RxClk				: in	std_logic;
-		phyMii1_RxDat               : in    std_logic_vector(3 downto 0);
+		phyMii1_RxDat               : in    std_logic_vector(3 downto 0) := (others => '0');
 		phyMii1_RxDv                : in    std_logic;
 		phyMii1_TxClk				: in	std_logic;
-		phyMii1_TxDat               : out   std_logic_vector(3 downto 0);
-		phyMii1_TxEn                : out   std_logic;
-		phyMii1_TxEr                : out   std_logic
+		phyMii1_TxDat               : out   std_logic_vector(3 downto 0) := (others => '0');
+		phyMii1_TxEn                : out   std_logic := '0';
+		phyMii1_TxEr                : out   std_logic := '0';
+	--- LEDs
+		led_error					: out	std_logic := '0';
+		led_state					: out	std_logic := '0';
+		led_phyLink					: out	std_logic_vector(1 downto 0) := (others => '0');
+		led_phyAct					: out	std_logic_vector(1 downto 0) := (others => '0');
+		led_opt						: out	std_logic_vector(1 downto 0) := (others => '0')
 	);
 end powerlink;
 
@@ -253,6 +263,7 @@ architecture rtl of powerlink is
 	signal pap_wr_ss				:		std_logic;
 	signal pap_ready_s				:		std_logic;
 	signal ap_irq_s					:		std_logic;
+	signal ap_asyncIrq_s			:		std_logic;
 	
 	signal spi_sel_s				:		std_logic;
 	signal spi_sel_s1				:		std_logic;
@@ -263,18 +274,35 @@ architecture rtl of powerlink is
 	signal spi_mosi_s				:		std_logic;
 	signal spi_mosi_s1				:		std_logic;
 	signal spi_mosi_s2				:		std_logic;
+	
+	signal phyLink, phyAct			:		std_logic_vector(1 downto 0);
+	
+	signal led_s					:		std_logic_vector(7 downto 0);
 begin
 	--general signals
 	rstPcp_n <= not rstPcp;
 	rstAp_n <= not rstAp;
-	--timer irq signal
-	--tcp_irq <= IrqToggle;
+	
+	phyLink <= phy1_link & phy0_link;
+	
+	--LEDs: O1, O0, PA1, PL1, PA0, PL0, E, S
+	led_error <= led_s(1);
+	led_state <= led_s(0);
+	led_phyLink <= led_s(4) & led_s(2);
+	led_phyAct <= led_s(5) & led_s(3);
+	led_opt <= led_s(7) & led_s(6);
 	
 ------------------------------------------------------------------------------------------------------------------------
 --PCP + AP
 	genPdi : if genPdi_g and genAvalonAp_g and not genSpiAp_g generate
+		
+		--sync and async interrupt are driven by only one line
+		-- this gives some effort for Nios II AP ;)
+		ap_irq <= ap_irq_s or ap_asyncIrq_s;
+		
 		theAvalonPdi : entity work.pdi
 			generic map (
+				iFpgaRev_g					=> iFpgaRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
 				--PDO buffer size *3
@@ -282,12 +310,9 @@ begin
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
 				iRpdo1BufSize_g				=> iRpdo1BufSize_g,
 				iRpdo2BufSize_g				=> iRpdo2BufSize_g,
---				--PDO-objects
---				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
---				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
-				--asynchronous TX and RX buffer size
-				iAsyTxBufSize_g				=> iAsyTxBufSize_g,
-				iAsyRxBufSize_g				=> iAsyRxBufSize_g
+				--asynchronous buffer size
+				iABuf1_g					=> iAsyBuf1Size_g,
+				iABuf2_g					=> iAsyBuf2Size_g
 			)
 			port map (
 				pcp_reset					=> rstPcp,
@@ -311,7 +336,13 @@ begin
 				ap_address                  => ap_address,
 				ap_writedata                => ap_writedata,
 				ap_readdata                 => ap_readdata,
-				ap_irq						=> ap_irq
+				ap_irq						=> ap_irq_s,
+				-- async interrupt
+				ap_asyncIrq					=> ap_asyncIrq_s,
+				-- LED
+				ledsOut						=> led_s,
+				phyLink						=> phyLink,
+				phyAct						=> phyAct
 			);
 	end generate genPdi;
 
@@ -334,21 +365,7 @@ begin
 				rst						=> rstPcp
 			);
 		
---		theParPortSyncRd : entity work.sync
---			port map (
---				inData					=> pap_rd_s, --sync the parallel port rd signal
---				outData					=> pap_rd_ss, --the sync cs is used rd trigger fsm
---				clk						=> clk50,
---				rst						=> rstPcp
---			);
 		pap_rd_ss <= pap_rd_s;
---		theParPortSyncWr : entity work.sync
---			port map (
---				inData					=> pap_wr_s, --sync the parallel port wr signal
---				outData					=> pap_wr_ss, --the sync cs is used wr trigger fsm
---				clk						=> clk50,
---				rst						=> rstPcp
---			);
 		pap_wr_ss <= pap_wr_s;
 		--
 		-------------------------------------------------------------------------------------
@@ -372,6 +389,9 @@ begin
 		ap_irq <= ap_irq_s;
 		ap_irq_n <= not ap_irq_s;
 		
+		ap_asyncIrq <= ap_asyncIrq_s;
+		ap_asyncIrq_n <= not ap_asyncIrq_s;
+		
 		pap_ready <= pap_ready_s;
 		pap_ready_n <= not pap_ready_s;
 		--
@@ -390,9 +410,6 @@ begin
 				pap_be						=> pap_be_s,
 				pap_addr					=> pap_addr,
 				pap_data					=> pap_data,
---				pap_wrdata					=> pap_wrdata,
---				pap_rddata					=> pap_rddata,
---				pap_doe						=> pap_doe,
 				pap_ready					=> pap_ready_s,
 				pap_gpio					=> pap_gpio,
 			-- clock for AP side
@@ -410,6 +427,7 @@ begin
 		
 		thePdi : entity work.pdi
 			generic map (
+				iFpgaRev_g					=> iFpgaRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
 				--PDO buffer size *3
@@ -417,12 +435,9 @@ begin
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
 				iRpdo1BufSize_g				=> iRpdo1BufSize_g,
 				iRpdo2BufSize_g				=> iRpdo2BufSize_g,
---				--PDO-objects
---				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
---				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
-				--asynchronous TX and RX buffer size
-				iAsyTxBufSize_g				=> iAsyTxBufSize_g,
-				iAsyRxBufSize_g				=> iAsyRxBufSize_g
+				--asynchronous buffer size
+				iABuf1_g					=> iAsyBuf1Size_g,
+				iABuf2_g					=> iAsyBuf2Size_g
 			)
 			port map (
 				pcp_reset					=> rstPcp,
@@ -446,7 +461,13 @@ begin
 				ap_address                  => ap_address_s,
 				ap_writedata                => ap_writedata_s,
 				ap_readdata                 => ap_readdata_s,
-				ap_irq						=> ap_irq_s
+				ap_irq						=> ap_irq_s,
+				-- async interrupt
+				ap_asyncIrq					=> ap_asyncIrq_s,
+				-- LED
+				ledsOut						=> led_s,
+				phyLink						=> phyLink,
+				phyAct						=> phyAct
 			);
 	end generate genPdiPar;
 
@@ -510,6 +531,7 @@ begin
 		
 		thePdi : entity work.pdi
 			generic map (
+				iFpgaRev_g					=> iFpgaRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
 				--PDO buffer size *3
@@ -517,12 +539,9 @@ begin
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
 				iRpdo1BufSize_g				=> iRpdo1BufSize_g,
 				iRpdo2BufSize_g				=> iRpdo2BufSize_g,
---				--PDO-objects
---				iTpdoObjNumber_g			=> iTpdoObjNumber_g,
---				iRpdoObjNumber_g			=> iRpdoObjNumber_g,
-				--asynchronous TX and RX buffer size
-				iAsyTxBufSize_g				=> iAsyTxBufSize_g,
-				iAsyRxBufSize_g				=> iAsyRxBufSize_g
+				--asynchronous buffer size
+				iABuf1_g					=> iAsyBuf1Size_g,
+				iABuf2_g					=> iAsyBuf2Size_g
 			)
 			port map (
 				pcp_reset					=> rstPcp,
@@ -546,7 +565,13 @@ begin
 				ap_address                  => ap_address_s,
 				ap_writedata                => ap_writedata_s,
 				ap_readdata                 => ap_readdata_s,
-				ap_irq						=> ap_irq_s
+				ap_irq						=> ap_irq_s,
+				-- async interrupt
+				ap_asyncIrq					=> ap_asyncIrq_s,
+				-- LED
+				ledsOut						=> led_s,
+				phyLink						=> phyLink,
+				phyAct						=> phyAct
 			);
 	end generate genPdiSpi;
 --
@@ -653,8 +678,12 @@ begin
 			smi_Di					=> smi_Di,
 			smi_Do					=> smi_Do,
 			smi_Doe					=> smi_Doe,
-			phy_nResetOut			=> phy_nResetOut
+			phy_nResetOut			=> phy_nResetOut,
+			led_activity			=> phyAct(0)
 		);
+	
+	phyAct(1) <= phyAct(0);
+	
 	--Phy SMI signals
 	phy0_SMIClk <= smi_Clk;
 	phy0_SMIDat <= smi_Do when smi_Doe = '1' else 'Z';
