@@ -63,6 +63,8 @@
 #-- 2011-03-28	V0.20	zelenkaj	Added: LED
 #--									Added: Events
 #--									Added/Changed: Asynchronous buffer 2x Ping-Pong
+#-- 2011-04-04	V0.21	zelenkaj	minor: led_status is the official name
+#--									minor: parallel interface uses ack instead of ready
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -147,7 +149,7 @@ set_parameter_property configApParSigs ALLOWED_RANGES {"High Active" "Low Active
 
 add_parameter configApParOutSigs STRING "High Active"
 set_parameter_property configApParOutSigs VISIBLE false
-set_parameter_property configApParOutSigs DISPLAY_NAME "Active State of Output Signals (Irq and Ready)"
+set_parameter_property configApParOutSigs DISPLAY_NAME "Active State of Output Signals (Irq and Ack)"
 set_parameter_property configApParOutSigs ALLOWED_RANGES {"High Active" "Low Active"}
 
 add_parameter configApEndian STRING "Little"
@@ -1069,9 +1071,9 @@ add_interface_port PAR_AP pap_be_n export Input papDataWidth_g/8
 ###bus
 add_interface_port PAR_AP pap_addr export Input 16
 add_interface_port PAR_AP pap_data export Bidir papDataWidth_g
-###ready
-add_interface_port PAR_AP pap_ready export Output 1
-add_interface_port PAR_AP pap_ready_n export Output 1
+###ack
+add_interface_port PAR_AP pap_ack export Output 1
+add_interface_port PAR_AP pap_ack_n export Output 1
 ###GPIO
 add_interface_port PAR_AP pap_gpio export Bidir 2
 
@@ -1114,7 +1116,7 @@ add_interface_port SMP_PIO pio_operational export Output 1
 add_interface LED_GADGET conduit end
 set_interface_property LED_GADGET ENABLED false
 add_interface_port LED_GADGET led_error export Output 1
-add_interface_port LED_GADGET led_state export Output 1
+add_interface_port LED_GADGET led_status export Output 1
 add_interface_port LED_GADGET led_phyLink export Output 2
 add_interface_port LED_GADGET led_phyAct export Output 2
 add_interface_port LED_GADGET led_opt export Output 2
@@ -1242,13 +1244,13 @@ if {$ClkRate50meg == 50000000} {
 				set_port_property pap_be termination true
 			}
 			if {[get_parameter_value configApParOutSigs] == "Low Active"} {
-				#low active output signals (ap_irq_n and pap_ready_n) are used
-				set_port_property pap_ready termination true
+				#low active output signals (ap_irq_n and pap_ack_n) are used
+				set_port_property pap_ack termination true
 				set_port_property ap_irq termination true
 				set_port_property ap_asyncIrq termination true
 			} else {
-				#high active output signals (ap_irq and pap_ready) are used
-				set_port_property pap_ready_n termination true
+				#high active output signals (ap_irq and pap_ack) are used
+				set_port_property pap_ack_n termination true
 				set_port_property ap_irq_n termination true
 				set_port_property ap_asyncIrq_n termination true
 			}

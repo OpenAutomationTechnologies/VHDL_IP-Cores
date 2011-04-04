@@ -53,6 +53,8 @@
 --									Added: LED
 --									Added: Events
 --									Added/Changed: Asynchronous buffer 2x Ping-Pong
+-- 2011-04-04	V0.21	zelenkaj	parallel interface, sync moved to pdi_par
+--									minor: led_status is the official name
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -174,8 +176,8 @@ entity powerlink is
 		pap_be_n					: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
 		pap_addr 					: in    std_logic_vector(15 downto 0);
 		pap_data					: inout std_logic_vector(papDataWidth_g-1 downto 0) := (others => '0');
-		pap_ready					: out	std_logic := '0';
-		pap_ready_n					: out	std_logic := '1';
+		pap_ack						: out	std_logic := '0';
+		pap_ack_n					: out	std_logic := '1';
 		pap_gpio					: inout	std_logic_vector(1 downto 0) := (others => '0');
 	---- SPI
 		spi_clk						: in	std_logic;
@@ -229,7 +231,7 @@ entity powerlink is
 		phyMii1_TxEr                : out   std_logic := '0';
 	--- LEDs
 		led_error					: out	std_logic := '0';
-		led_state					: out	std_logic := '0';
+		led_status					: out	std_logic := '0';
 		led_phyLink					: out	std_logic_vector(1 downto 0) := (others => '0');
 		led_phyAct					: out	std_logic_vector(1 downto 0) := (others => '0');
 		led_opt						: out	std_logic_vector(1 downto 0) := (others => '0')
@@ -258,10 +260,7 @@ architecture rtl of powerlink is
 	signal pap_rd_s					:		std_logic;
 	signal pap_wr_s					:		std_logic;
 	signal pap_be_s					:		std_logic_vector(pap_be'range);
-	signal pap_cs_ss				:		std_logic;
-	signal pap_rd_ss				:		std_logic;
-	signal pap_wr_ss				:		std_logic;
-	signal pap_ready_s				:		std_logic;
+	signal pap_ack_s				:		std_logic;
 	signal ap_irq_s					:		std_logic;
 	signal ap_asyncIrq_s			:		std_logic;
 	
@@ -287,7 +286,7 @@ begin
 	
 	--LEDs: O1, O0, PA1, PL1, PA0, PL0, E, S
 	led_error <= led_s(1);
-	led_state <= led_s(0);
+	led_status <= led_s(0);
 	led_phyLink <= led_s(4) & led_s(2);
 	led_phyAct <= led_s(5) & led_s(3);
 	led_opt <= led_s(7) & led_s(6);
@@ -355,22 +354,6 @@ begin
 			severity failure;
 		
 		-------------------------------------------------------------------------------------
-		--sync signals used by the fsm in pdi_par
-		-- use active low or high inputs!
-		theParPortSyncCs : entity work.sync
-			port map (
-				inData					=> pap_cs_s, --sync the parallel port cs signal
-				outData					=> pap_cs_ss, --the sync cs is used to trigger fsm
-				clk						=> clk50,
-				rst						=> rstPcp
-			);
-		
-		pap_rd_ss <= pap_rd_s;
-		pap_wr_ss <= pap_wr_s;
-		--
-		-------------------------------------------------------------------------------------
-		
-		-------------------------------------------------------------------------------------
 		--convert active low signals to active high - respectively assign active high signals
 		theActiveLowGen : if papLowAct_g generate
 			pap_wr_s <= not pap_wr_n;
@@ -392,8 +375,8 @@ begin
 		ap_asyncIrq <= ap_asyncIrq_s;
 		ap_asyncIrq_n <= not ap_asyncIrq_s;
 		
-		pap_ready <= pap_ready_s;
-		pap_ready_n <= not pap_ready_s;
+		pap_ack <= pap_ack_s;
+		pap_ack_n <= not pap_ack_s;
 		--
 		-------------------------------------------------------------------------------------
 		
@@ -404,13 +387,13 @@ begin
 			)
 			port map (
 			-- 8/16bit parallel
-				pap_cs						=> pap_cs_ss,
-				pap_rd						=> pap_rd_ss,
-				pap_wr						=> pap_wr_ss,
+				pap_cs						=> pap_cs_s,
+				pap_rd						=> pap_rd_s,
+				pap_wr						=> pap_wr_s,
 				pap_be						=> pap_be_s,
 				pap_addr					=> pap_addr,
 				pap_data					=> pap_data,
-				pap_ready					=> pap_ready_s,
+				pap_ack						=> pap_ack_s,
 				pap_gpio					=> pap_gpio,
 			-- clock for AP side
 				ap_reset					=> rstPcp,

@@ -41,7 +41,8 @@
 -- 2010-11-15	V0.03	zelenkaj	bug fix for 16bit parallel interface
 -- 2010-11-23	V0.04	zelenkaj	added 2 GPIO pins driving "00"
 -- 2010-11-29	V0.05	zelenkaj	full endianness consideration
--- 2011-03-21	V0.06	zeelnkaj	clean up
+-- 2011-03-21	V0.06	zelenkaj	clean up
+-- 2011-04-04	V0.10	zelenkaj	change of concept
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -64,7 +65,7 @@ entity pdi_par is
 			pap_be						: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
 			pap_addr 					: in    std_logic_vector(15 downto 0);
 			pap_data					: inout	std_logic_vector(papDataWidth_g-1 downto 0);
-			pap_ready					: out	std_logic;
+			pap_ack					: out	std_logic;
 		-- clock for AP side
 			ap_reset					: in    std_logic;
 			ap_clk						: in	std_logic;
@@ -82,81 +83,154 @@ entity pdi_par is
 end entity pdi_par;
 
 architecture rtl of pdi_par is
-	type fsm_t is (idle, wr, rd, wr_ack, rd_ack);
-	signal	fsm							:		fsm_t;
-	
 	signal ap_byteenable_s				:		std_logic_vector(ap_byteenable'range);
-	signal pap_doe_s					:		std_logic;
+	signal ap_write_s 					: 		std_logic;
 	signal pap_gpiooe_s					:		std_logic_vector(pap_gpio'range);
-	signal pap_wrdata, pap_rddata		:		std_logic_vector(papDataWidth_g-1 downto 0);
-	signal pap_rddata_s					:		std_logic_vector(pap_rddata'range);
+	--signals being sync'd to ap_clk
+	signal pap_wrdata_s					:		std_logic_vector(pap_data'range);
+	signal pap_wrdata_ss				:		std_logic_vector(pap_data'range);
+	signal pap_rddata_s					:		std_logic_vector(pap_data'range);
+	signal pap_rddata_ss				:		std_logic_vector(pap_data'range);
+	signal pap_addr_s					:		std_logic_vector(pap_addr'range);
+	signal pap_cs_s						:		std_logic;
+	signal pap_rd_s						:		std_logic; --and with cs
+	signal pap_wr_s						:		std_logic; --and with cs
+	signal pap_be_s						:		std_logic_vector(pap_be'range);
+	--write register
+	signal writeRegister				:		std_logic_vector(pap_data'range);
+	--data tri state buffer
+	signal pap_doe_s					:		std_logic;
+	signal tsb_cnt, tsb_cnt_next		:		std_logic_vector(1 downto 0);
 begin
 	
 	--reserved for further features not yet defined
 	pap_gpiooe_s <= (others => '1');
 	pap_gpio <= "00" when pap_gpiooe_s = "11" else (others => 'Z');
 	
-	pap_ready <= '1' when fsm = wr_ack or fsm = rd_ack else '0';
-	pap_doe_s <= '1' when fsm = rd or fsm = rd_ack else '0';
+	-------------------------------------------------------------------------------------
+	-- tri-state buffer
+	pap_data <= pap_rddata_s when pap_doe_s = '1' else (others => 'Z');
 	
-	ap_chipselect <= '1' when fsm = wr or fsm = rd or fsm = rd_ack else '0';
-	ap_write <= '1' when fsm = wr else '0';
-	ap_read <= '1' when fsm = rd or fsm = rd_ack else '0';
-	ap_address <= pap_addr(ap_address'left+2 downto 2);
+	-- write data register
+	-- latches data at falling edge of pap_wr if pap_cs is set
+	theWrDataReg : process(pap_wr, ap_reset)
+	begin
+		if ap_reset = '1' then
+			writeRegister <= (others => '0');
+		elsif pap_wr = '0' and pap_wr'event then
+			if pap_cs = '1' then
+				writeRegister <= pap_data;
+			end if;
+		end if;
+	end process;
+	--
+	-------------------------------------------------------------------------------------
 	
+	ap_address <= pap_addr_s(ap_address'left+2 downto 2);
+	
+	-------------------------------------------------------------------------------------
+	-- generate write and read strobes and chipselect
+	-- note: pap_cs_s is already and'd with pap_rd_s and pap_wr_s
+		
+	--falling edge latches write data, sync'd write strobe  falls too
+	wrEdgeDet : entity work.edgeDet
+		port map (
+			inData => pap_wr_s,
+			rising => open,
+			falling => ap_write_s,
+			any => open,
+			clk => ap_clk,
+			rst => ap_reset
+		);
+	ap_write <= ap_write_s;
+	
+	--use the timeout counter highest bit
+	ap_read <= pap_rd_s;
+	
+	ap_chipselect <= pap_cs_s;
+	--
+	-------------------------------------------------------------------------------------
+	
+	-------------------------------------------------------------------------------------
+	-- generate ack signal
+	pap_ack <= pap_doe_s or ap_write_s;
+	--
+	-------------------------------------------------------------------------------------
+	
+	-------------------------------------------------------------------------------------
+	-- generate output enable signal for tri state buffer (with timeout)
+	
+	pap_doe_s <= tsb_cnt(tsb_cnt'left) and pap_rd_s;
+	
+	triStatBufCnt : process(ap_clk, ap_reset)
+	begin
+		if ap_reset = '1' then
+			tsb_cnt <= (others => '0');
+		elsif ap_clk = '1' and ap_clk'event then
+			tsb_cnt <= tsb_cnt_next;
+		end if;
+	end process;
+	
+	tsb_cnt_next <= tsb_cnt when pap_doe_s = '1' else
+					tsb_cnt + 1 when pap_rd_s = '1' else
+					(others => '0');
+	--
+	-------------------------------------------------------------------------------------
+	
+	-------------------------------------------------------------------------------------
+	-- generate 8 or 16 bit signals
 	gen8bitSigs : if papDataWidth_g = 8 generate
-		--tri-state buffer
-		pap_data <= pap_rddata when pap_doe_s = '1' else (others => 'Z');
-		pap_wrdata <= pap_data;
 		
 		ap_byteenable_s <= 	--little endian
-							"0001" when pap_addr(1 downto 0) = "00" and papBigEnd_g = false else
-							"0010" when pap_addr(1 downto 0) = "01" and papBigEnd_g = false else
-							"0100" when pap_addr(1 downto 0) = "10" and papBigEnd_g = false else
-							"1000" when pap_addr(1 downto 0) = "11" and papBigEnd_g = false else
+							"0001" when pap_addr_s(1 downto 0) = "00" and papBigEnd_g = false else
+							"0010" when pap_addr_s(1 downto 0) = "01" and papBigEnd_g = false else
+							"0100" when pap_addr_s(1 downto 0) = "10" and papBigEnd_g = false else
+							"1000" when pap_addr_s(1 downto 0) = "11" and papBigEnd_g = false else
 							--big endian
-							"0001" when pap_addr(1 downto 0) = "11" and papBigEnd_g = true else
-							"0010" when pap_addr(1 downto 0) = "10" and papBigEnd_g = true else
-							"0100" when pap_addr(1 downto 0) = "01" and papBigEnd_g = true else
-							"1000" when pap_addr(1 downto 0) = "00" and papBigEnd_g = true else
+							"0001" when pap_addr_s(1 downto 0) = "11" and papBigEnd_g = true else
+							"0010" when pap_addr_s(1 downto 0) = "10" and papBigEnd_g = true else
+							"0100" when pap_addr_s(1 downto 0) = "01" and papBigEnd_g = true else
+							"1000" when pap_addr_s(1 downto 0) = "00" and papBigEnd_g = true else
 							(others => '0');
-		ap_byteenable <= ap_byteenable_s;
 		
-		pap_rddata <= 		(others => '0') when pap_doe_s = '0' else
-							ap_readdata( 7 downto  0) when ap_byteenable_s = "0001" else
+		ap_byteenable <= 	ap_byteenable_s;
+		
+		ap_writedata <=		pap_wrdata_s & pap_wrdata_s & pap_wrdata_s & pap_wrdata_s;
+		
+		pap_rddata_s <=		ap_readdata( 7 downto  0) when ap_byteenable_s = "0001" else
 							ap_readdata(15 downto  8) when ap_byteenable_s = "0010" else
 							ap_readdata(23 downto 16) when ap_byteenable_s = "0100" else
 							ap_readdata(31 downto 24) when ap_byteenable_s = "1000" else
-							(others => '0'); --may not be the case
-		ap_writedata <=		pap_wrdata & pap_wrdata & pap_wrdata & pap_wrdata;
+							(others => '0');
+		
 	end generate gen8bitSigs;
 	
 	genBeSigs16bit : if papDataWidth_g = 16 generate
-		--tri-state buffer
-		pap_data <= pap_rddata 	when pap_doe_s = '1' else (others => 'Z');
-		pap_wrdata <= 	pap_data when papBigEnd_g = false else
-						pap_data(7 downto 0) & pap_data(15 downto 8) when papBigEnd_g = true else
-						(others => '0');
 		
 		ap_byteenable_s <=	--little endian
-							"0001" when pap_addr(1 downto 1) = "0" and pap_be = "01" and papBigEnd_g = false else
-							"0010" when pap_addr(1 downto 1) = "0" and pap_be = "10" and papBigEnd_g = false else
-							"0011" when pap_addr(1 downto 1) = "0" and pap_be = "11" and papBigEnd_g = false else
-							"0100" when pap_addr(1 downto 1) = "1" and pap_be = "01" and papBigEnd_g = false else
-							"1000" when pap_addr(1 downto 1) = "1" and pap_be = "10" and papBigEnd_g = false else
-							"1100" when pap_addr(1 downto 1) = "1" and pap_be = "11" and papBigEnd_g = false else
+							"0001" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "01" and papBigEnd_g = false else
+							"0010" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "10" and papBigEnd_g = false else
+							"0011" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "11" and papBigEnd_g = false else
+							"0100" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "01" and papBigEnd_g = false else
+							"1000" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "10" and papBigEnd_g = false else
+							"1100" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "11" and papBigEnd_g = false else
 							--big endian
-							"0001" when pap_addr(1 downto 1) = "1" and pap_be = "10" and papBigEnd_g = true else
-							"0010" when pap_addr(1 downto 1) = "1" and pap_be = "01" and papBigEnd_g = true else
-							"0011" when pap_addr(1 downto 1) = "1" and pap_be = "00" and papBigEnd_g = true else
-							"0100" when pap_addr(1 downto 1) = "0" and pap_be = "10" and papBigEnd_g = true else
-							"1000" when pap_addr(1 downto 1) = "0" and pap_be = "01" and papBigEnd_g = true else
-							"1100" when pap_addr(1 downto 1) = "0" and pap_be = "00" and papBigEnd_g = true else
+							"0001" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "10" and papBigEnd_g = true else
+							"0010" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "01" and papBigEnd_g = true else
+							"0011" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "00" and papBigEnd_g = true else
+							"0100" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "10" and papBigEnd_g = true else
+							"1000" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "01" and papBigEnd_g = true else
+							"1100" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "00" and papBigEnd_g = true else
 							(others => '0');
-		ap_byteenable <= ap_byteenable_s;
 		
-		pap_rddata_s <=		(others => '0') when pap_doe_s = '0' else
-							ap_readdata( 7 downto  0) & ap_readdata( 7 downto  0) when ap_byteenable_s = "0001" else
+		ap_byteenable <= 	ap_byteenable_s;
+		
+		pap_wrdata_ss <=	pap_wrdata_s when papBigEnd_g = false else
+							pap_wrdata_s(7 downto 0) & pap_wrdata_s(15 downto 8);
+		
+		ap_writedata <=		pap_wrdata_ss & pap_wrdata_ss;
+		
+		pap_rddata_ss <=	ap_readdata( 7 downto  0) & ap_readdata( 7 downto  0) when ap_byteenable_s = "0001" else
 							ap_readdata(15 downto  8) & ap_readdata(15 downto  8) when ap_byteenable_s = "0010" else
 							ap_readdata(15 downto  0) when ap_byteenable_s = "0011" else
 							ap_readdata(23 downto 16) & ap_readdata(23 downto 16) when ap_byteenable_s = "0100" else
@@ -164,73 +238,78 @@ begin
 							ap_readdata(31 downto 16) when ap_byteenable_s = "1100" else
 							(others => '0');
 		
-		pap_rddata <= 	pap_rddata_s when papBigEnd_g = false else
-						pap_rddata_s(7 downto 0) & pap_rddata_s(15 downto 8) when papBigEnd_g = true else
-						(others => '0');
+		pap_rddata_s <=		pap_rddata_ss when papBigEnd_g = false else
+							pap_rddata_ss(7 downto 0) & pap_rddata_ss(15 downto 8);
 		
-		ap_writedata <=	pap_wrdata & pap_wrdata;
 	end generate genBeSigs16bit;
+	--
+	-------------------------------------------------------------------------------------
 	
-	theFsm : process(ap_clk, ap_reset)
-	variable timeout : integer range 0 to 2;
+	-------------------------------------------------------------------------------------
+	--sync those signals
+
+	syncAddrGen : for i in pap_addr'range generate
+		syncAddr : entity work.sync
+			port map (
+				inData => pap_addr(i),
+				outData => pap_addr_s(i),
+				clk => ap_clk,
+				rst => ap_reset
+			);
+	end generate;
+	
+	syncBeGen : for i in pap_be'range generate
+		syncBe : entity work.sync
+			port map (
+				inData => pap_be(i),
+				outData => pap_be_s(i),
+				clk => ap_clk,
+				rst => ap_reset
+			);
+	end generate;
+	
+	syncWrRegGen : for i in writeRegister'range generate
+		syncWrReg : entity work.sync
+			port map (
+				inData => writeRegister(i),
+				outData => pap_wrdata_s(i),
+				clk => ap_clk,
+				rst => ap_reset
+			);
+	end generate;
+	
+	theMagicBlock : block
+		signal pap_rd_tmp, pap_wr_tmp, pap_cs_tmp : std_logic;
 	begin
-		if ap_reset = '1' then
-			fsm <= idle;
-			timeout := 0;
-		elsif ap_clk = '1' and ap_clk'event then
-			case fsm is
-				when idle =>
-					--exit idle state after timeout if read/write access
-					if timeout = 2 and pap_cs = '1' then
-						timeout := 0;
-						if pap_rd = '1' then
-							fsm <= rd;
-						elsif pap_wr = '1' then
-							fsm <= wr;
-						else
-							fsm <= idle;
-						end if;
-					elsif pap_cs = '1' then
-						--cs is present wait for stable signals
-						timeout := timeout + 1;
-						fsm <= idle;
-					else
-						timeout := 0;
-						fsm <= idle;
-					end if;
-					
-				when wr =>
-					--write access may last one cycle
-					fsm <= wr_ack;
-					
-				when rd =>
-					--read access takes 2 cycles + 1
-					if timeout = 2 then
-						fsm <= rd_ack;
-						timeout := 0;
-					else
-						timeout := timeout + 1;
-						fsm <= rd;
-					end if;
-					
-				when wr_ack =>
-					--wait for deassertion of wr
-					if pap_wr = '0' then
-						fsm <= idle;
-					else
-						fsm <= wr_ack;
-					end if;
-					
-				when rd_ack =>
-					--wait for deassertion of rd
-					if pap_rd = '0' then
-						fsm <= idle;
-					else
-						fsm <= rd_ack;
-					end if;
-					
-			end case;
-		end if;
-	end process;
+		syncCs : entity work.sync
+			port map (
+				inData => pap_cs,
+				outData => pap_cs_tmp,
+				clk => ap_clk,
+				rst => ap_reset
+			);
+		pap_cs_s <= pap_cs_tmp;
+		
+		syncRd : entity work.sync
+			port map (
+				inData => pap_rd,
+				outData => pap_rd_tmp,
+				clk => ap_clk,
+				rst => ap_reset
+			);
+		pap_rd_s <= pap_rd_tmp and pap_cs_tmp;
+		
+		syncWr : entity work.sync
+			port map (
+				inData => pap_wr,
+				outData => pap_wr_tmp,
+				clk => ap_clk,
+				rst => ap_reset
+			);
+		pap_wr_s <= pap_wr_tmp and pap_cs_tmp;
+		
+	end block;
+	--
+	-------------------------------------------------------------------------------------
 	
 end architecture rtl;
