@@ -51,6 +51,7 @@
 --									Added: LED
 --									Added: Events
 --									Added/Changed: Asynchronous buffer 2x Ping-Pong
+-- 2011-04-06	V0.21	zelenkaj	minor fix: activity is only valid if link is present
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -615,7 +616,7 @@ begin
 	--the LED stuff
 	--first set the hw leds
 	hw_ledForce_s <= x"00" & "00111100"; --phy1 and 0 act and link
-	hw_ledSet_s <= x"00" & "00" & phyAct(1) & phyLink(1) & phyAct(0) & phyLink(0) & "00";
+	hw_ledSet_s <= x"00" & "00" & (phyAct(1) and phyLink(1)) & phyLink(1) & (phyAct(0) and phyLink(0)) & phyLink(0) & "00";
 	
 	theLedGadget : entity work.pdiLed
 	generic map (
