@@ -39,6 +39,7 @@
 -- 2010-10-04  	V0.02	zelenkaj	Bugfix: PORTDIR was mapped incorrectly (according to doc) to Avalon bus
 -- 2010-11-23	V0.03	zelenkaj	Added Operational Flag to portio
 --									Added counter for valid assertion duration
+-- 2010-04-20	V0.10	zelenkaj	Added synchronizer at inputs
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -70,7 +71,8 @@ end entity portio;
 architecture rtl of portio is
 	signal sPortConfig : std_logic_vector(x_pconfig'range);
 	signal sPortOut : std_logic_vector(x_portio'range);
-	signal sPortIn, sPortInL : std_logic_vector(x_portio'range);
+	signal sPortIn, sPortIn_s, sPortInL : std_logic_vector(x_portio'range);
+	signal x_portInLatch_s : std_logic_vector(x_portInLatch'range);
 	signal x_operational_s : std_logic;
 	signal x_portOutValid_s : std_logic_vector(x_portOutValid'range);
 begin
@@ -149,13 +151,35 @@ begin
 		elsif clk = '1' and clk'event then
 			
 			for i in 3 downto 0 loop
-				if x_portInLatch(i) = '1' then
-					sPortInL((i+1)*8-1 downto (i+1)*8-8) <= sPortIn((i+1)*8-1 downto (i+1)*8-8);
+				if x_portInLatch_s(i) = '1' then
+					sPortInL((i+1)*8-1 downto (i+1)*8-8) <= sPortIn_s((i+1)*8-1 downto (i+1)*8-8);
 				end if;
 			end loop;
 			
 		end if;
 	end process;
+	
+	--synchronize input signals
+	genSyncInputs : for i in sPortIn'range generate
+		syncInputs : entity work.sync
+			port map (
+				inData => sPortIn(i),
+				outData => sPortIn_s(i),
+				clk => clk,
+				rst => reset
+			);
+	end generate;
+	
+	--synchronize latch signals
+	genSyncLatch : for i in x_portInLatch'range generate
+		syncInputs : entity work.sync
+			port map (
+				inData => x_portInLatch(i),
+				outData => x_portInLatch_s(i),
+				clk => clk,
+				rst => reset
+			);
+	end generate;
 	
 end architecture rtl;
 
