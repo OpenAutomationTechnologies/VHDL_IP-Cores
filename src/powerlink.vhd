@@ -55,6 +55,7 @@
 --									Added/Changed: Asynchronous buffer 2x Ping-Pong
 -- 2011-04-04	V0.21	zelenkaj	parallel interface, sync moved to pdi_par
 --									minor: led_status is the official name
+-- 2011-04-26	V0.22	zelenkaj	generic for clock domain selection
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -65,6 +66,7 @@ use ieee.std_logic_unsigned.all;
 entity powerlink is
 	generic(
 	-- GENERAL GENERICS															--
+		genOnePdiClkDomain_g		:		boolean								:= false;
 		genPdi_g					:		boolean 							:= true;
 		genAvalonAp_g				:		boolean 							:= true;
 		genSimpleIO_g				:		boolean 							:= false;
@@ -103,7 +105,7 @@ entity powerlink is
 	-- CLOCK / RESET PORTS
 		clk50 						: in 	std_logic; --RMII clk
 		clkEth 						: in 	std_logic; --Tx Reg clk
-		clkPcp 						: in 	std_logic; --pcp clk (
+		clkPcp 						: in 	std_logic; --pcp clk
 		clkAp 						: in 	std_logic; --ap clk
 		rstPcp 						: in 	std_logic; --rst from pcp side (ap + rmii + tx)
 		rstAp 						: in 	std_logic; --rst ap
@@ -277,10 +279,14 @@ architecture rtl of powerlink is
 	signal phyLink, phyAct			:		std_logic_vector(1 downto 0);
 	
 	signal led_s					:		std_logic_vector(7 downto 0);
+	
+	signal clkAp_s, rstAp_s			:		std_logic;
 begin
 	--general signals
 	rstPcp_n <= not rstPcp;
-	rstAp_n <= not rstAp;
+	rstAp_n <= not rstAp_s;
+	clkAp_s <= clkAp when genOnePdiClkDomain_g = FALSE else clkPcp;
+	rstAp_s <= rstAp when genOnePdiClkDomain_g = FALSE else rstPcp;
 	
 	phyLink <= phy1_link & phy0_link;
 	
@@ -301,6 +307,7 @@ begin
 		
 		theAvalonPdi : entity work.pdi
 			generic map (
+				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
 				iFpgaRev_g					=> iFpgaRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
@@ -316,8 +323,8 @@ begin
 			port map (
 				pcp_reset					=> rstPcp,
 				pcp_clk                  	=> clkPcp,
-				ap_reset					=> rstAp,
-				ap_clk						=> clkAp,
+				ap_reset					=> rstAp_s,
+				ap_clk						=> clkAp_s,
 				-- Avalon Slave Interface for PCP
 				pcp_chipselect              => pcp_chipselect,
 				pcp_read					=> pcp_read,
@@ -382,8 +389,8 @@ begin
 		
 		theParPort : entity work.pdi_par
 			generic map (
-			papDataWidth_g				=> papDataWidth_g,
-			papBigEnd_g					=> papBigEnd_g
+				papDataWidth_g				=> papDataWidth_g,
+				papBigEnd_g					=> papBigEnd_g
 			)
 			port map (
 			-- 8/16bit parallel
@@ -410,6 +417,7 @@ begin
 		
 		thePdi : entity work.pdi
 			generic map (
+				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
 				iFpgaRev_g					=> iFpgaRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
@@ -514,6 +522,7 @@ begin
 		
 		thePdi : entity work.pdi
 			generic map (
+				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
 				iFpgaRev_g					=> iFpgaRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,

@@ -38,6 +38,7 @@
 -- 2010-08-16  	V0.01	zelenkaj    First version
 -- 2010-10-11  	V0.02	zelenkaj	Bugfix: PCP can't be producer in any case => added generic
 -- 2010-10-25	V0.03	zelenkaj	Use one Address Adder per DPR port side (reduces LE usage)
+-- 2011-04-26	V0.04	zelenkaj	generic for clock domain selection
 ------------------------------------------------------------------------------------------------------------------------
 --	This logic implements the virtual triple buffers, by selecting the appropriate address offset
 --	The output address offset has to be added to the input address.
@@ -53,6 +54,7 @@ USE ieee.std_logic_unsigned.all;
 
 ENTITY tripleVBufLogic IS
 	GENERIC(
+			genOnePdiClkDomain_g		:		boolean := 		false;
 			--base address of virtual buffers in DPR
 			iVirtualBufferBase_g		:		INTEGER :=		0;
 			--size of one virtual buffer in DPR (must be aligned!!!)
@@ -140,6 +142,9 @@ BEGIN
 	-- synchronized from PCP clock- to AP clock domain!
 	vectorSync : FOR I in lockedVBuf_s'left DOWNTO 0 GENERATE
 		theLockedSync : ENTITY work.sync
+		generic map (
+			doSync_g => not genOnePdiClkDomain_g
+		)
 		PORT MAP
 		(
 			inData => lockedVBuf_s(i),
@@ -182,6 +187,9 @@ BEGIN
 		END PROCESS genToggleB;
 		
 	theToggleSync : ENTITY work.sync
+	generic map (
+		doSync_g => not genOnePdiClkDomain_g
+	)
 	PORT MAP
 	(
 		inData => toggleB,

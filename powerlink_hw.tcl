@@ -65,6 +65,7 @@
 #--									Added/Changed: Asynchronous buffer 2x Ping-Pong
 #-- 2011-04-04	V0.21	zelenkaj	minor: led_status is the official name
 #--									minor: parallel interface uses ack instead of ready
+#-- 2011-04-26	V0.22	zelenkaj	prepared for pdi clock domain configuration, but not allowed to change by SOPC
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -108,10 +109,10 @@ set_module_property VALIDATION_CALLBACK my_validation_callback
 set_module_property ELABORATION_CALLBACK my_elaboration_callback
 
 #FPGA REVISION
-add_parameter iFpgaRev_g INTEGER 0x0020
+add_parameter iFpgaRev_g INTEGER 0x0000
 set_parameter_property iFpgaRev_g HDL_PARAMETER true
 set_parameter_property iFpgaRev_g VISIBLE false
-set_parameter_property iFpgaRev_g DERIVED false
+set_parameter_property iFpgaRev_g DERIVED TRUE
 
 #parameters
 add_parameter clkRateEth INTEGER 0
@@ -243,6 +244,11 @@ set_parameter_property macRxBuf UNITS bytes
 set_parameter_property macRxBuf DISPLAY_NAME "openMAC RX Buffer Size"
 
 #parameters for PDI HDL
+add_parameter genOnePdiClkDomain_g BOOLEAN false
+set_parameter_property genOnePdiClkDomain_g HDL_PARAMETER true
+set_parameter_property genOnePdiClkDomain_g VISIBLE false
+set_parameter_property genOnePdiClkDomain_g DERIVED TRUE
+
 add_parameter genPdi_g BOOLEAN true
 set_parameter_property genPdi_g HDL_PARAMETER true
 set_parameter_property genPdi_g VISIBLE false
@@ -753,6 +759,14 @@ proc my_validation_callback {} {
 		send_message error "error 0x03"
 	}
 	
+	#####################################
+	# here set the FPGA revision number #
+	set_parameter_value iFpgaRev_g 0x0021
+	#####################################
+	
+	# here you can change manually to use only one PDI Clk domain
+	set_parameter_value genOnePdiClkDomain_g false
+	
 	set_module_assignment embeddedsw.CMacro.MACBUFSIZE				$macBufSize
 	set_module_assignment embeddedsw.CMacro.MACRXBUFSIZE			$rxBufSize
 	set_module_assignment embeddedsw.CMacro.MACRXBUFFERS			$macRxBuffers
@@ -933,7 +947,7 @@ add_interface_port MII1 phyMii1_RxClk export Input 1
 add_interface_port MII1 phyMii1_RxDv export Input 1
 add_interface_port MII1 phyMii1_RxDat export Input 4
 
-##Avalon Memory Mapped Slave: MAC_REG Buffer
+##Avalon Memory Mapped Slave: MAC_BUF Buffer
 add_interface MAC_BUF avalon end
 set_interface_property MAC_BUF addressAlignment DYNAMIC
 set_interface_property MAC_BUF associatedClock pcp_clk
@@ -1149,6 +1163,12 @@ if {$ClkRate50meg == 50000000} {
 } else {
 	send_message error "MAC_CMP and MAC_REG must be connected to 50MHz Clock!"
 }
+
+#if {$ClkPcp == 50000000} {
+#
+#} else {
+#	send_message error "PDI must be connected to 50MHz Clock!"
+#}
 
 #find out, which interfaces (avalon, exports, etc) are not necessary for the configurated device!
 	#set defaults

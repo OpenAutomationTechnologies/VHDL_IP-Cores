@@ -64,6 +64,8 @@
 -- 2011-03-21  V0.80		area opt.: one adder is used for write/read addr.
 --							performance opt.: read (TX) overrules write (RX) command of Avalon master (e.g. auto-resp)
 -- 2011-03-28  V0.81		phy activity generator (for led)
+-- 2011-04-26  V0.82		minor change of activity led to 6 Hz blink frequency
+--							activity led generation changed
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -281,7 +283,7 @@ begin
 	
 	the_ActivityLed : entity work.phyActGen
 		generic map (
-				iBlinkFreq_g				=> 50
+				iBlinkFreq_g				=> 6
 		)
 		port map (
 				clk50						=> Clk50,
@@ -1151,42 +1153,51 @@ architecture rtl of phyActGen is
 constant 	iMaxCnt 					: integer := 50e6 / iBlinkFreq_g;
 constant	iLog2MaxCnt					: integer := integer(ceil(log2(real(iMaxCnt))));
 
-signal		cnt_enable					: std_logic;
-signal		cnt_s						: std_logic_vector(iLog2MaxCnt-1 downto 0);
+signal		cnt							: std_logic_vector(iLog2MaxCnt-1 downto 0);
 signal		cnt_tc						: std_logic;
+signal		actTrig						: std_logic;
+signal		actEnable					: std_logic;
 
 begin
 	
-	actLed <= not cnt_s(cnt_s'high);
+	actLed <= cnt(cnt'high) when actEnable = '1' else '0';
 	
-	theMonoFlop : process(clk50, arst)
+	ledCntr : process(clk50, arst)
 	begin
 		if arst = '1' then
-			cnt_enable <= '0';
+			actTrig <= '0';
+			actEnable <= '0';
 		elsif clk50 = '1' and clk50'event then
-			--of course no default -> monoflop
-			if (TxEn = '1' or CrsDv = '1') and cnt_enable = '0' then
-				cnt_enable <= '1';
+			--monoflop, of course no default value!
+			if actTrig = '1' and cnt_tc = '1' then
+				--counter overflow and activity within last cycle
+				actEnable <= '1';
 			elsif cnt_tc = '1' then
-				cnt_enable <= '0';
+				--counter overflow but no activity
+				actEnable <= '0';
+			end if;
+			
+			--monoflop, of course no default value!
+			if cnt_tc = '1' then
+				--count cycle over, reset trigger
+				actTrig <= '0';
+			elsif TxEn = '1' or CrsDv = '1' then
+				--activity within cycle
+				actTrig <= '1';
 			end if;
 		end if;
 	end process;
 	
-	cnt_tc <= '1' when cnt_s = iMaxCnt else '0';
-	
-	theCounter : process(clk50, arst)
+	theFreeRunCnt : process(clk50, arst)
 	begin
 		if arst = '1' then
-			cnt_s <= (others => '1');
+			cnt <= (others => '0');
 		elsif clk50 = '1' and clk50'event then
-			if cnt_enable = '1' then
-				if cnt_tc = '1' then
-					cnt_s <= (others => '1');
-				else
-					cnt_s <= cnt_s + 1;
-				end if;
-			end if;
+			--nice, it may count for ever!
+			cnt <= cnt - 1;
 		end if;
 	end process;
+	
+	cnt_tc <= '1' when cnt = 0 else '0'; --"counter overflow"
+	
 end architecture rtl;
