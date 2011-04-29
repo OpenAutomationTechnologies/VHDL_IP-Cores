@@ -66,23 +66,30 @@
 #-- 2011-04-04	V0.21	zelenkaj	minor: led_status is the official name
 #--									minor: parallel interface uses ack instead of ready
 #-- 2011-04-26	V0.22	zelenkaj	prepared for pdi clock domain configuration, but not allowed to change by SOPC
+#-- 2011-04-28	V0.23	zelenkaj	second cmp timer of openMAC is optinal by generic
+#--									added link to IP-core documentation
+#--									added description to parameters (shown in SOPC GUI)
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
 
 set_module_property DESCRIPTION "POWERLINK IP-core"
 set_module_property NAME powerlink
-set_module_property VERSION 1.0
+set_module_property VERSION 1.2
 set_module_property INTERNAL false
 set_module_property GROUP POWERLINK
-set_module_property AUTHOR "Joerg Zelenka (B&R 2010)"
+set_module_property AUTHOR "Michael Hogger and Joerg Zelenka"
 set_module_property DISPLAY_NAME "POWERLINK"
 set_module_property TOP_LEVEL_HDL_FILE powerlink.vhd
 set_module_property TOP_LEVEL_HDL_MODULE powerlink
 set_module_property INSTANTIATE_IN_SYSTEM_MODULE true
-set_module_property EDITABLE true
+set_module_property EDITABLE FALSE
 set_module_property ANALYZE_HDL TRUE
 set_module_property ICON_PATH img/br.png
+add_documentation_link "POWERLINK IP-Core Documentation" "doc/SDS_POWERLINK-IP-Core.pdf"
+add_documentation_link "Hardware Design Guidelines" "doc/HW_Design_Guidelines_V0.2.0.pdf"
+add_documentation_link "API Reference Manual" "doc/API_Reference_Manual_V0.2.0.pdf"
+add_documentation_link "User Guide" "doc/User_Guide_Altera_V0.2.0.pdf"
 
 #files
 add_file src/powerlink.vhd {SYNTHESIS SIMULATION}
@@ -131,27 +138,32 @@ add_parameter configPowerlink STRING "CN with Processor Interface"
 set_parameter_property configPowerlink DISPLAY_NAME "POWERLINK Slave Design Configuration"
 set_parameter_property configPowerlink ALLOWED_RANGES {"Direct I/O CN" "CN with Processor Interface" "openMAC only"}
 set_parameter_property configPowerlink DISPLAY_HINT radio
+set_parameter_property configPowerlink DESCRIPTION "The \"POWERLINK Slave Design Configuration\" allows selecting one of the three design approaches. \"Direct I/O CN\" generates a POWERLINK Slave with a 32 bit I/O port. \"CN with Processor Interface\" enables the possibility of adding an application processor (AP) to the design. The third choice \"openMAC only\" disables the generation of the Process Data Interface (PDI). All three selections generate the MAC-layer (openMAC)."
 
 add_parameter configApInterface STRING "Avalon"
 set_parameter_property configApInterface VISIBLE true
 set_parameter_property configApInterface DISPLAY_NAME "Interface to AP"
 set_parameter_property configApInterface ALLOWED_RANGES {"Avalon" "Parallel" "SPI"}
 set_parameter_property configApInterface DISPLAY_HINT radio
+set_parameter_property configApInterface DESCRIPTION "The \"Interface to AP\" selection allows to chose between three possibilities for connection the Application Processor (AP). \"Avalon\" generates an Avalon Memory Mapped Slave for the AP to connect to the PDI (this approach is intended for a Nios II AP). The \"Parallel\" choice generates an asynchronous parallel address-data-interface, which can be used to connect an FPGA-external Application Processor. The third selection \"SPI\" introduces a serial connection to an FPGA-external device, which must be an SPI master."
 
 add_parameter configApParallelInterface STRING "8bit"
 set_parameter_property configApParallelInterface VISIBLE false
 set_parameter_property configApParallelInterface DISPLAY_NAME "Size of Parallel Interface to AP"
 set_parameter_property configApParallelInterface ALLOWED_RANGES {"8bit" "16bit"}
+set_parameter_property configApParallelInterface DESCRIPTION "The \"Size of Parallel Interface to AP\" selects the parallel interface data width. It is possible to set 8 or 16 bit, depending on your requirements."
 
 add_parameter configApParSigs STRING "High Active"
 set_parameter_property configApParSigs VISIBLE false
 set_parameter_property configApParSigs DISPLAY_NAME "Active State of Control Signal (Cs, Wr, Rd and Be)"
 set_parameter_property configApParSigs ALLOWED_RANGES {"High Active" "Low Active"}
+set_parameter_property configApParSigs DESCRIPTION "Set the active states of the parallel interface control signals. Optionally you can add inverters in the top-level design which instantiates the SOPC block."
 
 add_parameter configApParOutSigs STRING "High Active"
 set_parameter_property configApParOutSigs VISIBLE false
 set_parameter_property configApParOutSigs DISPLAY_NAME "Active State of Output Signals (Irq and Ack)"
 set_parameter_property configApParOutSigs ALLOWED_RANGES {"High Active" "Low Active"}
+set_parameter_property configApParOutSigs DESCRIPTION "Set the active states of the parallel interface output signals. Optionally you can add inverters in the top-level design which instantiates the SOPC block."
 
 add_parameter configApEndian STRING "Little"
 set_parameter_property configApEndian VISIBLE false
@@ -172,61 +184,73 @@ add_parameter configApSpi_IRQ STRING "High Active"
 set_parameter_property configApSpi_IRQ VISIBLE false
 set_parameter_property configApSpi_IRQ DISPLAY_NAME "Active State of Output Signals (Irq)"
 set_parameter_property configApSpi_IRQ ALLOWED_RANGES {"High Active" "Low Active"}
+set_parameter_property configApSpi_IRQ DESCRIPTION "Set the active states of SPI link's interrupt signal (Irq). Optionally you can add an inverter in the top-level design which instantiates the SOPC block."
 
 add_parameter rpdoNum INTEGER 3
 set_parameter_property rpdoNum ALLOWED_RANGES {1 2 3}
 set_parameter_property rpdoNum DISPLAY_NAME "Number of RPDO Buffers"
+set_parameter_property rpdoNum DESCRIPTION "This parameter sets the maximum RPDO channels of your POWERLINK Slave."
 
 add_parameter rpdo0size INTEGER 1
 set_parameter_property rpdo0size ALLOWED_RANGES 1:1490
 set_parameter_property rpdo0size UNITS bytes
 set_parameter_property rpdo0size DISPLAY_NAME "1st RPDO Buffer Size"
+set_parameter_property rpdo0size DESCRIPTION "The RPDO Buffer Size is the data size limit of the corresponding RPDO channel."
 
 add_parameter rpdo1size INTEGER 1
 set_parameter_property rpdo1size ALLOWED_RANGES 1:1490
 set_parameter_property rpdo1size UNITS bytes
 set_parameter_property rpdo1size DISPLAY_NAME "2nd RPDO Buffer Size"
+set_parameter_property rpdo1size DESCRIPTION "The RPDO Buffer Size is the data size limit of the corresponding RPDO channel."
 
 add_parameter rpdo2size INTEGER 1
 set_parameter_property rpdo2size ALLOWED_RANGES 1:1490
 set_parameter_property rpdo2size UNITS bytes
 set_parameter_property rpdo2size DISPLAY_NAME "3rd RPDO Buffer Size"
+set_parameter_property rpdo2size DESCRIPTION "The RPDO Buffer Size is the data size limit of the corresponding RPDO channel."
 
 add_parameter tpdoNum INTEGER 1
 set_parameter_property tpdoNum ALLOWED_RANGES 1
 set_parameter_property tpdoNum DISPLAY_NAME "Number of TPDO Buffers"
+set_parameter_property tpdoNum DESCRIPTION "This parameter sets the maximum TPDO channels of your POWERLINK Slave. Note: The design is limited to one TPDO."
 
 add_parameter tpdo0size INTEGER 1
 set_parameter_property tpdo0size ALLOWED_RANGES 1:1490
 set_parameter_property tpdo0size UNITS bytes
 set_parameter_property tpdo0size DISPLAY_NAME "1st TPDO Buffer Size"
+set_parameter_property tpdo0size DESCRIPTION "The TPDO Buffer Size is the data size limit of the corresponding TPDO channel."
 
 add_parameter asyncBuf1Size INTEGER 1514
 set_parameter_property asyncBuf1Size ALLOWED_RANGES 1:1518
 set_parameter_property asyncBuf1Size UNITS bytes
 set_parameter_property asyncBuf1Size DISPLAY_NAME "Asynchronous Buffer Nr. 1 Size"
+set_parameter_property asyncBuf1Size DESCRIPTION "The Asynchronous Buffers are used for communication and asynchronous data transfer between PCP and AP."
 
 add_parameter asyncBuf2Size INTEGER 1514
 set_parameter_property asyncBuf2Size ALLOWED_RANGES 1:1518
 set_parameter_property asyncBuf2Size UNITS bytes
 set_parameter_property asyncBuf2Size DISPLAY_NAME "Asynchronous Buffer Nr. 2 Size"
+set_parameter_property asyncBuf2Size DESCRIPTION "The Asynchronous Buffers are used for communication and asynchronous data transfer between PCP and AP."
 
 add_parameter phyIF STRING "RMII"
 set_parameter_property phyIF VISIBLE true
 set_parameter_property phyIF DISPLAY_NAME "Ethernet Phy Interface"
 set_parameter_property phyIF ALLOWED_RANGES {"RMII" "MII"}
 set_parameter_property phyIF DISPLAY_HINT radio
+set_parameter_property phyIF DESCRIPTION "The \"Ethernet Phy Interface\" depends on the used Ethernet Phy ICs on your PCB. Note: Prefer RMII (Reduced Media Independent Interface, slave mode) since the resource utilization within the FPGA is a minimum. MII (Media Independent Interface) introduces extra Logic Elements (LE)."
 
 add_parameter packetLoc STRING "TX and RX into DPRAM"
 set_parameter_property packetLoc VISIBLE true
 set_parameter_property packetLoc DISPLAY_NAME "Packet Buffer Location"
 set_parameter_property packetLoc ALLOWED_RANGES {"TX and RX into DPRAM" "TX into DPRAM and RX over Avalon Master" "TX and RX over Avalon Master"}
 set_parameter_property packetLoc DISPLAY_HINT radio
+set_parameter_property packetLoc DESCRIPTION "The \"Packet Buffer Location\" is the most important setting for your POWERLINK Slave. \"TX and RX into DPRAM\" instantiates a dual ported RAM into the FPGA with the appropriate size of your settings. Prefer this choice if you have enough memory blocks (M9K) available. The setting \"TX into DPRAM and RX over Avalon Master\" places TX buffers of openMAC in the dual ported RAM, however, the RX buffers are stored in the heap of your Nios II system. Take this solution if you have a limited amount of memory blocks (M9K) and your heap is located in high-latency memory. The third selection \"TX and RX over Avalon Master\" locates TX and RX packets in your heap. Use this choice only if your heap is located in low-latency memory (SRAM 10 ns) and you are very restricted by memory block (M9K) availability."
 
 add_parameter validSet INTEGER "1"
 set_parameter_property validSet VISIBLE false
 set_parameter_property validSet ALLOWED_RANGES 1:128
 set_parameter_property validSet DISPLAY_NAME "Valid signal set Clock Cycles"
+set_parameter_property validSet DESCRIPTION "The \"Direct I/O\" Slave provides a pulse if the output data is valid. The pulse length can be set to a multiple of the system clock."
 
 add_parameter validAssertDuration STRING "1000"
 set_parameter_property validAssertDuration VISIBLE false
@@ -238,10 +262,22 @@ set_parameter_property validAssertDuration DERIVED TRUE
 add_parameter macTxBuf INTEGER 1514
 set_parameter_property macTxBuf UNITS bytes
 set_parameter_property macTxBuf DISPLAY_NAME "openMAC TX Buffer Size"
+set_parameter_property macTxBuf DESCRIPTION "If \"openMAC only\" is selected, the MAC buffer size has to be set manually."
 
 add_parameter macRxBuf INTEGER 1514
 set_parameter_property macRxBuf UNITS bytes
 set_parameter_property macRxBuf DISPLAY_NAME "openMAC RX Buffer Size"
+set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the MAC buffer size has to be set manually."
+
+add_parameter mac2cmpTimer BOOLEAN TRUE
+set_parameter_property mac2cmpTimer VISIBLE true
+set_parameter_property mac2cmpTimer DISPLAY_NAME "Use low-jitter SYNC Interrupt for AP synchronization"
+set_parameter_property mac2cmpTimer DESCRIPTION "The Application Processor (AP) is synchronized to the POWERLINK cycles. In order to reduce FPGA-resource consumption you can disable the low-jitter SYNC interrupt if your application does not require low-jitter synchronization."
+
+add_parameter mac2phys BOOLEAN TRUE
+set_parameter_property mac2phys VISIBLE true
+set_parameter_property mac2phys DISPLAY_NAME "Enable second Ethernet Phy Interface"
+set_parameter_property mac2phys DESCRIPTION "The POWERLINK Slave allows a second Ethernet interface for flexible network topologies by using the FPGA-internal openHUB IP-core. Enable the option if you want to connect a second phy to the FPGA."
 
 #parameters for PDI HDL
 add_parameter genOnePdiClkDomain_g BOOLEAN false
@@ -342,6 +378,16 @@ set_parameter_property useRxIntPacketBuf_g HDL_PARAMETER true
 set_parameter_property useRxIntPacketBuf_g VISIBLE false
 set_parameter_property useRxIntPacketBuf_g DERIVED true
 
+add_parameter use2ndCmpTimer_g BOOLEAN true
+set_parameter_property use2ndCmpTimer_g HDL_PARAMETER true
+set_parameter_property use2ndCmpTimer_g VISIBLE false
+set_parameter_property use2ndCmpTimer_g DERIVED true
+
+add_parameter use2ndPhy_g BOOLEAN true
+set_parameter_property use2ndPhy_g HDL_PARAMETER true
+set_parameter_property use2ndPhy_g VISIBLE false
+set_parameter_property use2ndPhy_g DERIVED true
+
 #parameters for parallel interface
 add_parameter papDataWidth_g INTEGER 16
 set_parameter_property papDataWidth_g HDL_PARAMETER true
@@ -397,6 +443,7 @@ proc my_validation_callback {} {
 	set asyncBuf2Size				[get_parameter_value asyncBuf2Size]
 	set macTxBuf					[get_parameter_value macTxBuf]
 	set macRxBuf					[get_parameter_value macRxBuf]
+	set useLowJitterSync			[get_parameter_value mac2cmpTimer]
 	
 	set mii							[get_parameter_value phyIF]
 	set ploc						[get_parameter_value packetLoc]
@@ -482,6 +529,9 @@ proc my_validation_callback {} {
 	set_parameter_property validSet VISIBLE false
 	set_parameter_property macTxBuf VISIBLE false
 	set_parameter_property macRxBuf VISIBLE false
+	set_parameter_property mac2cmpTimer VISIBLE false
+	
+	set_parameter_property mac2phys VISIBLE true
 	
 	set_parameter_property rpdoNum VISIBLE true
 	set_parameter_property tpdoNum VISIBLE true
@@ -534,6 +584,7 @@ proc my_validation_callback {} {
 		set_parameter_property asyncBuf2Size VISIBLE true
 		#AP can be big or little endian - allow choice
 		set_parameter_property configApEndian VISIBLE true
+		set_parameter_property mac2cmpTimer VISIBLE true
 		
 		set genPdi true
 		
@@ -714,6 +765,23 @@ proc my_validation_callback {} {
 		set_parameter_value spiCPHA_g false
 	}
 	
+	#generate 2 phy port
+	set_parameter_value use2ndPhy_g false
+	set_module_assignment embeddedsw.CMacro.PHYCNT 1
+	if {[get_parameter_value mac2phys]} {
+		set_parameter_value use2ndPhy_g true
+		set_module_assignment embeddedsw.CMacro.PHYCNT 2
+	}
+	
+	#generate 2nd timer cmp if pdi and if set in sopc
+	# otherwise not (e.g. openMAC only, DirectIO or no selected)
+	set_parameter_value use2ndCmpTimer_g FALSE
+	if {$configPowerlink == "CN with Processor Interface"} {
+		if {$useLowJitterSync} {
+			set_parameter_value use2ndCmpTimer_g true
+		}
+	}
+	
 	#forward parameters to system.h
 	
 	# workaround: strings are erroneous => no blanks, etc.
@@ -778,7 +846,7 @@ proc my_validation_callback {} {
 }
 
 #display
-add_display_item "Block Diagram" id0 icon img/designs.png
+add_display_item "Block Diagram" id0 icon img/block_diagram.png
 add_display_item "General Settings" configPowerlink PARAMETER
 add_display_item "Process Data Interface Settings" configApInterface PARAMETER
 add_display_item "Process Data Interface Settings" configApParallelInterface PARAMETER
@@ -790,6 +858,7 @@ add_display_item "Process Data Interface Settings" configApSpi_CPOL PARAMETER
 add_display_item "Process Data Interface Settings" configApSpi_CPHA PARAMETER
 add_display_item "Process Data Interface Settings" validSet PARAMETER
 add_display_item "Process Data Interface Settings" validAssertDuration PARAMETER
+add_display_item "Process Data Interface Settings" mac2cmpTimer PARAMETER
 add_display_item "Receive Process Data" rpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdo0size PARAMETER
@@ -799,6 +868,7 @@ add_display_item "Receive Process Data" rpdo2size PARAMETER
 add_display_item "Asynchronous Buffer" asyncBuf1Size  PARAMETER
 add_display_item "Asynchronous Buffer" asyncBuf2Size  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
+add_display_item "openMAC" mac2phys PARAMETER
 add_display_item "openMAC" macTxBuf  PARAMETER
 add_display_item "openMAC" macRxBuf  PARAMETER
 add_display_item "openMAC" packetLoc  PARAMETER
@@ -1219,6 +1289,21 @@ if {$ClkRate50meg == 50000000} {
 		set_interface_property MII0 ENABLED true
 		set_interface_property MII1 ENABLED true
 		set_interface_property clkEth ENABLED false
+	}
+	
+	#okay, maybe only one phy port is set by the user!?
+	if {[get_parameter_value mac2phys]} {
+		#yes, two phys please!
+		#do nothing here, it is already set correctly above ;)
+		#only not terminate the phy link input
+		set_port_property phy1_link termination false
+	} else {
+		#no, leave me one phy only!
+		set_interface_property RMII1 ENABLED false
+		set_interface_property MII1 ENABLED false
+		#phy management can be omitted too...
+		set_interface_property PHYM1 ENABLED false
+		set_port_property phy1_link termination true
 	}
 	
 	if {[get_parameter_value configPowerlink] == "openMAC only"} {

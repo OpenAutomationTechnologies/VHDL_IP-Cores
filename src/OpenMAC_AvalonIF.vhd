@@ -66,6 +66,9 @@
 -- 2011-03-28  V0.81		phy activity generator (for led)
 -- 2011-04-26  V0.82		minor change of activity led to 6 Hz blink frequency
 --							activity led generation changed
+-- 2011-04-28  V0.83		second cmp timer is optinal by generic
+-- 							generic for second phy port
+--							clean up to reduce Quartus II warnings
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -79,7 +82,9 @@ entity AlteraOpenMACIF is
    			iBufSizeLOG2_g				: 		integer := 10;
 			useRmii_g					: 		boolean := true;
 			useIntPacketBuf_g			:		boolean := true;
-			useRxIntPacketBuf_g			:		boolean := true);
+			useRxIntPacketBuf_g			:		boolean := true;
+			use2ndCmpTimer_g			:		boolean := true;
+			use2ndPhy_g					:		boolean := true);
    port (   Reset_n						: in    std_logic;
 			Clk50                  		: in    std_logic;
 			ClkFaster					: in	std_logic;
@@ -110,7 +115,7 @@ entity AlteraOpenMACIF is
             iBuf_byteenable             : in    std_logic_vector(3 downto 0);
             iBuf_address                : in    std_logic_vector(iBufSizeLOG2_g-3 downto 0);
             iBuf_writedata              : in    std_logic_vector(31 downto 0);
-            iBuf_readdata               : out   std_logic_vector(31 downto 0);
+            iBuf_readdata               : out   std_logic_vector(31 downto 0) := (others => '0');
 		-- Avalon Master Interface
             m_read_n					: out   std_logic;
             m_write_n					: out   std_logic;
@@ -128,23 +133,23 @@ entity AlteraOpenMACIF is
 		-- RMII Port 1
             rRx_Dat_1                   : in    std_logic_vector(1 downto 0);  -- RMII Rx Daten
             rCrs_Dv_1                   : in    std_logic;                     -- RMII Carrier Sense / Data Valid
-            rTx_Dat_1                   : out   std_logic_vector(1 downto 0);  -- RMII Tx Daten
-            rTx_En_1                    : out   std_logic;                     -- RMII Tx_Enable
+            rTx_Dat_1                   : out   std_logic_vector(1 downto 0) := (others => '0');  -- RMII Tx Daten
+            rTx_En_1                    : out   std_logic := '0';								  -- RMII Tx_Enable
 		--- MII PORTS
 			phyMii0_RxClk				: in	std_logic;
 			phyMii0_RxDat               : in    std_logic_vector(3 downto 0);
 			phyMii0_RxDv                : in    std_logic;
 			phyMii0_TxClk				: in	std_logic;
-			phyMii0_TxDat               : out   std_logic_vector(3 downto 0);
-			phyMii0_TxEn                : out   std_logic;
-			phyMii0_TxEr                : out   std_logic;
+			phyMii0_TxDat               : out   std_logic_vector(3 downto 0) := (others => '0');
+			phyMii0_TxEn                : out   std_logic := '0';
+			phyMii0_TxEr                : out   std_logic := '0';
 			phyMii1_RxClk				: in	std_logic;
 			phyMii1_RxDat               : in    std_logic_vector(3 downto 0);
 			phyMii1_RxDv                : in    std_logic;
 			phyMii1_TxClk				: in	std_logic;
-			phyMii1_TxDat               : out   std_logic_vector(3 downto 0);
-			phyMii1_TxEn                : out   std_logic;
-			phyMii1_TxEr                : out   std_logic;
+			phyMii1_TxDat               : out   std_logic_vector(3 downto 0) := (others => '0');
+			phyMii1_TxEn                : out   std_logic := '0';
+			phyMii1_TxEr                : out   std_logic := '0';
 --		-- Serial Management Interface (the_Mii)	
 			smi_Clk						: out	std_logic;
 			smi_Di						: in	std_logic;
@@ -292,36 +297,47 @@ begin
 				CrsDv						=> MacRxDv,
 				actLed						=> led_activity
 		);
+	genHub : if use2ndPhy_g generate
+		--since two phys are needed, openHUB must be connected to filter0, filter1 and openMAC
+		the_Hub : entity work.OpenHub
+			generic map (	Ports => 3
+			)
+			port map 	(
+							nRst 				=> 	Reset_n,
+							Clk 				=> 	Clk50,
+							RxDv 				=> 	HubRxDv,
+							RxDat0 			=> 	HubRxDat0,
+							RxDat1 			=> 	HubRxDat1,
+							TxEn 				=> 	HubTxEn,
+							TxDat0 			=> 	HubTxDat0,
+							TxDat1 			=> 	HubTxDat1,
+							internPort 		=> 	1,
+							TransmitMask 	=> 	(others => '1'),
+							ReceivePort 	=> 	RxPortInt
+			);
+		RxPort <= conv_std_logic_vector(RxPortInt, RxPort'length);
+		HubRxDv <= Flt1RxDv & Flt0RxDv & MacTxEn;
+		HubRxDat1 <= Flt1RxDat(1) & Flt0RxDat(1) & MacTxDat(1);
+		HubRxDat0 <= Flt1RxDat(0) & Flt0RxDat(0) & MacTxDat(0);
+		Flt1TxEn <= HubTxEn(3);
+		Flt0TxEn <= HubTxEn(2);
+		MacRxDv <= HubTxEn(1);
+		Flt1TxDat(1) <= HubTxDat1(3);
+		Flt0TxDat(1) <= HubTxDat1(2);
+		MacRxDat(1) <= HubTxDat1(1);
+		Flt1TxDat(0) <= HubTxDat0(3);
+		Flt0TxDat(0) <= HubTxDat0(2);
+		MacRxDat(0) <= HubTxDat0(1);
+	end generate;
 	
-	the_Hub : entity work.OpenHub
-		generic map (	Ports => 3
-		)
-		port map 	(
-						nRst 				=> 	Reset_n,
-						Clk 				=> 	Clk50,
-						RxDv 				=> 	HubRxDv,
-						RxDat0 			=> 	HubRxDat0,
-						RxDat1 			=> 	HubRxDat1,
-						TxEn 				=> 	HubTxEn,
-						TxDat0 			=> 	HubTxDat0,
-						TxDat1 			=> 	HubTxDat1,
-						internPort 		=> 	1,
-						TransmitMask 	=> 	(others => '1'),
-						ReceivePort 	=> 	RxPortInt
-		);
-	RxPort <= conv_std_logic_vector(RxPortInt, RxPort'length);
-	HubRxDv <= Flt1RxDv & Flt0RxDv & MacTxEn;
-	HubRxDat1 <= Flt1RxDat(1) & Flt0RxDat(1) & MacTxDat(1);
-	HubRxDat0 <= Flt1RxDat(0) & Flt0RxDat(0) & MacTxDat(0);
-	Flt1TxEn <= HubTxEn(3);
-	Flt0TxEn <= HubTxEn(2);
-	MacRxDv <= HubTxEn(1);
-	Flt1TxDat(1) <= HubTxDat1(3);
-	Flt0TxDat(1) <= HubTxDat1(2);
-	MacRxDat(1) <= HubTxDat1(1);
-	Flt1TxDat(0) <= HubTxDat0(3);
-	Flt0TxDat(0) <= HubTxDat0(2);
-	MacRxDat(0) <= HubTxDat0(1);
+	gen1PhyPort : if not use2ndPhy_g generate
+		--since only one phy is needed, directly connect filter0 output with openMAC
+		Flt0TxEn <= MacTxEn;
+		Flt0TxDat <= MacTxDat;
+		MacRxDv <= Flt0RxDv;
+		MacRxDat <= Flt0RxDat;
+		RxPort <= (others => '0');
+	end generate;
 	
 	the_Filter4Phy0 : entity work.OpenFILTER
 		port map	(
@@ -338,20 +354,22 @@ begin
 						TxDatOut => Phy0TxDat
 		);
 	
-	the_Filter4Phy1 : entity work.OpenFILTER
-		port map	(
-						nRst => Reset_n,
-						Clk => Clk50,
-						nCheckShortFrames => '0',
-						RxDvIn => Phy1RxDv,
-						RxDatIn => Phy1RxDat,
-						RxDvOut => Flt1RxDv,
-						RxDatOut => Flt1RxDat,
-						TxEnIn => Flt1TxEn,
-						TxDatIn => Flt1TxDat,
-						TxEnOut => Phy1TxEn,
-						TxDatOut =>  Phy1TxDat
-		);
+	gen2ndFilter : if use2ndPhy_g generate
+		the_Filter4Phy1 : entity work.OpenFILTER
+			port map	(
+							nRst => Reset_n,
+							Clk => Clk50,
+							nCheckShortFrames => '0',
+							RxDvIn => Phy1RxDv,
+							RxDatIn => Phy1RxDat,
+							RxDvOut => Flt1RxDv,
+							RxDatOut => Flt1RxDat,
+							TxEnIn => Flt1TxEn,
+							TxDatIn => Flt1TxDat,
+							TxEnOut => Phy1TxEn,
+							TxDatOut =>  Phy1TxDat
+			);
+	end generate;
 	
 	genRmii : if useRmii_g generate
 		regPhy100Meg : process(ClkEth, Reset_n)
@@ -360,13 +378,17 @@ begin
 			if Reset_n = '0' then
 				rTx_En_0 <= '0';
 				rTx_Dat_0 <= (others => '0');
-				rTx_En_1 <= '0';
-				rTx_Dat_1 <= (others => '0');
+				if use2ndPhy_g then
+					rTx_En_1 <= '0';
+					rTx_Dat_1 <= (others => '0');
+				end if;
 			elsif ClkEth = '0' and ClkEth'event then
 				rTx_En_0 <= Phy0TxEn;
 				rTx_Dat_0 <= Phy0TxDat;
-				rTx_En_1 <= Phy1TxEn;
-				rTx_Dat_1 <= Phy1TxDat;
+				if use2ndPhy_g then
+					rTx_En_1 <= Phy1TxEn;
+					rTx_Dat_1 <= Phy1TxDat;
+				end if;
 			end if;
 		end process;
 		
@@ -376,13 +398,17 @@ begin
 			if Reset_n = '0' then
 				Phy0RxDv <= '0';
 				Phy0RxDat <= (others => '0');
-				Phy1RxDv <= '0';
-				Phy1RxDat <= (others => '0');
+				if use2ndPhy_g then
+					Phy1RxDv <= '0';
+					Phy1RxDat <= (others => '0');
+				end if;
 			elsif clk50 = '1' and clk50'event then
 				Phy0RxDv <= rCrs_Dv_0;
 				Phy0RxDat <= rRx_Dat_0;
-				Phy1RxDv <= rCrs_Dv_1;
-				Phy1RxDat <= rRx_Dat_1;
+				if use2ndPhy_g then
+					Phy1RxDv <= rCrs_Dv_1;
+					Phy1RxDat <= rRx_Dat_1;
+				end if;
 			end if;
 		end process;
 	end generate;
@@ -408,24 +434,26 @@ begin
 				mRxClk				=> phyMii0_RxClk
 			);
 		
-		phyMii1_TxEr <= '0';
-		theRmii2MiiCnv1 : entity work.rmii2mii
-			port map (
-				clk50				=> clk50,
-				rst					=> rst,
-				--RMII (MAC)
-				rTxEn				=> Phy1TxEn,
-				rTxDat				=> Phy1TxDat,
-				rRxDv				=> Phy1RxDv,
-				rRxDat				=> Phy1RxDat,
-				--MII (PHY)
-				mTxEn				=> phyMii1_TxEn,
-				mTxDat				=> phyMii1_TxDat,
-				mTxClk				=> phyMii1_TxClk,
-				mRxDv				=> phyMii1_RxDv,
-				mRxDat				=> phyMii1_RxDat,
-				mRxClk				=> phyMii1_RxClk
-			);
+		gen2ndRmii2MiiCnv : if use2ndPhy_g generate
+			phyMii1_TxEr <= '0';
+			theRmii2MiiCnv1 : entity work.rmii2mii
+				port map (
+					clk50				=> clk50,
+					rst					=> rst,
+					--RMII (MAC)
+					rTxEn				=> Phy1TxEn,
+					rTxDat				=> Phy1TxDat,
+					rRxDv				=> Phy1RxDv,
+					rRxDat				=> Phy1RxDat,
+					--MII (PHY)
+					mTxEn				=> phyMii1_TxEn,
+					mTxDat				=> phyMii1_TxDat,
+					mTxClk				=> phyMii1_TxClk,
+					mRxDv				=> phyMii1_RxDv,
+					mRxDat				=> phyMii1_RxDat,
+					mRxClk				=> phyMii1_RxClk
+				);
+		end generate;
 	end generate;
 		
 	-----------------------------------------------------------------------
@@ -664,7 +692,7 @@ begin
 	begin
 		
 		t_IRQ <= Mac_Cmp_Irq;
-		t_IrqToggle <= Mac_Cmp_Toggle;
+		t_IrqToggle <= Mac_Cmp_Toggle when use2ndCmpTimer_g = TRUE else '0';
 		
 		p_MacCmp : process ( Reset_n, Clk50 )
 		begin
@@ -673,8 +701,10 @@ begin
 				Mac_Cmp_On   <= '0';
 				Mac_Tog_On   <= '0';
 				Mac_Cmp_Wert <= (others => '0');
-				Mac_Cmp_TogVal <= (others => '0');
-				Mac_Cmp_Toggle <= '0';
+				if use2ndCmpTimer_g = TRUE then
+					Mac_Cmp_TogVal <= (others => '0');
+					Mac_Cmp_Toggle <= '0';
+				end if;
 				t_readdata <= (others => '0');
 			elsif rising_edge( Clk50 ) then
 			
@@ -687,7 +717,9 @@ begin
 							Mac_Cmp_On <= t_writedata(0);
 							Mac_Tog_On <= t_writedata(4);
 						when "10" => --8
-							Mac_Cmp_TogVal <= t_writedata;
+							if use2ndCmpTimer_g = TRUE then
+								Mac_Cmp_TogVal <= t_writedata;
+							end if;
 						when others =>
 							-- do nothing
 					end case;
@@ -697,7 +729,7 @@ begin
 					Mac_Cmp_Irq <= '1';
 				end if;
 				
-				if ( Mac_Tog_On = '1' and Mac_Cmp_TogVal( Mac_Zeit'range ) = Mac_Zeit ) then
+				if ( Mac_Tog_On = '1' and Mac_Cmp_TogVal( Mac_Zeit'range ) = Mac_Zeit  and use2ndCmpTimer_g = TRUE ) then
 					Mac_Cmp_Toggle <= not Mac_Cmp_Toggle;
 				end if;
 				
@@ -706,9 +738,13 @@ begin
 						when "00" => --0
 							t_readdata <= Mac_Zeit(31 downto 0);
 						when "01" => --4
-							t_readdata <= x"000000" & "00" & Mac_Cmp_Toggle & Mac_Tog_On & "00" & Mac_Cmp_Irq & Mac_Cmp_On;
+							if use2ndCmpTimer_g = TRUE then
+								t_readdata <= x"000000" & "00" & Mac_Cmp_Toggle & Mac_Tog_On & "00" & Mac_Cmp_Irq & Mac_Cmp_On;
+							end if;
 						when "10" => --8
-							t_readdata <= Mac_Cmp_TogVal;
+							if use2ndCmpTimer_g = TRUE then
+								t_readdata <= Mac_Cmp_TogVal;
+							end if;
 						when others =>
 							t_readdata <= (others => '0');
 					end case;

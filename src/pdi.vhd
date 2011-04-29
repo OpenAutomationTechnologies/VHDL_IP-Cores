@@ -54,6 +54,7 @@
 -- 2011-04-06	V0.21	zelenkaj	minor fix: activity is only valid if link is present
 -- 2011-04-26	V0.22	zelenkaj	generic for clock domain selection
 --									area optimization in Status/Control Register
+-- 2011-04-28  	V0.23	zelenkaj	clean up to reduce Quartus II warnings
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -1572,6 +1573,11 @@ begin
 						(ledCnfgIn & ledCtrlIn) 		when 16#64#,
 						(others => '0') 				when others;
 	
+	--ignored values
+	asyncIrqCtrlOut(14 downto 1) <= (others => '0');
+	ledCtrlOut(15 downto 8) <= (others => '0');
+	ledCnfgOut(15 downto 8) <= (others => '0');
+	eventAckOut(15 downto 8) <= (others => '0');
 	--non dpr write
 	process(clk, rst)
 	begin
@@ -1579,16 +1585,17 @@ begin
 			tPdoTrigger <= '0';
 			rPdoTrigger <= (others => '0');
 			apIrqControlOut <= (others => '0');
-			asyncIrqCtrlOut <= (others => '0');
-			eventAckOut <= (others => '0');
-			ledCtrlOut <= (others => '0');
-			ledCnfgOut <= (others => '0');
+			asyncIrqCtrlOut(0) <= '0';
+			asyncIrqCtrlOut(15) <= '0';
+			eventAckOut(7 downto 0) <= (others => '0');
+			ledCtrlOut(7 downto 0) <= (others => '0');
+			ledCnfgOut(7 downto 0) <= (others => '0');
 		elsif clk = '1' and clk'event then
 			--default assignments
 			tPdoTrigger <= '0';
 			rPdoTrigger <= (others => '0');
 			apIrqControlOut(0) <= '0'; --PCP: set pulse // AP: ack pulse
-			eventAckOut <= (others => '0'); --PCP: set pulse // AP: ack pulse
+			eventAckOut(7 downto 0) <= (others => '0'); --PCP: set pulse // AP: ack pulse
 			
 			if wr = '1' and sel = '1' and selDpr = '0' then
 				case conv_integer(addr)*4 is
