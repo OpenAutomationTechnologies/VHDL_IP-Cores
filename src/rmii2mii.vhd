@@ -43,6 +43,7 @@
 -- 2010-09-13	V0.01		first version
 -- 2010-11-15	V0.02		bug fix: increased size of rx fifo, because of errors with marvel 88e1111 mii phy
 -- 2010-11-30	V0.03		bug fix: in case of no link some phys confuse tx fifo during tx => aclr fifo
+-- 2011-05-06	V0.10		bug fix: use the RX_ER signal, it has important meaning!
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -64,6 +65,7 @@ entity rmii2mii is
 		mTxDat				: out	std_logic_vector(3 downto 0);
 		mTxClk				: in	std_logic;
 		mRxDv				: in	std_logic;
+		mRxEr				: in	std_logic;
 		mRxDat				: in	std_logic_vector(3 downto 0);
 		mRxClk				: in	std_logic
 	);
@@ -162,7 +164,7 @@ begin
 	begin
 		
 		fifo_din <= mRxDat;
-		fifo_wr <= mRxDv;
+		fifo_wr <= mRxDv and not mRxEr;
 		
 		rRxDat <= fifo_dout when fifo_valid = '1' else (others => '0');
 		rRxDv <= fifo_valid;

@@ -69,6 +69,8 @@
 #-- 2011-04-28	V0.23	zelenkaj	second cmp timer of openMAC is optinal by generic
 #--									added link to IP-core documentation
 #--									added description to parameters (shown in SOPC GUI)
+#-- 2011-05-06	V0.24	zelenkaj	some naming convention changes
+#--									bug fix: use the RX_ER signal, it has important meaning!
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -87,9 +89,6 @@ set_module_property EDITABLE FALSE
 set_module_property ANALYZE_HDL TRUE
 set_module_property ICON_PATH img/br.png
 add_documentation_link "POWERLINK IP-Core Documentation" "doc/SDS_POWERLINK-IP-Core.pdf"
-add_documentation_link "Hardware Design Guidelines" "doc/HW_Design_Guidelines_V0.2.0.pdf"
-add_documentation_link "API Reference Manual" "doc/API_Reference_Manual_V0.2.0.pdf"
-add_documentation_link "User Guide" "doc/User_Guide_Altera_V0.2.0.pdf"
 
 #files
 add_file src/powerlink.vhd {SYNTHESIS SIMULATION}
@@ -116,10 +115,10 @@ set_module_property VALIDATION_CALLBACK my_validation_callback
 set_module_property ELABORATION_CALLBACK my_elaboration_callback
 
 #FPGA REVISION
-add_parameter iFpgaRev_g INTEGER 0x0000
-set_parameter_property iFpgaRev_g HDL_PARAMETER true
-set_parameter_property iFpgaRev_g VISIBLE false
-set_parameter_property iFpgaRev_g DERIVED TRUE
+add_parameter iPdiRev_g INTEGER 0x0000
+set_parameter_property iPdiRev_g HDL_PARAMETER true
+set_parameter_property iPdiRev_g VISIBLE false
+set_parameter_property iPdiRev_g DERIVED TRUE
 
 #parameters
 add_parameter clkRateEth INTEGER 0
@@ -269,7 +268,7 @@ set_parameter_property macRxBuf UNITS bytes
 set_parameter_property macRxBuf DISPLAY_NAME "openMAC RX Buffer Size"
 set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the MAC buffer size has to be set manually."
 
-add_parameter mac2cmpTimer BOOLEAN TRUE
+add_parameter mac2cmpTimer BOOLEAN FALSE
 set_parameter_property mac2cmpTimer VISIBLE true
 set_parameter_property mac2cmpTimer DISPLAY_NAME "Use low-jitter SYNC Interrupt for AP synchronization"
 set_parameter_property mac2cmpTimer DESCRIPTION "The Application Processor (AP) is synchronized to the POWERLINK cycles. In order to reduce FPGA-resource consumption you can disable the low-jitter SYNC interrupt if your application does not require low-jitter synchronization."
@@ -828,8 +827,8 @@ proc my_validation_callback {} {
 	}
 	
 	#####################################
-	# here set the FPGA revision number #
-	set_parameter_value iFpgaRev_g 0x0021
+	# here set the PDI revision number  #
+	set_parameter_value iPdiRev_g 0x0021
 	#####################################
 	
 	# here you can change manually to use only one PDI Clk domain
@@ -842,7 +841,7 @@ proc my_validation_callback {} {
 	set_module_assignment embeddedsw.CMacro.MACTXBUFFERS			$macTxBuffers
 	set_module_assignment embeddedsw.CMacro.PDIRPDOS				$rpdos
 	set_module_assignment embeddedsw.CMacro.PDITPDOS				$tpdos
-	set_module_assignment embeddedsw.CMacro.FPGAREV					[get_parameter_value iFpgaRev_g]
+	set_module_assignment embeddedsw.CMacro.FPGAREV					[get_parameter_value iPdiRev_g]
 }
 
 #display
@@ -1004,6 +1003,7 @@ add_interface_port MII0 phyMii0_TxEr export Output 1
 add_interface_port MII0 phyMii0_TxDat export Output 4
 add_interface_port MII0 phyMii0_RxClk export Input 1
 add_interface_port MII0 phyMii0_RxDv export Input 1
+add_interface_port MII0 phyMii0_RxEr export Input 1
 add_interface_port MII0 phyMii0_RxDat export Input 4
 
 ##Export Mii Phy 1
@@ -1015,6 +1015,7 @@ add_interface_port MII1 phyMii1_TxEr export Output 1
 add_interface_port MII1 phyMii1_TxDat export Output 4
 add_interface_port MII1 phyMii1_RxClk export Input 1
 add_interface_port MII1 phyMii1_RxDv export Input 1
+add_interface_port MII0 phyMii1_RxEr export Input 1
 add_interface_port MII1 phyMii1_RxDat export Input 4
 
 ##Avalon Memory Mapped Slave: MAC_BUF Buffer

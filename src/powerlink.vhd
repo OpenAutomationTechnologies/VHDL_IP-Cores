@@ -58,6 +58,8 @@
 -- 2011-04-26	V0.22	zelenkaj	generic for clock domain selection
 -- 2011-04-28	V0.23	zelenkaj	second cmp timer of openMAC is optinal by generic
 --									generic for second phy port of openMAC
+-- 2011-05-06	V0.24	zelenkaj	some naming convention changes
+--									bug fix: use the RX_ER signal, it has important meaning!
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -93,7 +95,7 @@ entity powerlink is
 		--asynchronous buffer size
 		iAsyBuf1Size_g				:		integer 							:= 100;
 		iAsyBuf2Size_g				:		integer 							:= 100;
-		iFpgaRev_g					:		integer								:= 16#55AA#;
+		iPdiRev_g					:		integer								:= 16#55AA#;
 	-- 8/16bit PARALLEL PDI GENERICS
 		papDataWidth_g				:		integer 							:= 8;
 		papLowAct_g					:		boolean								:= false;
@@ -224,6 +226,7 @@ entity powerlink is
 		phyMii0_RxClk				: in	std_logic;
 		phyMii0_RxDat               : in    std_logic_vector(3 downto 0) := (others => '0');
 		phyMii0_RxDv                : in    std_logic;
+		phyMii0_RxEr				: in	std_logic;
 		phyMii0_TxClk				: in	std_logic;
 		phyMii0_TxDat               : out   std_logic_vector(3 downto 0) := (others => '0');
 		phyMii0_TxEn                : out   std_logic := '0';
@@ -231,6 +234,7 @@ entity powerlink is
 		phyMii1_RxClk				: in	std_logic;
 		phyMii1_RxDat               : in    std_logic_vector(3 downto 0) := (others => '0');
 		phyMii1_RxDv                : in    std_logic;
+		phyMii1_RxEr				: in	std_logic;
 		phyMii1_TxClk				: in	std_logic;
 		phyMii1_TxDat               : out   std_logic_vector(3 downto 0) := (others => '0');
 		phyMii1_TxEn                : out   std_logic := '0';
@@ -312,7 +316,7 @@ begin
 		theAvalonPdi : entity work.pdi
 			generic map (
 				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
-				iFpgaRev_g					=> iFpgaRev_g,
+				iPdiRev_g					=> iPdiRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
 				--PDO buffer size *3
@@ -422,7 +426,7 @@ begin
 		thePdi : entity work.pdi
 			generic map (
 				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
-				iFpgaRev_g					=> iFpgaRev_g,
+				iPdiRev_g					=> iPdiRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
 				--PDO buffer size *3
@@ -527,7 +531,7 @@ begin
 		thePdi : entity work.pdi
 			generic map (
 				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
-				iFpgaRev_g					=> iFpgaRev_g,
+				iPdiRev_g					=> iPdiRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
 				--PDO buffer size *3
@@ -661,6 +665,7 @@ begin
 			phyMii0_RxClk			=> phyMii0_RxClk,
 			phyMii0_RxDat           => phyMii0_RxDat,
 			phyMii0_RxDv            => phyMii0_RxDv,
+			phyMii0_RxEr			=> phyMii0_RxEr,
 			phyMii0_TxClk			=> phyMii0_TxClk,
 			phyMii0_TxDat           => phyMii0_TxDat,
 			phyMii0_TxEn            => phyMii0_TxEn,
@@ -668,6 +673,7 @@ begin
 			phyMii1_RxClk			=> phyMii1_RxClk,
 			phyMii1_RxDat           => phyMii1_RxDat,
 			phyMii1_RxDv            => phyMii1_RxDv,
+			phyMii1_RxEr			=> phyMii1_RxEr,
 			phyMii1_TxClk			=> phyMii1_TxClk,
 			phyMii1_TxDat           => phyMii1_TxDat,
 			phyMii1_TxEn            => phyMii1_TxEn,

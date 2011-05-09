@@ -55,6 +55,7 @@
 -- 2011-04-26	V0.22	zelenkaj	generic for clock domain selection
 --									area optimization in Status/Control Register
 -- 2011-04-28  	V0.23	zelenkaj	clean up to reduce Quartus II warnings
+-- 2011-05-06	V0.24	zelenkaj	some naming convention changes
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -68,7 +69,7 @@ USE work.memMap.all; --used for memory mapping (alignment, ...)
 entity pdi is
 	generic (
 			genOnePdiClkDomain_g		:		boolean := false;
-			iFpgaRev_g					:		integer := 0; --for HW/SW match verification (0..65535)
+			iPdiRev_g					:		integer := 0; --for HW/SW match verification (0..65535)
 			iRpdos_g					:		integer := 3;
 			iTpdos_g					:		integer := 1;
 			--PDO buffer size *3
@@ -176,7 +177,7 @@ constant	dprSize_c					: integer := (	intCntStReg_c.span +
 constant	dprAddrWidth_c				: integer := integer(ceil(log2(real(dprSize_c))));
 ---other constants
 constant	magicNumber_c				: integer := 16#50435000#;
-constant	fpgaRev_c					: integer := iFpgaRev_g;
+constant	pdiRev_c					: integer := iPdiRev_g;
 														
 ------------------------------------------------------------------------------------------------------------------------
 --signals
@@ -446,7 +447,7 @@ begin
 			--register content
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
-			fpgaRev						=> conv_std_logic_vector(fpgaRev_c, 16),
+			pdiRev						=> conv_std_logic_vector(pdiRev_c, 16),
 			tPdoBuffer					=> conv_std_logic_vector(extTpdoBuf_c.base, 16) & 
 											conv_std_logic_vector(extTpdoBuf_c.span, 16),
 			rPdo0Buffer					=> conv_std_logic_vector(extRpdo0Buf_c.base, 16) & 
@@ -531,7 +532,7 @@ begin
 			--register content
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
-			fpgaRev						=> conv_std_logic_vector(fpgaRev_c, 16),
+			pdiRev						=> conv_std_logic_vector(pdiRev_c, 16),
 			tPdoBuffer					=> conv_std_logic_vector(extTpdoBuf_c.base, 16) & 
 											conv_std_logic_vector(extTpdoBuf_c.span, 16),
 			rPdo0Buffer					=> conv_std_logic_vector(extRpdo0Buf_c.base, 16) & 
@@ -1452,7 +1453,7 @@ entity pdiControlStatusReg is
 			--register content
 			---constant values
 			magicNumber					: 		std_Logic_vector(31 downto 0) := (others => '0');
-			fpgaRev						: 		std_logic_vector(15 downto 0) := (others => '0');
+			pdiRev						: 		std_logic_vector(15 downto 0) := (others => '0');
 			tPdoBuffer					: 		std_logic_vector(31 downto 0) := (others => '0');
 			rPdo0Buffer					: 		std_logic_vector(31 downto 0) := (others => '0');
 			rPdo1Buffer					: 		std_logic_vector(31 downto 0) := (others => '0');
@@ -1544,7 +1545,7 @@ begin
 	--non dpr read
 	with conv_integer(addr)*4 select
 		nonDprDout <=	magicNumber 					when 16#00#,
-						(x"0000" & fpgaRev) 			when 16#04#,
+						(x"0000" & pdiRev) 				when 16#04#,
 						--STORED IN DPR 				when 16#08#,
 						--STORED IN DPR 				when 16#0C#,
 						--STORED IN DPR 				when 16#10#,

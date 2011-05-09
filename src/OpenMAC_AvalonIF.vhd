@@ -69,6 +69,7 @@
 -- 2011-04-28  V0.83		second cmp timer is optinal by generic
 -- 							generic for second phy port
 --							clean up to reduce Quartus II warnings
+-- 2011-05-06  V0.84		bug fix: use the RX_ER signal, it has important meaning!
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -139,6 +140,7 @@ entity AlteraOpenMACIF is
 			phyMii0_RxClk				: in	std_logic;
 			phyMii0_RxDat               : in    std_logic_vector(3 downto 0);
 			phyMii0_RxDv                : in    std_logic;
+			phyMii0_RxEr				: in	std_logic;
 			phyMii0_TxClk				: in	std_logic;
 			phyMii0_TxDat               : out   std_logic_vector(3 downto 0) := (others => '0');
 			phyMii0_TxEn                : out   std_logic := '0';
@@ -146,6 +148,7 @@ entity AlteraOpenMACIF is
 			phyMii1_RxClk				: in	std_logic;
 			phyMii1_RxDat               : in    std_logic_vector(3 downto 0);
 			phyMii1_RxDv                : in    std_logic;
+			phyMii1_RxEr				: in	std_logic;
 			phyMii1_TxClk				: in	std_logic;
 			phyMii1_TxDat               : out   std_logic_vector(3 downto 0) := (others => '0');
 			phyMii1_TxEn                : out   std_logic := '0';
@@ -430,6 +433,7 @@ begin
 				mTxDat				=> phyMii0_TxDat,
 				mTxClk				=> phyMii0_TxClk,
 				mRxDv				=> phyMii0_RxDv,
+				mRxEr				=> phyMii0_RxEr,
 				mRxDat				=> phyMii0_RxDat,
 				mRxClk				=> phyMii0_RxClk
 			);
@@ -450,6 +454,7 @@ begin
 					mTxDat				=> phyMii1_TxDat,
 					mTxClk				=> phyMii1_TxClk,
 					mRxDv				=> phyMii1_RxDv,
+					mRxEr				=> phyMii1_RxEr,
 					mRxDat				=> phyMii1_RxDat,
 					mRxClk				=> phyMii1_RxClk
 				);
