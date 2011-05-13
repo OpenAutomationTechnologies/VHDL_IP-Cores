@@ -71,6 +71,7 @@
 #--									added description to parameters (shown in SOPC GUI)
 #-- 2011-05-06	V0.24	zelenkaj	some naming convention changes
 #--									bug fix: use the RX_ER signal, it has important meaning!
+#-- 2011-05-09  V0.30	zelenkaj	Hardware Acceleration (HW ACC) added.
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -278,6 +279,15 @@ set_parameter_property mac2phys VISIBLE true
 set_parameter_property mac2phys DISPLAY_NAME "Enable second Ethernet Phy Interface"
 set_parameter_property mac2phys DESCRIPTION "The POWERLINK Slave allows a second Ethernet interface for flexible network topologies by using the FPGA-internal openHUB IP-core. Enable the option if you want to connect a second phy to the FPGA."
 
+add_parameter enHwAcc BOOLEAN FALSE
+set_parameter_property enHwAcc VISIBLE true
+####################################
+#enable hw acc on your own risk!
+set_parameter_property enHwAcc ENABLED false
+####################################
+set_parameter_property enHwAcc DISPLAY_NAME "Enable HW ACC"
+set_parameter_property enHwAcc DESCRIPTION "The additional Hardware Acceleration (HWACC) enables a fast link between the openMAC DMA and the PDI. The TPDOs and RPDOs are copied automatically by the HW ACC without intervention of the PCP. This reduces copy jobs for the PCP!"
+
 #parameters for PDI HDL
 add_parameter genOnePdiClkDomain_g BOOLEAN false
 set_parameter_property genOnePdiClkDomain_g HDL_PARAMETER true
@@ -386,6 +396,11 @@ add_parameter use2ndPhy_g BOOLEAN true
 set_parameter_property use2ndPhy_g HDL_PARAMETER true
 set_parameter_property use2ndPhy_g VISIBLE false
 set_parameter_property use2ndPhy_g DERIVED true
+
+add_parameter useHwAcc_g BOOLEAN true
+set_parameter_property useHwAcc_g HDL_PARAMETER true
+set_parameter_property useHwAcc_g VISIBLE false
+set_parameter_property useHwAcc_g DERIVED true
 
 #parameters for parallel interface
 add_parameter papDataWidth_g INTEGER 16
@@ -529,6 +544,7 @@ proc my_validation_callback {} {
 	set_parameter_property macTxBuf VISIBLE false
 	set_parameter_property macRxBuf VISIBLE false
 	set_parameter_property mac2cmpTimer VISIBLE false
+	set_parameter_property enHwAcc VISIBLE false
 	
 	set_parameter_property mac2phys VISIBLE true
 	
@@ -584,6 +600,29 @@ proc my_validation_callback {} {
 		#AP can be big or little endian - allow choice
 		set_parameter_property configApEndian VISIBLE true
 		set_parameter_property mac2cmpTimer VISIBLE true
+		
+		#find out if we should use hardware acceleration!?
+		set_parameter_value useHwAcc_g false
+		if {[get_parameter_value enHwAcc]} {
+			set_parameter_value useHwAcc_g true
+		}
+		
+		if {[get_parameter_value packetLoc] == "TX and RX into DPRAM"} {
+			#no hw acc allowed
+			set_parameter_value useHwAcc_g false
+		} elseif {[get_parameter_value packetLoc] == "TX into DPRAM and RX over Avalon Master"} {
+			#no hw acc allowed
+			set_parameter_value useHwAcc_g false
+		} elseif {[get_parameter_value packetLoc] == "TX and RX over Avalon Master"} {
+			#hw acc allowed!
+			set_parameter_property enHwAcc VISIBLE true
+		} else {
+			send_message error "error 0xdeadbeef"
+		}
+		
+		#####
+		set_parameter_value useHwAcc_g false
+		#####
 		
 		set genPdi true
 		
@@ -828,7 +867,7 @@ proc my_validation_callback {} {
 	
 	#####################################
 	# here set the PDI revision number  #
-	set_parameter_value iPdiRev_g 0x0021
+	set_parameter_value iPdiRev_g 0x0022
 	#####################################
 	
 	# here you can change manually to use only one PDI Clk domain
@@ -842,6 +881,11 @@ proc my_validation_callback {} {
 	set_module_assignment embeddedsw.CMacro.PDIRPDOS				$rpdos
 	set_module_assignment embeddedsw.CMacro.PDITPDOS				$tpdos
 	set_module_assignment embeddedsw.CMacro.FPGAREV					[get_parameter_value iPdiRev_g]
+	if {[get_parameter_value useHwAcc_g]} {
+		set_module_assignment embeddedsw.CMacro.HWACC				1
+	} else {
+		set_module_assignment embeddedsw.CMacro.HWACC				0
+	}
 }
 
 #display
@@ -868,9 +912,10 @@ add_display_item "Asynchronous Buffer" asyncBuf1Size  PARAMETER
 add_display_item "Asynchronous Buffer" asyncBuf2Size  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
 add_display_item "openMAC" mac2phys PARAMETER
+add_display_item "openMAC" packetLoc  PARAMETER
+add_display_item "openMAC" enHwAcc  PARAMETER
 add_display_item "openMAC" macTxBuf  PARAMETER
 add_display_item "openMAC" macRxBuf  PARAMETER
-add_display_item "openMAC" packetLoc  PARAMETER
 
 #INTERFACES
 
@@ -953,7 +998,7 @@ add_interface_port MAC_REG mac_chipselect chipselect Input 1
 add_interface_port MAC_REG mac_read_n read_n Input 1
 add_interface_port MAC_REG mac_write_n write_n Input 1
 add_interface_port MAC_REG mac_byteenable_n byteenable_n Input 2
-add_interface_port MAC_REG mac_address address Input 12
+add_interface_port MAC_REG mac_address address Input 13
 add_interface_port MAC_REG mac_writedata writedata Input 16
 add_interface_port MAC_REG mac_readdata readdata Output 16
 
@@ -1307,6 +1352,12 @@ if {$ClkRate50meg == 50000000} {
 		set_port_property phy1_link termination true
 	}
 	
+	#if the MAC DMA master only write data to memory (RX), then we can disable read and readdata
+	if {[get_parameter_value packetLoc] == "TX into DPRAM and RX over Avalon Master"} {
+		set_port_property m_read_n termination true
+		set_port_property m_readdata termination true
+	}
+	
 	if {[get_parameter_value configPowerlink] == "openMAC only"} {
 		if {[get_parameter_value packetLoc] == "TX and RX into DPRAM"} {
 			#pcp_clk necessary!
@@ -1330,6 +1381,7 @@ if {$ClkRate50meg == 50000000} {
 		# MAC stuff
 		# PDI_PCP
 		set_interface_property PDI_PCP ENABLED true
+		
 		if {[get_parameter_value configApInterface] == "Avalon"} {
 		# AP as Avalon (PDI_AP)
 			set_interface_property PDI_AP ENABLED true

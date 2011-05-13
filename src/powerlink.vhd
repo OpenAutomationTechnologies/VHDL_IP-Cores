@@ -60,6 +60,7 @@
 --									generic for second phy port of openMAC
 -- 2011-05-06	V0.24	zelenkaj	some naming convention changes
 --									bug fix: use the RX_ER signal, it has important meaning!
+-- 2011-05-09  	V0.25	zelenkaj	Hardware Acceleration (HW ACC) added.
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -84,6 +85,7 @@ entity powerlink is
 		useRxIntPacketBuf_g			:		boolean								:= true; --rx buffer located in internal packet buffer
 		use2ndCmpTimer_g			:		boolean 							:= true; --use second cmp timer (used in PDI)
 		use2ndPhy_g					:		boolean 							:= true; --use second phy (introduces openHUB)
+		useHwAcc_g					: 		boolean								:= false;
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
 		iTpdos_g					:		integer 							:= 1;
@@ -121,7 +123,7 @@ entity powerlink is
 		mac_read_n					: in    std_logic;
 		mac_write_n					: in    std_logic;
 		mac_byteenable_n            : in    std_logic_vector(1 downto 0);
-		mac_address                 : in    std_logic_vector(11 downto 0);
+		mac_address                 : in    std_logic_vector(12 downto 0);
 		mac_writedata               : in    std_logic_vector(15 downto 0);
 		mac_readdata                : out   std_logic_vector(15 downto 0) := (others => '0');
 		mac_irq						: out 	std_logic := '0';
@@ -289,6 +291,11 @@ architecture rtl of powerlink is
 	signal led_s					:		std_logic_vector(7 downto 0);
 	
 	signal clkAp_s, rstAp_s			:		std_logic;
+	
+	--PDI change buffer triggers for hw acc to pdi
+	signal rpdo_change_tog			: 		std_logic_vector(2 downto 0);
+	signal tpdo_change_tog			: 		std_logic;
+	
 begin
 	--general signals
 	rstPcp_n <= not rstPcp;
@@ -356,7 +363,10 @@ begin
 				-- LED
 				ledsOut						=> led_s,
 				phyLink						=> phyLink,
-				phyAct						=> phyAct
+				phyAct						=> phyAct,
+				--PDI change buffer triggers
+				rpdo_change_tog				=> rpdo_change_tog,
+				tpdo_change_tog				=> tpdo_change_tog
 			);
 	end generate genPdi;
 
@@ -466,7 +476,10 @@ begin
 				-- LED
 				ledsOut						=> led_s,
 				phyLink						=> phyLink,
-				phyAct						=> phyAct
+				phyAct						=> phyAct,
+				--PDI change buffer triggers
+				rpdo_change_tog				=> rpdo_change_tog,
+				tpdo_change_tog				=> tpdo_change_tog
 			);
 	end generate genPdiPar;
 
@@ -571,7 +584,10 @@ begin
 				-- LED
 				ledsOut						=> led_s,
 				phyLink						=> phyLink,
-				phyAct						=> phyAct
+				phyAct						=> phyAct,
+				--PDI change buffer triggers
+				rpdo_change_tog				=> rpdo_change_tog,
+				tpdo_change_tog				=> tpdo_change_tog
 			);
 	end generate genPdiSpi;
 --
@@ -614,7 +630,10 @@ begin
 			useIntPacketBuf_g		=> useIntPacketBuf_g,
 			useRxIntPacketBuf_g		=> useRxIntPacketBuf_g,
 			use2ndCmpTimer_g		=> use2ndCmpTimer_g,
-			use2ndPhy_g				=> use2ndPhy_g
+			use2ndPhy_g				=> use2ndPhy_g,
+			useHwAcc_g				=> useHwAcc_g,
+			iTpdos_g				=> iTpdos_g,
+			iRpdos_g				=> iRpdos_g
 		)
 		port map (
 			Reset_n					=> rstPcp_n,
@@ -683,7 +702,10 @@ begin
 			smi_Do					=> smi_Do,
 			smi_Doe					=> smi_Doe,
 			phy_nResetOut			=> phy_nResetOut,
-			led_activity			=> phyAct(0)
+			led_activity			=> phyAct(0),
+			--PDI change buffer triggers
+			rpdo_change_tog			=> rpdo_change_tog,
+			tpdo_change_tog			=> tpdo_change_tog
 		);
 	
 	phyAct(1) <= phyAct(0);

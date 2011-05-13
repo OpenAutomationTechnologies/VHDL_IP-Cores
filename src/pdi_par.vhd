@@ -65,7 +65,7 @@ entity pdi_par is
 			pap_be						: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
 			pap_addr 					: in    std_logic_vector(15 downto 0);
 			pap_data					: inout	std_logic_vector(papDataWidth_g-1 downto 0);
-			pap_ack					: out	std_logic;
+			pap_ack						: out	std_logic;
 		-- clock for AP side
 			ap_reset					: in    std_logic;
 			ap_clk						: in	std_logic;
