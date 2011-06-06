@@ -74,6 +74,7 @@
 -- 2011-05-06  V0.84		bug fix: use the RX_ER signal, it has important meaning!
 -- 2011-05-09  V0.90		Hardware Acceleration (HW ACC) added.
 --							bug fix: latch m_readdata for TX FIFO if m_waitrequest = 0
+-- 2011-06-06  V0.91		optimized TX Fifo for openMAC DMA
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -1191,10 +1192,11 @@ begin
 			--TX
 			if txFsm = transfer and rxOnly_g = false then
 				--fsm is in transfer state -> fill fifo to almost full
-				--only start read if no write is pending
-				if TXFifo_AF = '0' and m_write = '0' then
+				if TXFifo_AE = '1' and m_read = '0' and m_write = '0' then
+					--fifo is almost empty -> start read
 					m_read <= '1';
-				elsif m_read = '1' and m_waitrequest = '0' then
+				elsif TXFifo_AF = '1' and m_read = '1' and m_waitrequest = '0' then
+					--fifo is almost full -> stop read if waitrequest is deasserted
 					m_read <= '0';
 				end if;
 			elsif txFsm = finish and rxOnly_g = false then
@@ -1264,35 +1266,53 @@ begin
 		
 		Dma_Dout_s <= Dma_Dout(7 downto 0) & Dma_Dout(15 downto 8);
 		
-		genTxFifo: if rxOnly_g = false generate
-			the_TxFifo : entity work.OpenMAC_DMAFifo
+		theTxFifo : block
+			signal usedw : std_logic_vector(3 downto 0);
+		begin
+			genTxFifo: if rxOnly_g = false generate
+				the_TxFifo : entity work.OpenMAC_DMAFifo
+				generic map (	log2words_g	 =>	usedw'length
+							)
+				port map	(	aclr     	 => arst,
+								clock	 	 => clk,
+								data	 	 => m_readdata_s,
+								rdreq	 	 => TXFifo_Rd,
+								sclr	 	 => TXFifo_Clr,
+								wrreq	 	 => TXFifo_Wr,
+								usedw		 => usedw,
+								empty		 => TXFifo_E,
+								full		 => TXFifo_F,
+								q			 => Dma_Din
+							);
+			end generate;
+			
+			TXFifo_AE <= '1' when usedw < conv_std_logic_vector(4, usedw'length) else '0';
+			TXFifo_AF <= '1' when usedw > conv_std_logic_vector(14, usedw'length) else '0';
+			
+		end block theTxFifo;
+		
+		theRxFifo : block
+			signal usedw : std_logic_vector(3 downto 0);
+		begin
+			the_RxFifo : entity work.OpenMAC_DMAFifo
+			generic map (	log2words_g	 =>	usedw'length
+						)
 			port map	(	aclr     	 => arst,
 							clock	 	 => clk,
-							data	 	 => m_readdata_s,
-							rdreq	 	 => TXFifo_Rd,
-							sclr	 	 => TXFifo_Clr,
-							wrreq	 	 => TXFifo_Wr,
-							almost_empty => TXFifo_AE,
-							almost_full	 => TXFifo_AF,
-							empty		 => TXFifo_E,
-							full		 => TXFifo_F,
-							q			 => Dma_Din
+							data	 	 => Dma_Dout_s,
+							rdreq	 	 => RXFifo_Rd,
+							sclr	 	 => RXFifo_Clr,
+							wrreq	 	 => RXFifo_Wr,
+							usedw		 => usedw,
+							empty		 => RXFifo_E,
+							full		 => RXFifo_F,
+							q			 => m_writedata
 						);
-		end generate;
-		
-		the_RxFifo : entity work.OpenMAC_DMAFifo
-		port map	(	aclr     	 => arst,
-						clock	 	 => clk,
-						data	 	 => Dma_Dout_s,
-						rdreq	 	 => RXFifo_Rd,
-						sclr	 	 => RXFifo_Clr,
-						wrreq	 	 => RXFifo_Wr,
-						almost_empty => RXFifo_AE,
-						almost_full	 => RXFifo_AF,
-						empty		 => RXFifo_E,
-						full		 => RXFifo_F,
-						q			 => m_writedata
-					);
+			
+			RXFifo_AE <= '1' when usedw < conv_std_logic_vector(2, usedw'length) else '0';
+			RXFifo_AF <= '1' when usedw > conv_std_logic_vector(14, usedw'length) else '0';
+			
+		end block theRxFifo;
 	end block theFifos;
 	
 end architecture rtl;
