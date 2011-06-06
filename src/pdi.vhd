@@ -57,6 +57,7 @@
 -- 2011-04-28  	V0.23	zelenkaj	clean up to reduce Quartus II warnings
 -- 2011-05-06	V0.24	zelenkaj	some naming convention changes
 -- 2011-05-09	V0.25	zelenkaj	minor change in edge detector and syncs (reset to zero)
+-- 2011-06-06	V0.26	zelenkaj	status/control register enhanced by 8 bytes
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -144,7 +145,7 @@ type pdi32Bit_t is
 constant	extMaxOneSpan				: integer := 2 * 1024; --2kB
 constant	extLog2MaxOneSpan			: integer := integer(ceil(log2(real(extMaxOneSpan))));
 ----control / status register
-constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#68#);
+constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#6C#);
 ----asynchronous buffers
 constant	extABuf1Tx_c				: memoryMapping_t := (16#0800#, iABuf1_g); --header is included in generic value!
 constant	extABuf1Rx_c				: memoryMapping_t := (16#1000#, iABuf1_g); --header is included in generic value!
@@ -157,7 +158,7 @@ constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g); --he
 constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g); --header is included in generic value!
 ---memory mapping inside the PDI's DPR
 ----control / status register
-constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 7 * 4); --bytes mapped to dpr (dword alignment!!!)
+constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 9 * 4); --bytes mapped to dpr (dword alignment!!!)
 ----asynchronous buffers
 constant	intABuf1Tx_c				: memoryMapping_t := (intCntStReg_c.base + intCntStReg_c.span, align32(extABuf1Tx_c.span));
 constant	intABuf1Rx_c				: memoryMapping_t := (intABuf1Tx_c.base + intABuf1Tx_c.span, align32(extABuf1Rx_c.span));
@@ -1568,25 +1569,27 @@ begin
 						--STORED IN DPR 				when 16#18#,
 						--STORED IN DPR 				when 16#1C#,
 						--STORED IN DPR 				when 16#20#,
-						(eventAckIn & asyncIrqCtrlIn) 	when 16#24#,
-						tPdoBuffer 						when 16#28#,
-						rPdo0Buffer 					when 16#2C#,
-						rPdo1Buffer 					when 16#30#,
-						rPdo2Buffer 					when 16#34#,
-						asyncBuffer1Tx 					when 16#38#,
-						asyncBuffer1Rx 					when 16#3C#,
-						asyncBuffer2Tx 					when 16#40#,
-						asyncBuffer2Rx 					when 16#44#,
-						--RESERVED 						when 16#48#,
-						--RESERVED 						when 16#4C#,
+						--STORED IN DPR 				when 16#24#,
+						--STORED IN DPR 				when 16#28#,
+						(eventAckIn & asyncIrqCtrlIn) 	when 16#2C#,
+						tPdoBuffer 						when 16#30#,
+						rPdo0Buffer 					when 16#34#,
+						rPdo1Buffer 					when 16#38#,
+						rPdo2Buffer 					when 16#3C#,
+						asyncBuffer1Tx 					when 16#40#,
+						asyncBuffer1Rx 					when 16#44#,
+						asyncBuffer2Tx 					when 16#48#,
+						asyncBuffer2Rx 					when 16#4C#,
+						--RESERVED 						when 16#50#,
+						--RESERVED 						when 16#54#,
 						(virtualBufferSelectRpdo0 & 
-						virtualBufferSelectTpdo) 		when 16#50#,
+						virtualBufferSelectTpdo) 		when 16#58#,
 						(virtualBufferSelectRpdo2 & 
-						virtualBufferSelectRpdo1) 		when 16#54#,
-						(x"0000" & apIrqControlIn) 		when 16#58#,
-						--RESERVED						when 16#5C#,
-						--RESERVED 						when 16#60#,
-						(ledCnfgIn & ledCtrlIn) 		when 16#64#,
+						virtualBufferSelectRpdo1) 		when 16#5C#,
+						(x"0000" & apIrqControlIn) 		when 16#60#,
+						--RESERVED						when 16#64#,
+						--RESERVED 						when 16#68#,
+						(ledCnfgIn & ledCtrlIn) 		when 16#6C#,
 						(others => '0') 				when others;
 	
 	--ignored values
@@ -1656,6 +1659,10 @@ begin
 					when 16#20# =>
 						--STORED IN DPR
 					when 16#24# =>
+						--STORED IN DPR
+					when 16#28# =>
+						--STORED IN DPR
+					when 16#2C# =>
 						--AP ONLY
 						if be(0) = '1' and bIsPcp = false then
 							--asyncIrqCtrlOut(7 downto 0) <= din(7 downto 0);
@@ -1672,10 +1679,6 @@ begin
 --						if be(3) = '1' then
 --							eventAckOut(15 downto 8) <= din(31 downto 24);
 --						end if;
-					when 16#28# =>
-						--RO
-					when 16#2C# =>
-						--RO
 					when 16#30# =>
 						--RO
 					when 16#34# =>
@@ -1689,23 +1692,27 @@ begin
 					when 16#44# =>
 						--RO
 					when 16#48# =>
-						--RESERVED
+						--RO
 					when 16#4C# =>
-						--RESERVED
+						--RO
 					when 16#50# =>
-						if be(0) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(1) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(2) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
-						if be(3) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
+						--RESERVED
 					when 16#54# =>
+						--RESERVED
+					when 16#58# =>
+						if be(0) = '1' then
+							tPdoTrigger <= '1';
+						end if;
+						if be(1) = '1' then
+							tPdoTrigger <= '1';
+						end if;
+						if be(2) = '1' then
+							rPdoTrigger(0) <= '1';
+						end if;
+						if be(3) = '1' then
+							rPdoTrigger(0) <= '1';
+						end if;
+					when 16#5C# =>
 						if be(0) = '1' then
 							rPdoTrigger(1) <= '1';
 						end if;
@@ -1718,18 +1725,18 @@ begin
 						if be(3) = '1' then
 							rPdoTrigger(2) <= '1';
 						end if;
-					when 16#58# =>
+					when 16#60# =>
 						if be(0) = '1' then
 							apIrqControlOut(7 downto 0) <= din(7 downto 0);
 						end if;
 						if be(1) = '1' then
 							apIrqControlOut(15 downto 8) <= din(15 downto 8);
 						end if;
-					when 16#5C# =>
-						--RESERVED
-					when 16#60# =>
-						--RESERVED
 					when 16#64# =>
+						--RESERVED
+					when 16#68# =>
+						--RESERVED
+					when 16#6C# =>
 						if be(0) = '1' then
 							ledCtrlOut(7 downto 0) <= din(7 downto 0);
 						end if;

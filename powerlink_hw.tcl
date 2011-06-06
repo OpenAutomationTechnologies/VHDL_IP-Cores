@@ -72,6 +72,7 @@
 #-- 2011-05-06	V0.24	zelenkaj	some naming convention changes
 #--									bug fix: use the RX_ER signal, it has important meaning!
 #-- 2011-05-09  V0.30	zelenkaj	Hardware Acceleration (HW ACC) added.
+#-- 2011-06-06	V0.31	zelenkaj	PDI status/control register enhanced by 8 bytes
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -867,7 +868,7 @@ proc my_validation_callback {} {
 	
 	#####################################
 	# here set the PDI revision number  #
-	set_parameter_value iPdiRev_g 0x0022
+	set_parameter_value iPdiRev_g 0x0023
 	#####################################
 	
 	# here you can change manually to use only one PDI Clk domain
