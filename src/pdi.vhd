@@ -58,6 +58,7 @@
 -- 2011-05-06	V0.24	zelenkaj	some naming convention changes
 -- 2011-05-09	V0.25	zelenkaj	minor change in edge detector and syncs (reset to zero)
 -- 2011-06-06	V0.26	zelenkaj	status/control register enhanced by 8 bytes
+-- 2011-06-10	V0.27	zelenkaj	bug fix: if dpr size goes below 2**10, error of dpr address width
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -256,8 +257,8 @@ signal		apIrqControlPcp,
 			apIrqControlApIn			: std_logic_vector(15 downto 0);
 signal		ap_irq_s					: std_logic;
 ---address calulation result
-signal		pcp_addrRes					: std_logic_vector(dprAddrWidth_c-2 downto 0);
-signal		ap_addrRes					: std_logic_vector(dprAddrWidth_c-2 downto 0);
+signal		pcp_addrRes					: std_logic_vector(extLog2MaxOneSpan-2 downto 0);--std_logic_vector(dprAddrWidth_c-2 downto 0);
+signal		ap_addrRes					: std_logic_vector(extLog2MaxOneSpan-2 downto 0);--std_logic_vector(dprAddrWidth_c-2 downto 0);
 
 ---EVENT stuff
 signal		pcp_eventSet_s, --pulse to set event
