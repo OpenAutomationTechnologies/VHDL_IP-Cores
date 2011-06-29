@@ -59,6 +59,7 @@
 -- 2011-05-09	V0.25	zelenkaj	minor change in edge detector and syncs (reset to zero)
 -- 2011-06-06	V0.26	zelenkaj	status/control register enhanced by 8 bytes
 -- 2011-06-10	V0.27	zelenkaj	bug fix: if dpr size goes below 2**10, error of dpr address width
+-- 2011-06-29	V0.28	zelenkaj	bug fix: led control was gone and dpr addr width still buggy
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -146,7 +147,7 @@ type pdi32Bit_t is
 constant	extMaxOneSpan				: integer := 2 * 1024; --2kB
 constant	extLog2MaxOneSpan			: integer := integer(ceil(log2(real(extMaxOneSpan))));
 ----control / status register
-constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#6C#);
+constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#70#);
 ----asynchronous buffers
 constant	extABuf1Tx_c				: memoryMapping_t := (16#0800#, iABuf1_g); --header is included in generic value!
 constant	extABuf1Rx_c				: memoryMapping_t := (16#1000#, iABuf1_g); --header is included in generic value!
@@ -257,8 +258,8 @@ signal		apIrqControlPcp,
 			apIrqControlApIn			: std_logic_vector(15 downto 0);
 signal		ap_irq_s					: std_logic;
 ---address calulation result
-signal		pcp_addrRes					: std_logic_vector(extLog2MaxOneSpan-2 downto 0);--std_logic_vector(dprAddrWidth_c-2 downto 0);
-signal		ap_addrRes					: std_logic_vector(extLog2MaxOneSpan-2 downto 0);--std_logic_vector(dprAddrWidth_c-2 downto 0);
+signal		pcp_addrRes					: std_logic_vector(dprAddrWidth_c-2 downto 0);
+signal		ap_addrRes					: std_logic_vector(dprAddrWidth_c-2 downto 0);
 
 ---EVENT stuff
 signal		pcp_eventSet_s, --pulse to set event
@@ -339,7 +340,7 @@ begin
 		q_b				=>		dprOut.ap
 		);
 	
-	pcp_addrRes <= '0' & pcp_address(extLog2MaxOneSpan-1-2 downto 0) + dpr.pcp.addrOff;
+	pcp_addrRes <= '0' & pcp_address(dprAddrWidth_c-2-1 downto 0) + dpr.pcp.addrOff;
 	
 	dpr.pcp	<=	dprCntStReg_s.pcp	when	selCntStReg_s.pcp = '1'	else
 				dprABuf1Tx_s.pcp	when	selABuf1Tx_s.pcp  = '1' else
@@ -353,7 +354,7 @@ begin
 				((others => '0'), (others => '0'), (others => '0'), (others => '0'), '0');
 				
 				
-	ap_addrRes <= '0' & ap_address(extLog2MaxOneSpan-1-2 downto 0) + dpr.ap.addrOff;
+	ap_addrRes <= '0' & ap_address(dprAddrWidth_c-2-1 downto 0) + dpr.ap.addrOff;
 	
 	dpr.ap	<=	dprCntStReg_s.ap	when	selCntStReg_s.ap = '1'	else
 				dprABuf1Tx_s.ap 	when	selABuf1Tx_s.ap   = '1' else
