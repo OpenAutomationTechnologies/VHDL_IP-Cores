@@ -73,6 +73,8 @@
 #--									bug fix: use the RX_ER signal, it has important meaning!
 #-- 2011-05-09  V0.30	zelenkaj	Hardware Acceleration (HW ACC) added.
 #-- 2011-06-06	V0.31	zelenkaj	PDI status/control register enhanced by 8 bytes
+#-- 2011-06-20	V0.32	zelenkaj	RPDO size is set once for all
+#--									big/little endian option forwarded to system.h only, not to vhdl!
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -195,20 +197,20 @@ set_parameter_property rpdoNum DESCRIPTION "This parameter sets the maximum RPDO
 add_parameter rpdo0size INTEGER 1
 set_parameter_property rpdo0size ALLOWED_RANGES 1:1490
 set_parameter_property rpdo0size UNITS bytes
-set_parameter_property rpdo0size DISPLAY_NAME "1st RPDO Buffer Size"
-set_parameter_property rpdo0size DESCRIPTION "The RPDO Buffer Size is the data size limit of the corresponding RPDO channel."
+set_parameter_property rpdo0size DISPLAY_NAME "RPDO Buffer Size"
+set_parameter_property rpdo0size DESCRIPTION "The RPDO Buffer Size is the data size limit of each individual RPDO channel."
 
-add_parameter rpdo1size INTEGER 1
-set_parameter_property rpdo1size ALLOWED_RANGES 1:1490
-set_parameter_property rpdo1size UNITS bytes
-set_parameter_property rpdo1size DISPLAY_NAME "2nd RPDO Buffer Size"
-set_parameter_property rpdo1size DESCRIPTION "The RPDO Buffer Size is the data size limit of the corresponding RPDO channel."
-
-add_parameter rpdo2size INTEGER 1
-set_parameter_property rpdo2size ALLOWED_RANGES 1:1490
-set_parameter_property rpdo2size UNITS bytes
-set_parameter_property rpdo2size DISPLAY_NAME "3rd RPDO Buffer Size"
-set_parameter_property rpdo2size DESCRIPTION "The RPDO Buffer Size is the data size limit of the corresponding RPDO channel."
+#add_parameter rpdo1size INTEGER 1
+#set_parameter_property rpdo1size ALLOWED_RANGES 1:1490
+#set_parameter_property rpdo1size UNITS bytes
+#set_parameter_property rpdo1size DISPLAY_NAME "2nd RPDO Buffer Size"
+#set_parameter_property rpdo1size DESCRIPTION "The RPDO Buffer Size is the data size limit of the corresponding RPDO channel."
+#
+#add_parameter rpdo2size INTEGER 1
+#set_parameter_property rpdo2size ALLOWED_RANGES 1:1490
+#set_parameter_property rpdo2size UNITS bytes
+#set_parameter_property rpdo2size DISPLAY_NAME "3rd RPDO Buffer Size"
+#set_parameter_property rpdo2size DESCRIPTION "The RPDO Buffer Size is the data size limit of the corresponding RPDO channel."
 
 add_parameter tpdoNum INTEGER 1
 set_parameter_property tpdoNum ALLOWED_RANGES 1
@@ -218,8 +220,8 @@ set_parameter_property tpdoNum DESCRIPTION "This parameter sets the maximum TPDO
 add_parameter tpdo0size INTEGER 1
 set_parameter_property tpdo0size ALLOWED_RANGES 1:1490
 set_parameter_property tpdo0size UNITS bytes
-set_parameter_property tpdo0size DISPLAY_NAME "1st TPDO Buffer Size"
-set_parameter_property tpdo0size DESCRIPTION "The TPDO Buffer Size is the data size limit of the corresponding TPDO channel."
+set_parameter_property tpdo0size DISPLAY_NAME "TPDO Buffer Size"
+set_parameter_property tpdo0size DESCRIPTION "The TPDO Buffer Size is the data size limit of each individual TPDO channel."
 
 add_parameter asyncBuf1Size INTEGER 1514
 set_parameter_property asyncBuf1Size ALLOWED_RANGES 1:1518
@@ -451,8 +453,10 @@ proc my_validation_callback {} {
 	set rpdos						[get_parameter_value rpdoNum]
 	set tpdos						[get_parameter_value tpdoNum]
 	set rpdo0size					[get_parameter_value rpdo0size]
-	set rpdo1size					[get_parameter_value rpdo1size]
-	set rpdo2size					[get_parameter_value rpdo2size]
+	set rpdo1size					[get_parameter_value rpdo0size]
+	#set rpdo1size					[get_parameter_value rpdo1size]
+	set rpdo2size					[get_parameter_value rpdo0size]
+	#set rpdo2size					[get_parameter_value rpdo2size]
 	set tpdo0size					[get_parameter_value tpdo0size]
 	set asyncBuf1Size				[get_parameter_value asyncBuf1Size]
 	set asyncBuf2Size				[get_parameter_value asyncBuf2Size]
@@ -537,8 +541,8 @@ proc my_validation_callback {} {
 	set_parameter_property asyncBuf1Size VISIBLE false
 	set_parameter_property asyncBuf2Size VISIBLE false
 	set_parameter_property rpdo0size VISIBLE false
-	set_parameter_property rpdo1size VISIBLE false
-	set_parameter_property rpdo2size VISIBLE false
+#	set_parameter_property rpdo1size VISIBLE false
+#	set_parameter_property rpdo2size VISIBLE false
 	set_parameter_property tpdo0size VISIBLE false
 	set_parameter_property validAssertDuration VISIBLE false
 	set_parameter_property validSet VISIBLE false
@@ -630,23 +634,23 @@ proc my_validation_callback {} {
 		#set rpdo size to zero if not used
 		if {$rpdos == 1} {
 			set_parameter_property rpdo0size VISIBLE true
-			set_parameter_property rpdo1size VISIBLE false
-			set_parameter_property rpdo2size VISIBLE false
+#			set_parameter_property rpdo1size VISIBLE false
+#			set_parameter_property rpdo2size VISIBLE false
 			set rpdo1size 0
 			set rpdo2size 0
 			set macRxBuffers 4
 			set memRpdo [expr ($rpdo0size)*3]
 		} elseif {$rpdos == 2} {
 			set_parameter_property rpdo0size VISIBLE true
-			set_parameter_property rpdo1size VISIBLE true
-			set_parameter_property rpdo2size VISIBLE false
+#			set_parameter_property rpdo1size VISIBLE true
+#			set_parameter_property rpdo2size VISIBLE false
 			set rpdo2size 0
 			set macRxBuffers 5
 			set memRpdo [expr ($rpdo0size + $rpdo1size)*3]
 		} elseif {$rpdos == 3} {
 			set_parameter_property rpdo0size VISIBLE true
-			set_parameter_property rpdo1size VISIBLE true
-			set_parameter_property rpdo2size VISIBLE true
+#			set_parameter_property rpdo1size VISIBLE true
+#			set_parameter_property rpdo2size VISIBLE true
 			set macRxBuffers 6
 			set memRpdo [expr ($rpdo0size + $rpdo1size + $rpdo2size )*3]
 		}
@@ -785,8 +789,11 @@ proc my_validation_callback {} {
 		set_parameter_value papBigEnd_g	false
 		set_parameter_value spiBigEnd_g	false
 	} else {
-		set_parameter_value papBigEnd_g	true
-		set_parameter_value spiBigEnd_g	true
+#		big/little endian conversion is considered by software, THX Michael!
+#		set_parameter_value papBigEnd_g	true
+#		set_parameter_value spiBigEnd_g	true
+		set_parameter_value papBigEnd_g	false
+		set_parameter_value spiBigEnd_g	false
 	}
 	if {[get_parameter_value configApParSigs] == "Low Active"} {
 		set_parameter_value papLowAct_g	true
@@ -907,8 +914,8 @@ add_display_item "Receive Process Data" rpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdo0size PARAMETER
 add_display_item "Receive Process Data" rpdo0size PARAMETER
-add_display_item "Receive Process Data" rpdo1size PARAMETER
-add_display_item "Receive Process Data" rpdo2size PARAMETER
+#add_display_item "Receive Process Data" rpdo1size PARAMETER
+#add_display_item "Receive Process Data" rpdo2size PARAMETER
 add_display_item "Asynchronous Buffer" asyncBuf1Size  PARAMETER
 add_display_item "Asynchronous Buffer" asyncBuf2Size  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
