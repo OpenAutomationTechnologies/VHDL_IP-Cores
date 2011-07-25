@@ -44,6 +44,7 @@
 -- 2010-11-15	V0.02		bug fix: increased size of rx fifo, because of errors with marvel 88e1111 mii phy
 -- 2010-11-30	V0.03		bug fix: in case of no link some phys confuse tx fifo during tx => aclr fifo
 -- 2011-05-06	V0.10		bug fix: use the RX_ER signal, it has important meaning!
+-- 2011-07-23	V0.11		forward RxErr to RMII
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -60,6 +61,7 @@ entity rmii2mii is
 		rTxDat				: in 	std_logic_vector(1 downto 0);
 		rRxDv				: out	std_logic;
 		rRxDat				: out	std_logic_vector(1 downto 0);
+		rRxEr				: out	std_logic;
 		--MII (PHY)
 		mTxEn				: out	std_logic;
 		mTxDat				: out	std_logic_vector(3 downto 0);
@@ -161,6 +163,7 @@ begin
 		signal fifo_dout : std_logic_vector(1 downto 0);
 		signal fifo_rdUsedWord : std_logic_vector(4 downto 0);
 		signal fifo_wrUsedWord : std_logic_vector(3 downto 0);
+		signal rRxErL, rRxErLL : std_logic;
 	begin
 		
 		fifo_din <= mRxDat;
@@ -171,12 +174,17 @@ begin
 		
 		fifo_half <= fifo_rdUsedWord(fifo_rdUsedWord'left);
 		
+		rRxEr <= rRxErLL;
+		
 		process(clk50, rst)
 		begin
 			if rst = '1' then
 				fifo_rd <= '0';
 				fifo_valid <= '0';
+				rRxErL <= '0'; rRxErLL <= '0';
 			elsif clk50 = '1' and clk50'event then
+				rRxErLL <= rRxErL;
+				rRxErL <= mRxEr;
 				if fifo_rd = '0' and fifo_half = '1' then
 					fifo_rd <= '1';
 				elsif fifo_rd = '1' and fifo_empty = '1' then

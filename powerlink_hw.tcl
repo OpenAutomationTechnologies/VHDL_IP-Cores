@@ -75,6 +75,7 @@
 #-- 2011-06-06	V0.31	zelenkaj	PDI status/control register enhanced by 8 bytes
 #-- 2011-06-20	V0.32	zelenkaj	RPDO size is set once for all
 #--									big/little endian option forwarded to system.h only, not to vhdl!
+#-- 2011-07-23	V0.33	zelenkaj	added RXERR for RMII
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -1038,6 +1039,7 @@ add_interface_port RMII0 phy0_RxDat export Input 2
 add_interface_port RMII0 phy0_RxDv export Input 1
 add_interface_port RMII0 phy0_TxDat export Output 2
 add_interface_port RMII0 phy0_TxEn export Output 1
+add_interface_port RMII0 phy0_RxErr export Input 1
 
 ##Export Rmii Phy 1
 add_interface RMII1 conduit end
@@ -1046,6 +1048,7 @@ add_interface_port RMII1 phy1_RxDat export Input 2
 add_interface_port RMII1 phy1_RxDv export Input 1
 add_interface_port RMII1 phy1_TxDat export Output 2
 add_interface_port RMII1 phy1_TxEn export Output 1
+add_interface_port RMII1 phy1_RxErr export Input 1
 
 ##Export Mii Phy 0
 add_interface MII0 conduit end

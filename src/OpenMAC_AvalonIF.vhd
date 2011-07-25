@@ -75,6 +75,7 @@
 -- 2011-05-09  V0.90		Hardware Acceleration (HW ACC) added.
 --							bug fix: latch m_readdata for TX FIFO if m_waitrequest = 0
 -- 2011-06-06  V0.91		optimized TX Fifo for openMAC DMA
+-- 2011-07-23  V0.92		openFILTER enhanced by RxErr signal
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -139,11 +140,13 @@ entity AlteraOpenMACIF is
             rCrs_Dv_0                   : in    std_logic;                     -- RMII Carrier Sense / Data Valid
             rTx_Dat_0                   : out   std_logic_vector(1 downto 0);  -- RMII Tx Daten
             rTx_En_0                    : out   std_logic;                     -- RMII Tx_Enable
+			rRx_Err_0					: in 	std_logic;
 		-- RMII Port 1
             rRx_Dat_1                   : in    std_logic_vector(1 downto 0);  -- RMII Rx Daten
             rCrs_Dv_1                   : in    std_logic;                     -- RMII Carrier Sense / Data Valid
             rTx_Dat_1                   : out   std_logic_vector(1 downto 0) := (others => '0');  -- RMII Tx Daten
             rTx_En_1                    : out   std_logic := '0';								  -- RMII Tx_Enable
+			rRx_Err_1					: in 	std_logic;
 		--- MII PORTS
 			phyMii0_RxClk				: in	std_logic;
 			phyMii0_RxDat               : in    std_logic_vector(3 downto 0);
@@ -254,11 +257,13 @@ architecture struct of AlteraOpenMACIF is
 	signal Phy0TxDat							: std_logic_vector(1 downto 0);
 	signal Phy0RxDv							: std_logic;
 	signal Phy0RxDat							: std_logic_vector(1 downto 0);
+	signal Phy0RxErr						: std_logic;
 --Phy1 Signals
 	signal Phy1TxEn							: std_logic;
 	signal Phy1TxDat							: std_logic_vector(1 downto 0);
 	signal Phy1RxDv							: std_logic;
 	signal Phy1RxDat							: std_logic_vector(1 downto 0);
+	signal Phy1RxErr						: std_logic;
 -- Mii Signals
 	signal smi_Doei						: std_logic;
 begin
@@ -435,7 +440,7 @@ begin
 		port map	(
 						nRst => Reset_n,
 						Clk => Clk50,
-						nCheckShortFrames => '0',
+						nCheckShortFrames => '1',
 						RxDvIn => Phy0RxDv,
 						RxDatIn => Phy0RxDat,
 						RxDvOut => Flt0RxDv,
@@ -443,7 +448,8 @@ begin
 						TxEnIn => Flt0TxEn,
 						TxDatIn => Flt0TxDat,
 						TxEnOut => Phy0TxEn,
-						TxDatOut => Phy0TxDat
+						TxDatOut => Phy0TxDat,
+						RxErr => Phy0RxErr
 		);
 	
 	gen2ndFilter : if use2ndPhy_g generate
@@ -451,7 +457,7 @@ begin
 			port map	(
 							nRst => Reset_n,
 							Clk => Clk50,
-							nCheckShortFrames => '0',
+							nCheckShortFrames => '1',
 							RxDvIn => Phy1RxDv,
 							RxDatIn => Phy1RxDat,
 							RxDvOut => Flt1RxDv,
@@ -459,7 +465,8 @@ begin
 							TxEnIn => Flt1TxEn,
 							TxDatIn => Flt1TxDat,
 							TxEnOut => Phy1TxEn,
-							TxDatOut =>  Phy1TxDat
+							TxDatOut =>  Phy1TxDat,
+							RxErr => Phy1RxErr
 			);
 	end generate;
 	
@@ -490,16 +497,20 @@ begin
 			if Reset_n = '0' then
 				Phy0RxDv <= '0';
 				Phy0RxDat <= (others => '0');
+				Phy0RxErr <= '0';
 				if use2ndPhy_g then
 					Phy1RxDv <= '0';
 					Phy1RxDat <= (others => '0');
+					Phy1RxErr <= '0';
 				end if;
 			elsif clk50 = '1' and clk50'event then
 				Phy0RxDv <= rCrs_Dv_0;
 				Phy0RxDat <= rRx_Dat_0;
+				Phy0RxErr <= rRx_Err_0;
 				if use2ndPhy_g then
 					Phy1RxDv <= rCrs_Dv_1;
 					Phy1RxDat <= rRx_Dat_1;
+					Phy1RxErr <= rRx_Err_1;
 				end if;
 			end if;
 		end process;
@@ -517,6 +528,7 @@ begin
 				rTxDat				=> Phy0TxDat,
 				rRxDv				=> Phy0RxDv,
 				rRxDat				=> Phy0RxDat,
+				rRxEr				=> Phy0RxErr,
 				--MII (PHY)
 				mTxEn				=> phyMii0_TxEn,
 				mTxDat				=> phyMii0_TxDat,
@@ -538,6 +550,7 @@ begin
 					rTxDat				=> Phy1TxDat,
 					rRxDv				=> Phy1RxDv,
 					rRxDat				=> Phy1RxDat,
+					rRxEr				=> Phy1RxErr,
 					--MII (PHY)
 					mTxEn				=> phyMii1_TxEn,
 					mTxDat				=> phyMii1_TxDat,

@@ -61,6 +61,7 @@
 -- 2011-05-06	V0.24	zelenkaj	some naming convention changes
 --									bug fix: use the RX_ER signal, it has important meaning!
 -- 2011-05-09  	V0.25	zelenkaj	Hardware Acceleration (HW ACC) added.
+-- 2011-07-23   V0.26	zelenkaj	openFILTER enhanced by RxErr signal
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -210,6 +211,7 @@ entity powerlink is
 	--- RMII PORTS
 		phy0_RxDat                 	: in    std_logic_vector(1 downto 0);
 		phy0_RxDv                  	: in    std_logic;
+		phy0_RxErr					: in 	std_logic;
 		phy0_TxDat                 	: out   std_logic_vector(1 downto 0) := (others => '0');
 		phy0_TxEn                  	: out   std_logic := '0';
 		phy0_SMIClk					: out	std_logic := '0';
@@ -218,6 +220,7 @@ entity powerlink is
 		phy0_link					: in	std_logic							:= '0';
 		phy1_RxDat                 	: in    std_logic_vector(1 downto 0) := (others => '0');
 		phy1_RxDv                  	: in    std_logic;
+		phy1_RxErr					: in	std_logic;
 		phy1_TxDat                 	: out   std_logic_vector(1 downto 0) := (others => '0');
 		phy1_TxEn                  	: out   std_logic := '0';
 		phy1_SMIClk					: out	std_logic := '0';
@@ -674,10 +677,12 @@ begin
             m_arbiterlock			=> m_arbiterlock,
 			rRx_Dat_0               => phy0_RxDat,
 			rCrs_Dv_0               => phy0_RxDv,
+			rRx_Err_0				=> phy0_RxErr,
 			rTx_Dat_0               => phy0_TxDat,
 			rTx_En_0                => phy0_TxEn,
 			rRx_Dat_1               => phy1_RxDat,
 			rCrs_Dv_1               => phy1_RxDv,
+			rRx_Err_1				=> phy1_RxErr,
 			rTx_Dat_1               => phy1_TxDat,
 			rTx_En_1                => phy1_TxEn,
 		--- MII PORTS

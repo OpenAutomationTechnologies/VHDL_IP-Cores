@@ -36,110 +36,204 @@
 --	     The following Conditions are checked:
 --         RxDV >163.64탎ec HIGH -> invalid
 --         RxDV <0.64탎ec LOW -> invalid
---         RxDV >10.24탎ec LOW -> valid
 --         RxDV 4x <5.12탎ec HIGH -> invalid
 --         RxDV >5.12탎ec HIGH -> valid
+--		   RxErr HIGH -> invalid
+--			if invalid deactivation of port, until RxDv and RxErr > 10.24탎ec low
 --
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
 -- 2009-08-07  V0.01        Converted from V1.1 to first official version.
+-- 2011-07-23  V0.10		Consideration of RX Error signal and jitter (converted from V2.3)
 ------------------------------------------------------------------------------------------------------------------------
 
-LIBRARY ieee;
-USE ieee.std_logic_unsigned.ALL;
-USE ieee.std_logic_1164.ALL;
-USE ieee.std_logic_arith.ALL;
+library ieee;                                                                                 
+use ieee.std_logic_unsigned.all;                                                             
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
 
-ENTITY OpenFILTER IS
-    PORT    (   nRst                : IN	std_logic;
-                Clk                 : IN    std_logic;
-                nCheckShortFrames   : IN    std_logic := '0';
-                RxDvIn              : IN    std_logic;
-                RxDatIn             : IN    std_logic_vector(1 DOWNTO 0);
-                RxDvOut             : OUT   std_logic;
-                RxDatOut            : OUT   std_logic_vector(1 DOWNTO 0);
-                TxEnIn              : IN    std_logic;
-                TxDatIn             : IN    std_logic_vector(1 DOWNTO 0);
-                TxEnOut             : OUT   std_logic;
-                TxDatOut            : OUT   std_logic_vector(1 DOWNTO 0)
-			);
-END ENTITY OpenFILTER;
 
-ARCHITECTURE struct OF OpenFILTER IS
-	
-    SIGNAL Cnt_Rx_high          : std_logic_vector(13 DOWNTO 0);
-    SIGNAL Cnt_Rx_low           : std_logic_vector(9 DOWNTO 0);
-    SIGNAL RxHigh_ToLong        : std_logic;
-    SIGNAL Cnt_RxHigh_ToShort   : std_logic_vector(1 DOWNTO 0);
-    SIGNAL RxHigh_ToShort       : std_logic;
-    SIGNAL RxHigh_ToShort_temp  : std_logic;
-    SIGNAL RxDvLatch            : std_logic;
-    SIGNAL RxDvLatch2           : std_logic;
-    SIGNAL RxDataValidLatch     : std_logic;
+ENTITY openFILTER is
+    Port    (   nRst                : in    std_logic;
+                Clk                 : in    std_logic;
+                nCheckShortFrames   : in    std_logic := '0';   -- Rx Port von Hub;
+                RxDvIn              : in    std_logic;
+                RxDatIn             : in    std_logic_vector(1 downto 0);
+                RxDvOut             : out   std_logic;
+                RxDatOut            : out   std_logic_vector(1 downto 0);
+                TxEnIn              : in    std_logic;
+                TxDatIn             : in    std_logic_vector(1 downto 0);
+                TxEnOut             : out   std_logic;
+                TxDatOut            : out   std_logic_vector(1 downto 0);
+                RxErr               : in    std_logic := '0'
+            );
+END ENTITY openFILTER;
+
+ARCHITECTURE rtl OF openFILTER IS
+    
+    type aRxSet is record
+      RxDv : std_logic;
+      RxDat: std_logic_vector(1 downto 0);
+    end record;
+
+    type aRxSetArr is array (3 downto 0) of aRxSet;
+    
+    
+    signal Cnt_Rx_high                 : std_logic_vector(13 downto 0);
+    signal Cnt_RxHigh_ToShort          : std_logic_vector(1 downto 0);
+    signal RxHigh_ToShort              : std_logic;
+    signal RxLow_ToShort               : std_logic;
+    signal RxHigh_ToShort_temp         : std_logic;
+    signal RxLow_ToShort_temp          : std_logic;
+    signal RxLowGap_ToShort            : std_logic;
+    signal RxLowGap_ToShort_temp       : std_logic; 
+    signal RxDataValidLatch            : std_logic;  
+    signal PortIsEnable                : std_logic;
+    signal RxErrOccur                  : std_logic;
+    signal RxAnyError                  : std_logic;      
+    signal RxTxNotActive               : std_logic;
+    signal DisablePort                 : std_logic;
+    
+    signal RxDel : aRxSetArr;
+    
+                                        
 
 BEGIN
-	
-    RxDvOut     <= RxDvIn AND NOT Cnt_Rx_high(Cnt_Rx_high'high) AND (NOT RxHigh_ToShort OR nCheckShortFrames);
-    RxDatOut(0) <= RxDatIn(0) AND NOT Cnt_Rx_high(Cnt_Rx_high'high) AND (NOT RxHigh_ToShort OR nCheckShortFrames);
-    RxDatOut(1) <= RxDatIn(1) AND NOT Cnt_Rx_high(Cnt_Rx_high'high) AND (NOT RxHigh_ToShort OR nCheckShortFrames);
+     
+  -- IN --
+   RxDel(0).RxDv  <= RxDvIn;
+   RxDel(0).RxDat <= RxDatIn; 
+  
 
-    TxEnOut     <= TxEnIn AND NOT Cnt_Rx_high(Cnt_Rx_high'high);
-    TxDatOut(0) <= TxDatIn(0) AND NOT Cnt_Rx_high(Cnt_Rx_high'high);
-    TxDatOut(1) <= TxDatIn(1) AND NOT Cnt_Rx_high(Cnt_Rx_high'high);
-	
+
+    
+    RxDvOut         <= RxDel(3).RxDv  and PortIsEnable                    when RxLowGap_ToShort = '1' else
+                       RxDel(1).RxDv  and PortIsEnable;  
+                       
+    RxDatOut        <= RxDel(3).RxDat and (PortIsEnable & PortIsEnable)   when RxLowGap_ToShort = '1' else
+                       RxDel(1).RxDat and (PortIsEnable & PortIsEnable);                         
+                                                   
+                                                         
+    
+    TxEnOut         <= TxEnIn           and PortIsEnable;
+    TxDatOut        <= TxDatIn          and (PortIsEnable & PortIsEnable);
+     
+                                                                       
+                                                                      
+    
+                                                                                  
+    
+    RxAnyError      <=  '1'     when (Cnt_Rx_high(Cnt_Rx_high'high) = '1') or (RxHigh_ToShort = '1') or (RxLow_ToShort = '1') or (RxErr = '1') or (RxErrOccur = '1') else
+                        '0';
+    RxTxNotActive   <=  '1'     when (RxDvIn = '0') and (RxDel(1).RxDv = '0') and (RxDel(2).RxDv = '0') and (TxEnIn = '0') and (TxDatIn = "00") else
+                        '0';
+    
+    -- Port darf nur aktiviert werden, wenn kein RX_DV ansteht
+    PortIsEnable    <= '1'  when nRst = '0' else
+                       '0'  when (RxAnyError = '1') or (DisablePort = '1') else
+                       '1';                  
+
+               
 do: PROCESS (nRst, Clk)
 
 BEGIN
-    IF nRst = '0' THEN
-        RxHigh_ToLong       <= '0';
-        Cnt_RxHigh_ToShort  <= (OTHERS => '0');
-        RxHigh_ToShort      <= '0';
-        RxHigh_ToShort_temp <= '0';
-        RxDvLatch           <= '0';
-        RxDvLatch2          <= '0';
-        RxDataValidLatch    <= '0';
-        Cnt_Rx_high			<= (OTHERS => '0');
-        Cnt_Rx_low			<= (OTHERS => '0');
-    ELSIF rising_edge(Clk) THEN
-        RxDvLatch           <= RxDvIn;
-        RxDvLatch2          <= RxDvLatch;
-        RxDataValidLatch    <= RxDvLatch OR RxDvLatch2;
-
-        IF RxDvLatch = '1' OR RxDvLatch2 = '1' THEN
-            IF Cnt_Rx_high(Cnt_Rx_high'high) = '0' THEN Cnt_Rx_high <= Cnt_Rx_high + 1;  END IF;	-- 163.84탎ec (max Size)
-            Cnt_Rx_low <= (OTHERS => '0');
-			
-            IF 		RxDataValidLatch = '0'  THEN RxHigh_ToShort_temp <= '1';
-            ELSIF 	Cnt_Rx_high(8) = '1'    THEN RxHigh_ToShort_temp <= '0';	--   5.12탎ec (min Size)
-            ELSE								 RxHigh_ToShort_temp <= RxHigh_ToShort_temp;
-            END IF;
-        ELSE
-            IF Cnt_Rx_high(Cnt_Rx_high'high) = '1' THEN
-                IF Cnt_Rx_low(Cnt_Rx_low'high) = '0'    THEN Cnt_Rx_low <= Cnt_Rx_low + 1;			--  10.24탎ec
-                ELSE							        Cnt_Rx_high <= (OTHERS => '0');
-                END IF;
-            ELSE
-                IF Cnt_Rx_low(5) = '0'  THEN Cnt_Rx_low  <= Cnt_Rx_low + 1;							--   0.64탎ec (min. Gap between two Frames)
-                ELSE               	    Cnt_Rx_high <= (OTHERS => '0');
-                END IF;
-            END IF;
-            IF RxDataValidLatch = '1' THEN
-                IF RxHigh_ToShort_temp = '1' THEN
-                    IF Cnt_RxHigh_ToShort /= "11" 	THEN
-                        Cnt_RxHigh_ToShort  <= Cnt_RxHigh_ToShort + 1;
-                        RxHigh_ToShort 	    <= '0';
-                    ELSE
-                        RxHigh_ToShort 	    <= '1';
-                    END IF;
-                ELSE
-                    Cnt_RxHigh_ToShort  <= (OTHERS => '0');
-                    RxHigh_ToShort 	    <= '0';
-                END IF;
-            END IF;
-            RxHigh_ToShort_temp <= '0';
-        END IF;
-    END IF;
+    if nRst = '0' then                                                                     
+        Cnt_RxHigh_ToShort  <= (others => '0');
+        RxHigh_ToShort      <= '0';                    RxHigh_ToShort_temp   <= '0';
+        RxLow_ToShort       <= '0';                    RxLow_ToShort_temp    <= '0';
+        RxLowGap_ToShort    <= '0';                    RxLowGap_ToShort_temp <= '0'; 
+        RxDel(3 downto 1)   <= (others => ('0',"00"));
+        RxDataValidLatch    <= '0';                          
+        Cnt_Rx_high         <= (others => '0');
+        RxErrOccur          <= '0';          
+        DisablePort         <= '0';
+        
+    elsif rising_edge(Clk) then
+        RxDel(1) <= RxDel(0);
+        RxDel(2) <= RxDel(1);
+        RxDel(3) <= RxDel(2);
+        RxDataValidLatch    <= RxDel(1).RxDv or RxDel(2).RxDv;
+        
+        
+                   
+        if    (DisablePort = '0') and (RxAnyError = '1')                            then    DisablePort <= '1';
+        elsif (DisablePort = '1') and (RxAnyError = '0') and (RxTxNotActive = '1')  then    DisablePort <= '0';
+        else                                                                                DisablePort <= DisablePort;
+        end if;
+        
+        
+        
+                                                        
+ ----------------------------------------------- Pending Error: Block Port for at least 10.24 usec -----------------------------------------------        
+        if RxErrOccur = '1' then  
+            if RxErr = '1' then                                                                  -- phy error
+                Cnt_Rx_high <= (others => '0');                                                  
+            else                                                                                 -- other error
+                if Cnt_Rx_high(13) = '0' then Cnt_Rx_high <= Cnt_Rx_high + 1;                      -- wait for 163.84 usec
+                else                          RxErrOccur  <= '0';
+                                              Cnt_Rx_high <= (others => '0');
+                end if;                               
+            end if;                                   
+                                         
+                   
+                                                 
+ ----------------------------------------------- Phy Error -----------------------------------------------   
+        elsif RxErr = '1' then                                                                   
+             Cnt_Rx_high    <= (others => '0');                                                  -- -> block
+             RxErrOccur     <= '1';        
+                    
+                                                                                             
+                                                                                                 
+ ----------------------------------------------- RxDv = 1 -----------------------------------------------            
+        elsif RxDel(1).RxDv = '1' or RxDel(2).RxDv = '1' then                                        
+            if RxLow_ToShort_temp  = '1' then                                                               -- if previous Low Phase too short
+                RxLow_ToShort_temp  <= '0';                                                                   --> reset temp error
+                RxLow_ToShort       <= '1';                                                                   --> set RxLow_ToShort Error !!!
+            end if;                                                                    
+                             
+            if RxDataValidLatch = '0' then                                                                  -- rising_edge of RxDv    
+                Cnt_Rx_high         <= (others => '0');                                                       --> reset counter
+                RxHigh_ToShort_temp <= '1';                                                                   --> set temp error
+            else                                                                                           
+                if Cnt_Rx_high(13) = '0' then Cnt_Rx_high <= Cnt_Rx_high + 1;  end if;                      -- 163.84 usec (maximale Groesse von Frames)
+                if Cnt_Rx_high(8)  = '1' then RxHigh_ToShort_temp <= '0';      end if;                      --   5.12 usec (mindest Groesse von Frames)
+            end if;                                                                                           --> reset temp error
+                                                                                                                  
+                                                                                                                        
+            
+ ----------------------------------------------- RxDv = 0 -----------------------------------------------    
+        elsif RxDel(1).RxDv = '0' or RxDel(2).RxDv = '0' then                                                      
+            if RxDataValidLatch = '1' then                                                                  -- falling_edge of RxDv
+                if RxHigh_ToShort_temp = '1' then                                                             -- if previous High Phase too short
+                    if Cnt_RxHigh_ToShort /= "11"   then    Cnt_RxHigh_ToShort  <= Cnt_RxHigh_ToShort + 1;      --> count Occations
+                                                            RxHigh_ToShort      <= '0';                         -- if less than 4 short Frames in a Row -> no error
+                    else                                    RxHigh_ToShort      <= '1';                         -- else                                 -> RxHigh_ToShort Error !! 
+                    end if;                                                                                      
+                else                                                                                          -- if no error  
+                    Cnt_RxHigh_ToShort  <= (others => '0');                                                     --> reset Short Frame Counter
+                    RxHigh_ToShort      <= '0';                      
+                end if;                                                                                           
+                RxLow_ToShort_temp  <= '1';                                                                   -- set temp error                 
+                RxHigh_ToShort_temp <= '0';                                                                   -- reset previous temp error
+                RxLowGap_ToShort    <= '0';
+                RxLowGap_ToShort_temp <= '1';
+                Cnt_Rx_high         <= "00000000000001";                                                      -- reset Counter (=Low Counter)
+            else                                                                                            -- no edge 
+                if Cnt_Rx_high(5) = '1'  then RxLow_ToShort_temp <= '0'; end if;                              --  0.64 usec (mindest Groesse von Frame Gaps) -> reset tmp error                                                                                                       
+                if Cnt_Rx_high(9) = '0'  then    Cnt_Rx_high     <= Cnt_Rx_high + 1;                          --  For 10.24 usec no Frmae  
+                else                             RxHigh_ToShort  <= '0';                                      --> Reset All Errors
+                                                 RxLow_ToShort   <= '0';                                   
+                end if;                                          
+                
+                if Cnt_Rx_high(5 downto 1) = "10111" then RxLowGap_ToShort_temp <= '0'; end if;              -- 920 ns  
+                if RxLowGap_ToShort_temp = '1' and RxDvIn = '1' then RxLowGap_ToShort <= '1'; end if;        -- FrameGap > 940 ns -> Insert 2 Clks Delay to Rx                      
+                                               
+                                                    
+                
+            end if;
+        end if;                
+    end if;
 
 END PROCESS do;
-END struct;
+END rtl;
