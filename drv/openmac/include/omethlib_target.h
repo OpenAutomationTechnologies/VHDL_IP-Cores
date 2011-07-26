@@ -62,8 +62,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __OMETHLIB_TARGET_H__
 
 #define OMETH_HW_MODE	1
+
 #ifdef __NIOS2__
-    #define OMETH_MAKE_NONCACHABLE(ptr)		alt_remap_uncached(ptr)
+	//---------------------------------------------------------
+	// borrowed from Altera Nios II Toolchain
+	//  alt_remap_uncached.c
+		#ifdef NIOS2_MMU_PRESENT
+		/* Convert KERNEL region address to IO region address */
+		#define NIOS2_BYPASS_DCACHE_MASK   (0x1 << 29)
+		#else
+		/* Set bit 31 of address to bypass D-cache */
+		#define NIOS2_BYPASS_DCACHE_MASK   (0x1 << 31)
+		#endif
+	//
+	//---------------------------------------------------------
+    #define OMETH_MAKE_NONCACHABLE(ptr)		(volatile void*)(((unsigned long)ptr)|NIOS2_BYPASS_DCACHE_MASK);
 #else
     #define OMETH_MAKE_NONCACHABLE(ptr)     (ptr)
 #endif
