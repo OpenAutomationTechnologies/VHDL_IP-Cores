@@ -62,6 +62,7 @@
 --									bug fix: use the RX_ER signal, it has important meaning!
 -- 2011-05-09  	V0.25	zelenkaj	Hardware Acceleration (HW ACC) added.
 -- 2011-07-23   V0.26	zelenkaj	openFILTER enhanced by RxErr signal
+-- 2011-07-25	V0.27	zelenkaj	LED gadget and asynchronous buffer optional
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -90,6 +91,9 @@ entity powerlink is
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
 		iTpdos_g					:		integer 							:= 1;
+		genABuf1_g					:		boolean 							:= true; --if false iABuf1_g must be set to 0!
+		genABuf2_g					:		boolean 							:= true; --if false iABuf2_g must be set to 0!
+		genLedGadget_g				:		boolean 							:= false;
 		--PDO buffer size *3
 		iTpdoBufSize_g				:		integer 							:= 100;
 		iRpdo0BufSize_g				:		integer 							:= 100;
@@ -329,6 +333,9 @@ begin
 				iPdiRev_g					=> iPdiRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
+				genABuf1_g					=> genABuf1_g,
+				genABuf2_g					=> genABuf2_g,
+				genLedGadget_g				=> genLedGadget_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -442,6 +449,9 @@ begin
 				iPdiRev_g					=> iPdiRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
+				genABuf1_g					=> genABuf1_g,
+				genABuf2_g					=> genABuf2_g,
+				genLedGadget_g				=> genLedGadget_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -550,6 +560,9 @@ begin
 				iPdiRev_g					=> iPdiRev_g,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
+				genABuf1_g					=> genABuf1_g,
+				genABuf2_g					=> genABuf2_g,
+				genLedGadget_g				=> genLedGadget_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,

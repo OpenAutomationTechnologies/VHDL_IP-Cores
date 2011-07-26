@@ -76,6 +76,7 @@
 #-- 2011-06-20	V0.32	zelenkaj	RPDO size is set once for all
 #--									big/little endian option forwarded to system.h only, not to vhdl!
 #-- 2011-07-23	V0.33	zelenkaj	added RXERR for RMII
+#-- 2011-07-25	V0.34	zelenkaj	LED gadget and asynchronous buffer optional, reset of pdi revision
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.0
@@ -224,14 +225,18 @@ set_parameter_property tpdo0size UNITS bytes
 set_parameter_property tpdo0size DISPLAY_NAME "TPDO Buffer Size"
 set_parameter_property tpdo0size DESCRIPTION "The TPDO Buffer Size is the data size limit of each individual TPDO channel."
 
+add_parameter genLedGadget BOOLEAN true
+set_parameter_property genLedGadget DISPLAY_NAME "Enable LED outputs"
+set_parameter_property genLedGadget DESCRIPTION "The POWERLINK Slave provides an optional LED output port."
+
 add_parameter asyncBuf1Size INTEGER 1514
-set_parameter_property asyncBuf1Size ALLOWED_RANGES 1:1518
+set_parameter_property asyncBuf1Size ALLOWED_RANGES 20:1518
 set_parameter_property asyncBuf1Size UNITS bytes
 set_parameter_property asyncBuf1Size DISPLAY_NAME "Asynchronous Buffer Nr. 1 Size"
-set_parameter_property asyncBuf1Size DESCRIPTION "The Asynchronous Buffers are used for communication and asynchronous data transfer between PCP and AP."
+set_parameter_property asyncBuf1Size DESCRIPTION "The Asynchronous Buffers are used for communication and asynchronous data transfer between PCP and AP. (Asynchronous Buffer Nr. 1 is mandatory)"
 
 add_parameter asyncBuf2Size INTEGER 1514
-set_parameter_property asyncBuf2Size ALLOWED_RANGES 1:1518
+set_parameter_property asyncBuf2Size ALLOWED_RANGES 0:1518
 set_parameter_property asyncBuf2Size UNITS bytes
 set_parameter_property asyncBuf2Size DISPLAY_NAME "Asynchronous Buffer Nr. 2 Size"
 set_parameter_property asyncBuf2Size DESCRIPTION "The Asynchronous Buffers are used for communication and asynchronous data transfer between PCP and AP."
@@ -317,6 +322,21 @@ add_parameter genSpiAp_g BOOLEAN false
 set_parameter_property genSpiAp_g HDL_PARAMETER true
 set_parameter_property genSpiAp_g VISIBLE false
 set_parameter_property genSpiAp_g DERIVED TRUE
+
+add_parameter genABuf1_g BOOLEAN true
+set_parameter_property genABuf1_g HDL_PARAMETER true
+set_parameter_property genABuf1_g VISIBLE false
+set_parameter_property genABuf1_g DERIVED TRUE
+
+add_parameter genABuf2_g BOOLEAN true
+set_parameter_property genABuf2_g HDL_PARAMETER true
+set_parameter_property genABuf2_g VISIBLE false
+set_parameter_property genABuf2_g DERIVED TRUE
+
+add_parameter genLedGadget_g BOOLEAN true
+set_parameter_property genLedGadget_g HDL_PARAMETER true
+set_parameter_property genLedGadget_g VISIBLE false
+set_parameter_property genLedGadget_g DERIVED TRUE
 
 add_parameter iRpdos_g INTEGER 1
 set_parameter_property iRpdos_g HDL_PARAMETER true
@@ -461,6 +481,8 @@ proc my_validation_callback {} {
 	set tpdo0size					[get_parameter_value tpdo0size]
 	set asyncBuf1Size				[get_parameter_value asyncBuf1Size]
 	set asyncBuf2Size				[get_parameter_value asyncBuf2Size]
+	set ledGadgetEn					[get_parameter_value genLedGadget]
+	
 	set macTxBuf					[get_parameter_value macTxBuf]
 	set macRxBuf					[get_parameter_value macRxBuf]
 	set useLowJitterSync			[get_parameter_value mac2cmpTimer]
@@ -498,8 +520,22 @@ proc my_validation_callback {} {
 	set rpdo1size 					[expr $rpdo1size + 16]
 	set rpdo2size 					[expr $rpdo2size + 16]
 	set tpdo0size 					[expr $tpdo0size + 0]
-	set asyncBuf1Size				[expr $asyncBuf1Size + 4]
-	set asyncBuf2Size				[expr $asyncBuf2Size + 4]
+	
+	#async buffers set to zero are omitted
+	#set boolean generic
+	if {$asyncBuf1Size == 0} {
+		set_parameter_value genABuf1_g false
+	} else {
+		set asyncBuf1Size			[expr $asyncBuf1Size + 4]
+		set_parameter_value genABuf1_g true
+	}
+	
+	if {$asyncBuf2Size == 0} {
+		set_parameter_value genABuf2_g false
+	} else {
+		set asyncBuf2Size			[expr $asyncBuf2Size + 4]
+		set_parameter_value genABuf2_g true
+	}
 	
 	set genPdi false
 	set genAvalonAp false
@@ -539,6 +575,7 @@ proc my_validation_callback {} {
 	set_parameter_property configApSpi_CPOL VISIBLE false
 	set_parameter_property configApSpi_CPHA VISIBLE false
 	set_parameter_property configApSpi_IRQ VISIBLE false
+	set_parameter_property genLedGadget VISIBLE false
 	set_parameter_property asyncBuf1Size VISIBLE false
 	set_parameter_property asyncBuf2Size VISIBLE false
 	set_parameter_property rpdo0size VISIBLE false
@@ -603,9 +640,13 @@ proc my_validation_callback {} {
 		set_parameter_property configApInterface VISIBLE true
 		set_parameter_property asyncBuf1Size VISIBLE true
 		set_parameter_property asyncBuf2Size VISIBLE true
+		set_parameter_property genLedGadget VISIBLE true
 		#AP can be big or little endian - allow choice
 		set_parameter_property configApEndian VISIBLE true
 		set_parameter_property mac2cmpTimer VISIBLE true
+		
+		#set the led gadget enable generic
+		set_parameter_value genLedGadget_g $ledGadgetEn
 		
 		#find out if we should use hardware acceleration!?
 		set_parameter_value useHwAcc_g false
@@ -832,6 +873,12 @@ proc my_validation_callback {} {
 	#forward parameters to system.h
 	
 	# workaround: strings are erroneous => no blanks, etc.
+	if {$ledGadgetEn} {
+		set_module_assignment embeddedsw.CMacro.LEDGADGET			TRUE
+	} else {
+		set_module_assignment embeddedsw.CMacro.LEDGADGET			FALSE
+	}
+	
 	if {$configPowerlink == "Direct I/O CN"} {
 																	#direct I/O
 		set_module_assignment embeddedsw.CMacro.CONFIG				0
@@ -876,7 +923,7 @@ proc my_validation_callback {} {
 	
 	#####################################
 	# here set the PDI revision number  #
-	set_parameter_value iPdiRev_g 0x0023
+	set_parameter_value iPdiRev_g 1
 	#####################################
 	
 	# here you can change manually to use only one PDI Clk domain
@@ -911,6 +958,7 @@ add_display_item "Process Data Interface Settings" configApSpi_CPHA PARAMETER
 add_display_item "Process Data Interface Settings" validSet PARAMETER
 add_display_item "Process Data Interface Settings" validAssertDuration PARAMETER
 add_display_item "Process Data Interface Settings" mac2cmpTimer PARAMETER
+add_display_item "Process Data Interface Settings" genLedGadget PARAMETER
 add_display_item "Receive Process Data" rpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdo0size PARAMETER
@@ -1024,6 +1072,7 @@ set_interface_property PHYM0 ENABLED true
 add_interface_port PHYM0 phy0_SMIClk export Output 1
 add_interface_port PHYM0 phy0_SMIDat export Bidir 1
 add_interface_port PHYM0 phy0_Rst_n export Output 1
+add_interface_port PHYM0 phy0_link export Input 1
 
 ##Export Phy Management 1
 add_interface PHYM1 conduit end
@@ -1031,6 +1080,7 @@ set_interface_property PHYM1 ENABLED true
 add_interface_port PHYM1 phy1_SMIClk export Output 1
 add_interface_port PHYM1 phy1_SMIDat export Bidir 1
 add_interface_port PHYM1 phy1_Rst_n export Output 1
+add_interface_port PHYM1 phy1_link export Input 1
 
 ##Export Rmii Phy 0
 add_interface RMII0 conduit end
@@ -1261,8 +1311,6 @@ add_interface_port LED_GADGET led_status export Output 1
 add_interface_port LED_GADGET led_phyLink export Output 2
 add_interface_port LED_GADGET led_phyAct export Output 2
 add_interface_port LED_GADGET led_opt export Output 2
-add_interface_port LED_GADGET phy0_link export Input 1
-add_interface_port LED_GADGET phy1_link export Input 1
 
 proc my_elaboration_callback {} {
 #get system info...
@@ -1399,14 +1447,18 @@ if {$ClkRate50meg == 50000000} {
 			set_interface_property PDI_AP_IRQ ENABLED true
 			set_interface_property ap_clk ENABLED true
 			
-			set_interface_property LED_GADGET ENABLED true
+			if {[get_parameter_value genLedGadget]} {
+				set_interface_property LED_GADGET ENABLED true
+			}
 			
 		} elseif {[get_parameter_value configApInterface] == "Parallel"} {
 		# AP is external (PAR_AP)
 			set_interface_property PAR_AP ENABLED true
 			set_interface_property AP_EX_IRQ ENABLED true
 			
-			set_interface_property LED_GADGET ENABLED true
+			if {[get_parameter_value genLedGadget]} {
+				set_interface_property LED_GADGET ENABLED true
+			}
 			
 			if {[get_parameter_value papDataWidth_g] == 8} {
 				#we don't need byteenable for 8bit data bus width!
@@ -1441,7 +1493,9 @@ if {$ClkRate50meg == 50000000} {
 			set_interface_property SPI_AP ENABLED true
 			set_interface_property AP_EX_IRQ ENABLED true
 			
-			set_interface_property LED_GADGET ENABLED true
+			if {[get_parameter_value genLedGadget]} {
+				set_interface_property LED_GADGET ENABLED true
+			}
 			
 			if {[get_parameter_value configApSpi_IRQ] == "Low Active"} {
 				#low active output signal (irq_n) is used
