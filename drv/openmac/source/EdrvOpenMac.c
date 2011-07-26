@@ -54,6 +54,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 							output number of phys found
  2011/03/21		zelenkaj	buffer allocation defined by hardware generics
  2011/03/29		zelenkaj	tx buffer allocation fixes
+ 2011/06/15		zelenkaj	added TX queue 2
+							added optional debugging and CPU UTIL feature
 ----------------------------------------------------------------------------*/
 
 
@@ -70,18 +72,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/alt_cache.h>
 #include <sys/alt_irq.h>
 #include <alt_types.h>
+#include <io.h>
 
+#ifdef CPU_UTIL
+#include "cpuUtil.h"
+#endif
+
+//comment the following lines to disable feature
+//#define EDRV_DEBUG		//debugging information forwarded to stdout
+//#define EDRV_TTTX		//use time-triggered TX feature for MN
+//#define EDRV_2NDTXQUEUE	//use additional TX queue for MN
 
 //---------------------------------------------------------------------------
 // defines
 //---------------------------------------------------------------------------
 
 //------------------------------------------------------
-//--- set number of connected phys ---
-#define EDRV_PHY_NUM				2
-#if (EDRV_PHY_NUM < 1)
-	#error "At least one phy is necessary!"
-#endif
+//--- set phys settings ---
 //set phy AC timing behavior (ref. to data sheet)
 #define EDRV_PHY_RST_PULSE_US		10000 //length of reset pulse (rst_n = 0)
 #define EDRV_PHY_RST_READY_US		 5000 //time after phy is ready to operate
@@ -97,6 +104,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_CMP_BASE           (void *)POWERLINK_0_MAC_CMP_BASE
 	#define EDRV_CMP_SPAN                   POWERLINK_0_MAC_CMP_SPAN
 	#define EDRV_PKT_LOC					POWERLINK_0_MAC_REG_PKTLOC
+	#define EDRV_PHY_NUM					POWERLINK_0_MAC_REG_PHYCNT
 #if EDRV_PKT_LOC == 0
 	#define EDRV_MAX_RX_BUFFERS         	POWERLINK_0_MAC_REG_MACRXBUFFERS
 	#define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
@@ -124,11 +132,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	#define EDRV_MAX_RX_BUFFERS         	OPENMAC_0_REG_RXBUFFERS
 	#define EDRV_PKT_LOC					0 //TODO: use generic from SOPC
+	#define EDRV_PHY_NUM					1 //TODO: use generic from SOPC
 #else
 	#error "Configuration is unknown!"
 #endif
 
-#define EDRV_GET_MAC_TIME()			*((DWORD*)EDRV_CMP_BASE)
+#define EDRV_GET_MAC_TIME()			IORD_32DIRECT(EDRV_CMP_BASE, 0)
 
 //--- set driver's MTU ---
 #define EDRV_MAX_BUFFER_SIZE        1518
@@ -137,19 +146,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define EDRV_MAX_FILTERS            16
 
 //--- set driver's auto-response frames ---
-#define EDRV_MAX_AUTO_RESPONSES     14 //TODO: reduce to consume less TX descriptors!
+#define EDRV_MAX_AUTO_RESPONSES     14
+
+//--- set additional transmit queue size ---
+#define EDRV_MAX_TX_BUF2			16
 
 
 #if (EDRV_MAX_RX_BUFFERS > 16)
-	#error "This MAC version can handle 16 rx buffers, not more!"
+	#error "This MAC version can handle 16 Rx buffers, not more!"
 #elif (EDRV_MAX_RX_BUFFERS == 0)
 #warning "Rx buffers set to zero -> set value by yourself!"
 #undef EDRV_MAX_RX_BUFFERS
 #define EDRV_MAX_RX_BUFFERS 6
 #endif
 
-#if (EDRV_AUTO_RESPONSE == FALSE)
-    #error "Please enable EDRV_AUTO_RESPONSE in EplCfg.h!"
+#if (EDRV_AUTO_RESPONSE == FALSE && !defined(EDRV_TTTX))
+    #error "Please enable EDRV_AUTO_RESPONSE in EplCfg.h to use openMAC for CN!"
+#endif
+#if (EDRV_AUTO_RESPONSE != FALSE && defined(EDRV_TTTX))
+#error "Please disable EDRV_AUTO_RESPONSE in EplCfg.h to use openMAC for MN!"
+#endif
+
+#if (defined(EDRV_2NDTXQUEUE) && !defined(EDRV_TTTX))
+	#undef EDRV_2NDTXQUEUE //2nd TX queue makes no sense here..
+	#undef EDRV_MAX_TX_BUF2
 #endif
 
 
@@ -157,7 +177,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GET_TYPE_BASE(typ, element, ptr)    \
     ((typ*)( ((size_t)ptr) - (size_t)&((typ*)0)->element ))
 
-#include "unistd.h"
+#include <unistd.h>
 #define EDRV_USLEEP(time)			usleep(time)
 
 //---------------------------------------------------------------------------
@@ -195,6 +215,19 @@ typedef struct _tEdrvInstance
     DWORD					m_dwBufSpan;
 #endif
 
+#ifdef EDRV_2NDTXQUEUE
+    //additional tx queue
+    tEdrvTxBuffer*			m_apTxQueue[EDRV_MAX_TX_BUF2];
+    int						m_iTxQueueWr;
+    int						m_iTxQueueRd;
+#endif
+
+#ifdef EDRV_SOCJITTER_MONITOR
+    DWORD					m_dwSocLastTimeStamp;
+    BOOL					m_fSocMonitorValid;
+    DWORD					m_dwSocMaxJitterNs;
+#endif
+
 } tEdrvInstance;
 
 //---------------------------------------------------------------------------
@@ -203,9 +236,9 @@ typedef struct _tEdrvInstance
 
 
 // RX Hook function
-static int EdrvRxHook(void *arg, ometh_packet_typ  *pPacket, OMETH_BUF_FREE_FCT  *pFct) ;
+static int EdrvRxHook(void *arg, ometh_packet_typ  *pPacket, OMETH_BUF_FREE_FCT  *pFct);
 
-static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long time) ;
+static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long time);
 
 static void EdrvIrqHandler (void* pArg_p, alt_u32 dwInt_p);
 
@@ -244,13 +277,12 @@ static tEdrvInstance EdrvInstance_l;
 tEplKernel EdrvInit(tEdrvInitParam * pEdrvInitParam_p)
 {
 tEplKernel      Ret = kEplSuccessful;
-int             iRet;
 int             i;
 BYTE            abFilterMask[31],
                 abFilterValue[31];
 
 
-    printf("initalize Ethernet Driver for openMAC\n");
+    PRINTF0("initialize Ethernet Driver for openMAC\n");
     memset(&EdrvInstance_l, 0, sizeof(EdrvInstance_l)); //reset driver struct
 #if (EDRV_PKT_LOC == 0 || EDRV_PKT_LOC == 2)
     memset(EDRV_PKT_BASE, 0, EDRV_PKT_SPAN); //reset MAC-internal buffers
@@ -258,15 +290,7 @@ BYTE            abFilterMask[31],
 
     EdrvInstance_l.m_InitParam = *pEdrvInitParam_p;
 
-    printf("MAC adr: %.2X-%.2X-%.2X-%.2X-%.2X-%.2X\n",
-        EdrvInstance_l.m_InitParam.m_abMyMacAddr[0],
-        EdrvInstance_l.m_InitParam.m_abMyMacAddr[1],
-        EdrvInstance_l.m_InitParam.m_abMyMacAddr[2],
-        EdrvInstance_l.m_InitParam.m_abMyMacAddr[3],
-        EdrvInstance_l.m_InitParam.m_abMyMacAddr[4],
-        EdrvInstance_l.m_InitParam.m_abMyMacAddr[5]);
-
-    printf("init openMAC...");
+    PRINTF0("initialize openMAC...");
 
     ////////////////////
     // initialize phy //
@@ -324,7 +348,7 @@ BYTE            abFilterMask[31],
     if (EdrvInstance_l.m_hOpenMac == 0)
     {
         Ret = kEplNoResource;
-        printf(" error!\n");
+        PRINTF0(" error!\n");
         goto Exit;
     }
 
@@ -353,11 +377,11 @@ BYTE            abFilterMask[31],
 		}
     }
 
-    printf("%i phy found\n", EdrvInstance_l.m_ubPhyCnt);
+    PRINTF1("%i phy found\n", EdrvInstance_l.m_ubPhyCnt);
 
     if(EdrvInstance_l.m_ubPhyCnt != EDRV_PHY_NUM)
     {
-		printf(" -> but %i phy should be found!\n", EDRV_PHY_NUM);
+    	PRINTF1(" -> but %i phy should be found!\n", EDRV_PHY_NUM);
     	Ret = kEplNoResource;
 		goto Exit;
     }
@@ -385,9 +409,12 @@ BYTE            abFilterMask[31],
         }
 
         omethFilterDisable(EdrvInstance_l.m_ahFilter[i]);
+#if (EDRV_AUTO_RESPONSE == TRUE)
 		if (i < EDRV_MAX_AUTO_RESPONSES)
         {
-            // initialize the auto response for each filter ...
+            int iRet;
+
+			// initialize the auto response for each filter ...
             iRet = omethResponseInit(EdrvInstance_l.m_ahFilter[i]);
             if (iRet != 0)
             {
@@ -398,6 +425,7 @@ BYTE            abFilterMask[31],
             // ... but disable it
             omethResponseDisable(EdrvInstance_l.m_ahFilter[i]);
         }
+#endif
     }
 
     // $$$ d.k. additional Filters for own MAC address and broadcast MAC
@@ -407,7 +435,7 @@ BYTE            abFilterMask[31],
     // start Ethernet Driver //
     ///////////////////////////
     omethStart(EdrvInstance_l.m_hOpenMac, TRUE);
-    printf("Ethernet Driver started\n");
+    PRINTF0("Ethernet Driver started\n");
 
     ////////////////////
     // link NIOS' irq //
@@ -443,18 +471,54 @@ Exit:
 
 tEplKernel EdrvShutdown(void)
 {
-    printf("Shutdown Ethernet Driver... ");
 
-    omethStop(EdrvInstance_l.m_hOpenMac);
+#ifdef EDRV_DEBUG
+	//before we stop openMAC, wait for all packets to be sent (might take some time...)
+	while(EdrvInstance_l.m_dwMsgSent != EdrvInstance_l.m_dwMsgFree);
+#endif
+
+	omethStop(EdrvInstance_l.m_hOpenMac);
 
 // deregister openMAC Rx and Tx IRQ
     alt_irq_register(EDRV_MAC_IRQ, NULL, NULL);
 
+#ifdef EDRV_DEBUG
+    //okay, before we destroy openMAC, observe its statistics!
+    {
+    	ometh_stat_typ *pMacStat = NULL;
+
+    	pMacStat = omethStatistics(EdrvInstance_l.m_hOpenMac);
+
+    	if( pMacStat == NULL )
+    	{
+    		PRINTF0("Serious error occurred!? Can't find the statistics!\n");
+    	}
+    	else
+    	{
+			PRINTF0("--- omethStatistics ---\n");
+			PRINTF0("----  RX           ----\n");
+			PRINTF1(" CRC ERROR = %i\n", 		(int)pMacStat->rxCrcError);
+			PRINTF1(" HOOK DISABLED = %i\n", 	(int)pMacStat->rxHookDisabled);
+			PRINTF1(" HOOK OVERFLOW = %i\n", 	(int)pMacStat->rxHookOverflow);
+			PRINTF1(" LOST = %i\n", 				(int)pMacStat->rxLost);
+			PRINTF1(" OK = %i\n", 				(int)pMacStat->rxOk);
+			PRINTF1(" OVERSIZE = %i\n", 			(int)pMacStat->rxOversize);
+			PRINTF0("----  TX           ----\n");
+			PRINTF1(" COLLISION = %i\n", 		(int)pMacStat->txCollision);
+			PRINTF1(" DONE = %i\n", 				(int)pMacStat->txDone[0]);
+			PRINTF1(" SPURIOUS IRQ = %i\n", 		(int)pMacStat->txSpuriousInt);
+    	}
+    	PRINTF0("\n");
+    }
+#endif
+
+    PRINTF0("Shutdown Ethernet Driver... ");
+
     if (omethDestroy(EdrvInstance_l.m_hOpenMac) != 0) {
-        printf("error\n");
+    	PRINTF0("error\n");
         return kEplNoResource;
     }
-    printf("done\n");
+    PRINTF0("done\n");
 
     return kEplSuccessful;
 }
@@ -492,6 +556,10 @@ ometh_packet_typ*   pPacket = NULL;
     	pBuffer_p->m_uiMaxBufferLen = MIN_ETH_SIZE;
     }
 
+#ifdef EDRV_DEBUG
+    PRINTF2("%s: allocate %i bytes\n", __func__, (int)(pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length)));
+#endif
+
 #if EDRV_PKT_LOC == 1
     // malloc aligns each allocated buffer so every type fits into this buffer.
     // this means 8 Byte alignment.
@@ -528,7 +596,7 @@ ometh_packet_typ*   pPacket = NULL;
         	{
     			if( (p > pBufHighAddr) || (p < pBufBaseAddr) )
     			{
-    				printf("MAC-internal buffer overflow!\n");
+    				PRINTF0("MAC-internal buffer overflow!\n");
     				Ret = kEplEdrvNoFreeBufEntry;
     				goto Exit;
     			}
@@ -683,18 +751,56 @@ tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 unsigned long       ulTxLength;
 
-//    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
-//    {
-//        Ret = kEplEdrvInvalidParam;
-//        goto Exit;
-//    }
+#ifndef EDRV_TTTX
+    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
+    {
+        Ret = kEplEdrvInvalidParam;
+        goto Exit;
+    }
+#endif
 	
     pPacket = GET_TYPE_BASE(ometh_packet_typ, data, pBuffer_p->m_pbBuffer);
 	
     pPacket->length = pBuffer_p->m_uiTxMsgLen;
-	
-	ulTxLength = omethTransmitArg(EdrvInstance_l.m_hOpenMac, pPacket,
-						EdrvCbSendAck, pBuffer_p);
+#ifdef EDRV_TTTX
+	if( (pBuffer_p->m_dwTimeOffsetAbsTk & 1) == 1)
+	{
+		//free tx descriptors available
+		ulTxLength = omethTransmitTime(EdrvInstance_l.m_hOpenMac, pPacket,
+						EdrvCbSendAck, pBuffer_p, pBuffer_p->m_dwTimeOffsetAbsTk);
+
+		if( ulTxLength == 0 )
+		{
+#ifdef EDRV_2NDTXQUEUE
+			//time triggered sent failed => move to 2nd tx queue
+			if( (EdrvInstance_l.m_iTxQueueWr - EdrvInstance_l.m_iTxQueueRd) >= EDRV_MAX_TX_BUF2)
+			{
+				PRINTF0("\n***Queue is FULL!***\n\n");
+				Ret = kEplEdrvNoFreeBufEntry;
+				goto Exit;
+			}
+			else
+			{
+				EdrvInstance_l.m_apTxQueue[EdrvInstance_l.m_iTxQueueWr & (EDRV_MAX_TX_BUF2-1)] = pBuffer_p;
+				EdrvInstance_l.m_iTxQueueWr++;
+				Ret = kEplSuccessful;
+				goto Exit; //packet will be sent!
+			}
+#else
+			PRINTF0("\n***No TX Descriptor available!***\n\n");
+			Ret = kEplEdrvNoFreeBufEntry;
+			goto Exit;
+#endif
+		}
+	}
+    else
+    {
+#endif
+        ulTxLength = omethTransmitArg(EdrvInstance_l.m_hOpenMac, pPacket,
+    						EdrvCbSendAck, pBuffer_p);
+#ifdef EDRV_TTTX
+    }
+#endif
 
     if (ulTxLength > 0)
     {
@@ -707,6 +813,11 @@ unsigned long       ulTxLength;
 	}
 
 Exit:
+	if( Ret != kEplSuccessful )
+	{
+		BENCHMARK_MOD_01_TOGGLE(7);
+	}
+
     return Ret;
 }
 
@@ -1031,11 +1142,50 @@ tEplKernel Ret = kEplSuccessful;
 
 static void EdrvIrqHandler (void* pArg_p, alt_u32 dwInt_p)
 {
-    if(*((unsigned short *)EDRV_IRQ_BASE) & 0x1)
+
+#ifdef CPU_UTIL
+	isrcall_cpuutil();
+#endif
+
+	//handle sent packets
+	while( IORD_32DIRECT(EDRV_IRQ_BASE, 0) & 0x1 )
     {
         omethTxIrqHandler(pArg_p);
     }
-    if(*((unsigned short *)EDRV_IRQ_BASE) & 0x2)
+
+#if (defined(EDRV_2NDTXQUEUE) && defined(EDRV_TTTX))
+	//observe additional TX queue and send packet if necessary
+	while( (EdrvInstance_l.m_iTxQueueWr - EdrvInstance_l.m_iTxQueueRd) &&
+		(omethTransmitPending(EdrvInstance_l.m_hOpenMac) < 16U) )
+	{
+		tEdrvTxBuffer* 		pBuffer_p;
+		ometh_packet_typ*   pPacket;
+		unsigned long       ulTxLength = 0U;
+
+		pBuffer_p = EdrvInstance_l.m_apTxQueue[EdrvInstance_l.m_iTxQueueRd & (EDRV_MAX_TX_BUF2-1)];
+
+		pPacket = GET_TYPE_BASE(ometh_packet_typ, data, pBuffer_p->m_pbBuffer);
+
+		pPacket->length = pBuffer_p->m_uiTxMsgLen;
+
+		//offset is the openMAC time tick (no conversion needed)
+		ulTxLength = omethTransmitTime(EdrvInstance_l.m_hOpenMac, pPacket,
+						EdrvCbSendAck, pBuffer_p, pBuffer_p->m_dwTimeOffsetAbsTk);
+
+		if( ulTxLength > 0 )
+		{
+			EdrvInstance_l.m_iTxQueueRd++;
+			EdrvInstance_l.m_dwMsgSent++;
+		}
+		else
+		{
+			//no tx descriptor is free
+		}
+	}
+#endif
+
+	//handle received packets
+	if( IORD_32DIRECT(EDRV_IRQ_BASE, 0) & 0x2 )
     {
         omethRxIrqHandler(pArg_p);
     }
@@ -1058,6 +1208,7 @@ static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long ti
 {
 	EdrvInstance_l.m_dwMsgFree++;
     BENCHMARK_MOD_01_SET(1);
+
     if (arg != NULL)
     {
     tEdrvTxBuffer*  pTxBuffer = arg;

@@ -65,6 +65,8 @@
 
   Revision History:
 
+ 2011/06/15		zelenkaj	added CPU UTIL support
+
 ****************************************************************************/
 
 #include "EplInc.h"
@@ -75,6 +77,10 @@
 #include <sys/alt_irq.h>
 #include <alt_types.h>
 #include <io.h>
+
+#ifdef CPU_UTIL
+#include "cpuUtil.h"
+#endif
 
 
 
@@ -455,6 +461,10 @@ static void EplTimerHighReskInterruptHandler (void* pArg_p, alt_u32 dwInt_p)
 
     BENCHMARK_MOD_24_SET(4);
 
+#ifdef CPU_UTIL
+	isrcall_cpuutil();
+#endif
+
     EplTimerHighReskSetCompareValue(0);
     EplTimerHighReskCompareInterruptDisable();
 
@@ -464,6 +474,7 @@ static void EplTimerHighReskInterruptHandler (void* pArg_p, alt_u32 dwInt_p)
     }
 
     BENCHMARK_MOD_24_RESET(4);
+    
     return;
 
 }
