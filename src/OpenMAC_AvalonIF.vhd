@@ -76,6 +76,7 @@
 --							bug fix: latch m_readdata for TX FIFO if m_waitrequest = 0
 -- 2011-06-06  V0.91		optimized TX Fifo for openMAC DMA
 -- 2011-07-23  V0.92		openFILTER enhanced by RxErr signal
+-- 2011-08-02  V0.93		Bugfix: "don't use 2nd cmp timer" disables readdata for the 1st as well
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -867,6 +868,8 @@ begin
 						when "01" => --4
 							if use2ndCmpTimer_g = TRUE then
 								t_readdata <= x"000000" & "00" & Mac_Cmp_Toggle & Mac_Tog_On & "00" & Mac_Cmp_Irq & Mac_Cmp_On;
+							else
+								t_readdata <= x"000000" & "0000" & "00" & Mac_Cmp_Irq & Mac_Cmp_On;
 							end if;
 						when "10" => --8
 							if use2ndCmpTimer_g = TRUE then
