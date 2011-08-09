@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  2011/03/29		zelenkaj	tx buffer allocation fixes
  2011/06/15		zelenkaj	added TX queue 2
 							added optional debugging and CPU UTIL feature
+ 2011/08/09		zelenkaj	RX packet pending works with int. packet buffers
 ----------------------------------------------------------------------------*/
 
 
@@ -352,14 +353,15 @@ BYTE            abFilterMask[31],
         goto Exit;
     }
 
-#if EDRV_PKT_LOC == 0
-    //get rx/tx buffer base
-    EdrvInstance_l.m_pRxBufBase = omethGetRxBufBase(EdrvInstance_l.m_hOpenMac);
-    EdrvInstance_l.m_pTxBufBase = omethGetTxBufBase(EdrvInstance_l.m_hOpenMac);
-#elif EDRV_PKT_LOC == 2
-    //get tx buffer base
-    EdrvInstance_l.m_pTxBufBase = (void*) alt_remap_uncached(EDRV_PKT_BASE, EDRV_PKT_SPAN);
-#endif
+//moved lines...
+//#if EDRV_PKT_LOC == 0
+//    //get rx/tx buffer base
+//    EdrvInstance_l.m_pRxBufBase = omethGetRxBufBase(EdrvInstance_l.m_hOpenMac);
+//    EdrvInstance_l.m_pTxBufBase = omethGetTxBufBase(EdrvInstance_l.m_hOpenMac);
+//#elif EDRV_PKT_LOC == 2
+//    //get tx buffer base
+//    EdrvInstance_l.m_pTxBufBase = (void*) alt_remap_uncached(EDRV_PKT_BASE, EDRV_PKT_SPAN);
+//#endif
 
     //init driver struct
     EdrvInstance_l.m_dwMsgFree = 0;
@@ -427,6 +429,16 @@ BYTE            abFilterMask[31],
         }
 #endif
     }
+
+    //moved following lines here, since omethHookCreate may change tx buffer base!
+#if EDRV_PKT_LOC == 0
+    //get rx/tx buffer base
+    EdrvInstance_l.m_pRxBufBase = omethGetRxBufBase(EdrvInstance_l.m_hOpenMac);
+    EdrvInstance_l.m_pTxBufBase = omethGetTxBufBase(EdrvInstance_l.m_hOpenMac);
+#elif EDRV_PKT_LOC == 2
+    //get tx buffer base
+    EdrvInstance_l.m_pTxBufBase = (void*) alt_remap_uncached(EDRV_PKT_BASE, EDRV_PKT_SPAN);
+#endif
 
     // $$$ d.k. additional Filters for own MAC address and broadcast MAC
     //          will be necessary, if Virtual Ethernet driver is available

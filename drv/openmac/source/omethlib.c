@@ -123,6 +123,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 											location (pktLoc).
 										- ometh_config_typ added pktLoc
 	21.02.2011	zelenkaj	added:		- missing Microblaze support (minor)
+	09.08.2011	zelenkaj	changed:	- RX buffer allocation for
+											hook pending RX packets
 
 ----------------------------------------------------------------------------*/
 
@@ -1443,7 +1445,31 @@ OMETH_HOOK_H	omethHookCreate
 
 		hHook->pFreeRead = hHook->free;
 
-		pBuf = calloc(len * maxPending, 1);
+		//pBuf = calloc(len * maxPending, 1);
+		//------------------------------------------------------------------------------
+		if(hEth->config.pktLoc == OMETH_PKT_LOC_MACINT)
+		{
+			//pool has to be allocated in MAC internal packet buffer
+			pBuf = (ometh_buf_typ*)hEth->pTxBufBase;
+
+			//increment TX buffer base
+			/* FIXME: There is no check done if we are out of memory, host has to provide
+			 * sufficiently large internal memory!
+			 */
+			hEth->pTxBufBase = (unsigned char*)pBuf + len * maxPending;
+		}
+		else if(hEth->config.pktLoc == OMETH_PKT_LOC_HEAP)
+		{
+			//pool has to be allocated in heap, since RX packets are stored there
+			pBuf = (ometh_buf_typ*)OMETH_MAKE_NONCACHABLE(calloc(len * maxPending, 1));
+		}
+		else
+		{
+			//error
+			return 0;
+		}
+		//------------------------------------------------------------------------------
+
 		assert(pBuf);
 		if(pBuf==0) return 0;
 
@@ -2457,7 +2483,24 @@ int				omethDestroy
 	hHook = hEth->pHookList;
 	while(hHook)
 	{
-		freePtr(hHook->pRxBufBase);	// free frame buffers allocated from the hooks
+
+		//freePtr(hHook->pRxBufBase);	// free frame buffers allocated from the hooks
+		//------------------------------------------------------------------------------
+		if(hEth->config.pktLoc == OMETH_PKT_LOC_MACINT)
+		{
+			//nothing to do here...
+		}
+		else if(hEth->config.pktLoc == OMETH_PKT_LOC_HEAP)
+		{
+			//frame buffer pool is in heap, so free it...
+			freePtr(hHook->pRxBufBase);	// free frame buffers allocated from the hooks
+		}
+		else
+		{
+			//error
+			return -1;
+		}
+		//------------------------------------------------------------------------------
 
 		hFree = hHook;			// store handle to free it after overtakeing the next-pointer
 		hHook = hHook->pNext;	// get next hook handle
