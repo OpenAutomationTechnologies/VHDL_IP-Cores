@@ -135,7 +135,7 @@ begin
 	--falling edge latches write data, sync'd write strobe  falls too
 	wrEdgeDet : entity work.edgeDet
 		port map (
-			inData => pap_wr_s,
+			din => pap_wr_s,
 			rising => open,
 			falling => ap_write_s,
 			any => open,
@@ -251,8 +251,8 @@ begin
 	syncAddrGen : for i in pap_addr'range generate
 		syncAddr : entity work.sync
 			port map (
-				inData => pap_addr(i),
-				outData => pap_addr_s(i),
+				din => pap_addr(i),
+				dout => pap_addr_s(i),
 				clk => ap_clk,
 				rst => ap_reset
 			);
@@ -261,8 +261,8 @@ begin
 	syncBeGen : for i in pap_be'range generate
 		syncBe : entity work.sync
 			port map (
-				inData => pap_be(i),
-				outData => pap_be_s(i),
+				din => pap_be(i),
+				dout => pap_be_s(i),
 				clk => ap_clk,
 				rst => ap_reset
 			);
@@ -271,8 +271,8 @@ begin
 	syncWrRegGen : for i in writeRegister'range generate
 		syncWrReg : entity work.sync
 			port map (
-				inData => writeRegister(i),
-				outData => pap_wrdata_s(i),
+				din => writeRegister(i),
+				dout => pap_wrdata_s(i),
 				clk => ap_clk,
 				rst => ap_reset
 			);
@@ -283,8 +283,8 @@ begin
 	begin
 		syncCs : entity work.sync
 			port map (
-				inData => pap_cs,
-				outData => pap_cs_tmp,
+				din => pap_cs,
+				dout => pap_cs_tmp,
 				clk => ap_clk,
 				rst => ap_reset
 			);
@@ -292,8 +292,8 @@ begin
 		
 		syncRd : entity work.sync
 			port map (
-				inData => pap_rd,
-				outData => pap_rd_tmp,
+				din => pap_rd,
+				dout => pap_rd_tmp,
 				clk => ap_clk,
 				rst => ap_reset
 			);
@@ -301,8 +301,8 @@ begin
 		
 		syncWr : entity work.sync
 			port map (
-				inData => pap_wr,
-				outData => pap_wr_tmp,
+				din => pap_wr,
+				dout => pap_wr_tmp,
 				clk => ap_clk,
 				rst => ap_reset
 			);

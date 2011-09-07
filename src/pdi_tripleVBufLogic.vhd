@@ -147,8 +147,8 @@ BEGIN
 		)
 		PORT MAP
 		(
-			inData => lockedVBuf_s(i),
-			outData => apSelVBuf_s(i),
+			din => lockedVBuf_s(i),
+			dout => apSelVBuf_s(i),
 			clk => apClk,
 			rst => apReset
 		);
@@ -192,8 +192,8 @@ BEGIN
 	)
 	PORT MAP
 	(
-		inData => toggleB,
-		outData => toggleBsync,
+		din => toggleB,
+		dout => toggleBsync,
 		clk => clk,
 		rst => rst
 	);

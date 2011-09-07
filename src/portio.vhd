@@ -163,8 +163,8 @@ begin
 	genSyncInputs : for i in sPortIn'range generate
 		syncInputs : entity work.sync
 			port map (
-				inData => sPortIn(i),
-				outData => sPortIn_s(i),
+				din => sPortIn(i),
+				dout => sPortIn_s(i),
 				clk => clk,
 				rst => reset
 			);
@@ -174,8 +174,8 @@ begin
 	genSyncLatch : for i in x_portInLatch'range generate
 		syncInputs : entity work.sync
 			port map (
-				inData => x_portInLatch(i),
-				outData => x_portInLatch_s(i),
+				din => x_portInLatch(i),
+				dout => x_portInLatch_s(i),
 				clk => clk,
 				rst => reset
 			);

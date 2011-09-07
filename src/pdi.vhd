@@ -61,6 +61,8 @@
 -- 2011-06-10	V0.27	zelenkaj	bug fix: if dpr size goes below 2**10, error of dpr address width
 -- 2011-06-29	V0.28	zelenkaj	bug fix: led control was gone and dpr addr width still buggy
 -- 2011-07-25	V0.29	zelenkaj	LED gadget and asynchronous buffer optional
+-- 2011-08-08	V0.30	zelenkaj	LED gadget enhancement -> added 8 general purpose outputs
+-- 2011-08-16	V0.31	zelenkaj	status/control register enhanced by 8 bytes (again...)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -116,7 +118,7 @@ entity pdi is
 		-- async interrupt
 			ap_asyncIrq					: out	std_logic; --Async Irq to the Ap
 		-- LED
-			ledsOut						: out	std_logic_vector(7 downto 0) := (others => '0'); --LEDs: O1, O0, PA1, PL1, PA0, PL0, E, S
+			ledsOut						: out	std_logic_vector(15 downto 0) := (others => '0'); --LEDs: GPO7, ..., GPO0, O1, O0, PA1, PL1, PA0, PL0, E, S
 			phyLink						: in	std_logic_vector(1 downto 0); --link: phy1, phy0
 			phyAct						: in	std_logic_vector(1 downto 0); --acti: phy1, phy0
 		--PDI change buffer triggers
@@ -151,7 +153,7 @@ type pdi32Bit_t is
 constant	extMaxOneSpan				: integer := 2 * 1024; --2kB
 constant	extLog2MaxOneSpan			: integer := integer(ceil(log2(real(extMaxOneSpan))));
 ----control / status register
-constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#70#);
+constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#78#);
 ----asynchronous buffers
 constant	extABuf1Tx_c				: memoryMapping_t := (16#0800#, iABuf1_g); --header is included in generic value!
 constant	extABuf1Rx_c				: memoryMapping_t := (16#1000#, iABuf1_g); --header is included in generic value!
@@ -164,7 +166,7 @@ constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g); --he
 constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g); --header is included in generic value!
 ---memory mapping inside the PDI's DPR
 ----control / status register
-constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 9 * 4); --bytes mapped to dpr (dword alignment!!!)
+constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 11 * 4); --bytes mapped to dpr (dword alignment!!!)
 ----asynchronous buffers
 constant	intABuf1Tx_c				: memoryMapping_t := (intCntStReg_c.base + intCntStReg_c.span, align32(extABuf1Tx_c.span));
 constant	intABuf1Rx_c				: memoryMapping_t := (intABuf1Tx_c.base + intABuf1Tx_c.span, align32(extABuf1Rx_c.span));
@@ -528,8 +530,8 @@ begin
 			doSync_g => not genOnePdiClkDomain_g
 		)
 		port map (
-			inData => apIrqControlApOut(15),
-			outData => apIrqControlPcp2(15),
+			din => apIrqControlApOut(15),
+			dout => apIrqControlPcp2(15),
 			clk => pcp_clk,
 			rst => pcp_reset
 		);
@@ -726,15 +728,15 @@ begin
 					doSync_g => not genOnePdiClkDomain_g
 				)
 				port map (
-					inData => phyLink(i),
-					outData => phyLink_s(i),
+					din => phyLink(i),
+					dout => phyLink_s(i),
 					clk => ap_clk,
 					rst => ap_reset
 				);
 			
 			detPhyLinkEdge : entity work.edgeDet
 				port map (
-					inData => phyLink_s(i),
+					din => phyLink_s(i),
 					rising => open,
 					falling => phyLinkEvent(i), --if phy link deasserts - EVENT!!!
 					any => open,
@@ -1587,31 +1589,31 @@ begin
 						--STORED IN DPR 				when 16#20#,
 						--STORED IN DPR 				when 16#24#,
 						--STORED IN DPR 				when 16#28#,
-						(eventAckIn & asyncIrqCtrlIn) 	when 16#2C#,
-						tPdoBuffer 						when 16#30#,
-						rPdo0Buffer 					when 16#34#,
-						rPdo1Buffer 					when 16#38#,
-						rPdo2Buffer 					when 16#3C#,
-						asyncBuffer1Tx 					when 16#40#,
-						asyncBuffer1Rx 					when 16#44#,
-						asyncBuffer2Tx 					when 16#48#,
-						asyncBuffer2Rx 					when 16#4C#,
-						--RESERVED 						when 16#50#,
-						--RESERVED 						when 16#54#,
+						--STORED IN DPR					when 16#2C#,
+						--STORED IN DPR					when 16#30#,
+						(eventAckIn & asyncIrqCtrlIn) 	when 16#34#,
+						tPdoBuffer 						when 16#38#,
+						rPdo0Buffer 					when 16#3C#,
+						rPdo1Buffer 					when 16#40#,
+						rPdo2Buffer 					when 16#44#,
+						asyncBuffer1Tx 					when 16#48#,
+						asyncBuffer1Rx 					when 16#4C#,
+						asyncBuffer2Tx 					when 16#50#,
+						asyncBuffer2Rx 					when 16#54#,
+						--RESERVED 						when 16#58#,
+						--RESERVED 						when 16#5C#,
 						(virtualBufferSelectRpdo0 & 
-						virtualBufferSelectTpdo) 		when 16#58#,
+						virtualBufferSelectTpdo) 		when 16#60#,
 						(virtualBufferSelectRpdo2 & 
-						virtualBufferSelectRpdo1) 		when 16#5C#,
-						(x"0000" & apIrqControlIn) 		when 16#60#,
-						--RESERVED						when 16#64#,
-						--RESERVED 						when 16#68#,
-						(ledCnfgIn & ledCtrlIn) 		when 16#6C#,
+						virtualBufferSelectRpdo1) 		when 16#64#,
+						(x"0000" & apIrqControlIn) 		when 16#68#,
+						--RESERVED						when 16#6C#,
+						--RESERVED 						when 16#70#,
+						(ledCnfgIn & ledCtrlIn) 		when 16#74#,
 						(others => '0') 				when others;
 	
 	--ignored values
 	asyncIrqCtrlOut(14 downto 1) <= (others => '0');
-	ledCtrlOut(15 downto 8) <= (others => '0');
-	ledCnfgOut(15 downto 8) <= (others => '0');
 	eventAckOut(15 downto 8) <= (others => '0');
 	--non dpr write
 	process(clk, rst)
@@ -1679,6 +1681,11 @@ begin
 					when 16#28# =>
 						--STORED IN DPR
 					when 16#2C# =>
+						--STORED IN DPR
+					when 16#30# =>
+						--STORED IN DPR
+					
+					when 16#34# =>
 						--AP ONLY
 						if be(0) = '1' and bIsPcp = false then
 							--asyncIrqCtrlOut(7 downto 0) <= din(7 downto 0);
@@ -1695,10 +1702,6 @@ begin
 --						if be(3) = '1' then
 --							eventAckOut(15 downto 8) <= din(31 downto 24);
 --						end if;
-					when 16#30# =>
-						--RO
-					when 16#34# =>
-						--RO
 					when 16#38# =>
 						--RO
 					when 16#3C# =>
@@ -1712,23 +1715,27 @@ begin
 					when 16#4C# =>
 						--RO
 					when 16#50# =>
-						--RESERVED
+						--RO
 					when 16#54# =>
-						--RESERVED
+						--RO
 					when 16#58# =>
-						if be(0) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(1) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(2) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
-						if be(3) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
+						--RESERVED
 					when 16#5C# =>
+						--RESERVED
+					when 16#60# =>
+						if be(0) = '1' then
+							tPdoTrigger <= '1';
+						end if;
+						if be(1) = '1' then
+							tPdoTrigger <= '1';
+						end if;
+						if be(2) = '1' then
+							rPdoTrigger(0) <= '1';
+						end if;
+						if be(3) = '1' then
+							rPdoTrigger(0) <= '1';
+						end if;
+					when 16#64# =>
 						if be(0) = '1' then
 							rPdoTrigger(1) <= '1';
 						end if;
@@ -1741,31 +1748,30 @@ begin
 						if be(3) = '1' then
 							rPdoTrigger(2) <= '1';
 						end if;
-					when 16#60# =>
+					when 16#68# =>
 						if be(0) = '1' then
 							apIrqControlOut(7 downto 0) <= din(7 downto 0);
 						end if;
 						if be(1) = '1' then
 							apIrqControlOut(15 downto 8) <= din(15 downto 8);
 						end if;
-					when 16#64# =>
-						--RESERVED
-					when 16#68# =>
-						--RESERVED
 					when 16#6C# =>
+						--RESERVED
+					when 16#70# =>
+						--RESERVED
+					when 16#74# =>
 						if be(0) = '1' then
 							ledCtrlOut(7 downto 0) <= din(7 downto 0);
 						end if;
---ignore higher byte of led gadget
---						if be(1) = '1' then
---							ledCtrlOut(15 downto 8) <= din(15 downto 8);
---						end if;
+						if be(1) = '1' then
+							ledCtrlOut(15 downto 8) <= din(15 downto 8);
+						end if;
 						if be(2) = '1' then
 							ledCnfgOut(7 downto 0) <= din(23 downto 16);
 						end if;
---						if be(3) = '1' then
---							ledCnfgOut(15 downto 8) <= din(31 downto 24);
---						end if;
+						if be(3) = '1' then
+							ledCnfgOut(15 downto 8) <= din(31 downto 24);
+						end if;
 					when others =>
 				end case;
 			end if;
@@ -1848,8 +1854,8 @@ begin
 			doSync_g => not genOnePdiClkDomain_g
 		)
 		port map (
-			inData => enableA,
-			outData => enable,
+			din => enableA,
+			dout => enable,
 			clk => clkB,
 			rst => rstB
 		);
@@ -1872,8 +1878,8 @@ begin
 			doSync_g => not genOnePdiClkDomain_g
 		)
 		port map (
-			inData => modeA,
-			outData => mode,
+			din => modeA,
+			dout => mode,
 			clk => clkB,
 			rst => rstB
 		);
@@ -1883,15 +1889,15 @@ begin
 			doSync_g => not genOnePdiClkDomain_g
 		)
 		port map (
-			inData => irqA,
-			outData => toggle,
+			din => irqA,
+			dout => toggle,
 			clk => clkB,
 			rst => rstB
 		);
 	
 	toggleEdgeDet : entity work.edgeDet
 		port map (
-			inData => toggle,
+			din => toggle,
 			rising => open,
 			falling => open,
 			any => irq,
@@ -1955,151 +1961,151 @@ begin
 		
 end architecture rtl;
 
-----------------
---synchronizer--
-----------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
+------------------
+----synchronizer--
+------------------
+--LIBRARY ieee;
+--USE ieee.std_logic_1164.all;
+--USE ieee.std_logic_arith.all;
+--USE ieee.std_logic_unsigned.all;
+--
+--ENTITY sync IS
+--	GENERIC (
+--			doSync_g					:		BOOLEAN := TRUE
+--	);
+--	PORT (
+--			inData						: IN	STD_LOGIC;
+--			outData						: OUT	STD_LOGIC;
+--			clk							: IN	STD_LOGIC;
+--			rst							: IN	STD_LOGIC
+--	);
+--END ENTITY sync;
+--
+--ARCHITECTURE rtl OF sync IS
+--SIGNAL sync1_s, sync2_s					: STD_LOGIC;
+--BEGIN
+--	
+--	outData <= sync2_s when doSync_g = TRUE else inData;
+--	
+--	genSync : IF doSync_g = TRUE GENERATE
+--		syncShiftReg : PROCESS(clk, rst)
+--		BEGIN
+--			IF rst = '1' THEN
+--				sync1_s <= '0';
+--				sync2_s <= '0';
+--			ELSIF clk = '1' AND clk'EVENT THEN
+--				sync1_s <= inData; --1st ff
+--				sync2_s <= sync1_s; --2nd ff
+--			END IF;
+--		END PROCESS syncShiftReg;
+--	END GENERATE;
+--END ARCHITECTURE rtl;
 
-ENTITY sync IS
-	GENERIC (
-			doSync_g					:		BOOLEAN := TRUE
-	);
-	PORT (
-			inData						: IN	STD_LOGIC;
-			outData						: OUT	STD_LOGIC;
-			clk							: IN	STD_LOGIC;
-			rst							: IN	STD_LOGIC
-	);
-END ENTITY sync;
+-------------------
+----edge detector--
+-------------------
+--LIBRARY ieee;
+--USE ieee.std_logic_1164.all;
+--USE ieee.std_logic_arith.all;
+--USE ieee.std_logic_unsigned.all;
+--
+--ENTITY edgeDet IS
+--	PORT (
+--			din							: IN	STD_LOGIC;
+--			rising						: OUT	STD_LOGIC;
+--			falling						: OUT	STD_LOGIC;
+--			any							: OUT	STD_LOGIC;
+--			clk							: IN	STD_LOGIC;
+--			rst							: IN	STD_LOGIC
+--	);
+--END ENTITY edgeDet;
+--
+--ARCHITECTURE rtl OF edgeDet IS
+--SIGNAL sreg								: STD_LOGIC_VECTOR(1 downto 0);
+--BEGIN
+--	
+--	any <= sreg(1) xor sreg(0);
+--	falling <= sreg(1) and not sreg(0);
+--	rising <= not sreg(1) and sreg(0);
+--	
+--	shiftReg : PROCESS(clk, rst)
+--	BEGIN
+--		IF rst = '1' THEN
+--			sreg <= (others => '0');
+--		ELSIF clk = '1' AND clk'EVENT THEN
+--			sreg <= sreg(0) & din;
+--		END IF;
+--	END PROCESS;
+--	
+--END ARCHITECTURE rtl;
 
-ARCHITECTURE rtl OF sync IS
-SIGNAL sync1_s, sync2_s					: STD_LOGIC;
-BEGIN
-	
-	outData <= sync2_s when doSync_g = TRUE else inData;
-	
-	genSync : IF doSync_g = TRUE GENERATE
-		syncShiftReg : PROCESS(clk, rst)
-		BEGIN
-			IF rst = '1' THEN
-				sync1_s <= '0';
-				sync2_s <= '0';
-			ELSIF clk = '1' AND clk'EVENT THEN
-				sync1_s <= inData; --1st ff
-				sync2_s <= sync1_s; --2nd ff
-			END IF;
-		END PROCESS syncShiftReg;
-	END GENERATE;
-END ARCHITECTURE rtl;
-
------------------
---edge detector--
------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
-ENTITY edgeDet IS
-	PORT (
-			inData						: IN	STD_LOGIC;
-			rising						: OUT	STD_LOGIC;
-			falling						: OUT	STD_LOGIC;
-			any							: OUT	STD_LOGIC;
-			clk							: IN	STD_LOGIC;
-			rst							: IN	STD_LOGIC
-	);
-END ENTITY edgeDet;
-
-ARCHITECTURE rtl OF edgeDet IS
-SIGNAL sreg								: STD_LOGIC_VECTOR(1 downto 0);
-BEGIN
-	
-	any <= sreg(1) xor sreg(0);
-	falling <= sreg(1) and not sreg(0);
-	rising <= not sreg(1) and sreg(0);
-	
-	shiftReg : PROCESS(clk, rst)
-	BEGIN
-		IF rst = '1' THEN
-			sreg <= (others => '0');
-		ELSIF clk = '1' AND clk'EVENT THEN
-			sreg <= sreg(0) & inData;
-		END IF;
-	END PROCESS;
-	
-END ARCHITECTURE rtl;
-
---------------------------
---slow2fast synchronizer--
---------------------------
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-USE ieee.std_logic_arith.all;
-USE ieee.std_logic_unsigned.all;
-
-ENTITY slow2fastSync IS
-	GENERIC (
-			doSync_g					:		BOOLEAN := TRUE
-	);
-	PORT (
-			dataSrc						: IN	STD_LOGIC;
-			dataDst						: OUT	STD_LOGIC;
-			clkSrc						: IN	STD_LOGIC;
-			rstSrc						: IN	STD_LOGIC;
-			clkDst						: IN	STD_LOGIC;
-			rstDst						: IN	STD_LOGIC
-	);
-END ENTITY slow2fastSync;
-
-ARCHITECTURE rtl OF slow2fastSync IS
-signal toggle, toggleSync, pulse, dataDst_s : std_logic;
-begin
-	
-	dataDst <= dataDst_s when doSync_g = TRUE else dataSrc;
-	
-	genSync : IF doSync_g = TRUE GENERATE
-		firstEdgeDet : entity work.edgeDet
-			port map (
-				inData => dataSrc,
-				rising => pulse,
-				falling => open,
-				any => open,
-				clk => clkSrc,
-				rst => rstSrc
-			);
-		
-		process(clkSrc, rstSrc)
-		begin
-			if rstSrc = '1' then
-				toggle <= '0';
-			elsif clkSrc = '1' and clkSrc'event then
-				if pulse = '1' then
-					toggle <= not toggle;
-				end if;
-			end if;
-		end process;
-		
-		sync : entity work.sync
-			port map (
-				inData => toggle,
-				outData => toggleSync,
-				clk => clkDst,
-				rst => rstDst
-			);
-		
-		secondEdgeDet : entity work.edgeDet
-			port map (
-				inData => toggleSync,
-				rising => open,
-				falling => open,
-				any => dataDst_s,
-				clk => clkDst,
-				rst => rstDst
-			);
-	END GENERATE;
-		
-END ARCHITECTURE rtl;
+----------------------------
+----slow2fast synchronizer--
+----------------------------
+--LIBRARY ieee;
+--USE ieee.std_logic_1164.all;
+--USE ieee.std_logic_arith.all;
+--USE ieee.std_logic_unsigned.all;
+--
+--ENTITY slow2fastSync IS
+--	GENERIC (
+--			doSync_g					:		BOOLEAN := TRUE
+--	);
+--	PORT (
+--			dataSrc						: IN	STD_LOGIC;
+--			dataDst						: OUT	STD_LOGIC;
+--			clkSrc						: IN	STD_LOGIC;
+--			rstSrc						: IN	STD_LOGIC;
+--			clkDst						: IN	STD_LOGIC;
+--			rstDst						: IN	STD_LOGIC
+--	);
+--END ENTITY slow2fastSync;
+--
+--ARCHITECTURE rtl OF slow2fastSync IS
+--signal toggle, toggleSync, pulse, dataDst_s : std_logic;
+--begin
+--	
+--	dataDst <= dataDst_s when doSync_g = TRUE else dataSrc;
+--	
+--	genSync : IF doSync_g = TRUE GENERATE
+--		firstEdgeDet : entity work.edgeDet
+--			port map (
+--				din => dataSrc,
+--				rising => pulse,
+--				falling => open,
+--				any => open,
+--				clk => clkSrc,
+--				rst => rstSrc
+--			);
+--		
+--		process(clkSrc, rstSrc)
+--		begin
+--			if rstSrc = '1' then
+--				toggle <= '0';
+--			elsif clkSrc = '1' and clkSrc'event then
+--				if pulse = '1' then
+--					toggle <= not toggle;
+--				end if;
+--			end if;
+--		end process;
+--		
+--		sync : entity work.sync
+--			port map (
+--				din => toggle,
+--				dout => toggleSync,
+--				clk => clkDst,
+--				rst => rstDst
+--			);
+--		
+--		secondEdgeDet : entity work.edgeDet
+--			port map (
+--				din => toggleSync,
+--				rising => open,
+--				falling => open,
+--				any => dataDst_s,
+--				clk => clkDst,
+--				rst => rstDst
+--			);
+--	END GENERATE;
+--		
+--END ARCHITECTURE rtl;

@@ -63,6 +63,9 @@
 -- 2011-05-09  	V0.25	zelenkaj	Hardware Acceleration (HW ACC) added.
 -- 2011-07-23   V0.26	zelenkaj	openFILTER enhanced by RxErr signal
 -- 2011-07-25	V0.27	zelenkaj	LED gadget and asynchronous buffer optional
+-- 2011-08-08	V0.28	zelenkaj	LED gadget enhancement -> added 8 general purpose outputs
+-- 2011-08-02	V1.00	zelenkaj	exchanged Avalon interface with entity openMAC_Ethernet
+-- 2011-09-05	V1.01	zelenkaj	SPI PDI missed to connect async irq to toplevel
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -88,6 +91,11 @@ entity powerlink is
 		use2ndCmpTimer_g			:		boolean 							:= true; --use second cmp timer (used in PDI)
 		use2ndPhy_g					:		boolean 							:= true; --use second phy (introduces openHUB)
 		useHwAcc_g					: 		boolean								:= false;
+		m_burstcount_width_g		:		integer								:= 4;
+		m_tx_burst_size_g			:		integer								:= 16; --0 < x =< 2**m_burstcount_width_g
+		m_rx_burst_size_g			:		integer								:= 16; --0 < x =< 2**m_burstcount_width_g
+		m_tx_fifo_size_g			:		integer								:= 16;
+		m_rx_fifo_size_g			:		integer								:= 16;
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
 		iTpdos_g					:		integer 							:= 1;
@@ -117,47 +125,54 @@ entity powerlink is
 	port(
 	-- CLOCK / RESET PORTS
 		clk50 						: in 	std_logic; --RMII clk
+		rst							: in	std_logic; --general reset
 		clkEth 						: in 	std_logic; --Tx Reg clk
+		m_clk						: in 	std_logic; --openMAC DMA master clock
+		pkt_clk						: in 	std_logic; --openMAC packet buffer clock (don't use pcp..)
 		clkPcp 						: in 	std_logic; --pcp clk
 		clkAp 						: in 	std_logic; --ap clk
-		rstPcp 						: in 	std_logic; --rst from pcp side (ap + rmii + tx)
+		rstPcp 						: in 	std_logic; --rst from pcp side
 		rstAp 						: in 	std_logic; --rst ap
 	-- OPENMAC
 	--- OPENMAC PORTS
 		mac_chipselect              : in    std_logic;
-		mac_read_n					: in    std_logic;
-		mac_write_n					: in    std_logic;
-		mac_byteenable_n            : in    std_logic_vector(1 downto 0);
-		mac_address                 : in    std_logic_vector(12 downto 0);
+		mac_read					: in    std_logic;
+		mac_write					: in    std_logic;
+		mac_byteenable            	: in    std_logic_vector(1 downto 0);
+		mac_address                 : in    std_logic_vector(11 downto 0);
 		mac_writedata               : in    std_logic_vector(15 downto 0);
 		mac_readdata                : out   std_logic_vector(15 downto 0) := (others => '0');
+		mac_waitrequest				: out	std_logic;
 		mac_irq						: out 	std_logic := '0';
 	--- TIMER COMPARE PORTS
 		tcp_chipselect              : in    std_logic;
-		tcp_read_n					: in    std_logic;
-		tcp_write_n					: in    std_logic;
-		tcp_byteenable_n            : in    std_logic_vector(3 downto 0);
+		tcp_read					: in    std_logic;
+		tcp_write					: in    std_logic;
+		tcp_byteenable            	: in    std_logic_vector(3 downto 0);
 		tcp_address                 : in    std_logic_vector(1 downto 0);
 		tcp_writedata               : in    std_logic_vector(31 downto 0);
 		tcp_readdata                : out   std_logic_vector(31 downto 0) := (others => '0');
+		tcp_waitrequest				: out	std_logic;
 		tcp_irq						: out 	std_logic := '0';
 	--- MAC BUFFER PORTS
 		mbf_chipselect             	: in    std_logic;
-		mbf_read_n					: in    std_logic;
-		mbf_write_n					: in    std_logic;
+		mbf_read					: in    std_logic;
+		mbf_write					: in    std_logic;
 		mbf_byteenable             	: in    std_logic_vector(3 downto 0);
 		mbf_address                	: in    std_logic_vector(ibufsizelog2_g-3 downto 0);
 		mbf_writedata              	: in    std_logic_vector(31 downto 0);
 		mbf_readdata               	: out   std_logic_vector(31 downto 0) := (others => '0');
+		mbf_waitrequest				: out	std_logic;
 	--- OPENMAC DMA PORTS
-        m_read_n					: OUT   STD_LOGIC := '1';
-        m_write_n					: OUT   STD_LOGIC := '1';
-        m_byteenable_n              : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0) := (others => '1');
+		m_read						: OUT   STD_LOGIC := '0';
+		m_write						: OUT   STD_LOGIC := '0';
+		m_byteenable	            : OUT   STD_LOGIC_VECTOR(1 DOWNTO 0) := (others => '0');
         m_address                   : OUT   STD_LOGIC_VECTOR(29 DOWNTO 0) := (others => '0');
         m_writedata                 : OUT   STD_LOGIC_VECTOR(15 DOWNTO 0) := (others => '0');
         m_readdata                  : IN    STD_LOGIC_VECTOR(15 DOWNTO 0) := (others => '0');
         m_waitrequest               : IN    STD_LOGIC;
-        m_arbiterlock				: OUT   STD_LOGIC := '0';
+        m_readdatavalid				: in   	STD_LOGIC := '0';
+		m_burstcount				: out	std_logic_vector(m_burstcount_width_g-1 downto 0);
 	-- PDI
 	--- PCP PORTS
 	    pcp_chipselect              : in    std_logic;
@@ -253,7 +268,8 @@ entity powerlink is
 		led_status					: out	std_logic := '0';
 		led_phyLink					: out	std_logic_vector(1 downto 0) := (others => '0');
 		led_phyAct					: out	std_logic_vector(1 downto 0) := (others => '0');
-		led_opt						: out	std_logic_vector(1 downto 0) := (others => '0')
+		led_opt						: out	std_logic_vector(1 downto 0) := (others => '0');
+		led_gpo						: out	std_logic_vector(7 downto 0) := (others => '0')
 	);
 end powerlink;
 
@@ -295,7 +311,7 @@ architecture rtl of powerlink is
 	
 	signal phyLink, phyAct			:		std_logic_vector(1 downto 0);
 	
-	signal led_s					:		std_logic_vector(7 downto 0);
+	signal led_s					:		std_logic_vector(15 downto 0);
 	
 	signal clkAp_s, rstAp_s			:		std_logic;
 	
@@ -312,12 +328,13 @@ begin
 	
 	phyLink <= phy1_link & phy0_link;
 	
-	--LEDs: O1, O0, PA1, PL1, PA0, PL0, E, S
+	--LEDs: GPO7, ..., GPO0, O1, O0, PA1, PL1, PA0, PL0, E, S
 	led_error <= led_s(1);
 	led_status <= led_s(0);
 	led_phyLink <= led_s(4) & led_s(2);
 	led_phyAct <= led_s(5) & led_s(3);
 	led_opt <= led_s(7) & led_s(6);
+	led_gpo <= led_s(15 downto 8);
 	
 ------------------------------------------------------------------------------------------------------------------------
 --PCP + AP
@@ -464,7 +481,7 @@ begin
 			port map (
 				pcp_reset					=> rstPcp,
 				pcp_clk                  	=> clkPcp,
-				ap_reset					=> rstPcp,
+				ap_reset					=> rst,
 				ap_clk						=> clk50,
 				-- Avalon Slave Interface for PCP
 				pcp_chipselect              => pcp_chipselect,
@@ -502,13 +519,16 @@ begin
 		ap_irq <= ap_irq_s;
 		ap_irq_n <= not ap_irq_s;
 		
+		ap_asyncIrq <= ap_asyncIrq_s;
+		ap_asyncIrq_n <= not ap_asyncIrq_s;
+		
 		spi_clk_s <= spi_clk;
 		spi_sel_s <= not spi_sel_n;
 		spi_mosi_s <= spi_mosi;
 		
-		theSyncProc : process(clk50, rstPcp)
+		theSyncProc : process(clk50, rst)
 		begin
-			if rstPcp = '1' then
+			if rst = '1' then
 				spi_sel_s1 <= '0';
 				spi_sel_s2 <= '0';
 				spi_clk_s1 <= '0';
@@ -575,7 +595,7 @@ begin
 			port map (
 				pcp_reset					=> rstPcp,
 				pcp_clk                  	=> clkPcp,
-				ap_reset					=> rstPcp,
+				ap_reset					=> rst,
 				ap_clk						=> clk50,
 				-- Avalon Slave Interface for PCP
 				pcp_chipselect              => pcp_chipselect,
@@ -637,113 +657,111 @@ begin
 	
 ------------------------------------------------------------------------------------------------------------------------
 --OPENMAC (OPENHUB, OPENFILTER, PHY MANAGEMENT)
-	theOpenMAC: entity work.AlteraOpenMACIF
+	theOpenMac : entity work.openMAC_Ethernet
 		generic map (
-			Simulate				=> Simulate,
-			iBufSize_g				=> iBufSize_g,
-			iBufSizeLOG2_g			=> iBufSizeLOG2_g,
-			useRmii_g				=> useRmii_g,
-			useIntPacketBuf_g		=> useIntPacketBuf_g,
-			useRxIntPacketBuf_g		=> useRxIntPacketBuf_g,
-			use2ndCmpTimer_g		=> use2ndCmpTimer_g,
-			use2ndPhy_g				=> use2ndPhy_g,
-			useHwAcc_g				=> useHwAcc_g,
-			iTpdos_g				=> iTpdos_g,
-			iRpdos_g				=> iRpdos_g
+			dma_highadr_g => m_address'high,
+			gen2ndCmpTimer_g => use2ndCmpTimer_g,
+			genHub_g => use2ndPhy_g,
+			iPktBufSizeLog2_g => iBufSizeLOG2_g,
+			iPktBufSize_g => iBufSize_g,
+			simulate => false,
+			useIntPktBuf_g => useIntPacketBuf_g,
+			useRmii_g => useRmii_g,
+			useRxIntPktBuf_g => useRxIntPacketBuf_g,
+			m_burstcount_width_g => m_burstcount_width_g,
+			m_tx_fifo_size_g => m_tx_fifo_size_g,
+			m_rx_fifo_size_g => m_rx_fifo_size_g,
+			m_tx_burst_size_g => m_tx_burst_size_g,
+			m_rx_burst_size_g => m_rx_burst_size_g
 		)
-		port map (
-			Reset_n					=> rstPcp_n,
-			Clk50                  	=> clk50,
-			ClkFaster				=> clkPcp,
-			clkEth					=> clkEth,
-			s_chipselect            => mac_chipselect,
-			s_read_n				=> mac_read_n,
-			s_write_n				=> mac_write_n,
-			s_byteenable_n          => mac_byteenable_n,
-			s_address               => mac_address,
-			s_writedata             => mac_writedata,
-			s_readdata              => mac_readdata,
-			s_IRQ					=> mac_irq,
-			t_chipselect            => tcp_chipselect,
-			t_read_n				=> tcp_read_n,
-			t_write_n				=> tcp_write_n,
-			t_byteenable_n          => tcp_byteenable_n,
-			t_address               => tcp_address,
-			t_writedata             => tcp_writedata,
-			t_readdata              => tcp_readdata,
-			t_IRQ					=> tcp_irq,
-			t_IrqToggle				=> irqToggle,
-			iBuf_chipselect         => mbf_chipselect,
-			iBuf_read_n				=> mbf_read_n,
-			iBuf_write_n			=> mbf_write_n,
-			iBuf_byteenable         => mbf_byteenable,
-			iBuf_address            => mbf_address,
-			iBuf_writedata          => mbf_writedata,
-			iBuf_readdata           => mbf_readdata,
-            m_read_n				=> m_read_n,
-            m_write_n				=> m_write_n,
-            m_byteenable_n			=> m_byteenable_n,
-            m_address				=> m_address,
-            m_writedata				=> m_writedata,
-            m_readdata				=> m_readdata,
-            m_waitrequest			=> m_waitrequest,
-            m_arbiterlock			=> m_arbiterlock,
-			rRx_Dat_0               => phy0_RxDat,
-			rCrs_Dv_0               => phy0_RxDv,
-			rRx_Err_0				=> phy0_RxErr,
-			rTx_Dat_0               => phy0_TxDat,
-			rTx_En_0                => phy0_TxEn,
-			rRx_Dat_1               => phy1_RxDat,
-			rCrs_Dv_1               => phy1_RxDv,
-			rRx_Err_1				=> phy1_RxErr,
-			rTx_Dat_1               => phy1_TxDat,
-			rTx_En_1                => phy1_TxEn,
-		--- MII PORTS
-			phyMii0_RxClk			=> phyMii0_RxClk,
-			phyMii0_RxDat           => phyMii0_RxDat,
-			phyMii0_RxDv            => phyMii0_RxDv,
-			phyMii0_RxEr			=> phyMii0_RxEr,
-			phyMii0_TxClk			=> phyMii0_TxClk,
-			phyMii0_TxDat           => phyMii0_TxDat,
-			phyMii0_TxEn            => phyMii0_TxEn,
-			phyMii0_TxEr            => phyMii0_TxEr,
-			phyMii1_RxClk			=> phyMii1_RxClk,
-			phyMii1_RxDat           => phyMii1_RxDat,
-			phyMii1_RxDv            => phyMii1_RxDv,
-			phyMii1_RxEr			=> phyMii1_RxEr,
-			phyMii1_TxClk			=> phyMii1_TxClk,
-			phyMii1_TxDat           => phyMii1_TxDat,
-			phyMii1_TxEn            => phyMii1_TxEn,
-			phyMii1_TxEr            => phyMii1_TxEr,
-			smi_Clk					=> smi_Clk,
-			smi_Di					=> smi_Di,
-			smi_Do					=> smi_Do,
-			smi_Doe					=> smi_Doe,
-			phy_nResetOut			=> phy_nResetOut,
-			led_activity			=> phyAct(0),
-			--PDI change buffer triggers
-			rpdo_change_tog			=> rpdo_change_tog,
-			tpdo_change_tog			=> tpdo_change_tog
+		port map(
+			clk => clk50,
+			clkx2 => clkEth,
+			pkt_clk => pkt_clk,
+			m_clk => m_clk,
+			rst => rst,
+			
+			m_address => m_address,
+			m_burstcount => m_burstcount,
+			m_byteenable => m_byteenable,
+			m_read => m_read,
+			m_readdata => m_readdata,
+			m_readdatavalid => m_readdatavalid,
+			m_write => m_write,
+			m_writedata => m_writedata,
+			m_waitrequest => m_waitrequest,
+			
+			mac_rx_irq => open,
+			mac_tx_irq => open,
+			
+			act_led => phyAct(0),
+			
+			phy0_rst_n => phy0_Rst_n,
+			phy0_rx_dat => phy0_RxDat,
+			phy0_rx_dv => phy0_RxDv,
+			phy0_rx_err => phy0_RxErr,
+			phy0_smi_clk => phy0_SMICLK,
+			phy0_smi_dio => phy0_SMIDat,
+			phy0_tx_dat => phy0_TxDat,
+			phy0_tx_en => phy0_TxEn,
+			
+			phy1_rst_n => phy1_Rst_n,
+			phy1_rx_dat => phy1_RxDat,
+			phy1_rx_dv => phy1_RxDv,
+			phy1_rx_err => phy1_RxErr,
+			phy1_smi_clk => phy1_SMICLK,
+			phy1_smi_dio => phy1_SMIDat,
+			phy1_tx_dat => phy1_TxDat,
+			phy1_tx_en => phy1_TxEn,
+			
+			phyMii0_rx_clk => phyMii0_RxClk,
+			phyMii0_rx_dat => phyMii0_RxDat,
+			phyMii0_rx_dv => phyMii0_RxDv,
+			phyMii0_rx_err => phyMii0_RxEr,
+			phyMii0_tx_clk => phyMii0_TxClk,
+			phyMii0_tx_dat => phyMii0_TxDat,
+			phyMii0_tx_en => phyMii0_TxEn,
+			
+			phyMii1_rx_clk => phyMii1_RxClk,
+			phyMii1_rx_dat => phyMii1_RxDat,
+			phyMii1_rx_dv => phyMii1_RxDv,
+			phyMii1_rx_err => phyMii1_RxEr,
+			phyMii1_tx_clk => phyMii1_TxClk,
+			phyMii1_tx_dat => phyMii1_TxDat,
+			phyMii1_tx_en => phyMii1_TxEn,
+			
+			pkt_address => mbf_address,
+			pkt_byteenable => mbf_byteenable,
+			pkt_chipselect => mbf_chipselect,
+			pkt_read => mbf_read,
+			pkt_readdata => mbf_readdata,
+			pkt_waitrequest => mbf_waitrequest,
+			pkt_write => mbf_write,
+			pkt_writedata => mbf_writedata,
+			
+			s_address => mac_address,
+			s_byteenable => mac_byteenable,
+			s_chipselect => mac_chipselect,
+			s_irq => mac_irq,
+			s_read => mac_read,
+			s_readdata => mac_readdata,
+			s_waitrequest => mac_waitrequest,
+			s_write => mac_write,
+			s_writedata => mac_writedata,
+			
+			t_address => tcp_address,
+			t_byteenable => tcp_byteenable,
+			t_chipselect => tcp_chipselect,
+			t_irq => tcp_irq,
+			t_read => tcp_read,
+			t_readdata => tcp_readdata,
+			t_tog => irqToggle,
+			t_waitrequest => tcp_waitrequest,
+			t_write => tcp_write,
+			t_writedata => tcp_writedata
 		);
-	
-	phyAct(1) <= phyAct(0);
-	
-	--Phy SMI signals
-	phy0_SMIClk <= smi_Clk;
-	phy0_SMIDat <= smi_Do when smi_Doe = '1' else 'Z';
-	phy0_Rst_n <= phy_nResetOut;
-	
-	gen2phySmi : if use2ndPhy_g generate
-		phy1_SMIClk <= smi_Clk;
-		phy1_SMIDat <= smi_Do when smi_Doe = '1' else 'Z';
-		phy1_Rst_n <= phy_nResetOut;
 		
-		smi_Di <= phy0_SMIDat and phy1_SMIDat;
-	end generate;
-	
-	nGen2phySmi : if not use2ndPhy_g generate
-		smi_Di <= phy0_SMIDat;
-	end generate;
+		phyAct(1) <= phyAct(0);
 --
 ------------------------------------------------------------------------------------------------------------------------
 		

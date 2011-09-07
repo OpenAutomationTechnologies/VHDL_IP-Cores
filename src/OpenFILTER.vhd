@@ -46,6 +46,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- 2009-08-07  V0.01        Converted from V1.1 to first official version.
 -- 2011-07-23  V0.10		Consideration of RX Error signal and jitter (converted from V2.3)
+-- 2011-08-03  V0.11		translated comments
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;                                                                                 
@@ -129,7 +130,7 @@ BEGIN
     RxTxNotActive   <=  '1'     when (RxDvIn = '0') and (RxDel(1).RxDv = '0') and (RxDel(2).RxDv = '0') and (TxEnIn = '0') and (TxDatIn = "00") else
                         '0';
     
-    -- Port darf nur aktiviert werden, wenn kein RX_DV ansteht
+    -- Port is allowed to be active if RX_DV is not active
     PortIsEnable    <= '1'  when nRst = '0' else
                        '0'  when (RxAnyError = '1') or (DisablePort = '1') else
                        '1';                  
@@ -196,8 +197,8 @@ BEGIN
                 Cnt_Rx_high         <= (others => '0');                                                       --> reset counter
                 RxHigh_ToShort_temp <= '1';                                                                   --> set temp error
             else                                                                                           
-                if Cnt_Rx_high(13) = '0' then Cnt_Rx_high <= Cnt_Rx_high + 1;  end if;                      -- 163.84 usec (maximale Groesse von Frames)
-                if Cnt_Rx_high(8)  = '1' then RxHigh_ToShort_temp <= '0';      end if;                      --   5.12 usec (mindest Groesse von Frames)
+                if Cnt_Rx_high(13) = '0' then Cnt_Rx_high <= Cnt_Rx_high + 1;  end if;                      -- 163.84 usec (maximum size of frames)
+                if Cnt_Rx_high(8)  = '1' then RxHigh_ToShort_temp <= '0';      end if;                      --   5.12 usec (minimum size of frames)
             end if;                                                                                           --> reset temp error
                                                                                                                   
                                                                                                                         
@@ -220,8 +221,8 @@ BEGIN
                 RxLowGap_ToShort_temp <= '1';
                 Cnt_Rx_high         <= "00000000000001";                                                      -- reset Counter (=Low Counter)
             else                                                                                            -- no edge 
-                if Cnt_Rx_high(5) = '1'  then RxLow_ToShort_temp <= '0'; end if;                              --  0.64 usec (mindest Groesse von Frame Gaps) -> reset tmp error                                                                                                       
-                if Cnt_Rx_high(9) = '0'  then    Cnt_Rx_high     <= Cnt_Rx_high + 1;                          --  For 10.24 usec no Frmae  
+                if Cnt_Rx_high(5) = '1'  then RxLow_ToShort_temp <= '0'; end if;                              --  0.64 usec (minimum size of inter frame gap) -> reset tmp error                                                                                                       
+                if Cnt_Rx_high(9) = '0'  then    Cnt_Rx_high     <= Cnt_Rx_high + 1;                          --  For 10.24 usec no Frame  
                 else                             RxHigh_ToShort  <= '0';                                      --> Reset All Errors
                                                  RxLow_ToShort   <= '0';                                   
                 end if;                                          
