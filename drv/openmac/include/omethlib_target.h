@@ -55,6 +55,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *	11.10.2004	enzinger	created
  *  26.03.2009  zelenkaj    revised
  *	25.01.2010	zelenkaj	added Nios II uncache data
+ *	07.09.2011	zelenkaj	added Microblaze (PLB) handling
  *
  ******************************************************************************/
 
@@ -63,7 +64,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define OMETH_HW_MODE	1
 
-#ifdef __NIOS2__
+#if defined(__NIOS2__)
+	// Nios II is little endian
+	#define OMETH_HW_MODE					1
 	//---------------------------------------------------------
 	// borrowed from Altera Nios II Toolchain
 	//  alt_remap_uncached.c
@@ -77,7 +80,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	//
 	//---------------------------------------------------------
     #define OMETH_MAKE_NONCACHABLE(ptr)		(volatile void*)(((unsigned long)ptr)|NIOS2_BYPASS_DCACHE_MASK);
+#elif defined(__MICROBLAZE__)
+	// Microblaze is big endian (with PLB)
+	//FIXME: Is Microblaze big endian with AXI!?!?!?
+	#define OMETH_HW_MODE					0
+	#define OMETH_MAKE_NONCACHABLE(ptr)     (ptr)
 #else
+	#error "Host CPU is unknown, set OMETH_HW_MODE and OMETH_MAKE_NONCACHABLE!"
+	#define OMETH_HW_MODE					0
     #define OMETH_MAKE_NONCACHABLE(ptr)     (ptr)
 #endif
 
