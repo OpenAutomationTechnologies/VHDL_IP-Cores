@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : c:\my_designs\POWERLINK\compile\openMAC_Ethernet.vhd
--- Generated   : Tue Sep  6 16:58:53 2011
+-- Generated   : Tue Sep 13 13:34:20 2011
 -- From        : c:\my_designs\POWERLINK\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
