@@ -82,6 +82,7 @@
 #-- 2011-09-05	V1.01	zelenkaj	PDI SPI async Irq low/high active was not terminated
 #-- 2011-09-06	V1.02	zelenkaj	async-buffer limitation is deactivated
 #-- 2011-09-14	V1.03	zelenkaj	extract of components into own files
+#-- 2011-10-10	V1.04	zelenkaj	async-buffer limitation fixed again..
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -242,12 +243,13 @@ set_parameter_property genLedGadget DISPLAY_NAME "Enable LED outputs"
 set_parameter_property genLedGadget DESCRIPTION "The POWERLINK Slave provides an optional LED output port."
 
 add_parameter asyncBuf1Size INTEGER 1514
-#minimum limit is handled in call back #set_parameter_property asyncBuf1Size ALLOWED_RANGES 20:1518
+set_parameter_property asyncBuf1Size ALLOWED_RANGES 20:2044
 set_parameter_property asyncBuf1Size UNITS bytes
 set_parameter_property asyncBuf1Size DISPLAY_NAME "Asynchronous Buffer Nr. 1 Size"
 set_parameter_property asyncBuf1Size DESCRIPTION "The Asynchronous Buffers are used for communication and asynchronous data transfer between PCP and AP. (Asynchronous Buffer Nr. 1 is mandatory)"
 
 add_parameter asyncBuf2Size INTEGER 1514
+set_parameter_property asyncBuf1Size ALLOWED_RANGES 0:2044
 set_parameter_property asyncBuf2Size UNITS bytes
 set_parameter_property asyncBuf2Size DISPLAY_NAME "Asynchronous Buffer Nr. 2 Size"
 set_parameter_property asyncBuf2Size DESCRIPTION "The Asynchronous Buffers are used for communication and asynchronous data transfer between PCP and AP."
