@@ -71,7 +71,7 @@ entity openMAC_DMAfifo is
 end openmac_dmafifo;
 
 
-architecture syn of openMAC_DMAfifo is
+architecture struct of openMAC_DMAfifo is
 
 	component dcfifo
 		generic (
@@ -147,4 +147,4 @@ begin
 		rdusedw => rd_usedw --number of words stored on rd port
 	);
 	
-end syn;
+end struct;

@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : c:\my_designs\POWERLINK\compile\openMAC_Ethernet.vhd
--- Generated   : Tue Sep 13 13:34:20 2011
+-- Generated   : Thu Oct 13 12:08:39 2011
 -- From        : c:\my_designs\POWERLINK\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -52,7 +52,9 @@
 --
 -------------------------------------------------------------------------------
 --
--- 2011-07-26  	V0.01	zelenkaj    First version
+-- 2011-07-26	V0.01	zelenkaj	First version
+-- 2011-10-11	V0.02	zelenkaj	ack for pkt was clocked by clk50
+-- 2011-10-13	V0.03	zelenkaj	changed names of instances
 --
 -------------------------------------------------------------------------------
 
@@ -557,7 +559,24 @@ smi_din <= s_writedata;
 
 ----  Component instantiations  ----
 
-U1 : OpenMAC
+THE_MAC_TIME_CMP : openMAC_cmp
+  generic map (
+       gen2ndCmpTimer_g => gen2ndCmpTimer_g,
+       mac_time_width_g => 32
+  )
+  port map(
+       addr => t_address,
+       clk => clk,
+       din => t_writedata,
+       dout => t_readdata,
+       irq => t_irq,
+       mac_time => mac_time( 31 downto 0 ),
+       rst => rst,
+       toggle => toggle,
+       wr => cmp_wr
+  );
+
+THE_OPENMAC : OpenMAC
   generic map (
        HighAdr => dma_highadr_g,
        Simulate => simulate,
@@ -591,6 +610,35 @@ U1 : OpenMAC
        s_nWr => mac_write_n
   );
 
+THE_PHY_ACT : OpenMAC_phyAct
+  generic map (
+       iBlinkFreq_g => 6
+  )
+  port map(
+       act_led => act_led,
+       clk => clk,
+       rst => rst,
+       rx_dv => mac_rx_dv,
+       tx_en => mac_tx_en
+  );
+
+THE_PHY_MGMT : OpenMAC_MII
+  port map(
+       Addr => smi_addr,
+       Clk => clk,
+       Data_In => smi_din,
+       Data_Out => smi_dout,
+       Mii_Clk => smi_clk,
+       Mii_Di => smi_di_s,
+       Mii_Do => smi_do_s,
+       Mii_Doe => smi_doe_s_n,
+       Sel => smi_sel,
+       nBe => smi_be_n,
+       nResetOut => phy_rst_n,
+       nRst => rst_n,
+       nWr => smi_write_n
+  );
+
 mac_rx_irq_s <= not(mac_rx_irq_s_n);
 
 s_irq <= mac_tx_irq_s or mac_rx_irq_s;
@@ -615,66 +663,6 @@ smi_be_n(0) <= not(smi_be(0));
 
 rst_n <= not(rst);
 
-U20 : addr_decoder
-  generic map (
-       addrWidth_g => s_address'length+1,
-       baseaddr_g => 16#0000#,
-       highaddr_g => 16#03FF#
-  )
-  port map(
-       addr => s_address_s( s_address'length downto 0 ),
-       selin => s_chipselect,
-       selout => mac_selcont
-  );
-
-U21 : addr_decoder
-  generic map (
-       addrWidth_g => s_address'length+1,
-       baseaddr_g => 16#0800#,
-       highaddr_g => 16#0FFF#
-  )
-  port map(
-       addr => s_address_s( s_address'length downto 0 ),
-       selin => s_chipselect,
-       selout => mac_selram
-  );
-
-U22 : addr_decoder
-  generic map (
-       addrWidth_g => s_address'length+1,
-       baseaddr_g => 16#0800#,
-       highaddr_g => 16#0BFF#
-  )
-  port map(
-       addr => s_address_s( s_address'length downto 0 ),
-       selin => s_chipselect,
-       selout => mac_selfilter
-  );
-
-U23 : addr_decoder
-  generic map (
-       addrWidth_g => s_address'length+1,
-       baseaddr_g => 16#1000#,
-       highaddr_g => 16#100F#
-  )
-  port map(
-       addr => s_address_s( s_address'length downto 0 ),
-       selin => s_chipselect,
-       selout => smi_sel
-  );
-
-U24 : addr_decoder
-  generic map (
-       addrWidth_g => s_address'length+1,
-       baseaddr_g => 16#1010#,
-       highaddr_g => 16#101F#
-  )
-  port map(
-       addr => s_address_s( s_address'length downto 0 ),
-       selin => s_chipselect,
-       selout => irqTable_sel
-  );
-
 irqTable(0) <= mac_tx_irq_s;
 
 irqTable(1) <= mac_rx_irq_s;
@@ -683,53 +671,7 @@ mac_write <= s_write;
 
 smi_write <= s_write;
 
-U29 : openMAC_cmp
-  generic map (
-       gen2ndCmpTimer_g => gen2ndCmpTimer_g,
-       mac_time_width_g => 32
-  )
-  port map(
-       addr => t_address,
-       clk => clk,
-       din => t_writedata,
-       dout => t_readdata,
-       irq => t_irq,
-       mac_time => mac_time( 31 downto 0 ),
-       rst => rst,
-       toggle => toggle,
-       wr => cmp_wr
-  );
-
-U3 : OpenMAC_MII
-  port map(
-       Addr => smi_addr,
-       Clk => clk,
-       Data_In => smi_din,
-       Data_Out => smi_dout,
-       Mii_Clk => smi_clk,
-       Mii_Di => smi_di_s,
-       Mii_Do => smi_do_s,
-       Mii_Doe => smi_doe_s_n,
-       Sel => smi_sel,
-       nBe => smi_be_n,
-       nResetOut => phy_rst_n,
-       nRst => rst_n,
-       nWr => smi_write_n
-  );
-
 cmp_wr <= t_write and t_chipselect;
-
-U31 : OpenMAC_phyAct
-  generic map (
-       iBlinkFreq_g => 6
-  )
-  port map(
-       act_led => act_led,
-       clk => clk,
-       rst => rst,
-       rx_dv => mac_rx_dv,
-       tx_en => mac_tx_en
-  );
 
 dma_req_write <= not(dma_rw) and dma_req;
 
@@ -745,95 +687,11 @@ phy1_smi_clk <= smi_clk;
 
 phy1_rst_n <= phy_rst_n;
 
-U45 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => true
-  )
-  port map(
-       ack => cmp_wr_ack,
-       clk => clk,
-       enable => cmp_wr,
-       rst => rst
-  );
-
 t_waitrequest <= not(cmp_wr_ack or cmp_rd_ack);
-
-U47 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => cmp_rd_ack,
-       clk => clk,
-       enable => cmp_rd,
-       rst => rst
-  );
 
 cmp_rd <= t_read and t_chipselect;
 
-U49 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => true
-  )
-  port map(
-       ack => s_write_ack,
-       clk => clk,
-       enable => NET19788,
-       rst => rst
-  );
-
 mac_cont_read <= s_read and mac_selcont;
-
-U51 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => mac_cont_ack,
-       clk => clk,
-       enable => mac_cont_read,
-       rst => rst
-  );
-
-U52 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => mac_ram_ack,
-       clk => clk,
-       enable => mac_ram_read,
-       rst => rst
-  );
-
-U53 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => smi_ack,
-       clk => clk,
-       enable => smi_read,
-       rst => rst
-  );
-
-U54 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => irqTable_ack,
-       clk => clk,
-       enable => irqTable_read,
-       rst => rst
-  );
 
 mac_ram_read <= s_read and mac_selram;
 
@@ -845,7 +703,69 @@ slave_sel_invalid <= not(irqTable_sel or smi_sel or mac_selram or mac_selcont);
 
 NET19788 <= slave_sel_invalid or s_write;
 
-U64 : edgeDet
+mac_tx_irq_s <= not(mac_tx_irq_s_n);
+
+addrdec0 : addr_decoder
+  generic map (
+       addrWidth_g => s_address'length+1,
+       baseaddr_g => 16#0000#,
+       highaddr_g => 16#03FF#
+  )
+  port map(
+       addr => s_address_s( s_address'length downto 0 ),
+       selin => s_chipselect,
+       selout => mac_selcont
+  );
+
+addrdec1 : addr_decoder
+  generic map (
+       addrWidth_g => s_address'length+1,
+       baseaddr_g => 16#0800#,
+       highaddr_g => 16#0FFF#
+  )
+  port map(
+       addr => s_address_s( s_address'length downto 0 ),
+       selin => s_chipselect,
+       selout => mac_selram
+  );
+
+addrdec2 : addr_decoder
+  generic map (
+       addrWidth_g => s_address'length+1,
+       baseaddr_g => 16#0800#,
+       highaddr_g => 16#0BFF#
+  )
+  port map(
+       addr => s_address_s( s_address'length downto 0 ),
+       selin => s_chipselect,
+       selout => mac_selfilter
+  );
+
+addrdec3 : addr_decoder
+  generic map (
+       addrWidth_g => s_address'length+1,
+       baseaddr_g => 16#1000#,
+       highaddr_g => 16#100F#
+  )
+  port map(
+       addr => s_address_s( s_address'length downto 0 ),
+       selin => s_chipselect,
+       selout => smi_sel
+  );
+
+addrdec4 : addr_decoder
+  generic map (
+       addrWidth_g => s_address'length+1,
+       baseaddr_g => 16#1010#,
+       highaddr_g => 16#101F#
+  )
+  port map(
+       addr => s_address_s( s_address'length downto 0 ),
+       selin => s_chipselect,
+       selout => irqTable_sel
+  );
+
+edgedet0 : edgeDet
   port map(
        clk => clk,
        din => mac_tx_en,
@@ -854,7 +774,7 @@ U64 : edgeDet
        rst => rst
   );
 
-U65 : edgeDet
+edgedet1 : edgeDet
   port map(
        clk => clk,
        din => mac_rx_dv,
@@ -863,7 +783,89 @@ U65 : edgeDet
        rst => rst
   );
 
-mac_tx_irq_s <= not(mac_tx_irq_s_n);
+regack0 : req_ack
+  generic map (
+       ack_delay_g => 1,
+       zero_delay_g => true
+  )
+  port map(
+       ack => s_write_ack,
+       clk => clk,
+       enable => NET19788,
+       rst => rst
+  );
+
+regack1 : req_ack
+  generic map (
+       ack_delay_g => 1,
+       zero_delay_g => false
+  )
+  port map(
+       ack => mac_cont_ack,
+       clk => clk,
+       enable => mac_cont_read,
+       rst => rst
+  );
+
+regack2 : req_ack
+  generic map (
+       ack_delay_g => 1,
+       zero_delay_g => false
+  )
+  port map(
+       ack => mac_ram_ack,
+       clk => clk,
+       enable => mac_ram_read,
+       rst => rst
+  );
+
+regack3 : req_ack
+  generic map (
+       ack_delay_g => 1,
+       zero_delay_g => false
+  )
+  port map(
+       ack => smi_ack,
+       clk => clk,
+       enable => smi_read,
+       rst => rst
+  );
+
+regack4 : req_ack
+  generic map (
+       ack_delay_g => 1,
+       zero_delay_g => false
+  )
+  port map(
+       ack => irqTable_ack,
+       clk => clk,
+       enable => irqTable_read,
+       rst => rst
+  );
+
+regack5 : req_ack
+  generic map (
+       ack_delay_g => 1,
+       zero_delay_g => false
+  )
+  port map(
+       ack => cmp_rd_ack,
+       clk => clk,
+       enable => cmp_rd,
+       rst => rst
+  );
+
+regack6 : req_ack
+  generic map (
+       ack_delay_g => 1,
+       zero_delay_g => true
+  )
+  port map(
+       ack => cmp_wr_ack,
+       clk => clk,
+       enable => cmp_wr,
+       rst => rst
+  );
 
 
 ---- Power , ground assignment ----
@@ -884,25 +886,7 @@ dma_be(0) <= VCC;
 
 g0 : if genHub_g generate
 begin
-  U4 : OpenHUB
-    generic map (
-         Ports => 3
-    )  
-    port map(
-         Clk => clk,
-         ReceivePort => hub_rx_port,
-         RxDat0 => hub_rx_dat0( 3 downto 1 ),
-         RxDat1 => hub_rx_dat1( 3 downto 1 ),
-         RxDv => hub_rx_dv( 3 downto 1 ),
-         TransmitMask => hub_tx_msk( 3 downto 1 ),
-         TxDat0 => hub_tx_dat0( 3 downto 1 ),
-         TxDat1 => hub_tx_dat1( 3 downto 1 ),
-         TxEn => hub_tx_en( 3 downto 1 ),
-         internPort => hub_intern_port,
-         nRst => rst_n
-    );
-  
-  U5 : openFILTER
+  THE_OPENFILTER0 : openFILTER
     port map(
          Clk => clk,
          RxDatIn => phy0_rx_dat_s,
@@ -918,7 +902,7 @@ begin
          nRst => rst_n
     );
   
-  U6 : openFILTER
+  THE_OPENFILTER1 : openFILTER
     port map(
          Clk => clk,
          RxDatIn => phy1_rx_dat_s,
@@ -931,6 +915,24 @@ begin
          TxEnIn => flt1_tx_en,
          TxEnOut => phy1_tx_en_s,
          nCheckShortFrames => VCC,
+         nRst => rst_n
+    );
+  
+  THE_OPENHUB : OpenHUB
+    generic map (
+         Ports => 3
+    )  
+    port map(
+         Clk => clk,
+         ReceivePort => hub_rx_port,
+         RxDat0 => hub_rx_dat0( 3 downto 1 ),
+         RxDat1 => hub_rx_dat1( 3 downto 1 ),
+         RxDv => hub_rx_dv( 3 downto 1 ),
+         TransmitMask => hub_tx_msk( 3 downto 1 ),
+         TxDat0 => hub_tx_dat0( 3 downto 1 ),
+         TxDat1 => hub_tx_dat1( 3 downto 1 ),
+         TxEn => hub_tx_en( 3 downto 1 ),
+         internPort => hub_intern_port,
          nRst => rst_n
     );
 
@@ -973,7 +975,7 @@ end generate g0;
 
 g1 : if not useRmii_g generate
 begin
-  U7 : rmii2mii
+  THE_MII2RMII0 : rmii2mii
     port map(
          clk50 => clk,
          mRxClk => phyMii0_rx_clk,
@@ -994,7 +996,7 @@ end generate g1;
 
 g2 : if not useRmii_g and genHub_g generate
 begin
-  U8 : rmii2mii
+  THE_MII2RMII1 : rmii2mii
     port map(
          clk50 => clk,
          mRxClk => phyMii1_rx_clk,
@@ -1058,7 +1060,7 @@ end generate g3;
 
 g6 : if genHub_g = false generate
 begin
-  U63 : openFILTER
+  THE_OPENFILTER : openFILTER
     port map(
          Clk => clk,
          RxDatIn => phy0_rx_dat_s,
@@ -1082,7 +1084,7 @@ begin
     dma_ack_write <= dma_ack_rw;
   end generate g5;
 
-  U32 : OpenMAC_DPRpackets
+  THE_MAC_PKT_BUF : OpenMAC_DPRpackets
     generic map (
          memSizeLOG2_g => iPktBufSizeLog2_g,
          memSize_g => iPktBufSize_g
@@ -1112,31 +1114,31 @@ begin
   
   dma_ack_read <= dma_ack_rw;
   
-  U58 : req_ack
+  pkt_waitrequest <= not(pkt_write_ack or pkt_read_ack);
+  
+  regack7 : req_ack
     generic map (
          ack_delay_g => 1,
          zero_delay_g => true
     )  
     port map(
          ack => pkt_write_ack,
-         clk => clk,
+         clk => pkt_clk,
          enable => write_b,
          rst => rst
     );
   
-  U59 : req_ack
+  regack8 : req_ack
     generic map (
          ack_delay_g => 2,
          zero_delay_g => false
     )  
     port map(
          ack => pkt_read_ack,
-         clk => clk,
+         clk => pkt_clk,
          enable => read_b,
          rst => rst
     );
-  
-  pkt_waitrequest <= not(pkt_write_ack or pkt_read_ack);
 
   --endian conversion
 dma_dout_s <= dma_dout(7 downto 0) & dma_dout(15 downto 8);
@@ -1174,7 +1176,7 @@ begin
     end generate;
   end generate g8;
 
-  U66 : openMAC_DMAmaster
+  THE_MAC_DMA_MASTER : openMAC_DMAmaster
     generic map (
          dma_highadr_g => dma_highadr_g,
          fifo_data_width_g => fifo_data_width_c,
@@ -1213,7 +1215,7 @@ begin
          rst => rst
     );
   
-  U67 : delay_pulse
+  delayp0 : delay_pulse
     generic map (
          delay_g => 8
     )  

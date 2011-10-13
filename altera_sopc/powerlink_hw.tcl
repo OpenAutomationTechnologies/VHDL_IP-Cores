@@ -83,6 +83,7 @@
 #-- 2011-09-06	V1.02	zelenkaj	async-buffer limitation is deactivated
 #-- 2011-09-14	V1.03	zelenkaj	extract of components into own files
 #-- 2011-10-10	V1.04	zelenkaj	async-buffer limitation fixed again..
+#-- 2011-10-13	V1.05	zelenkaj	file names changed..
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -120,7 +121,7 @@ add_file src/openMAC_Ethernet.vhd {SYNTHESIS SIMULATION}
 add_file src/openMAC_cmp.vhd {SYNTHESIS SIMULATION}
 add_file src/openMAC_phyAct.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_DPR_Altera.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenMAC_DMAFifo.vhd {SYNTHESIS SIMULATION}
+add_file src/OpenMAC_DMAFifo_Altera.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_DMAmaster.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_DMAmaster/dma_handler.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_DMAmaster/master_handler.vhd {SYNTHESIS SIMULATION}

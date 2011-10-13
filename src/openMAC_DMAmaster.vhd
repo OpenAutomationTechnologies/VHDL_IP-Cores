@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : c:\my_designs\POWERLINK\compile\openMAC_DMAmaster.vhd
--- Generated   : Tue Sep  6 16:39:07 2011
+-- Generated   : Thu Oct 13 11:57:58 2011
 -- From        : c:\my_designs\POWERLINK\src\openMAC_DMAmaster.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -52,7 +52,8 @@
 --
 -------------------------------------------------------------------------------
 --
--- 2011-08-03  	V0.01	zelenkaj    First version
+-- 2011-08-03	V0.01	zelenkaj	First version
+-- 2011-10-13	V0.02	zelenkaj	changed names of instances
 --
 -------------------------------------------------------------------------------
 
@@ -286,49 +287,7 @@ dma_din <= rd_data(7 downto 0) & rd_data(15 downto 8);
 
 ----  Component instantiations  ----
 
-rx_rd_clk <= m_clk;
-
-U15 : slow2fastSync
-  port map(
-       clkDst => m_clk,
-       clkSrc => dma_clk,
-       dataDst => m_mac_tx_on,
-       dataSrc => mac_tx_on,
-       rstDst => rst,
-       rstSrc => rst
-  );
-
-U16 : slow2fastSync
-  port map(
-       clkDst => m_clk,
-       clkSrc => dma_clk,
-       dataDst => m_mac_tx_off,
-       dataSrc => mac_tx_off,
-       rstDst => rst,
-       rstSrc => rst
-  );
-
-U17 : slow2fastSync
-  port map(
-       clkDst => m_clk,
-       clkSrc => dma_clk,
-       dataDst => m_mac_rx_on,
-       dataSrc => mac_rx_on,
-       rstDst => rst,
-       rstSrc => rst
-  );
-
-U18 : slow2fastSync
-  port map(
-       clkDst => m_clk,
-       clkSrc => dma_clk,
-       dataDst => m_mac_rx_off,
-       dataSrc => mac_rx_off,
-       rstDst => rst,
-       rstSrc => rst
-  );
-
-U3 : dma_handler
+THE_DMA_HANDLER : dma_handler
   generic map (
        dma_highadr_g => dma_highadr_g,
        gen_rx_fifo_g => gen_rx_fifo_g,
@@ -364,7 +323,7 @@ U3 : dma_handler
        tx_rd_usedw => tx_rd_usedw( tx_fifo_word_size_log2_c-1 downto 0 )
   );
 
-U4 : master_handler
+THE_MASTER_HANDLER : master_handler
   generic map (
        dma_highadr_g => dma_highadr_g,
        gen_rx_fifo_g => gen_rx_fifo_g,
@@ -406,18 +365,60 @@ U4 : master_handler
        tx_wr_usedw => tx_wr_usedw( tx_fifo_word_size_log2_c-1 downto 0 )
   );
 
+rx_rd_clk <= m_clk;
+
 tx_rd_clk <= dma_clk;
 
 rx_wr_clk <= dma_clk;
 
 tx_wr_clk <= m_clk;
 
+sync0 : slow2fastSync
+  port map(
+       clkDst => m_clk,
+       clkSrc => dma_clk,
+       dataDst => m_mac_tx_on,
+       dataSrc => mac_tx_on,
+       rstDst => rst,
+       rstSrc => rst
+  );
+
+sync1 : slow2fastSync
+  port map(
+       clkDst => m_clk,
+       clkSrc => dma_clk,
+       dataDst => m_mac_tx_off,
+       dataSrc => mac_tx_off,
+       rstDst => rst,
+       rstSrc => rst
+  );
+
+sync2 : slow2fastSync
+  port map(
+       clkDst => m_clk,
+       clkSrc => dma_clk,
+       dataDst => m_mac_rx_on,
+       dataSrc => mac_rx_on,
+       rstDst => rst,
+       rstSrc => rst
+  );
+
+sync3 : slow2fastSync
+  port map(
+       clkDst => m_clk,
+       clkSrc => dma_clk,
+       dataDst => m_mac_rx_off,
+       dataSrc => mac_rx_off,
+       rstDst => rst,
+       rstSrc => rst
+  );
+
 
 ----  Generate statements  ----
 
 txFifoGen : if gen_tx_fifo_g generate
 begin
-  U1 : OpenMAC_DMAFifo
+  TX_FIFO : OpenMAC_DMAFifo
     generic map (
          fifo_data_width_g => fifo_data_width_g,
          fifo_word_size_g => tx_fifo_word_size_c,
@@ -442,7 +443,7 @@ end generate txFifoGen;
 
 rxFifoGen : if gen_rx_fifo_g generate
 begin
-  U2 : OpenMAC_DMAFifo
+  RX_FIFO : OpenMAC_DMAFifo
     generic map (
          fifo_data_width_g => fifo_data_width_g,
          fifo_word_size_g => rx_fifo_word_size_c,
@@ -469,7 +470,7 @@ syncDmaAddrGen : for i in dma_highadr_g downto 1 generate
 begin
   g2 : if gen_rx_fifo_g or gen_tx_fifo_g generate
   begin
-    U5 : sync
+    sync6 : sync
       port map(
            clk => m_clk,
            din => dma_addr_trans(i),
@@ -481,7 +482,7 @@ end generate syncDmaAddrGen;
 
 newWrAddrSync : if gen_rx_fifo_g generate
 begin
-  U6 : slow2fastSync
+  sync4 : slow2fastSync
     port map(
          clkDst => m_clk,
          clkSrc => dma_clk,
@@ -494,7 +495,7 @@ end generate newWrAddrSync;
 
 newRdAddrSync : if gen_tx_fifo_g generate
 begin
-  U11 : slow2fastSync
+  sync5 : slow2fastSync
     port map(
          clkDst => m_clk,
          clkSrc => dma_clk,

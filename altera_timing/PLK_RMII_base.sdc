@@ -2,7 +2,6 @@
 # - RMII phys (DP83640)
 # - SRAM (10 ns - IS61WV51216BLL)
 # - Nios II (PCP) with 90 MHz
-# - PDI for parallel async interface (8/16bit)
 
 # ----------------------------------------------------------------------------------
 # clock definitions
