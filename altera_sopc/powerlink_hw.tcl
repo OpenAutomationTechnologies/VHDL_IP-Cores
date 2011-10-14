@@ -84,6 +84,7 @@
 #-- 2011-09-14	V1.03	zelenkaj	extract of components into own files
 #-- 2011-10-10	V1.04	zelenkaj	async-buffer limitation fixed again..
 #-- 2011-10-13	V1.05	zelenkaj	file names changed..
+#-- 2011-10-14	V1.06	zelenkaj	rmii2mii fifos are deleted (dma fifo is abused for..)
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -127,8 +128,6 @@ add_file src/OpenMAC_DMAmaster/dma_handler.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_DMAmaster/master_handler.vhd {SYNTHESIS SIMULATION}
 add_file src/OpenMAC_PHYMI.vhd {SYNTHESIS SIMULATION}
 add_file src/rmii2mii.vhd {SYNTHESIS SIMULATION}
-add_file src/rmii2mii_rxFifo.vhd {SYNTHESIS SIMULATION}
-add_file src/rmii2mii_txFifo.vhd {SYNTHESIS SIMULATION}
 add_file src/portio.vhd {SYNTHESIS SIMULATION}
 add_file src/portio_cnt.vhd {SYNTHESIS SIMULATION}
 add_file src/spi.vhd {SYNTHESIS SIMULATION}

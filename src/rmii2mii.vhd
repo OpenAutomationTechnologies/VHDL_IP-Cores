@@ -45,6 +45,7 @@
 -- 2010-11-30	V0.03		bug fix: in case of no link some phys confuse tx fifo during tx => aclr fifo
 -- 2011-05-06	V0.10		bug fix: use the RX_ER signal, it has important meaning!
 -- 2011-07-23	V0.11		forward RxErr to RMII
+-- 2011-10-13	V0.20		abuse openMAC_DMAFifo for the converter to use it in Altera/Xilinx easily
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -74,23 +75,47 @@ entity rmii2mii is
 end rmii2mii;
 
 architecture rtl of rmii2mii is
+	constant DIBIT_SIZE : integer := 2;
+	constant NIBBLE_SIZE : integer := 4;
 begin
 	
 	TX_BLOCK : block
+		constant FIFO_NIBBLES_LOG2 : integer := 4;
+		
 		signal fifo_half, fifo_full, fifo_empty, fifo_valid, fifo_wrempty : std_logic;
 		signal fifo_wr, fifo_rd : std_logic;
-		signal fifo_din : std_logic_vector(1 downto 0);
-		signal fifo_dout : std_logic_vector(3 downto 0);
-		signal fifo_rdUsedWord : std_logic_vector (3 downto 0);
-		signal fifo_wrUsedWord : std_logic_vector (4 downto 0);
-		signal clk50_n : std_logic;
+		signal fifo_din : std_logic_vector(NIBBLE_SIZE-1 downto 0);
+		signal fifo_dout : std_logic_vector(NIBBLE_SIZE-1 downto 0);
+		signal fifo_rdUsedWord : std_logic_vector (FIFO_NIBBLES_LOG2-1 downto 0);
+		signal fifo_wrUsedWord : std_logic_vector (FIFO_NIBBLES_LOG2-1 downto 0);
 		--necessary for clr fifo
-		signal aclr, mTxEn_s, mTxEn_ss : std_logic;
-	begin
-		clk50_n <= not clk50;
+		signal aclr, rTxEn_l : std_logic;
 		
-		fifo_din <= rTxDat;
-		fifo_wr <= rTxEn;
+		--convert dibits to nibble
+		signal sel_dibit : std_logic;
+		signal fifo_din_reg : std_logic_vector(rTxDat'range);
+	begin
+		
+		fifo_din <= rTxDat & fifo_din_reg;
+		fifo_wr <= sel_dibit;
+		
+		--convert dibits to nibble (to fit to fifo)
+		process(clk50, rst)
+		begin
+			if rst = '1' then
+				sel_dibit <= '0';
+				fifo_din_reg <= (others => '0');
+			elsif clk50 = '1' and clk50'event then
+				if rTxEn = '1' then
+					sel_dibit <= not sel_dibit;
+					if sel_dibit = '0' then
+						fifo_din_reg <= rTxDat;
+					end if;
+				else
+					sel_dibit <= '0';
+				end if;
+			end if;
+		end process;
 		
 		mTxDat <= fifo_dout when fifo_valid = '1' else (others => '0');
 		mTxEn <= fifo_valid;
@@ -117,60 +142,88 @@ begin
 			end if;
 		end process;
 		
-		theTxFifo : entity work.txFifo
+		--abuse openMAC's DMA FIFO
+		theRMII2MII_TXFifo : entity work.openMAC_DMAfifo
+			generic map (
+				fifo_data_width_g => NIBBLE_SIZE,
+				fifo_word_size_g => 2**FIFO_NIBBLES_LOG2,
+				fifo_word_size_log2_g => FIFO_NIBBLES_LOG2
+			)
 			port map (
 				aclr		=> aclr,
-				data		=> fifo_din,
-				rdclk		=> mTxClk,
-				rdreq		=> fifo_rd,
-				wrclk		=> clk50_n,
-				wrreq		=> fifo_wr,
-				q			=> fifo_dout,
-				rdempty		=> fifo_empty,
-				rdfull		=> open,
-				rdusedw		=> fifo_rdUsedWord,
-				wrempty		=> fifo_wrempty,
-				wrfull		=> fifo_full,
-				wrusedw		=> fifo_wrUsedWord
+				rd_clk		=> mTxClk,
+				wr_clk		=> clk50,
+				--read port
+				rd_req		=> fifo_rd,
+				rd_data		=> fifo_dout,
+				rd_empty	=> fifo_empty,
+				rd_full		=> open,
+				rd_usedw	=> fifo_rdUsedWord,
+				--write port
+				wr_req		=> fifo_wr,
+				wr_data		=> fifo_din,
+				wr_empty	=> fifo_wrempty,
+				wr_full		=> fifo_full,
+				wr_usedw	=> fifo_wrUsedWord
 			);
 		
 		--sync Mii Tx En (=fifo_valid) to wr clk
-		process(clk50_n, rst)
+		process(clk50, rst)
 		begin
 			if rst = '1' then
 				aclr <= '1'; --reset fifo
-				mTxEn_s <= '0';
-				mTxEn_ss <= '0';
-			elsif clk50_n = '1' and clk50_n'event then
+				rTxEn_l <= '0';
+			elsif clk50 = '1' and clk50'event then
+				rTxEn_l <= rTxEn;
+				
 				aclr <= '0'; --default
 				
-				mTxEn_ss <= fifo_valid;
-				mTxEn_s <= mTxEn_ss;
-				
-				--clear fifo if no tx is in progress and fifo is filled
-				if mTxEn_s = '0' and rTxEn = '0' and (fifo_full = '1' or fifo_wrempty = '0') then
+				--clear the full fifo after TX on RMII side is done
+				if fifo_full = '1' and rTxEn_l = '1' and rTxEn = '0' then
 					aclr <= '1';
-				end if;				
+				end if;
 			end if;
 		end process;
 		
 	end block;
 	
 	RX_BLOCK : block
+		constant FIFO_NIBBLES_LOG2 : integer := 4;
+		
 		signal fifo_half, fifo_full, fifo_empty, fifo_valid : std_logic;
 		signal fifo_wr, fifo_rd : std_logic;
-		signal fifo_din : std_logic_vector(3 downto 0);
-		signal fifo_dout : std_logic_vector(1 downto 0);
-		signal fifo_rdUsedWord : std_logic_vector(4 downto 0);
-		signal fifo_wrUsedWord : std_logic_vector(3 downto 0);
+		signal fifo_din : std_logic_vector(NIBBLE_SIZE-1 downto 0);
+		signal fifo_dout : std_logic_vector(NIBBLE_SIZE-1 downto 0);
+		signal fifo_rdUsedWord : std_logic_vector(FIFO_NIBBLES_LOG2-1 downto 0);
+		signal fifo_wrUsedWord : std_logic_vector(FIFO_NIBBLES_LOG2-1 downto 0);
 		signal rRxErL, rRxErLL : std_logic;
+		--convert nibble to dibits
+		signal sel_dibit : std_logic;
+		signal fifo_rd_s : std_logic;
 	begin
 		
 		fifo_din <= mRxDat;
 		fifo_wr <= mRxDv and not mRxEr;
 		
-		rRxDat <= fifo_dout when fifo_valid = '1' else (others => '0');
+		rRxDat <= 	fifo_dout(fifo_dout'left downto fifo_dout'left-1) when fifo_valid = '1' and sel_dibit = '0' else
+					fifo_dout(fifo_dout'right+1 downto 0) when fifo_valid = '1' and sel_dibit = '1' else
+					(others => '0');
+		
 		rRxDv <= fifo_valid;
+		fifo_rd <= fifo_rd_s and not sel_dibit;
+		
+		process(clk50, rst)
+		begin
+			if rst = '1' then
+				sel_dibit <= '0';
+			elsif clk50 = '1' and clk50'event then
+				if fifo_rd_s = '1' or fifo_valid = '1' then
+					sel_dibit <= not sel_dibit;
+				else
+					sel_dibit <= '0';
+				end if;
+			end if;
+		end process;
 		
 		fifo_half <= fifo_rdUsedWord(fifo_rdUsedWord'left);
 		
@@ -179,19 +232,20 @@ begin
 		process(clk50, rst)
 		begin
 			if rst = '1' then
-				fifo_rd <= '0';
+				fifo_rd_s <= '0';
 				fifo_valid <= '0';
 				rRxErL <= '0'; rRxErLL <= '0';
 			elsif clk50 = '1' and clk50'event then
 				rRxErLL <= rRxErL;
 				rRxErL <= mRxEr;
-				if fifo_rd = '0' and fifo_half = '1' then
-					fifo_rd <= '1';
-				elsif fifo_rd = '1' and fifo_empty = '1' then
-					fifo_rd <= '0';
+				
+				if fifo_rd_s = '0' and fifo_half = '1' then
+					fifo_rd_s <= '1';
+				elsif fifo_rd_s = '1'  and fifo_empty = '1' then
+					fifo_rd_s <= '0';
 				end if;
 				
-				if fifo_rd = '1' and fifo_rdUsedWord > conv_std_logic_vector(1, fifo_rdUsedWord'length) then
+				if fifo_rd_s = '1' then -- and fifo_rdUsedWord > conv_std_logic_vector(1, fifo_rdUsedWord'length) then
 					fifo_valid <= '1';
 				else
 					fifo_valid <= '0';
@@ -199,21 +253,29 @@ begin
 			end if;
 		end process;
 		
-		theRxFifo : entity work.rxFifo
+		--abuse openMAC's DMA FIFO
+		theMII2RMII_RXFifo : entity work.openMAC_DMAfifo
+			generic map (
+				fifo_data_width_g => NIBBLE_SIZE,
+				fifo_word_size_g => 2**FIFO_NIBBLES_LOG2,
+				fifo_word_size_log2_g => FIFO_NIBBLES_LOG2
+			)
 			port map (
 				aclr		=> rst,
-				data		=> fifo_din,
-				rdclk		=> clk50,
-				rdreq		=> fifo_rd,
-				wrclk		=> mRxClk,
-				wrreq		=> fifo_wr,
-				q			=> fifo_dout,
-				rdempty		=> fifo_empty,
-				rdfull		=> open,
-				rdusedw		=> fifo_rdUsedWord,
-				wrempty		=> open,
-				wrfull		=> fifo_full,
-				wrusedw		=> fifo_wrUsedWord
+				rd_clk		=> clk50,
+				wr_clk		=> mRxClk,
+				--read port
+				rd_req		=> fifo_rd,
+				rd_data		=> fifo_dout,
+				rd_empty	=> fifo_empty,
+				rd_full		=> open,
+				rd_usedw	=> fifo_rdUsedWord,
+				--write port
+				wr_req		=> fifo_wr,
+				wr_data		=> fifo_din,
+				wr_empty	=> open,
+				wr_full		=> fifo_full,
+				wr_usedw	=> fifo_wrUsedWord
 			);
 		
 	end block;
