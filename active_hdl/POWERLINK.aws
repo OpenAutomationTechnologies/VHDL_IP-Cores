@@ -1,0 +1,14 @@
+[Version]
+Version=8.2
+[Designs]
+POWERLINK=.\POWERLINK.adf
+[Settings]
+Active=POWERLINK
+[Browser]
+sort=type
+mode=none
+[Order]
+order=1
+macro=
+[Expand]
+powerlink=1

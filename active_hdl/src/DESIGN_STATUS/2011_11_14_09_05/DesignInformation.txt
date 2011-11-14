@@ -1,0 +1,75 @@
+-------------------------------------------------------------------------------
+--
+-- Title      : Design Flow Manager settings and simulation libraries
+-- Active-HDL : 8.3.2120.sp1.14.3884 
+-- Workspace  : POWERLINK
+-- Design     : POWERLINK
+-- Author     : zelenkaj
+-- Company    : Bernecker + Rainer
+-- Date       : 14.11.2011, 09:05:08
+--
+-------------------------------------------------------------------------------
+1. Design Flow Manager Settings
+-----------------------------
+Language           | VHDL
+Flow Type          | HDL
+C Synthesis        | <none>  
+HDL Synthesis      | <none>  
+Physical Synthesis | <none>  
+Implementation     | <none>  
+Family Name        | 
+-----------------------------
+
+2. Working Library: POWERLINK
+Active-HDL 8.3.2120.sp1.14.3884  2011-11-14 09:04:57
+
+Elaboration top modules:
+VHDL Configuration            testbench_for_openmac_dmamaster
+
+
+---------------------------------------------------------------------------------------------------------------------
+Entity               | Architecture       | Library   | Info | Compiler Version                | Compilation Options
+---------------------------------------------------------------------------------------------------------------------
+openmac_dmamaster_tb | tb_architecture    | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+openMAC_DMAmaster    | strct              | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+dma_handler          | dma_handler        | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+master_handler       | master_handler     | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+slow2fastSync        | rtl                | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+edgeDet              | rtl                | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+sync                 | rtl                | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+OpenMAC_DMAFifo      | struct             | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+async_fifo_ctrl      | str_arch           | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+dc_dpr               | xilinx             | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+fifo_read_ctrl       | gray_arch          | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+fifo_write_ctrl      | gray_arch          | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+synchronizer_g       | two_ff_arch        | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+plb_master_handler   | plb_master_handler | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+---------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------
+VHDL Configuration                        | Library   | Info | Compiler Version                | Compilation Options
+---------------------------------------------------------------------------------------------------------------------
+testbench_for_openmac_dmamaster           | powerlink |      | 8.3.2120.sp1.14.3884  (Windows) | -O3 -2002
+---------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------
+VHDL Package                              | Library   | Info | Compiler Version                | Compilation Options
+---------------------------------------------------------------------------------------------------------------------
+standard                                  | std       |      |                                 | <unavailable>
+MATH_REAL                                 | ieee      |      | 8.3.2120.sp1.14.3884  (Windows) | 
+TEXTIO                                    | std       |      | 8.3.2120.sp1.14.3884  (Windows) | -2008
+std_logic_1164                            | ieee      |      | 8.3.2120.sp1.14.3884  (Windows) | -2008
+std_logic_arith                           | ieee      |      | 8.3.2120.sp1.14.3884  (Windows) | -2002
+NUMERIC_STD                               | ieee      |      | 8.3.2120.sp1.14.3884  (Windows) | -2008
+STD_LOGIC_UNSIGNED                        | ieee      |      | 8.3.2120.sp1.14.3884  (Windows) | -2002
+---------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------
+Library                                   | Comment
+---------------------------------------------------------------------------------------------------------------------
+ieee                                      | Standard IEEE packages library
+powerlink                                 | None
+std                                       | Standard VHDL library
+---------------------------------------------------------------------------------------------------------------------
+
+

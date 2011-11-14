@@ -1,0 +1,223 @@
+[Project]
+Current Flow=Generic
+VCS=0
+version=3
+Current Config=compile
+
+[Configurations]
+compile=POWERLINK
+
+[Library]
+POWERLINK=.\POWERLINK.LIB
+
+[Settings]
+AccessRead=0
+AccessReadWrite=0
+AccessACCB=0
+AccessACCR=0
+AccessReadWriteSLP=0
+AccessReadTopLevel=1
+DisableC=1
+ENABLE_ADV_DATAFLOW=0
+EnableCC=0
+EnableEXC=0
+FLOW_TYPE=HDL
+LANGUAGE=VHDL
+REFRESH_FLOW=1
+FAMILY=
+fileopeninsrc=1
+fileopenfolder=C:\my_designs\POWERLINK\src
+
+[LocalVerilogSets]
+EnableSLP=1
+EnableDebug=0
+EnableExpressionCoverage=0
+
+[LocalVhdlSets]
+EnableExpressionCoverage=0
+CompileWithDebug=0
+
+[$LibMap$]
+POWERLINK=.
+Active_lib=
+
+[HierarchyViewer]
+SortInfo=u
+HierarchyInformation=openmac_dmamaster_tb|testbench_for_openmac_dmamaster|1
+ShowHide=ShowTopLevel
+Selected=
+
+[ExpressionCoverage]
+Enabled=0
+
+[CoverageProfiler]
+SelectedTool=None
+
+[CodeCoverage]
+Enabled=0
+
+[PathCoverage]
+Enabled=0
+
+[Groups]
+lib=1
+openMAC_DMAmaster=1
+OpenMAC_DMAFifo_Xilinx=1
+TestBench=1
+template=0
+DESIGN_STATUS=1
+DESIGN_STATUS\2011_11_14_09_05=1
+
+[Files]
+/plb_powerlink.bde=-1
+/powerlink.vhd=-1
+/OpenFILTER.vhd=-1
+/OpenHUB.vhd=-1
+/OpenMAC.vhd=-1
+/openMAC_16to32conv.vhd=-1
+/OpenMAC_cmp.vhd=-1
+/OpenMAC_DMAFifo_Altera.vhd=-1
+/OpenMAC_DPR_Altera.vhd=-1
+/OpenMAC_DMAFifo_Xilinx.bde=-1
+/OpenMAC_DPR_Xilinx.vhd=-1
+/OpenMAC_PHYMI.vhd=-1
+/OpenMAC_phyAct.vhd=-1
+/openMAC_DMAmaster.bde=-1
+/openMAC_Ethernet.bde=-1
+/OpenMAC_rmii2mii.vhd=-1
+/pdi.vhd=-1
+/pdi_spi.vhd=-1
+/pdi_dpr.vhd=-1
+/pdi_par.vhd=-1
+/pdi_tripleVBufLogic.vhd=-1
+/pdi_event.vhd=-1
+/pdi_led.vhd=-1
+/pdi_controlStatusReg.vhd=-1
+/pdi_apIrqGen.vhd=-1
+/pdi_simpleReg.vhd=-1
+/portio.vhd=-1
+/portio_cnt.vhd=-1
+/spi_sreg.vhd=-1
+/spi.vhd=-1
+lib/sync.vhd=-1
+lib/addr_decoder.vhd=-1
+lib/req_ack.vhd=-1
+lib/edgedet.vhd=-1
+lib/delay_pulse.vhd=-1
+lib/slow2fastSync.vhd=-1
+lib/memMap.vhd=-1
+openMAC_DMAmaster/dma_handler.vhd=-1
+openMAC_DMAmaster/master_handler.vhd=-1
+openMAC_DMAmaster/plb_master_handler.vhd=-1
+OpenMAC_DMAFifo_Xilinx/fifo_read.vhd=-1
+OpenMAC_DMAFifo_Xilinx/fifo_write.vhd=-1
+OpenMAC_DMAFifo_Xilinx/n_synchronizer.vhd=-1
+OpenMAC_DMAFifo_Xilinx/async_fifo_ctrl.vhd=-1
+TestBench/plb_powerlink_TB.vhd=-1
+TestBench/openmac_dmamaster_TB.vhd=-1
+TestBench/openmac_dmafifo_TB.vhd=-1
+TestBench/rmii2mii_TB.vhd=-1
+TestBench/triplevbuflogic_TB.vhd=-1
+TestBench/openmac_TB.vhd=-1
+TestBench/pdievent_TB.vhd=-1
+TestBench/pdi_TB.vhd=-1
+TestBench/pdi_par_TB.vhd=-1
+TestBench/portio_TB.vhd=-1
+TestBench/hwacc_TB.vhd=-1
+TestBench/powerlink_TB.vhd=-1
+TestBench/openmac_16to32conv_TB.vhd=-1
+TestBench/openmac_dprpackets_TB.vhd=-1
+TestBench/endian_conv_TB.vhd=-1
+template/plb_master.bde=-1
+template/plb_master.vhd=-1
+template/plb_slave.bde=-1
+template/plb_slave.vhd=-1
+DESIGN_STATUS\2011_11_14_09_05/ComputerInformation.txt=-1
+DESIGN_STATUS\2011_11_14_09_05/DesignInformation.txt=-1
+DESIGN_STATUS\2011_11_14_09_05/DesignFiles.txt=-1
+DESIGN_STATUS\2011_11_14_09_05/LibrariesList.txt=-1
+
+[Files.Data]
+.\src\plb_powerlink.bde=Block Diagram
+.\src\powerlink.vhd=VHDL Source Code
+.\src\OpenFILTER.vhd=VHDL Source Code
+.\src\OpenHUB.vhd=VHDL Source Code
+.\src\OpenMAC.vhd=VHDL Source Code
+.\src\openMAC_16to32conv.vhd=VHDL Source Code
+.\src\OpenMAC_cmp.vhd=VHDL Source Code
+.\src\OpenMAC_DMAFifo_Altera.vhd=VHDL Source Code
+.\src\OpenMAC_DPR_Altera.vhd=VHDL Source Code
+.\src\OpenMAC_DMAFifo_Xilinx.bde=Block Diagram
+.\src\OpenMAC_DPR_Xilinx.vhd=VHDL Source Code
+.\src\OpenMAC_PHYMI.vhd=VHDL Source Code
+.\src\OpenMAC_phyAct.vhd=VHDL Source Code
+.\src\openMAC_DMAmaster.bde=Block Diagram
+.\src\openMAC_Ethernet.bde=Block Diagram
+.\src\OpenMAC_rmii2mii.vhd=VHDL Source Code
+.\src\pdi.vhd=VHDL Source Code
+.\src\pdi_spi.vhd=VHDL Source Code
+.\src\pdi_dpr.vhd=VHDL Source Code
+.\src\pdi_par.vhd=VHDL Source Code
+.\src\pdi_tripleVBufLogic.vhd=VHDL Source Code
+.\src\pdi_event.vhd=VHDL Source Code
+.\src\pdi_led.vhd=VHDL Source Code
+.\src\pdi_controlStatusReg.vhd=VHDL Source Code
+.\src\pdi_apIrqGen.vhd=VHDL Source Code
+.\src\pdi_simpleReg.vhd=VHDL Source Code
+.\src\portio.vhd=VHDL Source Code
+.\src\portio_cnt.vhd=VHDL Source Code
+.\src\spi_sreg.vhd=VHDL Source Code
+.\src\spi.vhd=VHDL Source Code
+.\src\lib\sync.vhd=VHDL Source Code
+.\src\lib\addr_decoder.vhd=VHDL Source Code
+.\src\lib\req_ack.vhd=VHDL Source Code
+.\src\lib\edgedet.vhd=VHDL Source Code
+.\src\lib\delay_pulse.vhd=VHDL Source Code
+.\src\lib\slow2fastSync.vhd=VHDL Source Code
+.\src\lib\memMap.vhd=VHDL Source Code
+.\src\openMAC_DMAmaster\dma_handler.vhd=VHDL Source Code
+.\src\openMAC_DMAmaster\master_handler.vhd=VHDL Source Code
+.\src\openMAC_DMAmaster\plb_master_handler.vhd=VHDL Source Code
+.\src\OpenMAC_DMAFifo_Xilinx\fifo_read.vhd=VHDL Source Code
+.\src\OpenMAC_DMAFifo_Xilinx\fifo_write.vhd=VHDL Source Code
+.\src\OpenMAC_DMAFifo_Xilinx\n_synchronizer.vhd=VHDL Source Code
+.\src\OpenMAC_DMAFifo_Xilinx\async_fifo_ctrl.vhd=VHDL Source Code
+.\src\TestBench\plb_powerlink_TB.vhd=VHDL Test Bench
+.\src\TestBench\openmac_dmamaster_TB.vhd=VHDL Test Bench
+.\src\TestBench\openmac_dmafifo_TB.vhd=VHDL Test Bench
+.\src\TestBench\rmii2mii_TB.vhd=VHDL Test Bench
+.\src\TestBench\triplevbuflogic_TB.vhd=VHDL Test Bench
+.\src\TestBench\openmac_TB.vhd=VHDL Test Bench
+.\src\TestBench\pdievent_TB.vhd=VHDL Test Bench
+.\src\TestBench\pdi_TB.vhd=VHDL Test Bench
+.\src\TestBench\pdi_par_TB.vhd=VHDL Test Bench
+.\src\TestBench\portio_TB.vhd=VHDL Test Bench
+.\src\TestBench\hwacc_TB.vhd=VHDL Test Bench
+.\src\TestBench\powerlink_TB.vhd=VHDL Test Bench
+.\src\TestBench\openmac_16to32conv_TB.vhd=VHDL Test Bench
+.\src\TestBench\openmac_dprpackets_TB.vhd=VHDL Test Bench
+.\src\TestBench\endian_conv_TB.vhd=VHDL Test Bench
+.\src\template\plb_master.bde=Block Diagram
+.\src\template\plb_master.vhd=VHDL Source Code
+.\src\template\plb_slave.bde=Block Diagram
+.\src\template\plb_slave.vhd=VHDL Source Code
+.\src\DESIGN_STATUS\2011_11_14_09_05\ComputerInformation.txt=Text File
+.\src\DESIGN_STATUS\2011_11_14_09_05\DesignInformation.txt=Text File
+.\src\DESIGN_STATUS\2011_11_14_09_05\DesignFiles.txt=Text File
+.\src\DESIGN_STATUS\2011_11_14_09_05\LibrariesList.txt=Text File
+
+[file_out:/plb_powerlink.bde]
+/..\compile\plb_powerlink.vhd=-1
+
+[file_out:/OpenMAC_DMAFifo_Xilinx.bde]
+/..\compile\OpenMAC_DMAFifo_Xilinx.vhd=-1
+
+[file_out:/openMAC_DMAmaster.bde]
+/..\compile\openMAC_DMAmaster.vhd=-1
+
+[file_out:/openMAC_Ethernet.bde]
+/..\compile\openMAC_Ethernet.vhd=-1
+
+[file_out:template/plb_master.bde]
+template/..\..\compile\plb_master.vhd=-1
+

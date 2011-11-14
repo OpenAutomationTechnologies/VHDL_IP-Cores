@@ -1,0 +1,392 @@
+-------------------------------------------------------------------------------
+--
+-- Title      : List of local and global libraries visible in Library Manager
+-- Active-HDL : 8.3.2120.sp1.14.3884 
+-- Workspace  : POWERLINK
+-- Design     : POWERLINK
+-- Author     : zelenkaj
+-- Company    : Bernecker + Rainer
+-- Date       : 14.11.2011, 09:05:08
+--
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Library                                    | Mode  | Vendor   | Version                                          | Comment
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+aldec                                      | RO    | ALDEC    | PROCEDURES FOR CALLING ASDB                      | FSDB, MATLAB, SIGNAL AGENT TASKS FROM THE VHDL CODE, RANDOM PACKAGE
+arriaii                                    | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | ARRIAII VHDL LIBRARY
+hardcopyiii                                | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | HARDCOPYIII VHDL LIBRARY
+hardcopyiv_hssi                            | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | HARDCOPYIV_HSSI VHDL LIBRARY
+stratixiigx                                | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXIIGX VHDL LIBRARY
+stratixgx                                  | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXGX VHDL LIBRARY
+cycloneiiils                               | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | CYCLONEIIILS VHDL LIBRARY
+altera_mf                                  | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | ALTERA_MF VHDL LIBRARY
+stratixv_hssi                              | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXV_HSSI VHDL LIBRARY
+stratixiv_pcie_hip                         | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXIV_PCIE_HIP VHDL LIBRARY
+alt_vtl                                    | RO    | ALTERA   | ALTERA MAX+plus II 10.2                          | ALT_VTL VHDL TIMING LIBRARY 
+stratixiii                                 | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXIII VHDL LIBRARY
+cycloneiv_pcie_hip                         | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | CYCLONEIV_PCIE_HIP VHDL LIBRARY
+hardcopyiv_pcie_hip                        | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | HARDCOPYIV_PCIE_HIP VHDL LIBRARY
+cycloneii                                  | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | CYCLONEII VHDL LIBRARY
+cycloneiv_hssi                             | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | CYCLONEIV_HSSI VHDL LIBRARY
+arriagx_hssi                               | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | ARRIAGX_HSSI VHDL LIBRARY
+arriaii_hssi                               | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | ARRIAII_HSSI VHDL LIBRARY
+stratixgx_gxb                              | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXGX_GXB VHDL LIBRARY
+lpm                                        | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | LPM  VHDL LIBRARY
+stratixiigx_hssi                           | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXGX_HSSI VHDL LIBRARY
+maxii                                      | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | MAXII VHDL LIBRARY
+cycloneiii                                 | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | CYCLONEIII VHDL LIBRARY
+hardcopyii                                 | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | HARDCOPYII VHDL LIBRARY
+cycloneiv                                  | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | CYCLONEIV VHDL LIBRARY
+stratixv                                   | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXV VHDL LIBRARY
+arriagx                                    | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | ARRIAGX VHDL LIBRARY
+altgxb                                     | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | ALTGXB VHDL LIBRARY
+cycloneive                                 | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | CYCLONEIVE VHDL LIBRARY
+arriaii_pcie_hip                           | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | ARRIAII_PCIE_HIP VHDL LIBRARY
+stratixiv                                  | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXIV VHDL LIBRARY
+cyclone                                    | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | CYCLONE VHDL LIBRARY
+sgate                                      | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | SGATE  VHDL LIBRARY
+hardcopyiv                                 | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | HARDCOPYIV VHDL LIBRARY
+altera                                     | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | ALTERA VHDL LIBRARY
+max                                        | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | MAX VHDL LIBRARY
+stratixii                                  | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXII VHDL LIBRARY
+stratixiv_hssi                             | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXIV_HSSI VHDL LIBRARY
+stratixv_pcie_hip                          | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIXV_PCIE_HIP VHDL LIBRARY
+stratix                                    | RO    | ALTERA   | ALTERA QUARTUS II 10.0 SP1                       | STRATIX  VHDL LIBRARY
+exemplar                                   | RO    | MENTOR   | MENTOR GRAPHICS PRECISION RTL SYNTHESIS 2009a.76 | EXEMPLAR VHDL LIBRARY.
+virtex6_pcie_v1_05_a                       | RW    | No Data  | No Data                                          | No Data
+axi_protocol_checker_v1_00_a               | RW    | No Data  | No Data                                          | No Data
+hwicap_v6_00_a                             | RW    | No Data  | No Data                                          | No Data
+plbv46_master_burst_v1_01_a                | RW    | No Data  | No Data                                          | No Data
+xps_can_v3_00_a                            | RW    | No Data  | No Data                                          | No Data
+cdn_axi4_slave_bfm_wrap_v2_00_a            | RW    | No Data  | No Data                                          | No Data
+cdn_axi4_lite_master_bfm_wrap_v2_00_a      | RW    | No Data  | No Data                                          | No Data
+ppc440_virtex5_v1_01_a                     | RW    | No Data  | No Data                                          | No Data
+xps_iic_v2_01_a                            | RW    | No Data  | No Data                                          | No Data
+plb_v46_v1_05_a                            | RW    | No Data  | No Data                                          | No Data
+xps_sysmon_adc_v3_00_a                     | RW    | No Data  | No Data                                          | No Data
+virtex6_pcie_v1_06_a                       | RW    | No Data  | No Data                                          | No Data
+xps_ll_fifo_v1_02_a                        | RW    | No Data  | No Data                                          | No Data
+plbv46_pci_v1_04_a                         | RW    | No Data  | No Data                                          | No Data
+xps_uartlite_v1_01_a                       | RW    | No Data  | No Data                                          | No Data
+lmb_v10_v1_00_a                            | RW    | No Data  | No Data                                          | No Data
+fsl_v20_v2_11_c                            | RW    | No Data  | No Data                                          | No Data
+plbv46_slave_v1_02_a                       | RW    | No Data  | No Data                                          | No Data
+dcr_v29_v1_00_b                            | RW    | No Data  | No Data                                          | No Data
+xps_iic_v2_03_a                            | RW    | No Data  | No Data                                          | No Data
+xps_intc_v2_00_a                           | RW    | No Data  | No Data                                          | No Data
+cdn_axi4_lite_slave_bfm_wrap_v1_00_a       | RW    | No Data  | No Data                                          | No Data
+ppc440mc_ddr2_v3_00_b                      | RW    | No Data  | No Data                                          | No Data
+plbv46_slave_v1_04_a                       | RW    | No Data  | No Data                                          | No Data
+axi_timer_v1_01_a                          | RW    | No Data  | No Data                                          | No Data
+chipscope_ila_v1_04_a                      | RW    | No Data  | No Data                                          | No Data
+xps_intc_v2_01_a                           | RW    | No Data  | No Data                                          | No Data
+proc_common_v2_00_a                        | RW    | No Data  | No Data                                          | No Data
+chipscope_plbv46_iba_v1_03_a               | RW    | No Data  | No Data                                          | No Data
+plbv46_pcie_v4_02_a                        | RW    | No Data  | No Data                                          | No Data
+xps_usb2_device_v3_01_a                    | RW    | No Data  | No Data                                          | No Data
+cdn_axi4_lite_slave_bfm_wrap_v2_00_a       | RW    | No Data  | No Data                                          | No Data
+unisims_ver                                | RW    | No Data  | No Data                                          | No Data
+xps_insystem_flash_v1_01_b                 | RW    | No Data  | No Data                                          | No Data
+spartan6_pcie_v1_02_a                      | RW    | No Data  | No Data                                          | No Data
+simprims_ver                               | RW    | No Data  | No Data                                          | No Data
+xps_spi_v2_02_a                            | RW    | No Data  | No Data                                          | No Data
+virtex6_pcie_v1_03_a                       | RW    | No Data  | No Data                                          | No Data
+xps_bram_if_cntlr_v1_00_b                  | RW    | No Data  | No Data                                          | No Data
+util_reduced_logic_v1_00_a                 | RW    | No Data  | No Data                                          | No Data
+plb_v34_v1_02_a                            | RW    | No Data  | No Data                                          | No Data
+chipscope_plb_iba_v1_01_a                  | RW    | No Data  | No Data                                          | No Data
+xps_ps2_v1_01_b                            | RW    | No Data  | No Data                                          | No Data
+ppc405_virtex4_v2_01_b                     | RW    | No Data  | No Data                                          | No Data
+proc_common_v1_00_b                        | RW    | No Data  | No Data                                          | No Data
+proc_sys_reset_v2_00_a                     | RW    | No Data  | No Data                                          | No Data
+proc_utils_v1_00_a                         | RW    | No Data  | No Data                                          | No Data
+xps_uart16550_v3_00_a                      | RW    | No Data  | No Data                                          | No Data
+rdpfifo_v4_01_a                            | RW    | No Data  | No Data                                          | No Data
+axi_spi_v1_00_a                            | RW    | No Data  | No Data                                          | No Data
+cdn_axi4_master_bfm_wrap_v2_00_a           | RW    | No Data  | No Data                                          | No Data
+mdm_v2_00_b                                | RW    | No Data  | No Data                                          | No Data
+axi_sg_v2_02_a                             | RW    | No Data  | No Data                                          | No Data
+eth_stat_wrap_v2_02_a                      | RW    | No Data  | No Data                                          | No Data
+axi_master_burst_v1_00_a                   | RW    | No Data  | No Data                                          | No Data
+apu_fpu_virtex5_v1_01_a                    | RW    | No Data  | No Data                                          | No Data
+xps_ethernetlite_v4_00_a                   | RW    | No Data  | No Data                                          | No Data
+axi_slave_burst_v1_00_a                    | RW    | No Data  | No Data                                          | No Data
+xps_timer_v1_02_a                          | RW    | No Data  | No Data                                          | No Data
+xps_hwicap_v5_01_a                         | RW    | No Data  | No Data                                          | No Data
+xps_hwicap_v5_00_a                         | RW    | No Data  | No Data                                          | No Data
+wrpfifo_v5_01_a                            | RW    | No Data  | No Data                                          | No Data
+axi_uart16550_v1_00_a                      | RW    | No Data  | No Data                                          | No Data
+lmb_v10_v2_00_a                            | RW    | No Data  | No Data                                          | No Data
+axi_sysmon_adc_v2_00_a                     | RW    | No Data  | No Data                                          | No Data
+common_v1_00_a                             | RW    | No Data  | No Data                                          | No Data
+axi_intc_v1_00_a                           | RW    | No Data  | No Data                                          | No Data
+xps_epc_v1_02_a                            | RW    | No Data  | No Data                                          | No Data
+isocm_v10_v2_00_b                          | RW    | No Data  | No Data                                          | No Data
+pci_arbiter_v1_00_a                        | RW    | No Data  | No Data                                          | No Data
+axi_uart16550_v1_01_a                      | RW    | No Data  | No Data                                          | No Data
+clock_generator_v4_01_a                    | RW    | No Data  | No Data                                          | No Data
+soft_temac_wrap_v2_03_a                    | RW    | No Data  | No Data                                          | No Data
+chipscope_axi_monitor_v2_00_a              | RW    | No Data  | No Data                                          | No Data
+axi_7series_ddrx_v1_00_a                   | RW    | No Data  | No Data                                          | No Data
+dsocm_v10_v2_00_b                          | RW    | No Data  | No Data                                          | No Data
+ppc440mc_ddr2_v3_00_a                      | RW    | No Data  | No Data                                          | No Data
+xps_usb2_device_v2_00_a                    | RW    | No Data  | No Data                                          | No Data
+chipscope_vio_v1_03_a                      | RW    | No Data  | No Data                                          | No Data
+plbv46_pcie_v4_04_a                        | RW    | No Data  | No Data                                          | No Data
+axi_iic_v1_00_a                            | RW    | No Data  | No Data                                          | No Data
+axi_sysace_v1_01_a                         | RW    | No Data  | No Data                                          | No Data
+axi_interconnect_v1_01_a                   | RW    | No Data  | No Data                                          | No Data
+axi_sysace_v1_00_a                         | RW    | No Data  | No Data                                          | No Data
+cdn_axi4_streaming_slave_bfm_wrap_v1_00_a  | RW    | No Data  | No Data                                          | No Data
+axi_interconnect_v1_02_a                   | RW    | No Data  | No Data                                          | No Data
+assertions                                 | RO    | No Data  | No Data                                          | No Data
+axi_timebase_wdt_v1_00_a                   | RW    | No Data  | No Data                                          | No Data
+plbv46_plbv46_bridge_v1_02_b               | RW    | No Data  | No Data                                          | No Data
+mailbox_v1_00_a                            | RW    | No Data  | No Data                                          | No Data
+axi_quad_spi_v1_00_a                       | RW    | No Data  | No Data                                          | No Data
+xps_usb2_device_v4_00_a                    | RW    | No Data  | No Data                                          | No Data
+xps_usb2_device_v3_00_a                    | RW    | No Data  | No Data                                          | No Data
+axi_sg_v2_00_a                             | RW    | No Data  | No Data                                          | No Data
+axi_master_lite_v1_00_a                    | RW    | No Data  | No Data                                          | No Data
+plbv46_dcr_bridge_v1_01_a                  | RW    | No Data  | No Data                                          | No Data
+spartan6_pcie_v1_04_a                      | RW    | No Data  | No Data                                          | No Data
+mii_to_rmii_v1_01_a                        | RW    | No Data  | No Data                                          | No Data
+intc_core_v2_00_a                          | RW    | No Data  | No Data                                          | No Data
+plb_v46_v1_04_a                            | RW    | No Data  | No Data                                          | No Data
+plbv46_plbv46_bridge_v1_03_a               | RW    | No Data  | No Data                                          | No Data
+axi_pcie_v1_00_a                           | RW    | No Data  | No Data                                          | No Data
+axi_pcie_mm_s_v1_00_a                      | RW    | No Data  | No Data                                          | No Data
+virtex6_pcie_v1_02_a                       | RW    | No Data  | No Data                                          | No Data
+xps_most_nic_v1_01_a                       | RW    | No Data  | No Data                                          | No Data
+rdpfifo_v4_02_a                            | RW    | No Data  | No Data                                          | No Data
+xps_insystem_flash_v1_02_a                 | RW    | No Data  | No Data                                          | No Data
+plbv46_master_v1_03_a                      | RW    | No Data  | No Data                                          | No Data
+xilinxcorelib_ver                          | RW    | No Data  | No Data                                          | No Data
+plbv46_pci_v1_03_a                         | RW    | No Data  | No Data                                          | No Data
+util_flipflop_v1_10_a                      | RW    | No Data  | No Data                                          | No Data
+ieee_proposed                              | RO    | No Data  | No Data                                          | VHDL '93 compatible version of the proposed packages for the IEEE 1076-2008 standard
+interrupt_control_v2_01_a                  | RW    | No Data  | No Data                                          | No Data
+xps_mutex_v1_00_d                          | RW    | No Data  | No Data                                          | No Data
+xps_ps2_v1_01_a                            | RW    | No Data  | No Data                                          | No Data
+csum_v1_00_a                               | RW    | No Data  | No Data                                          | No Data
+chipscope_icon_v1_05_a                     | RW    | No Data  | No Data                                          | No Data
+chipscope_icon_v1_04_a                     | RW    | No Data  | No Data                                          | No Data
+rdpfifo_v1_01_b                            | RW    | No Data  | No Data                                          | No Data
+xps_central_dma_v2_02_a                    | RW    | No Data  | No Data                                          | No Data
+apu_fpu_v3_10_a                            | RW    | No Data  | No Data                                          | No Data
+axi_s6_ddrx_v1_02_a                        | RW    | No Data  | No Data                                          | No Data
+mgt_protector_v1_00_a                      | RW    | No Data  | No Data                                          | No Data
+unimacro_ver                               | RW    | No Data  | No Data                                          | No Data
+axi_uartlite_v1_00_a                       | RW    | No Data  | No Data                                          | No Data
+axi_v6_ddrx_v1_02_a                        | RW    | No Data  | No Data                                          | No Data
+xps_mailbox_v2_00_b                        | RW    | No Data  | No Data                                          | No Data
+dcm_module_v1_00_e                         | RW    | No Data  | No Data                                          | No Data
+plbv46_pcie_v4_07_a                        | RW    | No Data  | No Data                                          | No Data
+chipscope_ila_v1_03_a                      | RW    | No Data  | No Data                                          | No Data
+axi_plbv46_bridge_v2_00_a                  | RW    | No Data  | No Data                                          | No Data
+plbv46_master_v1_04_a                      | RW    | No Data  | No Data                                          | No Data
+xps_deltasigma_adc_v1_01_a                 | RW    | No Data  | No Data                                          | No Data
+synopsys                                   | RO    | No Data  | No Data                                          | Library containing packages with useful functions for std_logic types objects
+cdn_axi4_lite_master_bfm_wrap_v1_00_a      | RW    | No Data  | No Data                                          | No Data
+dcr_intc_v2_00_a                           | RW    | No Data  | No Data                                          | No Data
+xps_central_dma_v2_01_c                    | RW    | No Data  | No Data                                          | No Data
+xps_can_v3_01_a                            | RW    | No Data  | No Data                                          | No Data
+emc_common_v5_00_a                         | RW    | No Data  | No Data                                          | No Data
+xps_deltasigma_dac_v1_01_a                 | RW    | No Data  | No Data                                          | No Data
+axi_s6_ddrx_v1_03_a                        | RW    | No Data  | No Data                                          | No Data
+vtl_dbg                                    | RO    | No Data  | No Data                                          | No Data
+fsl_v20_v2_11_e                            | RW    | No Data  | No Data                                          | No Data
+axi_fifo_mm_s_v2_00_a                      | RW    | No Data  | No Data                                          | No Data
+xps_most_nic_v1_02_a                       | RW    | No Data  | No Data                                          | No Data
+isbram_if_cntlr_v3_00_c                    | RW    | No Data  | No Data                                          | No Data
+util_io_mux_v1_00_a                        | RW    | No Data  | No Data                                          | No Data
+ieee                                       | RO    | No Data  | No Data                                          | Standard IEEE packages library
+xps_spi_v2_01_b                            | RW    | No Data  | No Data                                          | No Data
+xps_sysace_v1_01_a                         | RW    | No Data  | No Data                                          | No Data
+wrpfifo_v5_00_a                            | RW    | No Data  | No Data                                          | No Data
+plbv46_pcie_v4_01_a                        | RW    | No Data  | No Data                                          | No Data
+vl                                         | RO    | No Data  | No Data                                          | Standard Verilog library
+plbv46_master_single_v1_01_a               | RW    | No Data  | No Data                                          | No Data
+axi_v6_ddrx_v1_01_a                        | RW    | No Data  | No Data                                          | No Data
+axi_s6_ddrx_v1_01_a                        | RW    | No Data  | No Data                                          | No Data
+axi_spi_v1_01_a                            | RW    | No Data  | No Data                                          | No Data
+axi_plbv46_bridge_v2_01_a                  | RW    | No Data  | No Data                                          | No Data
+powerlink                                  | RW    | No Data  | No Data                                          | No Data
+xps_mch_emc_v3_01_a                        | RW    | No Data  | No Data                                          | No Data
+hwicap_v7_00_a                             | RW    | No Data  | No Data                                          | No Data
+chipscope_opb_iba_v1_01_a                  | RW    | No Data  | No Data                                          | No Data
+unisim                                     | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_stat_wrap_v2_01_a             | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_soft_temac_wrap_v2_00_a       | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_pcs_pma_wrap_v1_01_a          | RW    | No Data  | No Data                                          | No Data
+xilinxcorelib                              | RW    | No Data  | No Data                                          | No Data
+std                                        | RO    | No Data  | No Data                                          | Standard VHDL library
+axi_hwicap_v2_00_a                         | RW    | No Data  | No Data                                          | No Data
+axi_timer_v1_00_a                          | RW    | No Data  | No Data                                          | No Data
+plbv46_axi_bridge_v2_00_a                  | RW    | No Data  | No Data                                          | No Data
+axi_sysmon_adc_v1_01_a                     | RW    | No Data  | No Data                                          | No Data
+axi_master_lite_v2_00_a                    | RW    | No Data  | No Data                                          | No Data
+lmb_bram_if_cntlr_v3_00_b                  | RW    | No Data  | No Data                                          | No Data
+axi_sg_v2_01_a                             | RW    | No Data  | No Data                                          | No Data
+plbv46_monitor_bfm_v1_00_a                 | RW    | No Data  | No Data                                          | No Data
+ahblite_axi_bridge_v1_00_a                 | RW    | No Data  | No Data                                          | No Data
+plbv46_plbv46_bridge_v1_04_a               | RW    | No Data  | No Data                                          | No Data
+jtagppc_cntlr_v2_01_c                      | RW    | No Data  | No Data                                          | No Data
+axi_lite_ipif_v1_01_a                      | RW    | No Data  | No Data                                          | No Data
+xps_most_nic_v1_03_a                       | RW    | No Data  | No Data                                          | No Data
+proc_sys_reset_v3_00_a                     | RW    | No Data  | No Data                                          | No Data
+soft_temac_wrap_v2_02_a                    | RW    | No Data  | No Data                                          | No Data
+wrpfifo_v1_01_b                            | RW    | No Data  | No Data                                          | No Data
+lmb_v10_v2_00_b                            | RW    | No Data  | No Data                                          | No Data
+mdm_v2_00_a                                | RW    | No Data  | No Data                                          | No Data
+xps_central_dma_v2_01_b                    | RW    | No Data  | No Data                                          | No Data
+cdn_axi4_master_bfm_wrap_v1_00_a           | RW    | No Data  | No Data                                          | No Data
+unimacro                                   | RW    | No Data  | No Data                                          | No Data
+cdn_axi4_streaming_master_bfm_wrap_v1_00_a | RW    | No Data  | No Data                                          | No Data
+virtex6_pcie_v1_04_a                       | RW    | No Data  | No Data                                          | No Data
+xps_tft_v2_01_a                            | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_stat_wrap_v1_01_a             | RW    | No Data  | No Data                                          | No Data
+opb_v20_v1_10_d                            | RW    | No Data  | No Data                                          | No Data
+axi_fifo_mm_s_v1_00_a                      | RW    | No Data  | No Data                                          | No Data
+axi_vdma_v3_00_a                           | RW    | No Data  | No Data                                          | No Data
+chipscope_vio_v1_04_a                      | RW    | No Data  | No Data                                          | No Data
+xps_timer_v1_01_b                          | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_v3_00_a                       | RW    | No Data  | No Data                                          | No Data
+axi_uartlite_v1_02_a                       | RW    | No Data  | No Data                                          | No Data
+axi_ext_slave_conn_v1_00_a                 | RW    | No Data  | No Data                                          | No Data
+cdn_axi3_slave_bfm_wrap_v1_00_a            | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_v1_01_a                       | RW    | No Data  | No Data                                          | No Data
+block_plus_v1_13_a                         | RW    | No Data  | No Data                                          | No Data
+axi_iic_v1_01_a                            | RW    | No Data  | No Data                                          | No Data
+axi_sg_v1_00_a                             | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_pcs_pma_wrap_v2_01_a          | RW    | No Data  | No Data                                          | No Data
+xps_timebase_wdt_v1_01_a                   | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_pcs_pma_wrap_v3_00_a          | RW    | No Data  | No Data                                          | No Data
+xps_ethernetlite_v3_01_a                   | RW    | No Data  | No Data                                          | No Data
+axi_interconnect_v1_03_a                   | RW    | No Data  | No Data                                          | No Data
+cdn_axi3_master_bfm_wrap_v1_00_a           | RW    | No Data  | No Data                                          | No Data
+block_plus_v1_10_a                         | RW    | No Data  | No Data                                          | No Data
+microblaze_v8_10_a                         | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_soft_temac_wrap_v1_01_a       | RW    | No Data  | No Data                                          | No Data
+microblaze_v8_20_a                         | RW    | No Data  | No Data                                          | No Data
+block_plus_v1_12_a                         | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_avb_wrap_v1_01_a              | RW    | No Data  | No Data                                          | No Data
+axi_ethernetlite_v1_00_a                   | RW    | No Data  | No Data                                          | No Data
+lib_common_v1_01_a                         | RW    | No Data  | No Data                                          | No Data
+axi_ext_master_conn_v1_00_a                | RW    | No Data  | No Data                                          | No Data
+emc_common_v5_01_a                         | RW    | No Data  | No Data                                          | No Data
+axi_vdma_v3_01_a                           | RW    | No Data  | No Data                                          | No Data
+axi_timebase_wdt_v1_01_a                   | RW    | No Data  | No Data                                          | No Data
+spartan6_pcie_v1_03_a                      | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_v2_00_a                       | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_soft_temac_wrap_v3_00_a       | RW    | No Data  | No Data                                          | No Data
+emc_common_v4_01_a                         | RW    | No Data  | No Data                                          | No Data
+microblaze_v7_30_b                         | RW    | No Data  | No Data                                          | No Data
+lmb_bram_if_cntlr_v3_00_a                  | RW    | No Data  | No Data                                          | No Data
+clock_generator_v4_00_a                    | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_avb_wrap_v2_01_a              | RW    | No Data  | No Data                                          | No Data
+axi_gpio_v1_00_a                           | RW    | No Data  | No Data                                          | No Data
+axi_emc_v1_01_a                            | RW    | No Data  | No Data                                          | No Data
+cdn_axi4_slave_bfm_wrap_v1_00_a            | RW    | No Data  | No Data                                          | No Data
+axi_vdma_v1_00_a                           | RW    | No Data  | No Data                                          | No Data
+axi_enhanced_pcie_v1_00_a                  | RW    | No Data  | No Data                                          | No Data
+lib_common_v1_00_a                         | RW    | No Data  | No Data                                          | No Data
+clock_generator_v4_02_a                    | RW    | No Data  | No Data                                          | No Data
+axi_epc_v1_00_a                            | RW    | No Data  | No Data                                          | No Data
+eth_stat_wrap_v2_03_a                      | RW    | No Data  | No Data                                          | No Data
+axi_hwicap_v1_00_a                         | RW    | No Data  | No Data                                          | No Data
+hwicap_v6_01_a                             | RW    | No Data  | No Data                                          | No Data
+bfm_synch_v1_00_a                          | RW    | No Data  | No Data                                          | No Data
+fsl_v20_v2_11_d                            | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_avb_wrap_v3_00_a              | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_soft_temac_wrap_v2_01_a       | RW    | No Data  | No Data                                          | No Data
+axi_ethernet_v2_01_a                       | RW    | No Data  | No Data                                          | No Data
+axi_gpio_v1_01_a                           | RW    | No Data  | No Data                                          | No Data
+axi_lite_ipif_v1_00_a                      | RW    | No Data  | No Data                                          | No Data
+axi_dma_v3_00_a                            | RW    | No Data  | No Data                                          | No Data
+axi_7series_ddrx_v1_01_a                   | RW    | No Data  | No Data                                          | No Data
+axi_dma_v4_00_a                            | RW    | No Data  | No Data                                          | No Data
+axi_dma_v1_00_a                            | RW    | No Data  | No Data                                          | No Data
+axi_datamover_v2_00_a                      | RW    | No Data  | No Data                                          | No Data
+axi_vdma_v2_00_a                           | RW    | No Data  | No Data                                          | No Data
+xps_usb2_device_v6_00_a                    | RW    | No Data  | No Data                                          | No Data
+axi_datamover_v2_01_a                      | RW    | No Data  | No Data                                          | No Data
+axi_dma_v2_00_a                            | RW    | No Data  | No Data                                          | No Data
+axi_cdma_v3_01_a                           | RW    | No Data  | No Data                                          | No Data
+axi_cdma_v3_00_a                           | RW    | No Data  | No Data                                          | No Data
+axi_cdma_v1_00_a                           | RW    | No Data  | No Data                                          | No Data
+axi_can_v1_02_a                            | RW    | No Data  | No Data                                          | No Data
+axi_can_v1_03_a                            | RW    | No Data  | No Data                                          | No Data
+axi_cdma_v2_00_a                           | RW    | No Data  | No Data                                          | No Data
+axi_apb_bridge_v1_00_a                     | RW    | No Data  | No Data                                          | No Data
+axi_bram_ctrl_v1_02_a                      | RW    | No Data  | No Data                                          | No Data
+xps_ll_temac_v2_03_a                       | RW    | No Data  | No Data                                          | No Data
+pll_module_v2_00_a                         | RW    | No Data  | No Data                                          | No Data
+axi_v6_ddrx_v1_03_a                        | RW    | No Data  | No Data                                          | No Data
+xps_timebase_wdt_v1_02_a                   | RW    | No Data  | No Data                                          | No Data
+util_vector_logic_v1_00_a                  | RW    | No Data  | No Data                                          | No Data
+axi_usb2_device_v1_00_a                    | RW    | No Data  | No Data                                          | No Data
+plbv46_slave_v1_05_a                       | RW    | No Data  | No Data                                          | No Data
+axi_ahblite_bridge_v1_00_a                 | RW    | No Data  | No Data                                          | No Data
+axi_uartlite_v1_01_a                       | RW    | No Data  | No Data                                          | No Data
+axi_bram_ctrl_v1_01_a                      | RW    | No Data  | No Data                                          | No Data
+axi_can_v1_01_a                            | RW    | No Data  | No Data                                          | No Data
+axi_datamover_v1_00_a                      | RW    | No Data  | No Data                                          | No Data
+vital2000                                  | RO    | No Data  | No Data                                          | Standard IEEE packages library
+axi2axi_connector_v1_00_a                  | RW    | No Data  | No Data                                          | No Data
+virtex6_pcie_v1_01_a                       | RW    | No Data  | No Data                                          | No Data
+xps_usb2_device_v5_00_a                    | RW    | No Data  | No Data                                          | No Data
+mutex_v1_00_a                              | RW    | No Data  | No Data                                          | No Data
+proc_common_v3_00_a                        | RW    | No Data  | No Data                                          | No Data
+dsbram_if_cntlr_v3_00_c                    | RW    | No Data  | No Data                                          | No Data
+clock_generator_v3_02_a                    | RW    | No Data  | No Data                                          | No Data
+plbv46_master_bfm_v1_00_a                  | RW    | No Data  | No Data                                          | No Data
+fit_timer_v1_01_b                          | RW    | No Data  | No Data                                          | No Data
+xps_central_dma_v2_03_a                    | RW    | No Data  | No Data                                          | No Data
+xps_sysmon_adc_v2_00_a                     | RW    | No Data  | No Data                                          | No Data
+mdm_v1_00_g                                | RW    | No Data  | No Data                                          | No Data
+xps_uartlite_v1_02_a                       | RW    | No Data  | No Data                                          | No Data
+plbv46_bfm                                 | RW    | No Data  | No Data                                          | No Data
+fcb_v10_v1_00_a                            | RW    | No Data  | No Data                                          | No Data
+block_plus_v1_10_b                         | RW    | No Data  | No Data                                          | No Data
+ppc440mc_ddr2_v3_00_c                      | RW    | No Data  | No Data                                          | No Data
+opb_ipif_v3_01_a                           | RW    | No Data  | No Data                                          | No Data
+mpmc_v6_04_a                               | RW    | No Data  | No Data                                          | No Data
+chipscope_axi_monitor_v3_00_a              | RW    | No Data  | No Data                                          | No Data
+vtl                                        | RO    | No Data  | No Data                                          | No Data
+opb2dcr_bridge_v1_00_b                     | RW    | No Data  | No Data                                          | No Data
+xps_gpio_v2_00_a                           | RW    | No Data  | No Data                                          | No Data
+plbv46_slave_bfm_v1_00_a                   | RW    | No Data  | No Data                                          | No Data
+plbv46_pcie_v4_05_a                        | RW    | No Data  | No Data                                          | No Data
+simprim                                    | RW    | No Data  | No Data                                          | No Data
+axi_timer_v1_02_a                          | RW    | No Data  | No Data                                          | No Data
+plbv46_slave_single_v1_01_a                | RW    | No Data  | No Data                                          | No Data
+mch_plbv46_slave_burst_v2_01_a             | RW    | No Data  | No Data                                          | No Data
+axi_emc_v1_00_a                            | RW    | No Data  | No Data                                          | No Data
+plbv46_opb_bridge_v1_01_a                  | RW    | No Data  | No Data                                          | No Data
+interrupt_control_v1_00_a                  | RW    | No Data  | No Data                                          | No Data
+sysace_common_v1_01_a                      | RW    | No Data  | No Data                                          | No Data
+plbv46_slave_burst_v1_01_a                 | RW    | No Data  | No Data                                          | No Data
+chipscope_axi_monitor_v1_01_a              | RW    | No Data  | No Data                                          | No Data
+fcb2fsl_bridge_v1_00_a                     | RW    | No Data  | No Data                                          | No Data
+edk                                        | RW    | No Data  | No Data                                          | No Data
+util_bus_split_v1_00_a                     | RW    | No Data  | No Data                                          | No Data
+util_ds_buf_v1_01_a                        | RW    | No Data  | No Data                                          | No Data
+secureip                                   | RW    | No Data  | No Data                                          | No Data
+spartan6_pcie_v1_01_a                      | RW    | No Data  | No Data                                          | No Data
+mpmc_v6_02_a                               | RW    | No Data  | No Data                                          | No Data
+fcb_v20_v1_00_a                            | RW    | No Data  | No Data                                          | No Data
+lmb_bram_if_cntlr_v2_10_b                  | RW    | No Data  | No Data                                          | No Data
+mpmc_v6_03_a                               | RW    | No Data  | No Data                                          | No Data
+axi_intc_v1_01_a                           | RW    | No Data  | No Data                                          | No Data
+mmcm_module_v1_00_a                        | RW    | No Data  | No Data                                          | No Data
+plbv46_slave_v1_03_a                       | RW    | No Data  | No Data                                          | No Data
+opb_plbv46_bridge_v1_01_a                  | RW    | No Data  | No Data                                          | No Data
+microblaze_v8_00_b                         | RW    | No Data  | No Data                                          | No Data
+xps_iic_v2_02_a                            | RW    | No Data  | No Data                                          | No Data
+plbv46_pcie_v4_06_a                        | RW    | No Data  | No Data                                          | No Data
+axi_usb2_device_v2_00_a                    | RW    | No Data  | No Data                                          | No Data
+synplify                                   | RO    | SYNOPSYS | SYNOPSYS FPGA PRODUCTS E-2010.09                 | SYNPLIFY VHDL LIBRARY
+cpld                                       | RO    | XILINX   | XILINX ISE 12.2                                  | CPLD VHDL LIBRARY
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
