@@ -123,7 +123,7 @@ architecture plb_master_handler of plb_master_handler is
 	signal mst_done : std_logic;
 	
 	--signals for the transfer
-	type tran_t is (idle, sof, tran, eof, seof); --seof = start/end of frame (single beat)
+	type tran_t is (idle, sof, tran, eof, seof, wait4cmplt); --seof = start/end of frame (single beat)
 	signal wr_tran, wr_tran_next : tran_t;
 	signal rd_tran : tran_t;
 begin
@@ -205,19 +205,29 @@ begin
 	end process;
 	
 	--generate fsm for write and read transfers
-	wr_tran_next <= seof when wr_tran = idle and mst_write_req_next = '1' and m_burstcount < 2 else
-					sof when wr_tran = idle and mst_write_req_next = '1' else
-					eof when wr_tran = sof and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' and m_burstcount < 3 else
-					tran when wr_tran = sof and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' else
-					eof when wr_tran = tran and m_burstcounter = 1 and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' else 
-					idle when (wr_tran = eof or wr_tran = seof) and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' else
-					wr_tran;
+	wr_tran_next <=
+		seof when wr_tran = idle and mst_write_req_next = '1' and (m_burstcount <= 1 or m_burstcount'length = 1) else
+			--start/end of frame if wr request is one beat or only beat is supported
+		sof when wr_tran = idle and mst_write_req_next = '1' and m_burstcount'length > 1 else
+			--start of frame if wr request is burst (not vaild state if single beat)
+		eof when wr_tran = sof and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' and m_burstcount = 2 and m_burstcount'length > 1 else
+			--end of frame if next beat is the last one, hence skip tran (not valid state if single beat)
+		tran when wr_tran = sof and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' and m_burstcount'length > 1 else
+			--transfer if dst is ready the first time of the burst (not valid state if single beat)
+		eof when wr_tran = tran and m_burstcounter <= 1 and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' and m_burstcount'length > 1 else
+			--end of frame if next beat is the last one (not valid state if single beat)
+		wait4cmplt when (wr_tran = eof or wr_tran = seof) and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' else
+			--exit end of frame if last write is ack'd by dst
+		idle when wr_tran = wait4cmplt and mst_done = '1' else
+			--wait for master complete
+		wr_tran; --otherwise hold state
 	
-	rd_tran <= 		seof when Bus2MAC_DMA_MstRd_sof_n = '0' and Bus2MAC_DMA_MstRd_eof_n = '0' else
-					sof when Bus2MAC_DMA_MstRd_sof_n = '0' else
-					eof when Bus2MAC_DMA_MstRd_eof_n = '0' else
-					tran when Bus2MAC_DMA_MstRd_src_rdy_n = '0' else
-					idle;
+	rd_tran <=
+		seof when Bus2MAC_DMA_MstRd_sof_n = '0' and Bus2MAC_DMA_MstRd_eof_n = '0' else
+		sof when Bus2MAC_DMA_MstRd_sof_n = '0' else
+		eof when Bus2MAC_DMA_MstRd_eof_n = '0' else
+		tran when Bus2MAC_DMA_MstRd_src_rdy_n = '0' else
+		idle;
 	
 	--set write qualifiers
 	MAC_DMA2Bus_MstWr_sof_n <= '0' when wr_tran = sof or wr_tran = seof else '1';

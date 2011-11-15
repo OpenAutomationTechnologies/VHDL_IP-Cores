@@ -21,8 +21,8 @@ entity openmac_dmamaster_tb is
 		rx_fifo_word_size_g : integer := 32;
 		m_burstcount_width_g : integer := 4;
 		m_burstcount_const_g : boolean := true;
-		m_tx_burst_size_g : integer := 2;
-		m_rx_burst_size_g : integer := 2 );
+		m_tx_burst_size_g : integer := 1;
+		m_rx_burst_size_g : integer := 1 );
 end openmac_dmamaster_tb;
 
 architecture TB_ARCHITECTURE of openmac_dmamaster_tb is
