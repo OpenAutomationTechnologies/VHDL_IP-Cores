@@ -150,10 +150,10 @@ begin
 		elsif rising_edge(clk) then
 			m_write_l <= m_write_s; m_read_l <= m_read_s;
 			
-			if m_write_fall = '1' or m_read_fall = '1' then
-				m_wrd_en <= '0'; --write/read done, wait for Mst_Cmplt
-			elsif mst_done = '1' then
+			if mst_done = '1' then
 				m_wrd_en <= '1';
+			elsif m_write_fall = '1' or m_read_fall = '1' then
+				m_wrd_en <= '0'; --write/read done, wait for Mst_Cmplt
 			end if;
 		end if;
 	end process;
@@ -207,20 +207,13 @@ begin
 	--generate fsm for write and read transfers
 	wr_tran_next <=
 		seof when wr_tran = idle and mst_write_req_next = '1' and (m_burstcount <= 1 or m_burstcount'length = 1) else
-			--start/end of frame if wr request is one beat or only beat is supported
 		sof when wr_tran = idle and mst_write_req_next = '1' and m_burstcount'length > 1 else
-			--start of frame if wr request is burst (not vaild state if single beat)
 		eof when wr_tran = sof and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' and m_burstcount = 2 and m_burstcount'length > 1 else
-			--end of frame if next beat is the last one, hence skip tran (not valid state if single beat)
 		tran when wr_tran = sof and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' and m_burstcount'length > 1 else
-			--transfer if dst is ready the first time of the burst (not valid state if single beat)
-		eof when wr_tran = tran and m_burstcounter <= 1 and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' and m_burstcount'length > 1 else
-			--end of frame if next beat is the last one (not valid state if single beat)
+		eof when wr_tran = tran and m_burstcounter <= 2 and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' and m_burstcount'length > 1 else
 		wait4cmplt when (wr_tran = eof or wr_tran = seof) and Bus2MAC_DMA_MstWr_dst_rdy_n = '0' else
-			--exit end of frame if last write is ack'd by dst
 		idle when wr_tran = wait4cmplt and mst_done = '1' else
-			--wait for master complete
-		wr_tran; --otherwise hold state
+		wr_tran;
 	
 	rd_tran <=
 		seof when Bus2MAC_DMA_MstRd_sof_n = '0' and Bus2MAC_DMA_MstRd_eof_n = '0' else
@@ -232,12 +225,12 @@ begin
 	--set write qualifiers
 	MAC_DMA2Bus_MstWr_sof_n <= '0' when wr_tran = sof or wr_tran = seof else '1';
 	MAC_DMA2Bus_MstWr_eof_n <= '0' when wr_tran = eof or wr_tran = seof else '1';
-	MAC_DMA2Bus_MstWr_src_rdy_n <= '0' when wr_tran /= idle else '1';
+	MAC_DMA2Bus_MstWr_src_rdy_n <= '0' when wr_tran /= idle and wr_tran /= wait4cmplt else '1';
 	MAC_DMA2Bus_MstWr_src_dsc_n <= '1'; --no support
 	MAC_DMA2Bus_MstWr_rem <= (others => '0'); --no support
 	
 	--set read qualifiers
-	MAC_DMA2Bus_MstRd_dst_rdy_n <= '0' when rd_tran /= idle else '1';
+	MAC_DMA2Bus_MstRd_dst_rdy_n <= '0' when rd_tran /= idle and rd_tran /= wait4cmplt else '1';
 	MAC_DMA2Bus_MstRd_dst_dsc_n <= '1'; --no support
 	
 	--connect ipif with avalon
