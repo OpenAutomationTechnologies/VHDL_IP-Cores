@@ -86,6 +86,7 @@
 #-- 2011-10-13	V1.05	zelenkaj	file names changed..
 #-- 2011-10-14	V1.06	zelenkaj	rmii2mii fifos are deleted (dma fifo is abused for..)
 #-- 2011-11-07	V1.07	zelenkaj	added generic for dma master qualifiers
+#-- 2011-11-17	V1.08	zelenkaj	pdi dpr vhd-file renamed
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -109,7 +110,7 @@ add_documentation_link "POWERLINK IP-Core Documentation" "doc/SDS_POWERLINK-IP-C
 add_file src/powerlink.vhd {SYNTHESIS SIMULATION}
 add_file src/pdi.vhd {SYNTHESIS SIMULATION}
 add_file src/pdi_par.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi_dpr.vhd {SYNTHESIS SIMULATION}
+add_file src/pdi_dpr_Altera.vhd {SYNTHESIS SIMULATION}
 add_file src/pdi_tripleVBufLogic.vhd {SYNTHESIS SIMULATION}
 add_file src/pdi_apIrqGen.vhd {SYNTHESIS SIMULATION}
 add_file src/pdi_controlStatusReg.vhd {SYNTHESIS SIMULATION}

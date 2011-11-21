@@ -11,5 +11,6 @@ copy documentation\*.pdf				..\release\altera_sopc\POWERLINK\doc
 del ..\release\altera_sopc\POWERLINK\src\*_TB.vhd
 del ..\release\altera_sopc\POWERLINK\src\*_Xilinx.vhd
 del ..\release\altera_sopc\POWERLINK\src\openMAC_DMAmaster\plb_master_handler.vhd
+del ..\release\altera_sopc\POWERLINK\src\plb_powerlink.vhd
 
 @echo on

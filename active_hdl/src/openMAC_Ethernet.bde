@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 41151
+ FREEID 41168
  VARIABLES
  {
   #ARCHITECTURE="rtl"
@@ -1671,18 +1671,19 @@ HEADER
    }
   }
  }
- SYMBOL "#default" "OpenFILTER" "openFILTER"
+ SYMBOL "#default" "openFILTER" "openFILTER"
  {
   HEADER
   {
    VARIABLES
    {
     #DESCRIPTION=""
+    #GENERIC0="bypassFilter:BOOLEAN:=false"
     #HDL_ENTRIES=
 "library ieee;\n"+
 "use ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1312374301"
+    #MODIFIED="1321607642"
    }
   }
   PAGE "" 
@@ -7782,8 +7783,10 @@ PAGE "MII / HUB / FILTER"
   {
    VARIABLES
    {
-    #COMPONENT="OpenFILTER"
+    #COMPONENT="openFILTER"
+    #GENERIC0="bypassFilter : BOOLEAN := not useRmii_g"
     #LIBRARY="#default"
+    #PRAGMED_GENERICS=""
     #REFERENCE="THE_OPENFILTER0"
     #SYMBOL="openFILTER"
    }
@@ -7802,7 +7805,7 @@ PAGE "MII / HUB / FILTER"
   TEXT  24439, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (1060,760,1233,795)
+   RECT (1060,760,1226,795)
    MARGINS (1,1)
    PARENT 24434
   }
@@ -7810,8 +7813,10 @@ PAGE "MII / HUB / FILTER"
   {
    VARIABLES
    {
-    #COMPONENT="OpenFILTER"
+    #COMPONENT="openFILTER"
+    #GENERIC0="bypassFilter : BOOLEAN := not useRmii_g"
     #LIBRARY="#default"
+    #PRAGMED_GENERICS=""
     #REFERENCE="THE_OPENFILTER1"
     #SYMBOL="openFILTER"
    }
@@ -7830,7 +7835,7 @@ PAGE "MII / HUB / FILTER"
   TEXT  24448, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (1060,1680,1233,1715)
+   RECT (1060,1680,1226,1715)
    MARGINS (1,1)
    PARENT 24443
   }
@@ -10124,8 +10129,10 @@ PAGE "SLAVEACK / RMII"
   {
    VARIABLES
    {
-    #COMPONENT="OpenFILTER"
+    #COMPONENT="openFILTER"
+    #GENERIC0="bypassFilter : BOOLEAN := not useRmii_g"
     #LIBRARY="#default"
+    #PRAGMED_GENERICS=""
     #REFERENCE="THE_OPENFILTER"
     #SYMBOL="openFILTER"
    }
@@ -10144,7 +10151,7 @@ PAGE "SLAVEACK / RMII"
   TEXT  25942, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (1640,1860,1813,1895)
+   RECT (1640,1860,1806,1895)
    MARGINS (1,1)
    PARENT 25928
   }
@@ -18424,14 +18431,14 @@ PAGE ""
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311687673"
    DESCRIPTION="bla",BOTH
-   PAGENAME="MAC"
-   PAGENUMBER="1"
+   PAGENAME="SLAVEACK / RMII"
+   PAGENUMBER="3"
   }
  }
  
  BODY
  {
-  TEXT  41134, 0, 0
+  TEXT  41151, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -18442,7 +18449,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  41135, 0, 0
+  TEXT  41152, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -18453,7 +18460,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  41136, 0, 0
+  TEXT  41153, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -18463,7 +18470,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  41137, 0, 0
+  TEXT  41154, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -18475,7 +18482,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  41138, 0, 0
+  TEXT  41155, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -18489,7 +18496,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  41139, 0, 0
+  TEXT  41156, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -18499,7 +18506,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  41140, 0, 0
+  TEXT  41157, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -18511,7 +18518,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  41141, 0, 0
+  TEXT  41158, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -18521,7 +18528,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  41142, 0, 0
+  TEXT  41159, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -18532,7 +18539,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  41143, 0, 0
+  GROUP  41160, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -18544,7 +18551,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  41144, 0, 0
+  GROUP  41161, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -18556,7 +18563,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  41145, 0, 0
+  GROUP  41162, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -18568,7 +18575,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  41146, 0, 0
+  GROUP  41163, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -18580,7 +18587,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  41147, 0, 0
+  GROUP  41164, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -18592,7 +18599,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  41148, 0, 0
+  GROUP  41165, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -18603,14 +18610,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  41149, 0, 0
+  LINE  41166, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  41150, 0, 0
+  LINKBMPPICT  41167, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"

@@ -1,3 +1,42 @@
+#------------------------------------------------------------------------------------------------------------------------
+#-- POWERLINK XPS PLB Component (Microprocessor Peripheral Definition - MPD)
+#--
+#-- 	  Copyright (C) 2011 B&R
+#--
+#--    Redistribution and use in source and binary forms, with or without
+#--    modification, are permitted provided that the following conditions
+#--    are met:
+#--
+#--    1. Redistributions of source code must retain the above copyright
+#--       notice, this list of conditions and the following disclaimer.
+#--
+#--    2. Redistributions in binary form must reproduce the above copyright
+#--       notice, this list of conditions and the following disclaimer in the
+#--       documentation and/or other materials provided with the distribution.
+#--
+#--    3. Neither the name of B&R nor the names of its
+#--       contributors may be used to endorse or promote products derived
+#--       from this software without prior written permission. For written
+#--       permission, please contact office@br-automation.com
+#--
+#--    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#--    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#--    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#--    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+#--    COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#--    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#--    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#--    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+#--    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+#--    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+#--    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#--    POSSIBILITY OF SUCH DAMAGE.
+#--
+#------------------------------------------------------------------------------------------------------------------------
+#-- Version History
+#------------------------------------------------------------------------------------------------------------------------
+#-- 2011-11-16	V0.01	zelenkaj	converted to first stable solution with MAC-layer only
+#------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
 
@@ -9,28 +48,32 @@ OPTION IP_GROUP = MICROBLAZE:PPC:USER
 OPTION DESC = PLB_POWERLINK
 OPTION ARCH_SUPPORT_MAP = (others=DEVELOPMENT)
 
+IO_INTERFACE IO_IF = PHY0, IO_TYPE = XIL_Ethernet_V1
+IO_INTERFACE IO_IF = PHY1, IO_TYPE = XIL_Ethernet_V1
+
 
 ## Bus Interfaces
 ### openMAC DMA (optional)
-BUS_INTERFACE BUS = MAC_DMA, BUS_STD = PLBV46, BUS_TYPE = MASTER, GENERATE_BURSTS = TRUE, ISVALID = (C_TX_INT_PKT == false || C_RX_INT_PKT == false)
+BUS_INTERFACE BUS = MAC_DMA, BUS_STD = PLBV46, BUS_TYPE = MASTER, GENERATE_BURSTS = TRUE, ISVALID = (!C_TX_INT_PKT || !C_RX_INT_PKT)
 ### openMAC REG
 BUS_INTERFACE BUS = MAC_REG, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = TRUE
 ### openMAC CMP
 BUS_INTERFACE BUS = MAC_CMP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = TRUE
 ### openMAC PKT (optional)
-BUS_INTERFACE BUS = MAC_PKT, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (C_TX_INT_PKT == true || C_RX_INT_PKT == true)
+BUS_INTERFACE BUS = MAC_PKT, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (C_TX_INT_PKT || C_RX_INT_PKT)
 ### PDI PCP (optional)
 #BUS_INTERFACE BUS = PDI_PCP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = FALSE
 ### PDI AP (optional)
 #BUS_INTERFACE BUS = PDI_AP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = FALSE
 
 ## Generics for VHDL
-PARAMETER C_TX_INT_PKT = FALSE, DT = BOOLEAN, DESC = "TX packets in BRAM"
-PARAMETER C_RX_INT_PKT = FALSE, DT = BOOLEAN, DESC = "RX packets in BRAM"
-PARAMETER C_USE_RMII = TRUE, DT = BOOLEAN, DESC = "Set Phy Interface (FALSE = MII, TRUE = RMII)"
+PARAMETER C_TX_INT_PKT = FALSE, DT = BOOLEAN, DESC = "Location of TX Packets", VALUES = (FALSE = EXT, TRUE = BRAM)
+PARAMETER C_RX_INT_PKT = FALSE, DT = BOOLEAN, DESC = "Location of RX Packets", VALUES = (FALSE = EXT, TRUE = BRAM)
+PARAMETER C_USE_RMII = TRUE, DT = BOOLEAN, DESC = "Set Ethernet Port(s) Interface", VALUES = (FALSE = MII, TRUE = RMII)
+PARAMETER C_USE_2ND_PHY = TRUE, DT = BOOLEAN, DESC = "Generate OpenHUB for 2nd Ethernet Port"
 ### openMAC DMA
-PARAMETER C_MAC_DMA_BURST_SIZE = 32, DT = INTEGER, DESC = "MAC DMA Burst Size in Byte"
-PARAMETER C_MAC_DMA_FIFO_SIZE = 128, DT = INTEGER, DESC = "MAC DMA TX/RX FIFO Size in Byte"
+PARAMETER C_MAC_DMA_BURST_SIZE = 32, DT = INTEGER, DESC = "MAC DMA Burst Size in Byte", RANGE = (4,8,16,24,32,40,48,56,64)
+PARAMETER C_MAC_DMA_FIFO_SIZE = 128, DT = INTEGER, DESC = "MAC DMA TX/RX FIFO Size in Byte", RANGE = (C_MAC_DMA_BURST_SIZE*2,C_MAC_DMA_BURST_SIZE*3,C_MAC_DMA_BURST_SIZE*4)
 PARAMETER C_MAC_DMA_PLB_NATIVE_DWIDTH = 32, DT = INTEGER, BUS = MAC_DMA, ASSIGNMENT = CONSTANT
 PARAMETER C_MAC_DMA_PLB_AWIDTH = 32, DT = INTEGER, BUS = MAC_DMA, ASSIGNMENT = CONSTANT
 PARAMETER C_MAC_DMA_PLB_DWIDTH = 32, DT = INTEGER, BUS = MAC_DMA, ASSIGNMENT = CONSTANT
@@ -66,50 +109,50 @@ PARAMETER C_MAC_PKT_PLB_NATIVE_DWIDTH = 32, DT = INTEGER, BUS = MAC_PKT, ASSIGNM
 PARAMETER C_MAC_PKT_PLB_SUPPORT_BURSTS = 0, DT = INTEGER, BUS = MAC_PKT, ASSIGNMENT = CONSTANT
 
 ## Ports
-PORT test_port = "", DIR = O, VEC = [255:0]
+#PORT test_port = "", DIR = O, VEC = [255:0]
 ### Clk
 PORT clk100 = "", DIR = I, SIGIS = CLK, ISVALID = (C_USE_RMII)
 ### PHY0
-PORT phy0_SMIDat = "", DIR = INOUT, THREE_STATE = TRUE
-PORT phy0_SMIClk = "", DIR = OUT
-PORT phy0_Rst_n = "", DIR = OUT
-PORT phy0_link = "", DIR = IN
+PORT phy0_SMIDat = "", DIR = INOUT, THREE_STATE = TRUE, IO_IF = PHY0, IO_IS = smi_dio
+PORT phy0_SMIClk = "", DIR = OUT, IO_IF = PHY0, IO_IS = smi_clk
+PORT phy0_Rst_n = "", DIR = OUT, IO_IF = PHY0, IO_IS = smi_rst
+PORT phy0_link = "", DIR = IN, IO_IF = PHY0, IO_IS = phy_link
 #### MII
-PORT phyMii0_RxClk = "", DIR = IN, ISVALID = (!C_USE_RMII)
-PORT phyMii0_RxDat = "", DIR = IN, VEC = [3:0], ISVALID = (!C_USE_RMII)
-PORT phyMii0_RxDv = "", DIR = IN, ISVALID = (!C_USE_RMII)
-PORT phyMii0_RxEr = "", DIR = IN, ISVALID = (!C_USE_RMII)
-PORT phyMii0_TxClk = "", DIR = IN, ISVALID = (!C_USE_RMII)
-PORT phyMii0_TxDat = "", DIR = OUT, VEC = [3:0], ISVALID = (!C_USE_RMII)
-PORT phyMii0_TxEn = "", DIR = OUT, ISVALID = (!C_USE_RMII)
-PORT phyMii0_TxEr = "", DIR = OUT, ISVALID = (!C_USE_RMII)
+PORT phyMii0_RxClk = "", DIR = IN, ISVALID = (!C_USE_RMII), IO_IF = PHY0, IO_IS = mii_rxclk
+PORT phyMii0_RxDat = "", DIR = IN, VEC = [3:0], ISVALID = (!C_USE_RMII), IO_IF = PHY0, IO_IS = mii_rxdat
+PORT phyMii0_RxDv = "", DIR = IN, ISVALID = (!C_USE_RMII), IO_IF = PHY0, IO_IS = mii_rxdv
+PORT phyMii0_RxEr = "", DIR = IN, ISVALID = (!C_USE_RMII), IO_IF = PHY0, IO_IS = mii_rxer
+PORT phyMii0_TxClk = "", DIR = IN, ISVALID = (!C_USE_RMII), IO_IF = PHY0, IO_IS = mii_txclk
+PORT phyMii0_TxDat = "", DIR = OUT, VEC = [3:0], ISVALID = (!C_USE_RMII), IO_IF = PHY0, IO_IS = mii_txdat
+PORT phyMii0_TxEn = "", DIR = OUT, ISVALID = (!C_USE_RMII), IO_IF = PHY0, IO_IS = mii_txen
+PORT phyMii0_TxEr = "", DIR = OUT, ISVALID = (!C_USE_RMII), IO_IF = PHY0, IO_IS = mii_txer
 #### RMII
-PORT phy0_RxDat = "", DIR = IN, VEC = [1:0], ISVALID = (C_USE_RMII)
-PORT phy0_RxDv = "", DIR = IN, ISVALID = (C_USE_RMII)
-PORT phy0_RxErr = "", DIR = IN, ISVALID = (C_USE_RMII)
-PORT phy0_TxDat = "", DIR = OUT, VEC = [1:0], ISVALID = (C_USE_RMII)
-PORT phy0_TxEn = "", DIR = OUT, ISVALID = (C_USE_RMII)
+PORT phy0_RxDat = "", DIR = IN, VEC = [1:0], ISVALID = (C_USE_RMII), IO_IF = PHY0, IO_IS = rmii_rxdat
+PORT phy0_RxDv = "", DIR = IN, ISVALID = (C_USE_RMII), IO_IF = PHY0, IO_IS = rmii_rxdv
+PORT phy0_RxErr = "", DIR = IN, ISVALID = (C_USE_RMII), IO_IF = PHY0, IO_IS = rmii_rxer
+PORT phy0_TxDat = "", DIR = OUT, VEC = [1:0], ISVALID = (C_USE_RMII), IO_IF = PHY0, IO_IS = rmii_txdat
+PORT phy0_TxEn = "", DIR = OUT, ISVALID = (C_USE_RMII), IO_IF = PHY0, IO_IS = rmii_txen
 
 ### PHY1
-PORT phy1_SMIDat = "", DIR = INOUT, THREE_STATE = TRUE
-PORT phy1_SMIClk = "", DIR = OUT
-PORT phy1_Rst_n = "", DIR = OUT
-PORT phy1_link = "", DIR = IN
+PORT phy1_SMIDat = "", DIR = INOUT, THREE_STATE = TRUE, ISVALID = (C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = smi_dio
+PORT phy1_SMIClk = "", DIR = OUT, ISVALID = (C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = smi_clk
+PORT phy1_Rst_n = "", DIR = OUT, ISVALID = (C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = smi_rst
+PORT phy1_link = "", DIR = IN, ISVALID = (C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = phy_link
 #### MII
-PORT phyMii1_RxClk = "", DIR = IN, ISVALID = (!C_USE_RMII)
-PORT phyMii1_RxDat = "", DIR = IN, VEC = [3:0], ISVALID = (!C_USE_RMII)
-PORT phyMii1_RxDv = "", DIR = IN, ISVALID = (!C_USE_RMII)
-PORT phyMii1_RxEr = "", DIR = IN, ISVALID = (!C_USE_RMII)
-PORT phyMii1_TxClk = "", DIR = IN, ISVALID = (!C_USE_RMII)
-PORT phyMii1_TxDat = "", DIR = OUT, VEC = [3:0], ISVALID = (!C_USE_RMII)
-PORT phyMii1_TxEn = "", DIR = OUT, ISVALID = (!C_USE_RMII)
-PORT phyMii1_TxEr = "", DIR = OUT, ISVALID = (!C_USE_RMII)
+PORT phyMii1_RxClk = "", DIR = IN, ISVALID = (!C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = mii_rxclk
+PORT phyMii1_RxDat = "", DIR = IN, VEC = [3:0], ISVALID = (!C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = mii_rxdat
+PORT phyMii1_RxDv = "", DIR = IN, ISVALID = (!C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = mii_rxdv
+PORT phyMii1_RxEr = "", DIR = IN, ISVALID = (!C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = mii_rxer
+PORT phyMii1_TxClk = "", DIR = IN, ISVALID = (!C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = mii_txclk
+PORT phyMii1_TxDat = "", DIR = OUT, VEC = [3:0], ISVALID = (!C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = mii_txdat
+PORT phyMii1_TxEn = "", DIR = OUT, ISVALID = (!C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = mii_txen
+PORT phyMii1_TxEr = "", DIR = OUT, ISVALID = (!C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = mii_txer
 #### RMII
-PORT phy1_RxDat = "", DIR = IN, VEC = [1:0], ISVALID = (C_USE_RMII)
-PORT phy1_RxDv = "", DIR = IN, ISVALID = (C_USE_RMII)
-PORT phy1_RxErr = "", DIR = IN, ISVALID = (C_USE_RMII)
-PORT phy1_TxDat = "", DIR = OUT, VEC = [1:0], ISVALID = (C_USE_RMII)
-PORT phy1_TxEn = "", DIR = OUT, ISVALID = (C_USE_RMII)
+PORT phy1_RxDat = "", DIR = IN, VEC = [1:0], ISVALID = (C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = rmii_rxdat
+PORT phy1_RxDv = "", DIR = IN, ISVALID = (C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = rmii_rxdv
+PORT phy1_RxErr = "", DIR = IN, ISVALID = (C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = rmii_rxer
+PORT phy1_TxDat = "", DIR = OUT, VEC = [1:0], ISVALID = (C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = rmii_txdat
+PORT phy1_TxEn = "", DIR = OUT, ISVALID = (C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = rmii_txen
 
 ### Interrupts
 PORT mac_irq = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_HIGH

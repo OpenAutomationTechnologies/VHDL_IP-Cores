@@ -365,10 +365,10 @@ begin
 	
 	address_a_s <= address_a(address_a'left downto 1);
 	
-	bea(3) <= byteena_a(1) and address_a(0); --?
-	bea(2) <= byteena_a(0) and address_a(0); --?
-	bea(1) <= byteena_a(1) and not address_a(0); --?
-	bea(0) <= byteena_a(0) and not address_a(0); --?
+	bea(3) <= byteena_a(1) and address_a(0);
+	bea(2) <= byteena_a(0) and address_a(0);
+	bea(1) <= byteena_a(1) and not address_a(0);
+	bea(0) <= byteena_a(0) and not address_a(0);
 	
 	data_a_s <= data_a & data_a;
 	

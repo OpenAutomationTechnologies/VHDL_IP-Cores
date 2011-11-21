@@ -21,8 +21,8 @@ entity openmac_dmamaster_tb is
 		rx_fifo_word_size_g : integer := 32;
 		m_burstcount_width_g : integer := 4;
 		m_burstcount_const_g : boolean := true;
-		m_tx_burst_size_g : integer := 1;
-		m_rx_burst_size_g : integer := 1 );
+		m_tx_burst_size_g : integer := 4;
+		m_rx_burst_size_g : integer := 4 );
 end openmac_dmamaster_tb;
 
 architecture TB_ARCHITECTURE of openmac_dmamaster_tb is
@@ -85,8 +85,8 @@ architecture TB_ARCHITECTURE of openmac_dmamaster_tb is
 	-- Observed signals - signals mapped to the output ports of tested entity
 	signal dma_ack_rd : STD_LOGIC;
 	signal dma_ack_wr : STD_LOGIC;
-	signal m_read : STD_LOGIC;
-	signal m_write : STD_LOGIC;
+	signal m_read, m_read_l : STD_LOGIC;
+	signal m_write, m_write_l : STD_LOGIC;
 	signal dma_din : STD_LOGIC_VECTOR(15 downto 0);
 	signal m_address : STD_LOGIC_VECTOR(dma_highadr_g downto 0);
 	signal m_burstcount : STD_LOGIC_VECTOR(m_burstcount_width_g-1 downto 0);
@@ -259,18 +259,24 @@ begin
 	
 genAvalon : if test_with_plb = false generate
 begin
+	
+	m_waitrequest <= '0' when (m_write = '1' and m_write_l = '1') or (m_read = '1' and m_read_l = '1') else '1';
+	
 	process(m_clk, rst)
 	variable i, j : integer;
 	variable isread : boolean;
 	begin  
 		if rst = '1' then
+			m_write_l <= '0'; m_read_l <= '0';
 			m_readdatavalid <= '0';
-			m_waitrequest <= '1';
+			--m_waitrequest <= '1';
 			m_readdata <= (others => '0');
 			isread := false;
 		elsif m_clk = '1' and m_clk'event then
-			m_waitrequest <= '1';
+			--m_waitrequest <= '1';
 			m_readdatavalid <= '0';
+			
+			m_write_l <= m_write; m_read_l <= m_read;
 			
 			if isread = true and j = 0 then
 				m_readdatavalid <= '1';
@@ -281,7 +287,7 @@ begin
 			
 			if (m_read = '1' or m_write = '1') and m_waitrequest = '1' then
 				i := conv_integer(m_burstcount);
-				m_waitrequest <= '0';
+				--m_waitrequest <= '0';
 				if m_read = '1' then 
 					isread := true;
 					j := 4;
@@ -293,7 +299,7 @@ begin
 			if i /= 0 and ((m_write = '1' and m_waitrequest = '0') or (m_readdatavalid = '1')) then
 				i := i - 1;
 			elsif i = 0 then
-				m_waitrequest <= '1'; isread := false;
+				--m_waitrequest <= '1'; isread := false;
 			end if;
 			
 		end if;
@@ -302,7 +308,7 @@ end generate;
 
 genPLB : if test_with_plb = true generate
 begin
-
+	
 	MAC_DMA_Rst <= rst;
 	--	signal Bus2MAC_DMA_MstRd_d : std_logic_vector(C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0);
 	--	signal Bus2MAC_DMA_MstRd_rem : std_logic_vector(C_MAC_DMA_PLB_NATIVE_DWIDTH/8-1 downto 0);
@@ -334,8 +340,8 @@ begin
 			end if;
 			
 			Bus2MAC_DMA_Mst_CmdAck <= '0';
-			if MAC_DMA2Bus_MstRd_Req = '1' or MAC_DMA2Bus_MstWr_Req = '1' then
-				if i = 2 then
+			if (MAC_DMA2Bus_MstRd_Req = '1' or MAC_DMA2Bus_MstWr_Req = '1') and Bus2MAC_DMA_Mst_CmdAck = '0' then
+				if i = 0 then
 					Bus2MAC_DMA_Mst_CmdAck <= '1';
 					i := 0;
 				else
@@ -345,17 +351,17 @@ begin
 		end if;
 	end process;
 	
-	--Bus2MAC_DMA_MstWr_dst_rdy_n <= MAC_DMA2Bus_MstWr_src_rdy_n;
+	Bus2MAC_DMA_MstWr_dst_rdy_n <= MAC_DMA2Bus_MstWr_src_rdy_n;
 	process(MAC_DMA_CLK, MAC_DMA_Rst)
 	variable i : integer := 0;
 	begin
 		if MAC_DMA_Rst = '1' then
-			Bus2MAC_DMA_MstWr_dst_rdy_n <= '1';
+			--Bus2MAC_DMA_MstWr_dst_rdy_n <= '1';
 		elsif rising_edge(MAC_DMA_CLK) then
-			Bus2MAC_DMA_MstWr_dst_rdy_n <= '1';
+			--Bus2MAC_DMA_MstWr_dst_rdy_n <= '1';
 			if MAC_DMA2Bus_MstWr_src_rdy_n = '0' then
 				if i = 1 then
-					Bus2MAC_DMA_MstWr_dst_rdy_n <= '0';
+					--Bus2MAC_DMA_MstWr_dst_rdy_n <= '0';
 					i := 0;
 				else
 					i := i + 1;

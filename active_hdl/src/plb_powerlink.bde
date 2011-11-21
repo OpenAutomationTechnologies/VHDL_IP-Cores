@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 92105
+ FREEID 93474
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -8412,6 +8412,10 @@ PAGE "header"
   PAGESIZE (3307,2338)
   MARGINS (200,200,200,200)
   RECT (0,0,0,0)
+  VARIABLES
+  {
+   #BLOCKTABLE_VISIBLE="1"
+  }
  }
  
  BODY
@@ -14563,48 +14567,48 @@ PAGE "POWERLINK IP-CORE"
    VARIABLES
    {
     #COMPONENT="powerlink"
-    #GENERIC0="use2ndPhy_g : BOOLEAN := true"
-    #GENERIC1="endian_g : STRING := \"big\""
-    #GENERIC10="iBufSizeLOG2_g : INTEGER := C_MAC_PKT_SIZE_LOG2"
-    #GENERIC11="iBufSize_g : INTEGER := C_MAC_PKT_SIZE"
-    #GENERIC12="Simulate : BOOLEAN := false"
-    #GENERIC13="genSpiAp_g : BOOLEAN := false"
-    #GENERIC14="pioValLen_g : INTEGER := 50"
-    #GENERIC15="spiBigEnd_g : BOOLEAN := false"
-    #GENERIC16="genSimpleIO_g : BOOLEAN := false"
-    #GENERIC17="spiCPHA_g : BOOLEAN := false"
-    #GENERIC18="spiCPOL_g : BOOLEAN := false"
-    #GENERIC19="papBigEnd_g : BOOLEAN := false"
-    #GENERIC2="use2ndCmpTimer_g : BOOLEAN := false"
-    #GENERIC20="papLowAct_g : BOOLEAN := false"
-    #GENERIC21="m_tx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
-    #GENERIC22="useHwAcc_g : BOOLEAN := false"
-    #GENERIC23="useIntPacketBuf_g : BOOLEAN := C_MAC_PKT_EN"
-    #GENERIC24="m_burstcount_const_g : BOOLEAN := true"
-    #GENERIC25="m_burstcount_width_g : INTEGER := C_M_BURSTCOUNT_WIDTH"
-    #GENERIC26="iTpdos_g : INTEGER := 1"
-    #GENERIC27="iRpdos_g : INTEGER := 3"
-    #GENERIC28="genSmiIO : BOOLEAN := false"
-    #GENERIC29="m_data_width_g : INTEGER := 32"
-    #GENERIC3="useRxIntPacketBuf_g : BOOLEAN := C_MAC_PKT_RX_EN"
-    #GENERIC30="papDataWidth_g : INTEGER := papDataWidth_g"
-    #GENERIC31="iPdiRev_g : INTEGER := 21930"
-    #GENERIC32="iAsyBuf2Size_g : INTEGER := 100"
-    #GENERIC33="iAsyBuf1Size_g : INTEGER := 100"
-    #GENERIC34="iRpdo2BufSize_g : INTEGER := 100"
-    #GENERIC35="iRpdo1BufSize_g : INTEGER := 100"
-    #GENERIC36="genAvalonAp_g : BOOLEAN := false"
-    #GENERIC37="iRpdo0BufSize_g : INTEGER := 100"
-    #GENERIC38="iTpdoBufSize_g : INTEGER := 100"
-    #GENERIC39="genLedGadget_g : BOOLEAN := false"
-    #GENERIC4="m_rx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
-    #GENERIC40="genABuf2_g : BOOLEAN := false"
-    #GENERIC41="genABuf1_g : BOOLEAN := false"
-    #GENERIC5="genPdi_g : BOOLEAN := false"
-    #GENERIC6="m_tx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
-    #GENERIC7="genOnePdiClkDomain_g : BOOLEAN := false"
+    #GENERIC0="genAvalonAp_g : BOOLEAN := false"
+    #GENERIC1="iRpdo0BufSize_g : INTEGER := 100"
+    #GENERIC10="m_data_width_g : INTEGER := 32"
+    #GENERIC11="m_rx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
+    #GENERIC12="genPdi_g : BOOLEAN := false"
+    #GENERIC13="genABuf1_g : BOOLEAN := false"
+    #GENERIC14="iTpdos_g : INTEGER := 1"
+    #GENERIC15="iRpdos_g : INTEGER := 3"
+    #GENERIC16="genSmiIO : BOOLEAN := false"
+    #GENERIC17="genOnePdiClkDomain_g : BOOLEAN := false"
+    #GENERIC18="papBigEnd_g : BOOLEAN := false"
+    #GENERIC19="papLowAct_g : BOOLEAN := false"
+    #GENERIC2="iTpdoBufSize_g : INTEGER := 100"
+    #GENERIC20="papDataWidth_g : INTEGER := papDataWidth_g"
+    #GENERIC21="iPdiRev_g : INTEGER := 21930"
+    #GENERIC22="iAsyBuf2Size_g : INTEGER := 100"
+    #GENERIC23="iAsyBuf1Size_g : INTEGER := 100"
+    #GENERIC24="iRpdo2BufSize_g : INTEGER := 100"
+    #GENERIC25="iRpdo1BufSize_g : INTEGER := 100"
+    #GENERIC26="m_burstcount_const_g : BOOLEAN := true"
+    #GENERIC27="m_burstcount_width_g : INTEGER := C_M_BURSTCOUNT_WIDTH"
+    #GENERIC28="useHwAcc_g : BOOLEAN := false"
+    #GENERIC29="use2ndPhy_g : BOOLEAN := C_USE_2ND_PHY"
+    #GENERIC3="genLedGadget_g : BOOLEAN := false"
+    #GENERIC30="use2ndCmpTimer_g : BOOLEAN := false"
+    #GENERIC31="useRmii_g : BOOLEAN := C_USE_RMII"
+    #GENERIC32="iBufSizeLOG2_g : INTEGER := C_MAC_PKT_SIZE_LOG2"
+    #GENERIC33="iBufSize_g : INTEGER := C_MAC_PKT_SIZE"
+    #GENERIC34="Simulate : BOOLEAN := false"
+    #GENERIC35="genSpiAp_g : BOOLEAN := false"
+    #GENERIC36="pioValLen_g : INTEGER := 50"
+    #GENERIC37="spiBigEnd_g : BOOLEAN := false"
+    #GENERIC38="genSimpleIO_g : BOOLEAN := false"
+    #GENERIC39="spiCPHA_g : BOOLEAN := false"
+    #GENERIC4="genABuf2_g : BOOLEAN := false"
+    #GENERIC40="spiCPOL_g : BOOLEAN := false"
+    #GENERIC41="endian_g : STRING := \"big\""
+    #GENERIC5="useRxIntPacketBuf_g : BOOLEAN := C_MAC_PKT_RX_EN"
+    #GENERIC6="useIntPacketBuf_g : BOOLEAN := C_MAC_PKT_EN"
+    #GENERIC7="m_tx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
     #GENERIC8="m_rx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
-    #GENERIC9="useRmii_g : BOOLEAN := C_USE_RMII"
+    #GENERIC9="m_tx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
@@ -18578,6 +18582,7 @@ PAGE "POWERLINK IP-CORE"
 "C_USE_RMII : boolean := false;\n"+
 "C_TX_INT_PKT : boolean := false;\n"+
 "C_RX_INT_PKT : boolean := false;\n"+
+"C_USE_2ND_PHY : boolean := true;\n"+
 ""
    RECT (260,280,1180,660)
    MARGINS (20,20)
@@ -25259,7 +25264,7 @@ PAGE ""
    #BLOCKTABLE_PAGE="1"
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
-   #MODIFIED="1311687673"
+   #MODIFIED="1311684073"
    PAGENAME="POWERLINK IP-CORE"
    PAGENUMBER="5"
    REVISION="1.0"
@@ -25268,7 +25273,7 @@ PAGE ""
  
  BODY
  {
-  TEXT  92088, 0, 0
+  TEXT  93457, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -25279,7 +25284,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  92089, 0, 0
+  TEXT  93458, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -25290,7 +25295,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  92090, 0, 0
+  TEXT  93459, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -25300,7 +25305,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  92091, 0, 0
+  TEXT  93460, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -25312,7 +25317,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  92092, 0, 0
+  TEXT  93461, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -25326,7 +25331,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  92093, 0, 0
+  TEXT  93462, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -25336,7 +25341,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  92094, 0, 0
+  TEXT  93463, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -25348,7 +25353,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  92095, 0, 0
+  TEXT  93464, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -25358,7 +25363,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  92096, 0, 0
+  TEXT  93465, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -25369,7 +25374,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  92097, 0, 0
+  GROUP  93466, 0, 0
   {
    PAGEALIGN 10
    RECT (3320,2800,4201,3200)
@@ -25381,7 +25386,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  92098, 0, 0
+  GROUP  93467, 0, 0
   {
    PAGEALIGN 10
    RECT (3320,3020,4201,3021)
@@ -25393,7 +25398,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  92099, 0, 0
+  GROUP  93468, 0, 0
   {
    PAGEALIGN 10
    RECT (3320,2960,4201,2961)
@@ -25405,7 +25410,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  92100, 0, 0
+  GROUP  93469, 0, 0
   {
    PAGEALIGN 10
    RECT (3320,3080,4201,3081)
@@ -25417,7 +25422,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  92101, 0, 0
+  GROUP  93470, 0, 0
   {
    PAGEALIGN 10
    RECT (3320,3140,4201,3141)
@@ -25429,7 +25434,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  92102, 0, 0
+  GROUP  93471, 0, 0
   {
    PAGEALIGN 10
    RECT (3500,2960,3501,3201)
@@ -25440,17 +25445,17 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  92103, 0, 0
+  LINE  93472, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (3500,2800), (3500,2960) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  92104, 0, 0
+  LINKBMPPICT  93473, 0, 0
   {
    PAGEALIGN 10
-   FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\dat\\#BR.bmp"
+   FILENAME ".\\..\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
    RECT (3340,2820,3480,2900)
   }
  }

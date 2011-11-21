@@ -13,7 +13,8 @@ entity plb_powerlink_tb is
 	-- Generic declarations of the tested unit
 		generic(
 		papDataWidth_g : integer := 16;
-		C_MAC_DMA_BURST_SIZE : integer := 32;
+		C_MAC_DMA_BURST_SIZE : integer := 4;
+		C_MAC_DMA_FIFO_SIZE : INTEGER := 128; --in bytes
 		C_USE_RMII : boolean := false;
 		C_TX_INT_PKT : boolean := true;
 		C_RX_INT_PKT : boolean := false;
@@ -58,6 +59,7 @@ architecture TB_ARCHITECTURE of plb_powerlink_tb is
 		generic(
 		papDataWidth_g : integer := 16;
 		C_MAC_DMA_BURST_SIZE : integer := 32;
+		C_MAC_DMA_FIFO_SIZE : INTEGER := 32; --in bytes
 		C_USE_RMII : boolean := false;
 		C_TX_INT_PKT : boolean := false;
 		C_RX_INT_PKT : boolean := false;
@@ -584,6 +586,7 @@ begin
 		generic map (
 			papDataWidth_g => papDataWidth_g,
 			C_MAC_DMA_BURST_SIZE => C_MAC_DMA_BURST_SIZE,
+			C_MAC_DMA_FIFO_SIZE => C_MAC_DMA_FIFO_SIZE,
 			C_USE_RMII => C_USE_RMII,
 			C_TX_INT_PKT => C_TX_INT_PKT,
 			C_RX_INT_PKT => C_RX_INT_PKT,

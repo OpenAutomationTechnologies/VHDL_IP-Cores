@@ -47,6 +47,7 @@
 -- 2009-08-07  V0.01        Converted from V1.1 to first official version.
 -- 2011-07-23  V0.10		Consideration of RX Error signal and jitter (converted from V2.3)
 -- 2011-08-03  V0.11		translated comments
+-- 2011-11-18  V0.12		bypass filter by generic
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;                                                                                 
@@ -56,6 +57,9 @@ use ieee.std_logic_arith.all;
 
 
 ENTITY openFILTER is
+	Generic (
+				bypassFilter		:		boolean := false
+			);
     Port    (   nRst                : in    std_logic;
                 Clk                 : in    std_logic;
                 nCheckShortFrames   : in    std_logic := '0';   -- Rx Port von Hub;
@@ -101,7 +105,17 @@ ARCHITECTURE rtl OF openFILTER IS
                                         
 
 BEGIN
-     
+
+disFilter : if bypassFilter generate
+begin
+	RxDvOut <= RxDvIn;
+	RxDatOut <= RxDatIn;
+	TxEnOut <= TxEnIn;
+	TxDatOut <= TxDatIn;
+end generate;
+
+enFilter : if not bypassFilter generate
+begin
   -- IN --
    RxDel(0).RxDv  <= RxDvIn;
    RxDel(0).RxDat <= RxDatIn; 
@@ -237,4 +251,5 @@ BEGIN
     end if;
 
 END PROCESS do;
+end generate;
 END rtl;

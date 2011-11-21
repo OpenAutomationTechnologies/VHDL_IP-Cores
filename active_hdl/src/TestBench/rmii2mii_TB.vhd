@@ -45,6 +45,14 @@ architecture TB_ARCHITECTURE of rmii2mii_tb is
 	-- Add your code here ...
 	type miiFrame_t is array(0 to 64*2-1) of std_logic_vector(3 downto 0);
 	signal mRxFrame : miiFrame_t;
+	
+	--TIME_TEST : MAX, TYP, MIN
+	constant TIME_TEST_RX : string := "TYP";
+	constant TIME_TEST_TX : string := "2M5";
+	constant TIME_MAX_PULSE : time := 24 ns;
+	constant TIME_MIN_PULSE : time := 16 ns;
+	constant TIME_TYP_PULSE : time := 20 ns;
+	constant TIME_2M5_PULSE : time := 200 ns;
 
 begin
 
@@ -78,25 +86,35 @@ begin
 	genRxClk : process
 	begin
 		mRxClk <= '0';
-		--wait for 26ns;
-		wait for 20ns;
-		--wait for 14ns;
-		mRxClk <= '1';
-		--wait for 26ns;
-		wait for 20ns;
-		--wait for 14ns;
+		
+		loop
+			case TIME_TEST_RX is
+				when "MIN" => wait for TIME_MIN_PULSE;
+				when "TYP" => wait for TIME_TYP_PULSE;
+				when "MAX" => wait for TIME_MAX_PULSE;
+				when "2M5" => wait for TIME_2M5_PULSE;
+				when others =>
+			end case;
+			
+			mRxClk <= not mRxClk;
+		end loop;
 	end process;
 	
 	genTxClk : process
 	begin
 		mTxClk <= '0';
-		--wait for 26ns;
-		wait for 20ns;
-		--wait for 14ns;
-		mTxClk <= '1';
-		--wait for 26ns;
-		wait for 20ns;
-		--wait for 14ns;
+		
+		loop
+			case TIME_TEST_TX is
+				when "MIN" => wait for TIME_MIN_PULSE;
+				when "TYP" => wait for TIME_TYP_PULSE;
+				when "MAX" => wait for TIME_MAX_PULSE;
+				when "2M5" => wait for TIME_2M5_PULSE;
+				when others =>
+			end case;
+			
+			mTxClk <= not mTxClk;
+		end loop;
 	end process;
 	
 	genRst : process
@@ -104,6 +122,7 @@ begin
 		rst <= '1';
 		wait for 1us;
 		rst <= '0';
+		--wait for 6us;
 		wait;
 	end process;
 	
@@ -141,6 +160,10 @@ begin
 			end if;
 			
 			i := i + 1;
+			
+			if i > 150 then
+				i := 0;
+			end if;
 		end if;
 	end process;
 	

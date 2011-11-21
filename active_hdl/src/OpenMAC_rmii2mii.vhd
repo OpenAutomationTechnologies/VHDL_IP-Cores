@@ -47,7 +47,7 @@
 -- 2011-07-23	V0.11		forward RxErr to RMII
 -- 2011-10-13	V0.20		abuse openMAC_DMAFifo for the converter to use it in Altera/Xilinx easily
 -- 2011-11-07	V0.21		increased fifo word size to be on the save side
--- 2011-11-14	V0.22		read trigger and fifo size can be set independently
+-- 2011-11-18	V0.22		forward of RxErr not necessary
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -79,15 +79,13 @@ end rmii2mii;
 architecture rtl of rmii2mii is
 	constant DIBIT_SIZE : integer := 2;
 	constant NIBBLE_SIZE : integer := 4;
-	
-	--FIFO trigger
-	constant FIFO_TRIGGER_NIBBLES : integer := 7; --if these nibbles are available the read side starts
 begin
 	
 	TX_BLOCK : block
+		--fifo size must not be larger than 2**5
 		constant FIFO_NIBBLES_LOG2 : integer := 5;
 		
-		signal fifo_limit, fifo_full, fifo_empty, fifo_valid, fifo_wrempty : std_logic;
+		signal fifo_half, fifo_full, fifo_empty, fifo_valid, fifo_wrempty : std_logic;
 		signal fifo_wr, fifo_rd : std_logic;
 		signal fifo_din : std_logic_vector(NIBBLE_SIZE-1 downto 0);
 		signal fifo_dout : std_logic_vector(NIBBLE_SIZE-1 downto 0);
@@ -125,7 +123,7 @@ begin
 		mTxDat <= fifo_dout; --brauch ma net... when fifo_valid = '1' else (others => '0');
 		mTxEn <= fifo_valid;
 		
-		fifo_limit <= '1' when fifo_rdUsedWord > FIFO_TRIGGER_NIBBLES else '0';
+		fifo_half <= fifo_rdUsedWord(fifo_rdUsedWord'left);
 		
 		process(mTxClk, rst)
 		begin
@@ -133,7 +131,7 @@ begin
 				fifo_rd <= '0';
 				fifo_valid <= '0';
 			elsif mTxClk = '1' and mTxClk'event then
-				if fifo_rd = '0' and fifo_limit = '1' then
+				if fifo_rd = '0' and fifo_half = '1' then
 					fifo_rd <= '1';
 				elsif fifo_rd = '1' and fifo_empty = '1' then
 					fifo_rd <= '0';
@@ -193,15 +191,15 @@ begin
 	end block;
 	
 	RX_BLOCK : block
+		--fifo size must not be larger than 2**5
 		constant FIFO_NIBBLES_LOG2 : integer := 5;
 		
-		signal fifo_limit, fifo_full, fifo_empty, fifo_valid : std_logic;
+		signal fifo_half, fifo_full, fifo_empty, fifo_valid : std_logic;
 		signal fifo_wr, fifo_rd : std_logic;
 		signal fifo_din : std_logic_vector(NIBBLE_SIZE-1 downto 0);
 		signal fifo_dout : std_logic_vector(NIBBLE_SIZE-1 downto 0);
 		signal fifo_rdUsedWord : std_logic_vector(FIFO_NIBBLES_LOG2-1 downto 0);
 		signal fifo_wrUsedWord : std_logic_vector(FIFO_NIBBLES_LOG2-1 downto 0);
-		signal rRxErL, rRxErLL : std_logic;
 		--convert nibble to dibits
 		signal sel_dibit : std_logic;
 		signal fifo_rd_s : std_logic;
@@ -229,21 +227,17 @@ begin
 			end if;
 		end process;
 		
-		fifo_limit <= '1' when fifo_rdUsedWord > FIFO_TRIGGER_NIBBLES else '0';
+		fifo_half <= fifo_rdUsedWord(fifo_rdUsedWord'left);
 		
-		rRxEr <= rRxErLL;
+		rRxEr <= '0';
 		
 		process(clk50, rst)
 		begin
 			if rst = '1' then
 				fifo_rd_s <= '0';
 				fifo_valid <= '0';
-				rRxErL <= '0'; rRxErLL <= '0';
 			elsif clk50 = '1' and clk50'event then
-				rRxErLL <= rRxErL;
-				rRxErL <= mRxEr;
-				
-				if fifo_rd_s = '0' and fifo_limit = '1' then
+				if fifo_rd_s = '0' and fifo_half = '1' then
 					fifo_rd_s <= '1';
 				elsif fifo_rd_s = '1'  and fifo_empty = '1' then
 					fifo_rd_s <= '0';
