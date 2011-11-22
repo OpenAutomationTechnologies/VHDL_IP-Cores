@@ -68,6 +68,7 @@
 -- 2011-09-05	V1.01	zelenkaj	SPI PDI missed to connect async irq to toplevel
 -- 2011-10-20	V1.02	zelenkaj	SMI export of in, out and tristate, endian generic
 -- 2011-11-07	V1.03	zelenkaj	dma generic for PLB/AXI support necessary
+-- 2011-11-21	V1.04	zelenkaj	added time synchronization feature
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -108,6 +109,7 @@ entity powerlink is
 		genABuf1_g					:		boolean 							:= true; --if false iABuf1_g must be set to 0!
 		genABuf2_g					:		boolean 							:= true; --if false iABuf2_g must be set to 0!
 		genLedGadget_g				:		boolean 							:= false;
+		genTimeSync_g				:		boolean								:= false;
 		--PDO buffer size *3
 		iTpdoBufSize_g				:		integer 							:= 100;
 		iRpdo0BufSize_g				:		integer 							:= 100;
@@ -366,6 +368,7 @@ begin
 				genABuf1_g					=> genABuf1_g,
 				genABuf2_g					=> genABuf2_g,
 				genLedGadget_g				=> genLedGadget_g,
+				genTimeSync_g				=> genTimeSync_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -482,6 +485,7 @@ begin
 				genABuf1_g					=> genABuf1_g,
 				genABuf2_g					=> genABuf2_g,
 				genLedGadget_g				=> genLedGadget_g,
+				genTimeSync_g				=> genTimeSync_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -596,6 +600,7 @@ begin
 				genABuf1_g					=> genABuf1_g,
 				genABuf2_g					=> genABuf2_g,
 				genLedGadget_g				=> genLedGadget_g,
+				genTimeSync_g				=> genTimeSync_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
