@@ -178,17 +178,14 @@ begin
 	sel_time_sync_regs <= sel_relative_time_l or sel_relative_time_h or sel_nettime_nsec or sel_nettime_sec;
 	
 	genDoubleBufPcp : if bIsPcp generate
-		signal wr_l : std_logic;
 	begin
 		--switch double buffer
 		process(clk, rst)
 		begin
 			if rst = '1' then
-				sel_double_buffer <= '0'; wr_l <= '0';
+				sel_double_buffer <= '0';
 			elsif clk = '1' and clk'event then
-				wr_l <= wr;
-				
-				if selDpr = '1' and wr_l = '1' and wr = '0' and sel_nettime_sec = '1' then --after nettime seconds is set...
+				if sel = '1' and wr = '1' and sel_nettime_sec = '1' then --after nettime seconds is set...
 					sel_double_buffer <= not sel_double_buffer; -- ...toggle
 				end if;
 			end if;
@@ -203,13 +200,16 @@ begin
 	end generate;
 	
 	genDoubleBufAp : if not bIsPcp generate
+	begin
+		--take the other buffer (Pcp has already inverted, see lines above!)
+		sel_double_buffer <= doubleBufSel_in;
+	end generate;
+	
+	genTimeAfterSyncCnt : if not bIsPcp and genTimeSync_g generate
 		signal timeSyncIrq_l : std_logic;
 		constant ZEROS : std_logic_vector(time_after_sync_cnt'range) := (others => '0');
 		constant ONES : std_logic_vector(time_after_sync_cnt'range) := (others => '1');
 	begin
-		--take the other buffer (Pcp has already inverted, see 5 lines above!)
-		sel_double_buffer <= doubleBufSel_in;
-		
 		--TIME_AFTER_SYNC counter
 		process(clk, rst)
 		begin

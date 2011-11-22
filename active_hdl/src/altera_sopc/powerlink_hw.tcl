@@ -87,6 +87,7 @@
 #-- 2011-10-14	V1.06	zelenkaj	rmii2mii fifos are deleted (dma fifo is abused for..)
 #-- 2011-11-07	V1.07	zelenkaj	added generic for dma master qualifiers
 #-- 2011-11-17	V1.08	zelenkaj	pdi dpr vhd-file renamed
+#-- 2011-11-21	V1.09	zelenkaj	added time synchronization feature
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -362,6 +363,12 @@ add_parameter genLedGadget_g BOOLEAN true
 set_parameter_property genLedGadget_g HDL_PARAMETER true
 set_parameter_property genLedGadget_g VISIBLE false
 set_parameter_property genLedGadget_g DERIVED TRUE
+
+add_parameter genTimeSync_g BOOLEAN true
+set_parameter_property genTimeSync_g DISPLAY_NAME "Enable Time Synchronization"
+set_parameter_property genTimeSync_g DESCRIPTION "The POWERLINK Slave provides the Time Synchronization feature."
+set_parameter_property genTimeSync_g HDL_PARAMETER true
+set_parameter_property genTimeSync_g VISIBLE true
 
 add_parameter iRpdos_g INTEGER 1
 set_parameter_property iRpdos_g HDL_PARAMETER true
@@ -707,6 +714,7 @@ proc my_validation_callback {} {
 	set_parameter_property configApSpi_CPHA VISIBLE false
 	set_parameter_property configApSpi_IRQ VISIBLE false
 	set_parameter_property genLedGadget VISIBLE false
+	set_parameter_property genTimeSync_g VISIBLE false
 	set_parameter_property asyncBuf1Size VISIBLE false
 	set_parameter_property asyncBuf2Size VISIBLE false
 	set_parameter_property rpdo0size VISIBLE false
@@ -770,6 +778,7 @@ proc my_validation_callback {} {
 		set_parameter_property asyncBuf1Size VISIBLE true
 		set_parameter_property asyncBuf2Size VISIBLE true
 		set_parameter_property genLedGadget VISIBLE true
+		set_parameter_property genTimeSync_g VISIBLE true
 		#AP can be big or little endian - allow choice
 		set_parameter_property configApEndian VISIBLE true
 		set_parameter_property mac2cmpTimer VISIBLE true
@@ -1082,6 +1091,7 @@ add_display_item "Process Data Interface Settings" validSet PARAMETER
 add_display_item "Process Data Interface Settings" validAssertDuration PARAMETER
 add_display_item "Process Data Interface Settings" mac2cmpTimer PARAMETER
 add_display_item "Process Data Interface Settings" genLedGadget PARAMETER
+add_display_item "Process Data Interface Settings" genTimeSync_g PARAMETER
 add_display_item "Receive Process Data" rpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdo0size PARAMETER

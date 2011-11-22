@@ -168,7 +168,7 @@ constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g); --he
 constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g); --header is included in generic value!
 ---memory mapping inside the PDI's DPR
 ----control / status register
-constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 22 * 4); --bytes mapped to dpr (dword alignment!!!)
+constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 22 * 4); --bytes mapped to dpr (dword alignment!!!), note: 4 times a double buffer!
 ----asynchronous buffers
 constant	intABuf1Tx_c				: memoryMapping_t := (intCntStReg_c.base + intCntStReg_c.span, align32(extABuf1Tx_c.span));
 constant	intABuf1Rx_c				: memoryMapping_t := (intABuf1Tx_c.base + intABuf1Tx_c.span, align32(extABuf1Rx_c.span));
