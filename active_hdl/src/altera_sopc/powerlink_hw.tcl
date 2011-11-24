@@ -365,8 +365,8 @@ set_parameter_property genLedGadget_g VISIBLE false
 set_parameter_property genLedGadget_g DERIVED TRUE
 
 add_parameter genTimeSync_g BOOLEAN true
-set_parameter_property genTimeSync_g DISPLAY_NAME "Enable Time Synchronization"
-set_parameter_property genTimeSync_g DESCRIPTION "The POWERLINK Slave provides the Time Synchronization feature."
+set_parameter_property genTimeSync_g DISPLAY_NAME "Enable Timer for Time Synchronization"
+set_parameter_property genTimeSync_g DESCRIPTION "The POWERLINK Slave provides a 16 bit timer, which is provided for application synchronization."
 set_parameter_property genTimeSync_g HDL_PARAMETER true
 set_parameter_property genTimeSync_g VISIBLE true
 

@@ -146,7 +146,7 @@ constant c_time_after_sync_cnt_size		:		integer := 16; --revise code if changed
 signal time_after_sync_cnt				:		std_logic_vector(c_time_after_sync_cnt_size-1 downto 0);
 signal time_after_sync_cnt_latch		:		std_logic_vector(c_time_after_sync_cnt_size/2-1 downto 0);
 signal time_after_sync_cnt_next			:		std_logic_vector(c_time_after_sync_cnt_size-1 downto 0);
-signal time_after_sync_cnt_out			:		std_logic_vector(c_time_after_sync_cnt_size-1 downto 0);
+signal time_after_sync_cnt_out			:		std_logic_vector(c_time_after_sync_cnt_size-1 downto 0) := (others => '0');
 constant time_after_sync_res			:		std_logic_vector(32-c_time_after_sync_cnt_size-1 downto 0) := (others => '0');
 ---address offsets
 constant c_addr_time_after_sync			:		integer := 16#50#;
