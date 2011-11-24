@@ -63,6 +63,7 @@
 -- 2011-07-25	V0.29	zelenkaj	LED gadget and asynchronous buffer optional
 -- 2011-08-08	V0.30	zelenkaj	LED gadget enhancement -> added 8 general purpose outputs
 -- 2011-08-16	V0.31	zelenkaj	status/control register enhanced by 8 bytes (again...)
+-- 2011-11-21	V0.32	zelenkaj	added time synchronization feature
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -82,6 +83,7 @@ entity pdi is
 			genABuf1_g					:		boolean := true; --if false iABuf1_g must be set to 0!
 			genABuf2_g					:		boolean := true; --if false iABuf2_g must be set to 0!
 			genLedGadget_g				:		boolean := false;
+			genTimeSync_g				:		boolean := false;
 			--PDO buffer size *3
 			iTpdoBufSize_g				:		integer := 100;
 			iRpdo0BufSize_g				:		integer := 116; --includes header
@@ -153,7 +155,7 @@ type pdi32Bit_t is
 constant	extMaxOneSpan				: integer := 2 * 1024; --2kB
 constant	extLog2MaxOneSpan			: integer := integer(ceil(log2(real(extMaxOneSpan))));
 ----control / status register
-constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#78#);
+constant	extCntStReg_c				: memoryMapping_t := (16#0000#, 16#98#);
 ----asynchronous buffers
 constant	extABuf1Tx_c				: memoryMapping_t := (16#0800#, iABuf1_g); --header is included in generic value!
 constant	extABuf1Rx_c				: memoryMapping_t := (16#1000#, iABuf1_g); --header is included in generic value!
@@ -166,7 +168,7 @@ constant	extRpdo1Buf_c				: memoryMapping_t := (16#3800#, iRpdo1BufSize_g); --he
 constant	extRpdo2Buf_c				: memoryMapping_t := (16#4000#, iRpdo2BufSize_g); --header is included in generic value!
 ---memory mapping inside the PDI's DPR
 ----control / status register
-constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 11 * 4); --bytes mapped to dpr (dword alignment!!!)
+constant	intCntStReg_c				: memoryMapping_t := (16#0000#, 22 * 4); --bytes mapped to dpr (dword alignment!!!), note: 4 times a double buffer!
 ----asynchronous buffers
 constant	intABuf1Tx_c				: memoryMapping_t := (intCntStReg_c.base + intCntStReg_c.span, align32(extABuf1Tx_c.span));
 constant	intABuf1Rx_c				: memoryMapping_t := (intABuf1Tx_c.base + intABuf1Tx_c.span, align32(extABuf1Rx_c.span));
@@ -285,6 +287,10 @@ signal		ap_ledForce_s,
 			ap_ledSet_s					: std_logic_vector(15 downto 0) := (others => '0');
 signal		hw_ledForce_s,
 			hw_ledSet_s					: std_logic_vector(15 downto 0) := (others => '0');
+
+--TIME SYNCHRONIZATION
+signal		pcp_timeSyncDBufSel			: std_logic;
+signal		ap_timeSyncDBufSel			: std_logic;
 begin
 	
 	ASSERT NOT(iRpdos_g < 1 or iRpdos_g > 3)
@@ -457,6 +463,7 @@ begin
 			iBaseMap2_g					=> intCntStReg_c.base/4, --base address in dpr
 			iDprAddrWidth_g				=> dprCntStReg_s.pcp.addr'length,
 			iRpdos_g					=> iRpdos_g,
+			genTimeSync_g				=> genTimeSync_g,
 			--register content
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
@@ -506,6 +513,10 @@ begin
 			ledCnfgOut 					=> pcp_ledForce_s,
 			ledCtrlIn 					=> pcp_ledSet_s,
 			ledCtrlOut 					=> pcp_ledSet_s,
+			---time synchronization
+			doubleBufSel_out			=> pcp_timeSyncDBufSel,
+			doubleBufSel_in				=> '0', --pcp is not interested
+			timeSyncIrq					=> '0', --pcp is not interested
 			--dpr interface (from PCP/AP to DPR)
 			dprAddrOff					=> dprCntStReg_s.pcp.addrOff,
 			dprDin						=> dprCntStReg_s.pcp.din,
@@ -536,6 +547,22 @@ begin
 			rst => pcp_reset
 		);
 	
+	--sync double buffer select for time sync to AP if the feature is enabled
+	-- note: signal toggles on PCP side when NETTIME [seconds] is written
+	genDBufSync : if genTimeSync_g generate
+	begin
+		syncDBuf_TimeSync : entity work.sync
+			generic map (
+				doSync_g => not genOnePdiClkDomain_g
+			)
+			port map (
+				din => pcp_timeSyncDBufSel,
+				dout => ap_timeSyncDBufSel,
+				clk => ap_clk,
+				rst => ap_reset
+			);
+	end generate;
+	
 	theCntrlStatReg4Ap : entity work.pdiControlStatusReg
 	generic map (
 			bIsPcp						=> false,
@@ -545,6 +572,7 @@ begin
 			iBaseMap2_g					=> intCntStReg_c.base/4, --base address in dpr
 			iDprAddrWidth_g				=> dprCntStReg_s.ap.addr'length,
 			iRpdos_g					=> iRpdos_g,
+			genTimeSync_g				=> genTimeSync_g,
 			--register content
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
@@ -594,6 +622,10 @@ begin
 			ledCnfgOut 					=> ap_ledForce_s,
 			ledCtrlIn 					=> ap_ledSet_s,
 			ledCtrlOut 					=> ap_ledSet_s,
+			---time synchronization
+			doubleBufSel_out			=> open,
+			doubleBufSel_in				=> ap_timeSyncDBufSel,
+			timeSyncIrq					=> ap_irq_s,
 			--dpr interface (from PCP/AP to DPR)
 			dprAddrOff					=> dprCntStReg_s.ap.addrOff,
 			dprDin						=> dprCntStReg_s.ap.din,

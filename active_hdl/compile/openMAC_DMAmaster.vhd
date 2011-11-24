@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_DMAmaster.vhd
--- Generated   : Tue Nov 22 10:02:59 2011
+-- Generated   : Thu Nov 24 15:08:51 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_DMAmaster.bde
 -- By          : Bde2Vhdl ver. 2.6
 --

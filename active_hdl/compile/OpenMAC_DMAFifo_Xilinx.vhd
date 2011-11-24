@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\OpenMAC_DMAFifo_Xilinx.vhd
--- Generated   : Tue Nov 22 10:02:58 2011
+-- Generated   : Thu Nov 24 15:08:50 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\OpenMAC_DMAFifo_Xilinx.bde
 -- By          : Bde2Vhdl ver. 2.6
 --

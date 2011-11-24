@@ -36,6 +36,8 @@
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
 -- 2011-09-14  	V0.01	zelenkaj    extract from pdi.vhd
+-- 2011-11-21	V0.02	zelenkaj	added time synchronization feature
+--									added 12 bytes to DPR as reserved
 ------------------------------------------------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
@@ -51,6 +53,7 @@ entity pdiControlStatusReg is
 			iBaseMap2_g					:		integer := 0; --base address in dpr
 			iDprAddrWidth_g				:		integer := 11;
 			iRpdos_g					:		integer := 3;
+			genTimeSync_g				:		boolean := false;
 			--register content
 			---constant values
 			magicNumber					: 		std_Logic_vector(31 downto 0) := (others => '0');
@@ -98,6 +101,10 @@ entity pdiControlStatusReg is
 			ledCnfgOut 					: out	std_logic_vector(15 downto 0);
 			ledCtrlIn 					: in	std_logic_vector(15 downto 0);
 			ledCtrlOut 					: out	std_logic_vector(15 downto 0);
+			---time synchronization
+			doubleBufSel_out			: out	std_logic; --Pcp only
+			doubleBufSel_in				: in	std_logic := '0'; --Ap only
+			timeSyncIrq					: in	std_logic; --SYNC IRQ to Ap (Ap only)
 			--dpr interface (from PCP/AP to DPR)
 			dprAddrOff					: out	std_logic_vector(iDprAddrWidth_g downto 0);
 			dprDin						: out	std_logic_vector(31 downto 0);
@@ -109,6 +116,7 @@ entity pdiControlStatusReg is
 end entity pdiControlStatusReg;
 
 architecture rtl of pdiControlStatusReg is
+constant c_num_dbuf_dpr					:		integer := 4; --number of dbuf in DPR (per buffer 4 byte)
 signal selDpr							:		std_logic; --if '1' get/write content from/to dpr
 signal nonDprDout						:		std_logic_vector(31 downto 0);
 signal addrRes							:		std_logic_vector(dprAddrOff'range);
@@ -122,6 +130,30 @@ signal virtualBufferSelectRpdo2			:		std_logic_vector(15 downto 0);
 --edge detection
 signal rpdo_change_tog_l				: 		std_logic_vector(2 downto 0); --change buffer from hw acc
 signal tpdo_change_tog_l				: 		std_logic; --change buffer from hw acc
+
+--time synchronization
+---select signals
+signal sel_time_after_sync				:		std_logic;
+signal sel_double_buffer				:		std_logic;
+----double buffered content
+signal sel_relative_time_l				:		std_logic;
+signal sel_relative_time_h				:		std_logic;
+signal sel_nettime_nsec					:		std_logic;
+signal sel_nettime_sec					:		std_logic;
+signal sel_time_sync_regs				:		std_logic;
+---time after sync counter
+constant c_time_after_sync_cnt_size		:		integer := 16; --revise code if changed
+signal time_after_sync_cnt				:		std_logic_vector(c_time_after_sync_cnt_size-1 downto 0);
+signal time_after_sync_cnt_latch		:		std_logic_vector(c_time_after_sync_cnt_size/2-1 downto 0);
+signal time_after_sync_cnt_next			:		std_logic_vector(c_time_after_sync_cnt_size-1 downto 0);
+signal time_after_sync_cnt_out			:		std_logic_vector(c_time_after_sync_cnt_size-1 downto 0) := (others => '0');
+constant time_after_sync_res			:		std_logic_vector(32-c_time_after_sync_cnt_size-1 downto 0) := (others => '0');
+---address offsets
+constant c_addr_time_after_sync			:		integer := 16#50#;
+constant c_addr_relative_time_l			:		integer := 16#40#;
+constant c_addr_relative_time_h			:		integer := 16#44#;
+constant c_addr_nettime_nsec			:		integer := 16#48#;
+constant c_addr_nettime_sec				:		integer := 16#4C#;
 begin	
 	--map to 16bit register
 	--TXPDO_ACK | RXPDO2_ACK | RXPDO1_ACK | RXPDO0_ACK
@@ -132,9 +164,79 @@ begin
 	
 	--generate dpr select signal
 	selDpr	<=	sel		when	(conv_integer(addr) >= iBaseDpr_g AND
-								 conv_integer(addr) <  iBaseDpr_g + iSpanDpr_g)
+								 conv_integer(addr) <  iBaseDpr_g + iSpanDpr_g - c_num_dbuf_dpr)
 						else	'0';
-
+	
+	--time sync select content
+	sel_time_after_sync <= '1' when conv_integer(addr)*4 = c_addr_time_after_sync else '0';
+	sel_relative_time_l <= '1' when conv_integer(addr)*4 = c_addr_relative_time_l else '0';
+	sel_relative_time_h <= '1' when conv_integer(addr)*4 = c_addr_relative_time_h else '0';
+	sel_nettime_nsec <= '1' when conv_integer(addr)*4 = c_addr_nettime_nsec else '0';
+	sel_nettime_sec <= '1' when conv_integer(addr)*4 = c_addr_nettime_sec else '0';
+	
+	---or them up...
+	sel_time_sync_regs <= sel_relative_time_l or sel_relative_time_h or sel_nettime_nsec or sel_nettime_sec;
+	
+	genDoubleBufPcp : if bIsPcp generate
+	begin
+		--switch double buffer
+		process(clk, rst)
+		begin
+			if rst = '1' then
+				sel_double_buffer <= '0';
+			elsif clk = '1' and clk'event then
+				if sel = '1' and wr = '1' and sel_nettime_sec = '1' then --after nettime seconds is set...
+					sel_double_buffer <= not sel_double_buffer; -- ...toggle
+				end if;
+			end if;
+		end process;
+		
+		--output the inverted to the AP
+		doubleBufSel_out <= not sel_double_buffer;
+		
+		--Pcp has no timer
+		time_after_sync_cnt_out <= (others => '0');
+		
+	end generate;
+	
+	genDoubleBufAp : if not bIsPcp generate
+	begin
+		--take the other buffer (Pcp has already inverted, see lines above!)
+		sel_double_buffer <= doubleBufSel_in;
+	end generate;
+	
+	genTimeAfterSyncCnt : if not bIsPcp and genTimeSync_g generate
+		signal timeSyncIrq_l : std_logic;
+		constant ZEROS : std_logic_vector(time_after_sync_cnt'range) := (others => '0');
+		constant ONES : std_logic_vector(time_after_sync_cnt'range) := (others => '1');
+	begin
+		--TIME_AFTER_SYNC counter
+		process(clk, rst)
+		begin
+			if rst = '1' then
+				time_after_sync_cnt <= (others => '0');
+				timeSyncIrq_l <= '0';
+			elsif clk = '1' and clk'event then
+				time_after_sync_cnt <= time_after_sync_cnt_next;
+				timeSyncIrq_l <= timeSyncIrq;
+				
+				--there are some kind of interfaces that read only the half of a word...
+				-- so store the half that is not read
+				-- and forward it to the Ap at the next read
+				if sel = '1' and sel_time_after_sync = '1' and be = "0001" then
+					time_after_sync_cnt_latch <= time_after_sync_cnt(c_time_after_sync_cnt_size-1 downto c_time_after_sync_cnt_size/2);
+				end if;
+			end if;
+		end process;
+		
+		time_after_sync_cnt_next <= ZEROS when timeSyncIrq = '1' and timeSyncIrq_l = '0' else
+			time_after_sync_cnt when time_after_sync_cnt = ONES else --saturate
+			time_after_sync_cnt + 1; --count for your life!
+		
+		time_after_sync_cnt_out <= time_after_sync_cnt when be(3 downto 2) = "11" or be(1 downto 0) = "11" else
+			time_after_sync_cnt_latch & time_after_sync_cnt(time_after_sync_cnt_latch'range);
+	end generate;
+	
 	--assign content depending on selDpr
 	dprDin		<=	din;
 	dprBe		<=	be;
@@ -142,8 +244,9 @@ begin
 					'0';
 	dout		<=	dprDout	when	selDpr = '1'	else
 					nonDprDout;
-	dprAddrOff	<=	addrRes when	selDpr = '1'	else
-					(others => '0');
+	
+	dprAddrOff	<=	addrRes + 4 when sel_double_buffer = '1' and sel_time_sync_regs = '1' else --select 2nd double buffer
+					addrRes; --select 1st double buffer or other content
 	
 	--address conversion
 	---map external address mapping into dpr
@@ -164,25 +267,36 @@ begin
 						--STORED IN DPR 				when 16#28#,
 						--STORED IN DPR					when 16#2C#,
 						--STORED IN DPR					when 16#30#,
-						(eventAckIn & asyncIrqCtrlIn) 	when 16#34#,
-						tPdoBuffer 						when 16#38#,
-						rPdo0Buffer 					when 16#3C#,
-						rPdo1Buffer 					when 16#40#,
-						rPdo2Buffer 					when 16#44#,
-						asyncBuffer1Tx 					when 16#48#,
-						asyncBuffer1Rx 					when 16#4C#,
-						asyncBuffer2Tx 					when 16#50#,
-						asyncBuffer2Rx 					when 16#54#,
-						--RESERVED 						when 16#58#,
-						--RESERVED 						when 16#5C#,
+						--STORED IN DPR					when 16#34#, --RESERVED
+						--STORED IN DPR					when 16#38#, --RESERVED
+						--STORED IN DPR					when 16#3C#, --RESERVED
+						
+						--STORED IN DPR x2				when c_addr_relative_time_l, --RELATIVE_TIME low
+						--STORED IN DPR	x2				when c_addr_relative_time_h, --RELATIVE_TIME high
+						--STORED IN DPR	x2				when c_addr_nettime_nsec, --NETTIME nsec
+						--STORED IN DPR	x2				when c_addr_nettime_sec, --NETTIME sec
+						
+						(time_after_sync_res & 
+						time_after_sync_cnt_out)		when c_addr_time_after_sync, --RES / TIME_AFTER_SYNC
+						(eventAckIn & asyncIrqCtrlIn) 	when 16#54#,
+						tPdoBuffer 						when 16#58#,
+						rPdo0Buffer 					when 16#5C#,
+						rPdo1Buffer 					when 16#60#,
+						rPdo2Buffer 					when 16#64#,
+						asyncBuffer1Tx 					when 16#68#,
+						asyncBuffer1Rx 					when 16#6C#,
+						asyncBuffer2Tx 					when 16#70#,
+						asyncBuffer2Rx 					when 16#74#,
+						--RESERVED 						when 16#78#,
+						--RESERVED 						when 16#7C#,
 						(virtualBufferSelectRpdo0 & 
-						virtualBufferSelectTpdo) 		when 16#60#,
+						virtualBufferSelectTpdo) 		when 16#80#,
 						(virtualBufferSelectRpdo2 & 
-						virtualBufferSelectRpdo1) 		when 16#64#,
-						(x"0000" & apIrqControlIn) 		when 16#68#,
-						--RESERVED						when 16#6C#,
-						--RESERVED 						when 16#70#,
-						(ledCnfgIn & ledCtrlIn) 		when 16#74#,
+						virtualBufferSelectRpdo1) 		when 16#84#,
+						(x"0000" & apIrqControlIn) 		when 16#88#,
+						--RESERVED						when 16#8C#,
+						--RESERVED 						when 16#90#,
+						(ledCnfgIn & ledCtrlIn) 		when 16#94#,
 						(others => '0') 				when others;
 	
 	--ignored values
@@ -257,8 +371,23 @@ begin
 						--STORED IN DPR
 					when 16#30# =>
 						--STORED IN DPR
-					
 					when 16#34# =>
+						--STORED IN DPR RESERVED
+					when 16#38# =>
+						--STORED IN DPR RESERVED
+					when 16#3C# =>
+						--STORED IN DPR RESERVED
+					when 16#40# =>
+						--STORED IN DPR x2
+					when 16#44# =>
+						--STORED IN DPR x2
+					when 16#48# =>
+						--STORED IN DPR x2
+					when 16#4C# =>
+						--STORED IN DPR x2
+					when c_addr_time_after_sync =>
+						--RO
+					when 16#54# =>
 						--AP ONLY
 						if be(0) = '1' and bIsPcp = false then
 							--asyncIrqCtrlOut(7 downto 0) <= din(7 downto 0);
@@ -275,40 +404,40 @@ begin
 --						if be(3) = '1' then
 --							eventAckOut(15 downto 8) <= din(31 downto 24);
 --						end if;
-					when 16#38# =>
-						--RO
-					when 16#3C# =>
-						--RO
-					when 16#40# =>
-						--RO
-					when 16#44# =>
-						--RO
-					when 16#48# =>
-						--RO
-					when 16#4C# =>
-						--RO
-					when 16#50# =>
-						--RO
-					when 16#54# =>
-						--RO
 					when 16#58# =>
-						--RESERVED
+						--RO
 					when 16#5C# =>
-						--RESERVED
+						--RO
 					when 16#60# =>
-						if be(0) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(1) = '1' then
-							tPdoTrigger <= '1';
-						end if;
-						if be(2) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
-						if be(3) = '1' then
-							rPdoTrigger(0) <= '1';
-						end if;
+						--RO
 					when 16#64# =>
+						--RO
+					when 16#68# =>
+						--RO
+					when 16#6C# =>
+						--RO
+					when 16#70# =>
+						--RO
+					when 16#74# =>
+						--RO
+					when 16#78# =>
+						--RESERVED
+					when 16#7C# =>
+						--RESERVED
+					when 16#80# =>
+						if be(0) = '1' then
+							tPdoTrigger <= '1';
+						end if;
+						if be(1) = '1' then
+							tPdoTrigger <= '1';
+						end if;
+						if be(2) = '1' then
+							rPdoTrigger(0) <= '1';
+						end if;
+						if be(3) = '1' then
+							rPdoTrigger(0) <= '1';
+						end if;
+					when 16#84# =>
 						if be(0) = '1' then
 							rPdoTrigger(1) <= '1';
 						end if;
@@ -321,18 +450,18 @@ begin
 						if be(3) = '1' then
 							rPdoTrigger(2) <= '1';
 						end if;
-					when 16#68# =>
+					when 16#88# =>
 						if be(0) = '1' then
 							apIrqControlOut(7 downto 0) <= din(7 downto 0);
 						end if;
 						if be(1) = '1' then
 							apIrqControlOut(15 downto 8) <= din(15 downto 8);
 						end if;
-					when 16#6C# =>
+					when 16#8C# =>
 						--RESERVED
-					when 16#70# =>
+					when 16#90# =>
 						--RESERVED
-					when 16#74# =>
+					when 16#94# =>
 						if be(0) = '1' then
 							ledCtrlOut(7 downto 0) <= din(7 downto 0);
 						end if;
