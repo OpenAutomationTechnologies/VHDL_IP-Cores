@@ -67,15 +67,15 @@ entity sync is
 end sync;
 
 architecture rtl of sync is
-signal	s0, s1 : std_logic;
+signal	s0, s1 : std_logic := '0';
 begin
 	
 	genSync : if doSync_g = true generate
-		process(clk, rst)
+		process(clk)--, rst)
 		begin
-			if rst = '1' then
-				s0 <= '0'; s1 <= '0';
-			elsif clk = '1' and clk'event then
+			--if rst = '1' then
+			--	s0 <= '0'; s1 <= '0';
+			if clk = '1' and clk'event then
 				s0 <= din; --reg0
 				s1 <= s0; --reg1
 			end if;
