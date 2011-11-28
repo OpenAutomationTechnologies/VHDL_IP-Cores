@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Thu Nov 24 15:08:57 2011
+-- Generated   : Mon Nov 28 08:38:22 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -82,17 +82,6 @@ entity plb_powerlink is
        C_RX_INT_PKT : boolean := false;
        C_USE_2ND_PHY : boolean := true;
        -- openMAC CMP PLB Slave
-       C_MAC_CMP_BASEADDR : std_logic_vector := X"00000000";
-       C_MAC_CMP_HIGHADDR : std_logic_vector := X"00000FFF";
-       C_MAC_CMP_NUM_MASTERS : INTEGER := 1;
-       C_MAC_CMP_PLB_AWIDTH : INTEGER := 32;
-       C_MAC_CMP_PLB_DWIDTH : INTEGER := 32;
-       C_MAC_CMP_PLB_MID_WIDTH : INTEGER := 1;
-       C_MAC_CMP_PLB_P2P : INTEGER := 0;
-       C_MAC_CMP_PLB_NUM_MASTERS : INTEGER := 1;
-       C_MAC_CMP_PLB_NATIVE_DWIDTH : INTEGER := 32;
-       C_MAC_CMP_PLB_SUPPORT_BURSTS : INTEGER := 0;
-       -- openMAC CMP PLB Slave
        C_MAC_PKT_BASEADDR : std_logic_vector := X"00000000";
        C_MAC_PKT_HIGHADDR : std_logic_vector := X"000FFFFF";
        C_MAC_PKT_NUM_MASTERS : INTEGER := 1;
@@ -112,6 +101,8 @@ entity plb_powerlink is
        -- openMAC REG PLB Slave
        C_MAC_REG_BASEADDR : std_logic_vector := X"00000000";
        C_MAC_REG_HIGHADDR : std_logic_vector := X"0000FFFF";
+       C_MAC_CMP_BASEADDR : std_logic_vector := X"00000000";
+       C_MAC_CMP_HIGHADDR : std_logic_vector := X"0000FFFF";
        C_MAC_REG_NUM_MASTERS : INTEGER := 1;
        C_MAC_REG_PLB_AWIDTH : INTEGER := 32;
        C_MAC_REG_PLB_DWIDTH : INTEGER := 32;
@@ -122,20 +113,6 @@ entity plb_powerlink is
        C_MAC_REG_PLB_SUPPORT_BURSTS : INTEGER := 0
   );
   port(
-       MAC_CMP_Clk : in std_logic;
-       MAC_CMP_PAValid : in std_logic;
-       MAC_CMP_RNW : in std_logic;
-       MAC_CMP_Rst : in std_logic;
-       MAC_CMP_SAValid : in std_logic;
-       MAC_CMP_abort : in std_logic;
-       MAC_CMP_busLock : in std_logic;
-       MAC_CMP_lockErr : in std_logic;
-       MAC_CMP_rdBurst : in std_logic;
-       MAC_CMP_rdPendReq : in std_logic;
-       MAC_CMP_rdPrim : in std_logic;
-       MAC_CMP_wrBurst : in std_logic;
-       MAC_CMP_wrPendReq : in std_logic;
-       MAC_CMP_wrPrim : in std_logic;
        MAC_DMA_Clk : in std_logic;
        MAC_DMA_MAddrAck : in std_logic;
        MAC_DMA_MBusy : in std_logic;
@@ -203,18 +180,6 @@ entity plb_powerlink is
        spi_clk : in std_logic;
        spi_mosi : in std_logic;
        spi_sel_n : in std_logic;
-       MAC_CMP_ABus : in std_logic_vector(0 to 31);
-       MAC_CMP_BE : in std_logic_vector(0 to (C_MAC_CMP_PLB_DWIDTH/8)-1);
-       MAC_CMP_MSize : in std_logic_vector(0 to 1);
-       MAC_CMP_TAttribute : in std_logic_vector(0 to 15);
-       MAC_CMP_UABus : in std_logic_vector(0 to 31);
-       MAC_CMP_masterID : in std_logic_vector(0 to C_MAC_CMP_PLB_MID_WIDTH-1);
-       MAC_CMP_rdPendPri : in std_logic_vector(0 to 1);
-       MAC_CMP_reqPri : in std_logic_vector(0 to 1);
-       MAC_CMP_size : in std_logic_vector(0 to 3);
-       MAC_CMP_type : in std_logic_vector(0 to 2);
-       MAC_CMP_wrDBus : in std_logic_vector(0 to C_MAC_CMP_PLB_DWIDTH-1);
-       MAC_CMP_wrPendPri : in std_logic_vector(0 to 1);
        MAC_DMA_MRdDBus : in std_logic_vector(0 to C_MAC_DMA_PLB_DWIDTH-1);
        MAC_DMA_MRdWdAddr : in std_logic_vector(0 to 3);
        MAC_DMA_MSSize : in std_logic_vector(0 to 1);
@@ -251,15 +216,6 @@ entity plb_powerlink is
        phyMii1_RxDat : in std_logic_vector(3 downto 0);
        pio_pconfig : in std_logic_vector(3 downto 0);
        pio_portInLatch : in std_logic_vector(3 downto 0);
-       MAC_CMP_addrAck : out std_logic;
-       MAC_CMP_rdBTerm : out std_logic;
-       MAC_CMP_rdComp : out std_logic;
-       MAC_CMP_rdDAck : out std_logic;
-       MAC_CMP_rearbitrate : out std_logic;
-       MAC_CMP_wait : out std_logic;
-       MAC_CMP_wrBTerm : out std_logic;
-       MAC_CMP_wrComp : out std_logic;
-       MAC_CMP_wrDAck : out std_logic;
        MAC_DMA_RNW : out std_logic;
        MAC_DMA_abort : out std_logic;
        MAC_DMA_busLock : out std_logic;
@@ -312,13 +268,6 @@ entity plb_powerlink is
        pio_operational : out std_logic;
        spi_miso : out std_logic;
        tcp_irq : out std_logic;
-       MAC_CMP_MBusy : out std_logic_vector(0 to C_MAC_CMP_NUM_MASTERS-1);
-       MAC_CMP_MIRQ : out std_logic_vector(0 to C_MAC_CMP_NUM_MASTERS-1);
-       MAC_CMP_MRdErr : out std_logic_vector(0 to C_MAC_CMP_NUM_MASTERS-1);
-       MAC_CMP_MWrErr : out std_logic_vector(0 to C_MAC_CMP_NUM_MASTERS-1);
-       MAC_CMP_SSize : out std_logic_vector(0 to 1);
-       MAC_CMP_rdDBus : out std_logic_vector(0 to C_MAC_CMP_PLB_DWIDTH-1);
-       MAC_CMP_rdWdAddr : out std_logic_vector(0 to 3);
        MAC_DMA_ABus : out std_logic_vector(0 to 31);
        MAC_DMA_BE : out std_logic_vector(0 to (C_MAC_DMA_PLB_DWIDTH/8)-1);
        MAC_DMA_MSize : out std_logic_vector(0 to 1);
@@ -804,9 +753,7 @@ constant GND_CONSTANT   : std_logic := '0';
 
 ---- Signal declarations used on the diagram ----
 
-signal Bus2MAC_CMP_Clk : std_logic;
 signal Bus2MAC_CMP_Reset : std_logic;
-signal Bus2MAC_CMP_RNW : std_logic;
 signal Bus2MAC_DMA_MstRd_eof_n : std_logic;
 signal Bus2MAC_DMA_MstRd_sof_n : std_logic;
 signal Bus2MAC_DMA_MstRd_src_dsc_n : std_logic;
@@ -829,6 +776,9 @@ signal clk50 : std_logic;
 signal clkAp : std_logic;
 signal clkPcp : std_logic;
 signal GND : std_logic;
+signal IP2Bus_Error_s : std_logic;
+signal IP2Bus_RrAck_s : std_logic;
+signal IP2Bus_WrAck_s : std_logic;
 signal mac_chipselect : std_logic;
 signal MAC_CMP2Bus_Error : std_logic;
 signal MAC_CMP2Bus_RdAck : std_logic;
@@ -872,10 +822,6 @@ signal tcp_irq_s : std_logic;
 signal tcp_read : std_logic;
 signal tcp_waitrequest : std_logic;
 signal tcp_write : std_logic;
-signal Bus2MAC_CMP_Addr : std_logic_vector (C_MAC_CMP_PLB_AWIDTH-1 downto 0);
-signal Bus2MAC_CMP_BE : std_logic_vector ((C_MAC_CMP_PLB_DWIDTH/8)-1 downto 0);
-signal Bus2MAC_CMP_CS : std_logic_vector (0 downto 0);
-signal Bus2MAC_CMP_Data : std_logic_vector (C_MAC_CMP_PLB_DWIDTH-1 downto 0);
 signal Bus2MAC_DMA_MstRd_d : std_logic_vector (0 to C_MAC_DMA_PLB_NATIVE_DWIDTH-1);
 signal Bus2MAC_DMA_MstRd_rem : std_logic_vector (0 to (C_MAC_DMA_PLB_NATIVE_DWIDTH/8)-1);
 signal Bus2MAC_PKT_Addr : std_logic_vector (C_MAC_PKT_PLB_AWIDTH-1 downto 0);
@@ -885,11 +831,12 @@ signal Bus2MAC_PKT_Data : std_logic_vector (C_MAC_PKT_PLB_DWIDTH-1 downto 0);
 signal Bus2MAC_REG_Addr : std_logic_vector (C_MAC_REG_PLB_AWIDTH-1 downto 0);
 signal Bus2MAC_REG_BE : std_logic_vector ((C_MAC_REG_PLB_DWIDTH/8)-1 downto 0);
 signal Bus2MAC_REG_BE_s : std_logic_vector ((C_MAC_REG_PLB_DWIDTH/8)-1 downto 0);
-signal Bus2MAC_REG_CS : std_logic_vector (0 downto 0);
+signal Bus2MAC_REG_CS : std_logic_vector (1 downto 0);
 signal Bus2MAC_REG_Data : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
+signal IP2Bus_Data_s : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
 signal mac_address : std_logic_vector (C_MAC_REG_PLB_AWIDTH-1 downto 0);
 signal mac_byteenable : std_logic_vector (1 downto 0);
-signal MAC_CMP2Bus_Data : std_logic_vector (C_MAC_CMP_PLB_DWIDTH-1 downto 0);
+signal MAC_CMP2Bus_Data : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
 signal MAC_DMA2Bus_MstWr_d : std_logic_vector (0 to C_MAC_DMA_PLB_NATIVE_DWIDTH-1);
 signal MAC_DMA2Bus_MstWr_rem : std_logic_vector (0 to (C_MAC_DMA_PLB_NATIVE_DWIDTH/8)-1);
 signal MAC_DMA2Bus_Mst_Addr : std_logic_vector (0 to C_MAC_DMA_PLB_AWIDTH-1);
@@ -920,15 +867,35 @@ signal Dangling_Input_Signal : STD_LOGIC;
 begin
 
 ---- User Signal Assignments ----
+-- connect mac reg with mac cmp or reg output signals
+with Bus2MAC_REG_CS select 
+	IP2Bus_Data_s(C_MAC_REG_PLB_DWIDTH-1 downto 0) <= MAC_REG2Bus_Data(C_MAC_REG_PLB_DWIDTH-1 downto 0) when "10",
+		MAC_CMP2Bus_Data(C_MAC_REG_PLB_DWIDTH-1 downto 0) 												when "01",
+		(others => '0') 																				when others;
+		
+with Bus2MAC_REG_CS select 
+	IP2Bus_WrAck_s <= MAC_REG2Bus_WrAck 				when "10",
+						MAC_CMP2Bus_WrAck 					when "01",
+						'0'										when others;	
+
+with Bus2MAC_REG_CS select 
+	IP2Bus_RrAck_s <= MAC_REG2Bus_RdAck 				when "10",
+						MAC_CMP2Bus_RdAck 					when "01",
+						'0'										when others;	
+
+with Bus2MAC_REG_CS select 
+	IP2Bus_Error_s <= MAC_REG2Bus_Error 				when "10",
+						MAC_CMP2Bus_Error 					when "01",
+						'0'										when others;
 Bus2MAC_REG_BE_s <= Bus2MAC_REG_BE;
 --mac_cmp assignments
 ---cmp_clk <= Bus2MAC_CMP_Clk;
-tcp_writedata <= Bus2MAC_CMP_Data;
-tcp_read <= Bus2MAC_CMP_RNW;
-tcp_write <= not Bus2MAC_CMP_RNW;
-tcp_chipselect <= Bus2MAC_CMP_CS(0);
-tcp_byteenable <= Bus2MAC_CMP_BE;
-tcp_address <= Bus2MAC_CMP_Addr(3 downto 2);
+tcp_writedata <= Bus2MAC_REG_Data;
+tcp_read <= Bus2MAC_REG_RNW;
+tcp_write <= not Bus2MAC_REG_RNW;
+tcp_chipselect <= Bus2MAC_REG_CS(0);
+tcp_byteenable <= Bus2MAC_REG_BE;
+tcp_address <= Bus2MAC_REG_Addr(3 downto 2);
 
 MAC_CMP2Bus_Data <= tcp_readdata;
 MAC_CMP2Bus_RdAck <= tcp_chipselect and tcp_read and not tcp_waitrequest;
@@ -969,76 +936,6 @@ test_port(31 downto 0) <= m_readdata;
 
 ----  Component instantiations  ----
 
-MAC_CMP_PLB_SINGLE_SLAVE : plbv46_slave_single
-  generic map (
-       C_ARD_ADDR_RANGE_ARRAY => (C_MAC_CMP_BASE,C_MAC_CMP_HIGH),
-       C_ARD_NUM_CE_ARRAY => (0 => 1),
-       C_BUS2CORE_CLK_RATIO => 1,
-       C_FAMILY => C_FAMILY,
-       C_INCLUDE_DPHASE_TIMER => 0,
-       C_SIPIF_DWIDTH => C_MAC_CMP_PLB_DWIDTH,
-       C_SPLB_AWIDTH => C_MAC_CMP_PLB_AWIDTH,
-       C_SPLB_DWIDTH => C_MAC_CMP_PLB_DWIDTH,
-       C_SPLB_MID_WIDTH => C_MAC_CMP_PLB_MID_WIDTH,
-       C_SPLB_NUM_MASTERS => C_MAC_CMP_PLB_NUM_MASTERS,
-       C_SPLB_P2P => C_MAC_CMP_PLB_P2P
-  )
-  port map(
-       Bus2IP_Addr => Bus2MAC_CMP_Addr( C_MAC_CMP_PLB_AWIDTH-1 downto 0 ),
-       Bus2IP_BE => Bus2MAC_CMP_BE( (C_MAC_CMP_PLB_DWIDTH/8)-1 downto 0 ),
-       Bus2IP_CS => Bus2MAC_CMP_CS( 0 downto 0 ),
-       Bus2IP_Clk => Bus2MAC_CMP_Clk,
-       Bus2IP_Data => Bus2MAC_CMP_Data( C_MAC_CMP_PLB_DWIDTH-1 downto 0 ),
-       Bus2IP_RNW => Bus2MAC_CMP_RNW,
-       Bus2IP_Reset => Bus2MAC_CMP_Reset,
-       IP2Bus_Data => MAC_CMP2Bus_Data( C_MAC_CMP_PLB_DWIDTH-1 downto 0 ),
-       IP2Bus_Error => MAC_CMP2Bus_Error,
-       IP2Bus_RdAck => MAC_CMP2Bus_RdAck,
-       IP2Bus_WrAck => MAC_CMP2Bus_WrAck,
-       PLB_ABus => MAC_CMP_ABus,
-       PLB_BE => MAC_CMP_BE( 0 to (C_MAC_CMP_PLB_DWIDTH/8)-1 ),
-       PLB_MSize => MAC_CMP_MSize,
-       PLB_PAValid => MAC_CMP_PAValid,
-       PLB_RNW => MAC_CMP_RNW,
-       PLB_SAValid => MAC_CMP_SAValid,
-       PLB_TAttribute => MAC_CMP_TAttribute,
-       PLB_UABus => MAC_CMP_UABus,
-       PLB_abort => MAC_CMP_abort,
-       PLB_busLock => MAC_CMP_busLock,
-       PLB_lockErr => MAC_CMP_lockErr,
-       PLB_masterID => MAC_CMP_masterID( 0 to C_MAC_CMP_PLB_MID_WIDTH-1 ),
-       PLB_rdBurst => MAC_CMP_rdBurst,
-       PLB_rdPendPri => MAC_CMP_rdPendPri,
-       PLB_rdPendReq => MAC_CMP_rdPendReq,
-       PLB_rdPrim => MAC_CMP_rdPrim,
-       PLB_reqPri => MAC_CMP_reqPri,
-       PLB_size => MAC_CMP_size,
-       PLB_type => MAC_CMP_type,
-       PLB_wrBurst => MAC_CMP_wrBurst,
-       PLB_wrDBus => MAC_CMP_wrDBus( 0 to C_MAC_CMP_PLB_DWIDTH-1 ),
-       PLB_wrPendPri => MAC_CMP_wrPendPri,
-       PLB_wrPendReq => MAC_CMP_wrPendReq,
-       PLB_wrPrim => MAC_CMP_wrPrim,
-       SPLB_Clk => MAC_CMP_Clk,
-       SPLB_Rst => MAC_CMP_Rst,
-       Sl_MBusy => MAC_CMP_MBusy( 0 to C_MAC_CMP_NUM_MASTERS-1 ),
-       Sl_MIRQ => MAC_CMP_MIRQ( 0 to C_MAC_CMP_NUM_MASTERS-1 ),
-       Sl_MRdErr => MAC_CMP_MRdErr( 0 to C_MAC_CMP_NUM_MASTERS-1 ),
-       Sl_MWrErr => MAC_CMP_MWrErr( 0 to C_MAC_CMP_NUM_MASTERS-1 ),
-       Sl_SSize => MAC_CMP_SSize,
-       Sl_addrAck => MAC_CMP_addrAck,
-       Sl_rdBTerm => MAC_CMP_rdBTerm,
-       Sl_rdComp => MAC_CMP_rdComp,
-       Sl_rdDAck => MAC_CMP_rdDAck,
-       Sl_rdDBus => MAC_CMP_rdDBus( 0 to C_MAC_CMP_PLB_DWIDTH-1 ),
-       Sl_rdWdAddr => MAC_CMP_rdWdAddr,
-       Sl_rearbitrate => MAC_CMP_rearbitrate,
-       Sl_wait => MAC_CMP_wait,
-       Sl_wrBTerm => MAC_CMP_wrBTerm,
-       Sl_wrComp => MAC_CMP_wrComp,
-       Sl_wrDAck => MAC_CMP_wrDAck
-  );
-
 MAC_REG_16to32 : openMAC_16to32conv
   generic map (
        bus_address_width => C_MAC_REG_PLB_AWIDTH
@@ -1050,7 +947,7 @@ MAC_REG_16to32 : openMAC_16to32conv
        bus_byteenable => Bus2MAC_REG_BE_s( (C_MAC_REG_PLB_DWIDTH/8)-1 downto 0 ),
        bus_read => Bus2MAC_REG_RNW,
        bus_readdata => MAC_REG2Bus_Data( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
-       bus_select => Bus2MAC_REG_CS(0),
+       bus_select => Bus2MAC_REG_CS(1),
        bus_write => Bus2MAC_REG_RNW_n,
        bus_writedata => Bus2MAC_REG_Data( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
        clk => Bus2MAC_REG_Clk,
@@ -1067,8 +964,8 @@ MAC_REG_16to32 : openMAC_16to32conv
 
 MAC_REG_PLB_SINGLE_SLAVE : plbv46_slave_single
   generic map (
-       C_ARD_ADDR_RANGE_ARRAY => (C_MAC_REG_BASE,C_MAC_REG_HIGH),
-       C_ARD_NUM_CE_ARRAY => (0 => 1),
+       C_ARD_ADDR_RANGE_ARRAY => (C_MAC_REG_BASE,C_MAC_REG_HIGH,C_MAC_CMP_BASE,C_MAC_CMP_HIGH),
+       C_ARD_NUM_CE_ARRAY => (1, 1),
        C_BUS2CORE_CLK_RATIO => 1,
        C_FAMILY => C_FAMILY,
        C_INCLUDE_DPHASE_TIMER => 0,
@@ -1082,15 +979,15 @@ MAC_REG_PLB_SINGLE_SLAVE : plbv46_slave_single
   port map(
        Bus2IP_Addr => Bus2MAC_REG_Addr( C_MAC_REG_PLB_AWIDTH-1 downto 0 ),
        Bus2IP_BE => Bus2MAC_REG_BE( (C_MAC_REG_PLB_DWIDTH/8)-1 downto 0 ),
-       Bus2IP_CS => Bus2MAC_REG_CS( 0 downto 0 ),
+       Bus2IP_CS => Bus2MAC_REG_CS( 1 downto 0 ),
        Bus2IP_Clk => Bus2MAC_REG_Clk,
        Bus2IP_Data => Bus2MAC_REG_Data( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
        Bus2IP_RNW => Bus2MAC_REG_RNW,
        Bus2IP_Reset => Bus2MAC_REG_Reset,
-       IP2Bus_Data => MAC_REG2Bus_Data( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
-       IP2Bus_Error => MAC_REG2Bus_Error,
-       IP2Bus_RdAck => MAC_REG2Bus_RdAck,
-       IP2Bus_WrAck => MAC_REG2Bus_WrAck,
+       IP2Bus_Data => IP2Bus_Data_s( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
+       IP2Bus_Error => IP2Bus_Error_s,
+       IP2Bus_RdAck => IP2Bus_RrAck_s,
+       IP2Bus_WrAck => IP2Bus_WrAck_s,
        PLB_ABus => MAC_REG_ABus,
        PLB_BE => MAC_REG_BE( 0 to (C_MAC_REG_PLB_DWIDTH / 8) - 1 ),
        PLB_MSize => MAC_REG_MSize,
