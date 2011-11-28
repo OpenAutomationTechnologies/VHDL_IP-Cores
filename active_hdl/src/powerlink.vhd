@@ -83,7 +83,7 @@ entity powerlink is
 		endian_g					:		string								:= "little";
 		genOnePdiClkDomain_g		:		boolean								:= false;
 		genPdi_g					:		boolean 							:= true;
-		genAvalonAp_g				:		boolean 							:= true;
+		genInternalAp_g				:		boolean 							:= true;
 		genSimpleIO_g				:		boolean 							:= false;
 		genSpiAp_g					:		boolean 							:= false;
 	-- OPENMAC GENERICS
@@ -356,7 +356,7 @@ begin
 	
 ------------------------------------------------------------------------------------------------------------------------
 --PCP + AP
-	genPdi : if genPdi_g and genAvalonAp_g and not genSpiAp_g generate
+	genPdi : if genPdi_g and genInternalAp_g and not genSpiAp_g generate
 		
 		--sync and async interrupt are driven by only one line
 		-- this gives some effort for Nios II AP ;)
@@ -419,7 +419,7 @@ begin
 	end generate genPdi;
 
 --AP is external connected via parallel interface
-	genPdiPar : if genPdi_g and not genAvalonAp_g and not genSpiAp_g generate
+	genPdiPar : if genPdi_g and not genInternalAp_g and not genSpiAp_g generate
 		
 		--only 8 or 16bit data width is allowed
 		ASSERT ( papDataWidth_g = 8 or papDataWidth_g = 16 )
