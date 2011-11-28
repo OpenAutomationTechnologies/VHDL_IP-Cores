@@ -53,17 +53,17 @@ entity synchronizer_g is
 end synchronizer_g;
 
 architecture two_ff_arch of synchronizer_g is
-   signal meta_reg, sync_reg, sync_reg1 : std_logic_vector(N-1 downto 0);
-   signal meta_next, sync_next, sync_next1 : std_logic_vector(N-1 downto 0);
+   signal meta_reg, sync_reg, sync_reg1 : std_logic_vector(N-1 downto 0) := (others => '0');
+   signal meta_next, sync_next, sync_next1 : std_logic_vector(N-1 downto 0) := (others => '0');
 begin
    -- two registers
-   process(clk,reset)
+   process(clk)--,reset)
    begin
-      if (reset='1') then
-         meta_reg <= (others=>'0');
-         sync_reg <= (others=>'0');
-		 sync_reg1 <= (others => '0');
-      elsif (clk'event and clk='1') then
+--      if (reset='1') then
+--         meta_reg <= (others=>'0');
+--         sync_reg <= (others=>'0');
+--		 sync_reg1 <= (others => '0');
+      if (clk'event and clk='1') then
          meta_reg <= meta_next;
          sync_reg <= sync_next;
 		 sync_reg1 <= sync_next1;
