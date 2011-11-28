@@ -333,10 +333,10 @@ set_parameter_property genPdi_g HDL_PARAMETER true
 set_parameter_property genPdi_g VISIBLE false
 set_parameter_property genPdi_g DERIVED TRUE
 
-add_parameter genAvalonAp_g BOOLEAN true
-set_parameter_property genAvalonAp_g HDL_PARAMETER true
-set_parameter_property genAvalonAp_g VISIBLE false
-set_parameter_property genAvalonAp_g DERIVED TRUE
+add_parameter genInternalAp_g BOOLEAN true
+set_parameter_property genInternalAp_g HDL_PARAMETER true
+set_parameter_property genInternalAp_g VISIBLE false
+set_parameter_property genInternalAp_g DERIVED TRUE
 
 add_parameter genSimpleIO_g BOOLEAN false
 set_parameter_property genSimpleIO_g HDL_PARAMETER true
@@ -937,7 +937,7 @@ proc my_validation_callback {} {
 	
 #now, let's set generics to HDL
 	set_parameter_value genPdi_g			$genPdi
-	set_parameter_value genAvalonAp_g		$genAvalonAp
+	set_parameter_value genInternalAp_g		$genAvalonAp
 	set_parameter_value genSimpleIO_g		$genSimpleIO
 	set_parameter_value genSpiAp_g			$genSpiAp
 	

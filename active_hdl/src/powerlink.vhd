@@ -81,7 +81,7 @@ entity powerlink is
 		endian_g					:		string								:= "little";
 		genOnePdiClkDomain_g		:		boolean								:= false;
 		genPdi_g					:		boolean 							:= true;
-		genAvalonAp_g				:		boolean 							:= true;
+		genInternalAp_g				:		boolean 							:= true;
 		genSimpleIO_g				:		boolean 							:= false;
 		genSpiAp_g					:		boolean 							:= false;
 	-- OPENMAC GENERICS
