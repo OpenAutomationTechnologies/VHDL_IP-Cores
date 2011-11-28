@@ -35,9 +35,10 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------      
--- 2009-08-07  V0.01        Converted to official version.
--- 2009-09-07  V0.02		Changed tristate port to In/Out and enable (Xilinx XPS doesn't like IO Ports...)
--- 2009-09-18  V0.03		Deleted NodeNr - isn't used by anyone...
+-- 2009-08-07  	V0.01   			Converted to official version.
+-- 2009-09-07  	V0.02	zelenkaj	Changed tristate port to In/Out and enable (Xilinx XPS doesn't like IO Ports...)
+-- 2009-09-18  	V0.03	zelenkaj	Deleted NodeNr - isn't used by anyone...
+-- 2011-11-28	V0.04	zelenkaj	Changed reset level to high-active
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -47,7 +48,7 @@ USE ieee.std_logic_arith.ALL;
 
 ENTITY OpenMAC_MII IS
 	PORT(	Clk			: IN	std_logic;						
-			nRst		: IN	std_logic;						
+			Rst			: IN	std_logic;						
 			Addr		: IN	std_logic_vector( 2 DOWNTO 0);	
 			Sel			: IN	std_logic;						
 			nBe			: IN	std_logic_vector( 1 DOWNTO 0);	
@@ -84,10 +85,10 @@ BEGIN
 	
 	nresetout	<= nReset;	
 
-p_Mii: PROCESS (Clk, nRst)
+p_Mii: PROCESS (Clk, Rst)
 BEGIN
 
-	IF nRst = '0'	THEN
+	IF Rst = '1'	THEN
 		iMiiClk <= '0'; Run <= '0'; SrBusy <= '0'; M_Oe <= '1'; M_Dout <= '1'; nReset <= '0';
 		BitCnt <= (OTHERS => '0');	 BytCnt <= (OTHERS => '0');
 		ShiftReg <= x"0000ABCD"; ClkDiv <= (OTHERS => '0');

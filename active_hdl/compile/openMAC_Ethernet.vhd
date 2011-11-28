@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_Ethernet.vhd
--- Generated   : Thu Nov 24 15:08:53 2011
+-- Generated   : Mon Nov 28 07:54:28 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -214,13 +214,13 @@ component openFILTER
   );
   port (
        Clk : in std_logic;
+       Rst : in std_logic;
        RxDatIn : in std_logic_vector(1 downto 0);
        RxDvIn : in std_logic;
        RxErr : in std_logic := '0';
        TxDatIn : in std_logic_vector(1 downto 0);
        TxEnIn : in std_logic;
        nCheckShortFrames : in std_logic := '0';
-       nRst : in std_logic;
        RxDatOut : out std_logic_vector(1 downto 0);
        RxDvOut : out std_logic;
        TxDatOut : out std_logic_vector(1 downto 0);
@@ -233,12 +233,12 @@ component OpenHUB
   );
   port (
        Clk : in std_logic;
+       Rst : in std_logic;
        RxDat0 : in std_logic_vector(Ports downto 1);
        RxDat1 : in std_logic_vector(Ports downto 1);
        RxDv : in std_logic_vector(Ports downto 1);
        TransmitMask : in std_logic_vector(Ports downto 1) := (others => '1');
        internPort : in integer range 1 to ports := 1;
-       nRst : in std_logic;
        ReceivePort : out integer range 0 to ports;
        TxDat0 : out std_logic_vector(Ports downto 1);
        TxDat1 : out std_logic_vector(Ports downto 1);
@@ -258,12 +258,12 @@ component OpenMAC
        Dma_Ack : in std_logic;
        Dma_Din : in std_logic_vector(15 downto 0);
        Hub_Rx : in std_logic_vector(1 downto 0) := "00";
+       Rst : in std_logic;
        S_Adr : in std_logic_vector(10 downto 1);
        S_Din : in std_logic_vector(15 downto 0);
        S_nBe : in std_logic_vector(1 downto 0);
        Sel_Cont : in std_logic := '0';
        Sel_Ram : in std_logic := '0';
-       nRes : in std_logic;
        rCrs_Dv : in std_logic;
        rRx_Dat : in std_logic_vector(1 downto 0);
        s_nWr : in std_logic := '0';
@@ -367,9 +367,9 @@ component OpenMAC_MII
        Clk : in std_logic;
        Data_In : in std_logic_vector(15 downto 0);
        Mii_Di : in std_logic;
+       Rst : in std_logic;
        Sel : in std_logic;
        nBe : in std_logic_vector(1 downto 0);
-       nRst : in std_logic;
        nWr : in std_logic;
        Data_Out : out std_logic_vector(15 downto 0);
        Mii_Clk : out std_logic;
@@ -620,13 +620,13 @@ THE_OPENMAC : OpenMAC
        Dma_Rw => dma_rw,
        Hub_Rx => hub_rx,
        Mac_Zeit => mac_time,
+       Rst => rst,
        S_Adr => mac_addr,
        S_Din => mac_din,
        S_Dout => mac_dout,
        S_nBe => mac_be_n,
        Sel_Cont => mac_selcont,
        Sel_Ram => mac_selram,
-       nRes => rst_n,
        nRx_Int => mac_rx_irq_s_n,
        nTx_Int => mac_tx_irq_s_n,
        rCrs_Dv => mac_rx_dv,
@@ -658,10 +658,10 @@ THE_PHY_MGMT : OpenMAC_MII
        Mii_Di => smi_di_s,
        Mii_Do => smi_do_s,
        Mii_Doe => smi_doe_s_n,
+       Rst => rst,
        Sel => smi_sel,
        nBe => smi_be_n,
        nResetOut => phy_rst_n,
-       nRst => rst_n,
        nWr => smi_write_n
   );
 
@@ -914,6 +914,7 @@ begin
     )  
     port map(
          Clk => clk,
+         Rst => rst,
          RxDatIn => phy0_rx_dat_s,
          RxDatOut => flt0_rx_dat,
          RxDvIn => phy0_rx_dv_s,
@@ -923,8 +924,7 @@ begin
          TxDatOut => phy0_tx_dat_s,
          TxEnIn => flt0_tx_en,
          TxEnOut => phy0_tx_en_s,
-         nCheckShortFrames => VCC,
-         nRst => rst_n
+         nCheckShortFrames => VCC
     );
   
   THE_OPENFILTER1 : openFILTER
@@ -933,6 +933,7 @@ begin
     )  
     port map(
          Clk => clk,
+         Rst => rst,
          RxDatIn => phy1_rx_dat_s,
          RxDatOut => flt1_rx_dat,
          RxDvIn => phy1_rx_dv_s,
@@ -942,8 +943,7 @@ begin
          TxDatOut => phy1_tx_dat_s,
          TxEnIn => flt1_tx_en,
          TxEnOut => phy1_tx_en_s,
-         nCheckShortFrames => VCC,
-         nRst => rst_n
+         nCheckShortFrames => VCC
     );
   
   THE_OPENHUB : OpenHUB
@@ -953,6 +953,7 @@ begin
     port map(
          Clk => clk,
          ReceivePort => hub_rx_port,
+         Rst => rst,
          RxDat0 => hub_rx_dat0( 3 downto 1 ),
          RxDat1 => hub_rx_dat1( 3 downto 1 ),
          RxDv => hub_rx_dv( 3 downto 1 ),
@@ -960,8 +961,7 @@ begin
          TxDat0 => hub_tx_dat0( 3 downto 1 ),
          TxDat1 => hub_tx_dat1( 3 downto 1 ),
          TxEn => hub_tx_en( 3 downto 1 ),
-         internPort => hub_intern_port,
-         nRst => rst_n
+         internPort => hub_intern_port
     );
 
   --mac tx to hub rx
@@ -1094,6 +1094,7 @@ begin
     )  
     port map(
          Clk => clk,
+         Rst => rst,
          RxDatIn => phy0_rx_dat_s,
          RxDatOut => mac_rx_dat,
          RxDvIn => phy0_rx_dv_s,
@@ -1103,8 +1104,7 @@ begin
          TxDatOut => phy0_tx_dat_s,
          TxEnIn => mac_tx_en,
          TxEnOut => phy0_tx_en_s,
-         nCheckShortFrames => VCC,
-         nRst => rst_n
+         nCheckShortFrames => VCC
     );
 end generate genOneFilter;
 

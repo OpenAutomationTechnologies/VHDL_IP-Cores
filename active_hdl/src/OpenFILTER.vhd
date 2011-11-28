@@ -44,10 +44,11 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2009-08-07  V0.01        Converted from V1.1 to first official version.
--- 2011-07-23  V0.10		Consideration of RX Error signal and jitter (converted from V2.3)
--- 2011-08-03  V0.11		translated comments
--- 2011-11-18  V0.12		bypass filter by generic
+-- 2009-08-07  	V0.01   			Converted from V1.1 to first official version.
+-- 2011-07-23  	V0.10	zelenkaj	Consideration of RX Error signal and jitter (converted from V2.3)
+-- 2011-08-03  	V0.11	zelenkaj	translated comments
+-- 2011-11-18  	V0.12	zelenkaj	bypass filter by generic
+-- 2011-11-28	V0.13	zelenkaj	Changed reset level to high-active
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;                                                                                 
@@ -60,7 +61,7 @@ ENTITY openFILTER is
 	Generic (
 				bypassFilter		:		boolean := false
 			);
-    Port    (   nRst                : in    std_logic;
+    Port    (   Rst					: in    std_logic;
                 Clk                 : in    std_logic;
                 nCheckShortFrames   : in    std_logic := '0';   -- Rx Port von Hub;
                 RxDvIn              : in    std_logic;
@@ -145,15 +146,15 @@ begin
                         '0';
     
     -- Port is allowed to be active if RX_DV is not active
-    PortIsEnable    <= '1'  when nRst = '0' else
+    PortIsEnable    <= '1'  when Rst = '1' else
                        '0'  when (RxAnyError = '1') or (DisablePort = '1') else
                        '1';                  
 
                
-do: PROCESS (nRst, Clk)
+do: PROCESS (Rst, Clk)
 
 BEGIN
-    if nRst = '0' then                                                                     
+    if Rst = '1' then                                                                     
         Cnt_RxHigh_ToShort  <= (others => '0');
         RxHigh_ToShort      <= '0';                    RxHigh_ToShort_temp   <= '0';
         RxLow_ToShort       <= '0';                    RxLow_ToShort_temp    <= '0';

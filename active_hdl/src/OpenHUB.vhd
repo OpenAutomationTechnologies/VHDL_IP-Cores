@@ -38,7 +38,8 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
--- 2009-08-07  V0.01        Converted from V3.1 to first official version.
+-- 2009-08-07  	V0.01				Converted from V3.1 to first official version.
+-- 2011-11-28	V0.02	zelenkaj	Changed reset level to high-active
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -48,7 +49,7 @@ USE ieee.std_logic_arith.ALL;
 
 ENTITY OpenHUB IS
 	GENERIC	( Ports				:		integer := 3 );
-	PORT	( nRst				: IN	std_logic;
+	PORT	( Rst				: IN	std_logic;
 			  Clk				: IN	std_logic;
 			  RxDv				: IN	std_logic_vector(Ports DOWNTO 1);
 			  RxDat0, RxDat1	: IN	std_logic_vector(Ports DOWNTO 1);
@@ -81,7 +82,7 @@ BEGIN
 	TxDat0(Ports DOWNTO 1)  <= TxDatI0(Ports DOWNTO 1);
 	TxDat1(Ports DOWNTO 1)  <= TxDatI1(Ports DOWNTO 1);
 		
-do: PROCESS (nRst, Clk)
+do: PROCESS (Rst, Clk)
 	VARIABLE Active				: boolean;
 	VARIABLE Master				: integer RANGE 0 TO Ports;
 	VARIABLE Master_at_Coll		: integer RANGE 0 TO Ports;
@@ -89,7 +90,7 @@ do: PROCESS (nRst, Clk)
 	VARIABLE RxDvM				: std_logic_vector(Ports DOWNTO 0);
 
 BEGIN
-	IF nRst = '0' THEN
+	IF Rst = '1' THEN
 		RxDvL <= (OTHERS => '0'); RxDatL0 <= (OTHERS => '0'); RxDatL1 <= (OTHERS => '0');
 		TxEnI <= (OTHERS => '0'); TxDatI0 <= (OTHERS => '0'); TxDatI1 <= (OTHERS => '0');
 		Active := false;
