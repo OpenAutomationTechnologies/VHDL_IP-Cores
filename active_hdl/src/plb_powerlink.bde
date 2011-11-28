@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 97862
+ FREEID 99379
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -13,7 +13,7 @@ HEADER
   AUTHOR="Unknown"
   COMPANY="Unknown"
   CREATIONDATE="9/13/2011"
-  PAGECOUNT="14"
+  PAGECOUNT="16"
   TITLE="plb_powerlink"
  }
  SYMBOL "plbv46_master_burst_v1_01_a" "plbv46_master_burst" "plbv46_master_burst"
@@ -3101,22 +3101,23 @@ HEADER
     #GENERIC25="genABuf1_g:BOOLEAN:=true"
     #GENERIC26="genABuf2_g:BOOLEAN:=true"
     #GENERIC27="genLedGadget_g:BOOLEAN:=false"
-    #GENERIC28="iTpdoBufSize_g:INTEGER:=100"
-    #GENERIC29="iRpdo0BufSize_g:INTEGER:=100"
-    #GENERIC3="genAvalonAp_g:BOOLEAN:=true"
-    #GENERIC30="iRpdo1BufSize_g:INTEGER:=100"
-    #GENERIC31="iRpdo2BufSize_g:INTEGER:=100"
-    #GENERIC32="iAsyBuf1Size_g:INTEGER:=100"
-    #GENERIC33="iAsyBuf2Size_g:INTEGER:=100"
-    #GENERIC34="iPdiRev_g:INTEGER:=21930"
-    #GENERIC35="papDataWidth_g:INTEGER:=8"
-    #GENERIC36="papLowAct_g:BOOLEAN:=false"
-    #GENERIC37="papBigEnd_g:BOOLEAN:=false"
-    #GENERIC38="spiCPOL_g:BOOLEAN:=false"
-    #GENERIC39="spiCPHA_g:BOOLEAN:=false"
+    #GENERIC28="genTimeSync_g:BOOLEAN:=false"
+    #GENERIC29="iTpdoBufSize_g:INTEGER:=100"
+    #GENERIC3="genInternalAp_g:BOOLEAN:=true"
+    #GENERIC30="iRpdo0BufSize_g:INTEGER:=100"
+    #GENERIC31="iRpdo1BufSize_g:INTEGER:=100"
+    #GENERIC32="iRpdo2BufSize_g:INTEGER:=100"
+    #GENERIC33="iAsyBuf1Size_g:INTEGER:=100"
+    #GENERIC34="iAsyBuf2Size_g:INTEGER:=100"
+    #GENERIC35="iPdiRev_g:INTEGER:=21930"
+    #GENERIC36="papDataWidth_g:INTEGER:=8"
+    #GENERIC37="papLowAct_g:BOOLEAN:=false"
+    #GENERIC38="papBigEnd_g:BOOLEAN:=false"
+    #GENERIC39="spiCPOL_g:BOOLEAN:=false"
     #GENERIC4="genSimpleIO_g:BOOLEAN:=false"
-    #GENERIC40="spiBigEnd_g:BOOLEAN:=false"
-    #GENERIC41="pioValLen_g:INTEGER:=50"
+    #GENERIC40="spiCPHA_g:BOOLEAN:=false"
+    #GENERIC41="spiBigEnd_g:BOOLEAN:=false"
+    #GENERIC42="pioValLen_g:INTEGER:=50"
     #GENERIC5="genSpiAp_g:BOOLEAN:=false"
     #GENERIC6="Simulate:BOOLEAN:=false"
     #GENERIC7="iBufSize_g:INTEGER:=1024"
@@ -3126,7 +3127,7 @@ HEADER
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1320821390"
+    #MODIFIED="1322482514"
    }
   }
   PAGE "" 
@@ -3134,7 +3135,7 @@ HEADER
    PAGEHEADER
    {
     RECT (0,0,2000,1620)
-    FREEID 277
+    FREEID 280
    }
    
    BODY
@@ -4340,6 +4341,24 @@ HEADER
      MARGINS (1,1)
      PARENT 274
      ORIENTATION 2
+    }
+    TEXT  277, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (1588,1456,1612,1597)
+     ALIGN 9
+     MARGINS (1,1)
+     PARENT 276
+     ORIENTATION 8
+    }
+    TEXT  279, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (1628,1467,1652,1597)
+     ALIGN 9
+     MARGINS (1,1)
+     PARENT 278
+     ORIENTATION 8
     }
     PIN  2, 0, 0
     {
@@ -6734,6 +6753,38 @@ HEADER
       POINTS ( (0,0), (20,0) )
      }
     }
+    PIN  276, 0, 0
+    {
+     COORD (1600,1620)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="pcp_waitrequest"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (0,-20) )
+     }
+    }
+    PIN  278, 0, 0
+    {
+     COORD (1640,1620)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="ap_waitrequest"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (0,-20) )
+     }
+    }
    }
   }
  }
@@ -8473,6 +8524,9 @@ PAGE "header"
 "constant C_MAC_PKT_HIGH : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_MAC_PKT_HIGHADDR;\n"+
 "constant C_MAC_PKT_SIZE : integer := conv_integer(C_MAC_PKT_HIGHADDR - C_MAC_PKT_BASEADDR + 1);\n"+
 "constant C_MAC_PKT_SIZE_LOG2 : integer := integer(ceil(log2(real(C_MAC_PKT_SIZE))));\n"+
+"-- SimpleIO Slave\n"+
+"constant C_SMP_PCP_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_SMP_PCP_BASEADDR;\n"+
+"constant C_SMP_PCP_HIGH : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_SMP_PCP_HIGHADDR;\n"+
 "-- PDI PCP Slave\n"+
 "constant C_PDI_PCP_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_PDI_PCP_BASEADDR;\n"+
 "constant C_PDI_PCP_HIGH : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_PDI_PCP_HIGHADDR;\n"+
@@ -8486,7 +8540,7 @@ PAGE "header"
 "constant C_PKT_BUF_EN : boolean := C_MAC_PKT_EN;\n"+
 "constant C_M_BURSTCOUNT_WIDTH : integer := integer(ceil(log2(real(C_MAC_DMA_BURST_SIZE/4)))) + 1; --in dwords\n"+
 "constant C_M_FIFO_SIZE : integer := C_MAC_DMA_FIFO_SIZE/4; --in dwords"
-   RECT (280,1160,2000,2100)
+   RECT (280,1160,2000,2140)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -10722,7 +10776,7 @@ PAGE "MAC_REG_PLB"
 "C_MAC_REG_PLB_NATIVE_DWIDTH : INTEGER := 32;\n"+
 "C_MAC_REG_PLB_SUPPORT_BURSTS : INTEGER := 0;\n"+
 ""
-   RECT (240,280,1240,740)
+   RECT (200,220,1200,700)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -11150,17 +11204,17 @@ PAGE "MAC_REG_PLB"
    VARIABLES
    {
     #COMPONENT="plbv46_slave_single"
-    #GENERIC0="C_FAMILY : STRING := C_FAMILY"
-    #GENERIC1="C_ARD_NUM_CE_ARRAY : INTEGER_ARRAY_TYPE := (1, 1)"
-    #GENERIC10="C_INCLUDE_DPHASE_TIMER : INTEGER range 0 to 1 := 0"
-    #GENERIC2="C_BUS2CORE_CLK_RATIO : INTEGER range 1 to 2 := 1"
-    #GENERIC3="C_SPLB_P2P : INTEGER range 0 to 1 := C_MAC_REG_PLB_P2P"
-    #GENERIC4="C_ARD_ADDR_RANGE_ARRAY : SLV64_ARRAY_TYPE := (C_MAC_REG_BASE,C_MAC_REG_HIGH,C_MAC_CMP_BASE,C_MAC_CMP_HIGH)"
-    #GENERIC5="C_SIPIF_DWIDTH : INTEGER range 32 to 32 := C_MAC_REG_PLB_DWIDTH"
-    #GENERIC6="C_SPLB_DWIDTH : INTEGER range 32 to 128 := C_MAC_REG_PLB_DWIDTH"
-    #GENERIC7="C_SPLB_AWIDTH : INTEGER range 32 to 32 := C_MAC_REG_PLB_AWIDTH"
-    #GENERIC8="C_SPLB_NUM_MASTERS : INTEGER range 1 to 16 := C_MAC_REG_PLB_NUM_MASTERS"
-    #GENERIC9="C_SPLB_MID_WIDTH : INTEGER range 1 to 4 := C_MAC_REG_PLB_MID_WIDTH"
+    #GENERIC0="C_SIPIF_DWIDTH : INTEGER range 32 to 32 := C_MAC_REG_PLB_DWIDTH"
+    #GENERIC1="C_SPLB_DWIDTH : INTEGER range 32 to 128 := C_MAC_REG_PLB_DWIDTH"
+    #GENERIC10="C_FAMILY : STRING := C_FAMILY"
+    #GENERIC2="C_SPLB_AWIDTH : INTEGER range 32 to 32 := C_MAC_REG_PLB_AWIDTH"
+    #GENERIC3="C_SPLB_NUM_MASTERS : INTEGER range 1 to 16 := C_MAC_REG_PLB_NUM_MASTERS"
+    #GENERIC4="C_SPLB_P2P : INTEGER range 0 to 1 := C_MAC_REG_PLB_P2P"
+    #GENERIC5="C_ARD_NUM_CE_ARRAY : INTEGER_ARRAY_TYPE := (1, 1)"
+    #GENERIC6="C_ARD_ADDR_RANGE_ARRAY : SLV64_ARRAY_TYPE := (C_MAC_REG_BASE,C_MAC_REG_HIGH,C_MAC_CMP_BASE,C_MAC_CMP_HIGH)"
+    #GENERIC7="C_BUS2CORE_CLK_RATIO : INTEGER range 1 to 2 := 1"
+    #GENERIC8="C_SPLB_MID_WIDTH : INTEGER range 1 to 4 := C_MAC_REG_PLB_MID_WIDTH"
+    #GENERIC9="C_INCLUDE_DPHASE_TIMER : INTEGER range 0 to 1 := 0"
     #LIBRARY="plbv46_slave_single_v1_01_a"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
@@ -12556,7 +12610,7 @@ PAGE "MAC_REG_PLB"
   }
   BUS  94875, 0, 0
   {
-   NET 95106
+   NET 98562
    VTX 94816, 94817
    VARIABLES
    {
@@ -12608,7 +12662,7 @@ PAGE "MAC_REG_PLB"
     #NAMED="1"
    }
   }
-  NET BUS  95106, 0, 0
+  NET BUS  98562, 0, 0
   {
    VARIABLES
    {
@@ -12638,48 +12692,49 @@ PAGE "POWERLINK IP-CORE"
    VARIABLES
    {
     #COMPONENT="powerlink"
-    #GENERIC0="useIntPacketBuf_g : BOOLEAN := C_MAC_PKT_EN"
-    #GENERIC1="genOnePdiClkDomain_g : BOOLEAN := false"
-    #GENERIC10="m_burstcount_width_g : INTEGER := C_M_BURSTCOUNT_WIDTH"
-    #GENERIC11="useHwAcc_g : BOOLEAN := false"
-    #GENERIC12="use2ndPhy_g : BOOLEAN := C_USE_2ND_PHY"
-    #GENERIC13="use2ndCmpTimer_g : BOOLEAN := false"
-    #GENERIC14="useRxIntPacketBuf_g : BOOLEAN := C_MAC_PKT_RX_EN"
-    #GENERIC15="papBigEnd_g : BOOLEAN := false"
-    #GENERIC16="papLowAct_g : BOOLEAN := false"
-    #GENERIC17="papDataWidth_g : INTEGER := papDataWidth_g"
-    #GENERIC18="iPdiRev_g : INTEGER := 21930"
-    #GENERIC19="iAsyBuf2Size_g : INTEGER := 100"
-    #GENERIC2="genSmiIO : BOOLEAN := false"
-    #GENERIC20="iAsyBuf1Size_g : INTEGER := 100"
-    #GENERIC21="iRpdo2BufSize_g : INTEGER := 100"
-    #GENERIC22="iRpdo1BufSize_g : INTEGER := 100"
-    #GENERIC23="genAvalonAp_g : BOOLEAN := genPLBAP_g"
-    #GENERIC24="iRpdo0BufSize_g : INTEGER := 100"
-    #GENERIC25="iTpdoBufSize_g : INTEGER := 100"
-    #GENERIC26="genLedGadget_g : BOOLEAN := false"
-    #GENERIC27="genABuf2_g : BOOLEAN := false"
-    #GENERIC28="genABuf1_g : BOOLEAN := false"
-    #GENERIC29="iTpdos_g : INTEGER := 1"
-    #GENERIC3="m_data_width_g : INTEGER := 32"
-    #GENERIC30="iRpdos_g : INTEGER := 3"
-    #GENERIC31="endian_g : STRING := \"big\""
-    #GENERIC32="useRmii_g : BOOLEAN := C_USE_RMII"
-    #GENERIC33="iBufSizeLOG2_g : INTEGER := C_MAC_PKT_SIZE_LOG2"
-    #GENERIC34="iBufSize_g : INTEGER := C_MAC_PKT_SIZE"
-    #GENERIC35="Simulate : BOOLEAN := false"
-    #GENERIC36="genSpiAp_g : BOOLEAN := false"
-    #GENERIC37="pioValLen_g : INTEGER := 50"
-    #GENERIC38="spiBigEnd_g : BOOLEAN := false"
-    #GENERIC39="genSimpleIO_g : BOOLEAN := false"
-    #GENERIC4="m_rx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
-    #GENERIC40="spiCPHA_g : BOOLEAN := false"
-    #GENERIC41="spiCPOL_g : BOOLEAN := false"
-    #GENERIC5="genPdi_g : BOOLEAN := genPDI_g"
-    #GENERIC6="m_tx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
-    #GENERIC7="m_rx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
-    #GENERIC8="m_tx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
-    #GENERIC9="m_burstcount_const_g : BOOLEAN := true"
+    #GENERIC0="m_rx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
+    #GENERIC1="genInternalAp_g : BOOLEAN := true"
+    #GENERIC10="genABuf2_g : BOOLEAN := false"
+    #GENERIC11="genABuf1_g : BOOLEAN := false"
+    #GENERIC12="iTpdos_g : INTEGER := 1"
+    #GENERIC13="m_data_width_g : INTEGER := 32"
+    #GENERIC14="m_rx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
+    #GENERIC15="useIntPacketBuf_g : BOOLEAN := C_MAC_PKT_EN"
+    #GENERIC16="m_tx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
+    #GENERIC17="iBufSize_g : INTEGER := C_MAC_PKT_SIZE"
+    #GENERIC18="Simulate : BOOLEAN := false"
+    #GENERIC19="genSpiAp_g : BOOLEAN := genSPIAp_g"
+    #GENERIC2="iTpdoBufSize_g : INTEGER := 100"
+    #GENERIC20="pioValLen_g : INTEGER := 50"
+    #GENERIC21="spiBigEnd_g : BOOLEAN := false"
+    #GENERIC22="spiCPHA_g : BOOLEAN := false"
+    #GENERIC23="genSimpleIO_g : BOOLEAN := genSimpleIO_g"
+    #GENERIC24="spiCPOL_g : BOOLEAN := false"
+    #GENERIC25="papBigEnd_g : BOOLEAN := false"
+    #GENERIC26="papLowAct_g : BOOLEAN := false"
+    #GENERIC27="papDataWidth_g : INTEGER := papDataWidth_g"
+    #GENERIC28="iPdiRev_g : INTEGER := 21930"
+    #GENERIC29="useHwAcc_g : BOOLEAN := false"
+    #GENERIC3="genTimeSync_g : BOOLEAN := false"
+    #GENERIC30="m_burstcount_const_g : BOOLEAN := true"
+    #GENERIC31="m_burstcount_width_g : INTEGER := C_M_BURSTCOUNT_WIDTH"
+    #GENERIC32="use2ndPhy_g : BOOLEAN := C_USE_2ND_PHY"
+    #GENERIC33="useRxIntPacketBuf_g : BOOLEAN := C_MAC_PKT_RX_EN"
+    #GENERIC34="use2ndCmpTimer_g : BOOLEAN := false"
+    #GENERIC35="useRmii_g : BOOLEAN := C_USE_RMII"
+    #GENERIC36="iBufSizeLOG2_g : INTEGER := C_MAC_PKT_SIZE_LOG2"
+    #GENERIC37="genOnePdiClkDomain_g : BOOLEAN := false"
+    #GENERIC38="genPdi_g : BOOLEAN := genPDI_g"
+    #GENERIC39="m_tx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
+    #GENERIC4="iAsyBuf2Size_g : INTEGER := 100"
+    #GENERIC40="endian_g : STRING := \"big\""
+    #GENERIC41="iRpdos_g : INTEGER := 3"
+    #GENERIC42="genSmiIO : BOOLEAN := false"
+    #GENERIC5="iAsyBuf1Size_g : INTEGER := 100"
+    #GENERIC6="iRpdo2BufSize_g : INTEGER := 100"
+    #GENERIC7="iRpdo1BufSize_g : INTEGER := 100"
+    #GENERIC8="iRpdo0BufSize_g : INTEGER := 100"
+    #GENERIC9="genLedGadget_g : BOOLEAN := false"
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
@@ -12687,8 +12742,8 @@ PAGE "POWERLINK IP-CORE"
     #SYMBOL="powerlink"
    }
    COORD (1140,740)
-   VERTEXES ( (2,19761), (4,19557), (6,19766), (8,19559), (10,39317), (12,23724), (14,19776), (16,19563), (18,19781), (20,19565), (22,19786), (24,23799), (26,19791), (28,19569), (30,19796), (32,19571), (34,19801), (36,19573), (38,19575), (40,19577), (42,19579), (44,19581), (46,19583), (48,19585), (50,19587), (52,19589), (54,19591), (56,19593), (58,19595), (62,19597), (64,12174), (66,19599), (68,12184), (70,19601), (72,12194), (74,19603), (76,12204), (78,19605), (82,19607), (84,12224), (86,19609), (88,12234), (90,19611), (92,12244), (94,19613), (96,12254), (98,19615), (100,12264), (102,19617), (106,19619), (108,12284), (110,19621), (112,12294), (114,19623), (116,12304), (118,19625), (120,23199), (124,23219), (128,61456), (136,22837), (140,23554), (144,23574), (148,61458), (156,22841), (160,23201), (164,23221), (168,23223), (170,14677), (172,23556), (174,14622), (176,23576), (178,14624), (180,23578), (182,14626), (184,12474), (186,14628), (188,12484), (190,14630), (192,12494), (194,14632), (196,12504), (198,14634), (200,12514), (202,14636), (204,12524), (206,14665), (208,14667), (210,14669), (222,14473), (224,14451), (226,23203), (228,23209), (230,23207), (232,22898), (234,23558), (236,23564), (238,23562), (240,22900), (242,23217), (244,23205), (246,23215), (248,23213), (250,23211), (252,23572), (254,23560), (256,23570), (258,23568), (260,23566), (262,64659), (264,64779), (266,64713), (268,64723), (270,64789), (272,64799), (274,83825), (122,96346), (126,96349), (130,96352), (134,96355), (138,96357), (142,96359), (60,96361), (146,96521), (150,96523), (154,96525), (158,96527), (162,96529), (166,96531), (80,96533) )
-   PINPROP 80,"#PIN_STATE","0"
+   VERTEXES ( (2,19761), (4,19557), (6,19766), (8,19559), (10,39317), (12,23724), (14,19776), (16,19563), (18,19781), (20,19565), (22,19786), (24,23799), (26,19791), (28,19569), (30,19796), (32,19571), (34,19801), (36,19573), (38,19575), (40,19577), (42,19579), (44,19581), (46,19583), (48,19585), (50,19587), (52,19589), (54,19591), (56,19593), (58,19595), (60,96361), (62,19597), (64,12174), (66,19599), (68,12184), (70,19601), (72,12194), (74,19603), (76,12204), (78,19605), (80,96533), (82,19607), (84,12224), (86,19609), (88,12234), (90,19611), (92,12244), (94,19613), (96,12254), (98,19615), (100,12264), (102,19617), (106,19619), (108,12284), (110,19621), (112,12294), (114,19623), (116,12304), (118,19625), (120,23199), (122,96346), (124,23219), (126,96349), (128,61456), (130,96352), (134,96355), (136,22837), (138,96357), (140,23554), (142,96359), (144,23574), (146,96521), (148,61458), (150,96523), (154,96525), (156,22841), (158,96527), (160,23201), (162,96529), (164,23221), (166,96531), (168,23223), (170,14677), (172,23556), (174,14622), (176,23576), (178,14624), (180,23578), (182,14626), (184,12474), (186,14628), (188,12484), (190,14630), (192,12494), (194,14632), (196,12504), (198,14634), (200,12514), (202,14636), (204,12524), (206,14665), (208,14667), (210,14669), (222,14473), (224,14451), (226,23203), (228,23209), (230,23207), (232,22898), (234,23558), (236,23564), (238,23562), (240,22900), (242,23217), (244,23205), (246,23215), (248,23213), (250,23211), (252,23572), (254,23560), (256,23570), (258,23568), (260,23566), (262,64659), (264,64779), (266,64713), (268,64723), (270,64789), (272,64799), (274,83825), (278,97862), (276,97867), (212,97899), (214,97911), (216,97914), (218,97919), (220,97924), (104,97929) )
+   PINPROP 104,"#PIN_STATE","0"
   }
   TEXT  11994, 0, 0
   {
@@ -12700,7 +12755,7 @@ PAGE "POWERLINK IP-CORE"
   TEXT  11998, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (1600,880,2337,2266)
+   RECT (1600,880,2337,2299)
    PARENT 11989
   }
   VTX  12174, 0, 0
@@ -16651,7 +16706,9 @@ PAGE "POWERLINK IP-CORE"
 "-- name : type  := value\n"+
 "papDataWidth_g : integer := 16;\n"+
 "genPDI_g : boolean := false;\n"+
-"genPLBAP_g : boolean := false;\n"+
+"genPLBAp_g : boolean := false;\n"+
+"genSPIAp_g : boolean := false;\n"+
+"genSimpleIO_g : boolean := false;\n"+
 "C_USE_RMII : boolean := false;\n"+
 "C_TX_INT_PKT : boolean := false;\n"+
 "C_RX_INT_PKT : boolean := false;\n"+
@@ -17846,6 +17903,276 @@ PAGE "POWERLINK IP-CORE"
     #MDA_RECORD_TOKEN="OTHER"
     #NAME="ap_readdata(31:0)"
    }
+  }
+  VTX  97862, 0, 0
+  {
+   COORD (2780,2360)
+  }
+  VTX  97863, 0, 0
+  {
+   COORD (2780,2520)
+  }
+  WIRE  97865, 0, 0
+  {
+   NET 97872
+   VTX 97862, 97863
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  97867, 0, 0
+  {
+   COORD (2740,2360)
+  }
+  VTX  97868, 0, 0
+  {
+   COORD (2740,2520)
+  }
+  WIRE  97870, 0, 0
+  {
+   NET 97877
+   VTX 97867, 97868
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  97872, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="ap_waitrequest"
+   }
+  }
+  TEXT  97873, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2786,2360,2815,2525)
+   ALIGN 1
+   MARGINS (1,1)
+   PARENT 97865
+   ORIENTATION 5
+  }
+  NET WIRE  97877, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="pcp_waitrequest"
+   }
+  }
+  TEXT  97878, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2746,2360,2775,2538)
+   ALIGN 1
+   MARGINS (1,1)
+   PARENT 97870
+   ORIENTATION 5
+  }
+  VTX  97899, 0, 0
+  {
+   COORD (2160,2360)
+  }
+  VTX  97900, 0, 0
+  {
+   COORD (2160,2600)
+  }
+  WIRE  97902, 0, 0
+  {
+   NET 97934
+   VTX 97899, 97900
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  97911, 0, 0
+  {
+   COORD (2200,2360)
+  }
+  VTX  97912, 0, 0
+  {
+   COORD (2200,2600)
+  }
+  WIRE  97913, 0, 0
+  {
+   NET 97939
+   VTX 97911, 97912
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  97914, 0, 0
+  {
+   COORD (2240,2360)
+  }
+  VTX  97915, 0, 0
+  {
+   COORD (2240,2600)
+  }
+  WIRE  97917, 0, 0
+  {
+   NET 97944
+   VTX 97914, 97915
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  97919, 0, 0
+  {
+   COORD (2280,2360)
+  }
+  VTX  97920, 0, 0
+  {
+   COORD (2280,2600)
+  }
+  BUS  97922, 0, 0
+  {
+   NET 97949
+   VTX 97919, 97920
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  97924, 0, 0
+  {
+   COORD (2320,2360)
+  }
+  VTX  97925, 0, 0
+  {
+   COORD (2320,2600)
+  }
+  BUS  97927, 0, 0
+  {
+   NET 97954
+   VTX 97924, 97925
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  97929, 0, 0
+  {
+   COORD (2360,2360)
+  }
+  VTX  97930, 0, 0
+  {
+   COORD (2360,2600)
+  }
+  BUS  97932, 0, 0
+  {
+   NET 97959
+   VTX 97929, 97930
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  97934, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="smp_address"
+   }
+  }
+  TEXT  97935, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2166,2360,2195,2507)
+   ALIGN 1
+   MARGINS (1,1)
+   PARENT 97902
+   ORIENTATION 5
+  }
+  NET WIRE  97939, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="smp_read"
+   }
+  }
+  TEXT  97940, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2206,2360,2235,2469)
+   ALIGN 1
+   MARGINS (1,1)
+   PARENT 97913
+   ORIENTATION 5
+  }
+  NET WIRE  97944, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="smp_write"
+   }
+  }
+  TEXT  97945, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2246,2360,2275,2471)
+   ALIGN 1
+   MARGINS (1,1)
+   PARENT 97917
+   ORIENTATION 5
+  }
+  NET BUS  97949, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="smp_writedata(31:0)"
+   }
+  }
+  TEXT  97950, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2286,2360,2315,2580)
+   ALIGN 1
+   MARGINS (1,1)
+   PARENT 97922
+   ORIENTATION 5
+  }
+  NET BUS  97954, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="smp_byteenable(3:0)"
+   }
+  }
+  TEXT  97955, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2326,2360,2355,2589)
+   ALIGN 1
+   MARGINS (1,1)
+   PARENT 97927
+   ORIENTATION 5
+  }
+  NET BUS  97959, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="smp_readdata(31:0)"
+   }
+  }
+  TEXT  97960, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2366,2360,2395,2578)
+   ALIGN 1
+   MARGINS (1,1)
+   PARENT 97932
+   ORIENTATION 5
   }
  }
  
@@ -20704,7 +21031,7 @@ PAGE "MAC_CMP"
   }
   BUS  50598, 0, 0
   {
-   NET 95107
+   NET 99361
    VTX 50594, 50595
    VARIABLES
    {
@@ -21063,16 +21390,6 @@ PAGE "MAC_CMP"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
-  NET BUS  95107, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #MDA_RECORD_TOKEN="OTHER"
-    #NAME="Bus2MAC_REG_CS(1:0)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
-  }
   SIGNALASSIGN  95144, 0, 0
   {
    LABEL "MacCmpRegtoBus"
@@ -21097,13 +21414,23 @@ PAGE "MAC_CMP"
 "\tIP2Bus_Error_s <= MAC_REG2Bus_Error \t\t\t\twhen \"10\",\n"+
 "\t\t\t\t\t\tMAC_CMP2Bus_Error \t\t\t\t\twhen \"01\",\n"+
 "\t\t\t\t\t\t'0'\t\t\t\t\t\t\t\t\t\twhen others;"
-   RECT (280,1340,2160,2060)
+   RECT (280,1340,2160,2080)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
    SHOWLABEL
    SHOWTEXT
    CORNER 10
+  }
+  NET BUS  99361, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_REG_CS(1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
   }
  }
  
@@ -27587,7 +27914,7 @@ PAGE "AP_PDI_PLB"
   {
    VARIABLES
    {
-    #CONDITION="genPLBAP_g"
+    #CONDITION="genPLBAp_g"
     #GENERATE_KIND="IF"
     #LABEL="g4"
    }
@@ -27597,7 +27924,7 @@ PAGE "AP_PDI_PLB"
   TEXT  96852, 0, 0
   {
    TEXT "@GENERATE_STATEMENT_DESCRIPTION"
-   RECT (1200,584,1623,619)
+   RECT (1200,584,1620,619)
    ALIGN 8
    MARGINS (1,1)
    PARENT 96851
@@ -28752,7 +29079,7 @@ PAGE "AP_PCP"
    SHOWTEXT
    UPDATE 0
    CORNER 10
-   VTX (  97547, 97551, 97553, 97557, 97555, 97549, 97563, 97589, 97585, 97587, 97579, 97576, 97574, 97566, 97568, 97564, 97570, 97572, 97558, 97582, 97580, 97560 )
+   VTX (  97547, 97549, 97551, 97553, 97555, 97557, 97558, 97560, 97563, 97564, 97566, 97568, 97570, 97572, 97574, 97576, 97579, 97580, 97582, 97585, 97587, 97589 )
   }
   NET BUS  97520, 0, 0
   {
@@ -29288,6 +29615,2692 @@ PAGE "AP_PCP"
  
 }
 
+PAGE "SMP_PDI"
+{
+ PAGEHEADER
+ {
+  PAGESIZE (3307,2338)
+  MARGINS (200,200,200,200)
+  RECT (0,0,100,200)
+ }
+ 
+ BODY
+ {
+  TEXT  98192, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (531,850,749,879)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 98319
+  }
+  TEXT  98193, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (565,1090,749,1119)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 98320
+  }
+  TEXT  98194, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2385,730,2554,759)
+   ALIGN 10
+   MARGINS (1,1)
+   PARENT 98322
+   ORIENTATION 2
+  }
+  TEXT  98195, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2385,650,2494,679)
+   ALIGN 10
+   MARGINS (1,1)
+   PARENT 98324
+   ORIENTATION 2
+  }
+  TEXT  98196, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2385,690,2496,719)
+   ALIGN 10
+   MARGINS (1,1)
+   PARENT 98326
+   ORIENTATION 2
+  }
+  TEXT  98197, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2385,770,2614,799)
+   ALIGN 10
+   MARGINS (1,1)
+   PARENT 98327
+   ORIENTATION 2
+  }
+  TEXT  98199, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2385,610,2605,639)
+   ALIGN 10
+   MARGINS (1,1)
+   PARENT 98329
+   ORIENTATION 2
+  }
+  TEXT  98200, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2401,851,2999,880)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98330
+   ORIENTATION 2
+  }
+  TEXT  98202, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2400,1011,2653,1040)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98331
+   ORIENTATION 2
+  }
+  TEXT  98204, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2400,971,2653,1000)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98332
+   ORIENTATION 2
+  }
+  TEXT  98206, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2399,1051,2635,1080)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98333
+   ORIENTATION 2
+  }
+  TEXT  98211, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (136,811,733,840)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98334
+   ORIENTATION 2
+  }
+  TEXT  98213, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (134,611,735,640)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98335
+   ORIENTATION 2
+  }
+  TEXT  98215, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (494,651,734,680)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98336
+   ORIENTATION 2
+  }
+  TEXT  98217, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (470,771,734,800)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98337
+   ORIENTATION 2
+  }
+  TEXT  98219, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (470,731,735,760)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98338
+   ORIENTATION 2
+  }
+  TEXT  98221, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (640,1010,749,1039)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 98323
+  }
+  TEXT  98222, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (638,1050,749,1079)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 98325
+  }
+  TEXT  98223, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (580,970,749,999)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 98321
+  }
+  TEXT  98224, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (516,571,734,600)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98339
+   ORIENTATION 2
+  }
+  SIGNALASSIGN  98226, 0, 0
+  {
+   LABEL "simple_io_to_bus"
+   TEXT 
+"--SMP_PCP assignments\n"+
+"---cmp_clk <= Bus2SMP_PCP_Clk;\n"+
+"smp_writedata <= Bus2SMP_PCP_Data;\n"+
+"smp_read <= Bus2SMP_PCP_RNW;\n"+
+"smp_write <= not Bus2SMP_PCP_RNW;\n"+
+"smp_chipselect <= Bus2SMP_PCP_CS(0);\n"+
+"smp_byteenable <= Bus2SMP_PCP_BE;\n"+
+"smp_address <= Bus2SMP_PCP_Addr(2);\n"+
+"\n"+
+"SMP_PCP2Bus_Data <= smp_readdata;\n"+
+"SMP_PCP2Bus_RdAck <= smp_chipselect and smp_read and not smp_waitrequest;\n"+
+"SMP_PCP2Bus_WrAck <= smp_chipselect and smp_write and not smp_waitrequest;\n"+
+"SMP_PCP2Bus_Error <= '0';"
+   RECT (860,520,2240,1140)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   UPDATE 0
+   CORNER 10
+   VTX (  98318, 98310, 98312, 98316, 98314, 98308, 98278, 98282, 98286, 98290, 98280, 98297, 98287, 98291, 98283, 98293, 98299, 98303, 98301, 98305, 98348 )
+  }
+  VTX  98277, 0, 0
+  {
+   COORD (740,860)
+  }
+  VTX  98278, 0, 0
+  {
+   COORD (860,860)
+  }
+  VTX  98279, 0, 0
+  {
+   COORD (740,1100)
+  }
+  VTX  98280, 0, 0
+  {
+   COORD (860,1100)
+  }
+  VTX  98281, 0, 0
+  {
+   COORD (734,980)
+  }
+  VTX  98282, 0, 0
+  {
+   COORD (860,980)
+  }
+  VTX  98283, 0, 0
+  {
+   COORD (2240,740)
+  }
+  VTX  98284, 0, 0
+  {
+   COORD (2380,740)
+  }
+  VTX  98285, 0, 0
+  {
+   COORD (740,1020)
+  }
+  VTX  98286, 0, 0
+  {
+   COORD (860,1020)
+  }
+  VTX  98287, 0, 0
+  {
+   COORD (2240,660)
+  }
+  VTX  98288, 0, 0
+  {
+   COORD (2380,660)
+  }
+  VTX  98289, 0, 0
+  {
+   COORD (740,1060)
+  }
+  VTX  98290, 0, 0
+  {
+   COORD (860,1060)
+  }
+  VTX  98291, 0, 0
+  {
+   COORD (2240,700)
+  }
+  VTX  98292, 0, 0
+  {
+   COORD (2380,700)
+  }
+  VTX  98293, 0, 0
+  {
+   COORD (2240,780)
+  }
+  VTX  98294, 0, 0
+  {
+   COORD (2380,780)
+  }
+  VTX  98297, 0, 0
+  {
+   COORD (2240,620)
+  }
+  VTX  98298, 0, 0
+  {
+   COORD (2380,620)
+  }
+  VTX  98299, 0, 0
+  {
+   COORD (2240,860)
+  }
+  VTX  98300, 0, 0
+  {
+   COORD (2380,860)
+  }
+  VTX  98301, 0, 0
+  {
+   COORD (2240,1020)
+  }
+  VTX  98302, 0, 0
+  {
+   COORD (2380,1020)
+  }
+  VTX  98303, 0, 0
+  {
+   COORD (2240,980)
+  }
+  VTX  98304, 0, 0
+  {
+   COORD (2380,980)
+  }
+  VTX  98305, 0, 0
+  {
+   COORD (2240,1060)
+  }
+  VTX  98306, 0, 0
+  {
+   COORD (2380,1060)
+  }
+  VTX  98307, 0, 0
+  {
+   COORD (740,820)
+  }
+  VTX  98308, 0, 0
+  {
+   COORD (860,820)
+  }
+  VTX  98309, 0, 0
+  {
+   COORD (740,620)
+  }
+  VTX  98310, 0, 0
+  {
+   COORD (860,620)
+  }
+  VTX  98311, 0, 0
+  {
+   COORD (740,660)
+  }
+  VTX  98312, 0, 0
+  {
+   COORD (860,660)
+  }
+  VTX  98313, 0, 0
+  {
+   COORD (740,780)
+  }
+  VTX  98314, 0, 0
+  {
+   COORD (860,780)
+  }
+  VTX  98315, 0, 0
+  {
+   COORD (740,740)
+  }
+  VTX  98316, 0, 0
+  {
+   COORD (860,740)
+  }
+  VTX  98317, 0, 0
+  {
+   COORD (740,580)
+  }
+  VTX  98318, 0, 0
+  {
+   COORD (860,580)
+  }
+  BUS  98319, 0, 0
+  {
+   NET 98344
+   VTX 98277, 98278
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98320, 0, 0
+  {
+   NET 98343
+   VTX 98279, 98280
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98321, 0, 0
+  {
+   NET 98340
+   VTX 98281, 98282
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98322, 0, 0
+  {
+   NET 98340
+   VTX 98283, 98284
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98323, 0, 0
+  {
+   NET 98341
+   VTX 98285, 98286
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98324, 0, 0
+  {
+   NET 98341
+   VTX 98287, 98288
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98325, 0, 0
+  {
+   NET 98342
+   VTX 98289, 98290
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98326, 0, 0
+  {
+   NET 98342
+   VTX 98291, 98292
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  98327, 0, 0
+  {
+   NET 98346
+   VTX 98293, 98294
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  98329, 0, 0
+  {
+   NET 98345
+   VTX 98297, 98298
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  98330, 0, 0
+  {
+   NET 98510
+   VTX 98299, 98300
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98331, 0, 0
+  {
+   NET 98429
+   VTX 98301, 98302
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98332, 0, 0
+  {
+   NET 98428
+   VTX 98303, 98304
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98333, 0, 0
+  {
+   NET 98430
+   VTX 98305, 98306
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  98334, 0, 0
+  {
+   NET 98509
+   VTX 98307, 98308
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  98335, 0, 0
+  {
+   NET 98503
+   VTX 98309, 98310
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98336, 0, 0
+  {
+   NET 98505
+   VTX 98311, 98312
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  98337, 0, 0
+  {
+   NET 98507
+   VTX 98313, 98314
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  98338, 0, 0
+  {
+   NET 98563
+   VTX 98315, 98316
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  98339, 0, 0
+  {
+   NET 99315
+   VTX 98317, 98318
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  98340, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="smp_chipselect"
+   }
+  }
+  NET WIRE  98341, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="smp_read"
+   }
+  }
+  NET WIRE  98342, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="smp_write"
+   }
+  }
+  NET WIRE  98343, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="smp_waitrequest"
+   }
+  }
+  NET BUS  98344, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="smp_readdata(31:0)"
+   }
+  }
+  NET BUS  98345, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="smp_writedata(31:0)"
+   }
+  }
+  NET BUS  98346, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="smp_byteenable(3:0)"
+   }
+  }
+  VTX  98347, 0, 0
+  {
+   COORD (2380,820)
+  }
+  VTX  98348, 0, 0
+  {
+   COORD (2240,820)
+  }
+  WIRE  98350, 0, 0
+  {
+   NET 98351
+   VTX 98347, 98348
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  98351, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="smp_address"
+   }
+  }
+  TEXT  98352, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2387,811,2534,840)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 98350
+  }
+  NET WIRE  98428, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="SMP_PCP2Bus_RdAck"
+   }
+  }
+  NET WIRE  98429, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="SMP_PCP2Bus_WrAck"
+   }
+  }
+  NET WIRE  98430, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="SMP_PCP2Bus_Error"
+   }
+  }
+  NET BUS  98503, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2SMP_PCP_Data(C_MAC_REG_PLB_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET WIRE  98505, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="Bus2SMP_PCP_RNW"
+   }
+  }
+  NET BUS  98507, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2SMP_PCP_BE(3:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  98509, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2SMP_PCP_Addr(C_SMP_PCP_PLB_AWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  98510, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="SMP_PCP2Bus_Data(C_SMP_PCP_PLB_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  98563, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2SMP_PCP_CS(0:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET WIRE  99315, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="Bus2SMP_PCP_Clk"
+   }
+  }
+ }
+ 
+}
+
+PAGE "SMP_PDI_PLB"
+{
+ PAGEHEADER
+ {
+  PAGESIZE (3307,2338)
+  MARGINS (200,200,200,200)
+  RECT (0,0,100,200)
+ }
+ 
+ BODY
+ {
+  INSTANCE  98581, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="plbv46_slave_single"
+    #GENERIC0="C_SPLB_NUM_MASTERS : INTEGER range 1 to 16 := C_SMP_PCP_PLB_NUM_MASTERS"
+    #GENERIC1="C_SPLB_AWIDTH : INTEGER range 32 to 32 := C_SMP_PCP_PLB_AWIDTH"
+    #GENERIC10="C_BUS2CORE_CLK_RATIO : INTEGER range 1 to 2 := 1"
+    #GENERIC2="C_SPLB_DWIDTH : INTEGER range 32 to 128 := C_SMP_PCP_PLB_DWIDTH"
+    #GENERIC3="C_SIPIF_DWIDTH : INTEGER range 32 to 32 := C_SMP_PCP_PLB_DWIDTH"
+    #GENERIC4="C_ARD_ADDR_RANGE_ARRAY : SLV64_ARRAY_TYPE := (C_SMP_PCP_BASE,C_SMP_PCP_HIGH)"
+    #GENERIC5="C_SPLB_P2P : INTEGER range 0 to 1 := C_SMP_PCP_PLB_P2P"
+    #GENERIC6="C_SPLB_MID_WIDTH : INTEGER range 1 to 4 := C_SMP_PCP_PLB_MID_WIDTH"
+    #GENERIC7="C_ARD_NUM_CE_ARRAY : INTEGER_ARRAY_TYPE := (0 => 1)"
+    #GENERIC8="C_FAMILY : STRING := C_FAMILY"
+    #GENERIC9="C_INCLUDE_DPHASE_TIMER : INTEGER range 0 to 1 := 0"
+    #LIBRARY="plbv46_slave_single_v1_01_a"
+    #NO_CONF="1"
+    #PRAGMED_GENERICS=""
+    #REFERENCE="U5"
+    #SYMBOL="plbv46_slave_single"
+   }
+   COORD (1300,760)
+   VERTEXES ( (2,99055), (6,99057), (10,99101), (14,99103), (18,99059), (22,99061), (26,99063), (30,99065), (34,99083), (38,99067), (42,99069), (46,99071), (50,99093), (54,99095), (58,99097), (62,99099), (66,99073), (70,99105), (74,99075), (78,99077), (82,99079), (86,99081), (90,99085), (94,99087), (98,99089), (102,99091), (104,99154), (106,99156), (108,99158), (110,99160), (4,99107), (8,99127), (12,99109), (16,99111), (20,99113), (24,99115), (28,99117), (32,99129), (36,99133), (40,99119), (44,99121), (48,99123), (52,99125), (56,99131), (60,99135), (64,99137), (68,99139), (72,99141), (76,99143), (80,99145), (84,99147), (88,99149), (92,99151) )
+   PINPROP 110,"#PIN_STATE","0"
+  }
+  TEXT  98635, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (1300,724,1339,759)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 98581
+  }
+  TEXT  98636, 0, 0
+  {
+   TEXT "$#COMPONENT"
+   RECT (1300,2000,1562,2035)
+   MARGINS (1,1)
+   PARENT 98581
+  }
+  TEXT  98637, 0, 0
+  {
+   TEXT "@GENERIC_ACTUAL_VALUES()"
+   RECT (1360,280,2394,643)
+   PARENT 98581
+  }
+  INSTANCE  98638, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_Clk"
+    #SYMBOL="Input"
+   }
+   COORD (1140,800)
+   VERTEXES ( (2,99056) )
+  }
+  TEXT  98640, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (893,783,1089,818)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98638
+  }
+  INSTANCE  98641, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_Rst"
+    #SYMBOL="Input"
+   }
+   COORD (1140,840)
+   VERTEXES ( (2,99058) )
+  }
+  TEXT  98643, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (891,823,1089,858)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98641
+  }
+  INSTANCE  98644, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_ABus(0:31)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,880)
+   VERTEXES ( (2,99102) )
+  }
+  TEXT  98646, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (790,863,1089,898)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98644
+  }
+  INSTANCE  98647, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_UABus(0:31)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,920)
+   VERTEXES ( (2,99104) )
+  }
+  TEXT  98649, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (769,903,1089,938)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98647
+  }
+  INSTANCE  98650, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_PAValid"
+    #SYMBOL="Input"
+   }
+   COORD (1140,960)
+   VERTEXES ( (2,99060) )
+  }
+  TEXT  98652, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (832,943,1089,978)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98650
+  }
+  INSTANCE  98653, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_SAValid"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1000)
+   VERTEXES ( (2,99062) )
+  }
+  TEXT  98655, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (832,983,1089,1018)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98653
+  }
+  INSTANCE  98656, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_rdPrim"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1040)
+   VERTEXES ( (2,99064) )
+  }
+  TEXT  98658, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (848,1023,1089,1058)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98656
+  }
+  INSTANCE  98659, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_wrPrim"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1080)
+   VERTEXES ( (2,99066) )
+  }
+  TEXT  98661, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (843,1063,1089,1098)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98659
+  }
+  INSTANCE  98662, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_masterID(0:C_SMP_PCP_PLB_MID_WIDTH-1)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,1120)
+   VERTEXES ( (2,99084) )
+  }
+  TEXT  98664, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (323,1103,1089,1138)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98662
+  }
+  INSTANCE  98665, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_abort"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1160)
+   VERTEXES ( (2,99068) )
+  }
+  TEXT  98667, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (869,1143,1089,1178)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98665
+  }
+  INSTANCE  98668, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_busLock"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1200)
+   VERTEXES ( (2,99070) )
+  }
+  TEXT  98670, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (827,1183,1089,1218)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98668
+  }
+  INSTANCE  98671, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_RNW"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1240)
+   VERTEXES ( (2,99072) )
+  }
+  TEXT  98673, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (863,1223,1089,1258)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98671
+  }
+  INSTANCE  98674, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_BE(0:(C_SMP_PCP_PLB_DWIDTH/8)-1)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,1280)
+   VERTEXES ( (2,99094) )
+  }
+  TEXT  98676, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (405,1263,1089,1298)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98674
+  }
+  INSTANCE  98677, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_MSize(0:1)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,1320)
+   VERTEXES ( (2,99096) )
+  }
+  TEXT  98679, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (796,1303,1089,1338)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98677
+  }
+  INSTANCE  98680, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_size(0:3)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,1360)
+   VERTEXES ( (2,99098) )
+  }
+  TEXT  98682, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (823,1343,1089,1378)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98680
+  }
+  INSTANCE  98683, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_type(0:2)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,1400)
+   VERTEXES ( (2,99100) )
+  }
+  TEXT  98685, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (822,1383,1089,1418)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98683
+  }
+  INSTANCE  98686, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_lockErr"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1440)
+   VERTEXES ( (2,99074) )
+  }
+  TEXT  98688, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (844,1423,1089,1458)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98686
+  }
+  INSTANCE  98689, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_wrDBus(0:C_SMP_PCP_PLB_DWIDTH-1)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,1480)
+   VERTEXES ( (2,99106) )
+  }
+  TEXT  98691, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (385,1463,1089,1498)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98689
+  }
+  INSTANCE  98692, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_wrBurst"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1520)
+   VERTEXES ( (2,99076) )
+  }
+  TEXT  98694, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (836,1503,1089,1538)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98692
+  }
+  INSTANCE  98695, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_rdBurst"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1560)
+   VERTEXES ( (2,99078) )
+  }
+  TEXT  98697, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (841,1543,1089,1578)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98695
+  }
+  INSTANCE  98698, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_wrPendReq"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1600)
+   VERTEXES ( (2,99080) )
+  }
+  TEXT  98700, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (784,1583,1089,1618)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98698
+  }
+  INSTANCE  98701, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_rdPendReq"
+    #SYMBOL="Input"
+   }
+   COORD (1140,1640)
+   VERTEXES ( (2,99082) )
+  }
+  TEXT  98703, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (789,1623,1089,1658)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98701
+  }
+  INSTANCE  98704, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_wrPendPri(0:1)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,1680)
+   VERTEXES ( (2,99086) )
+  }
+  TEXT  98706, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (741,1663,1089,1698)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98704
+  }
+  INSTANCE  98707, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_rdPendPri(0:1)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,1720)
+   VERTEXES ( (2,99088) )
+  }
+  TEXT  98709, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (746,1703,1089,1738)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98707
+  }
+  INSTANCE  98710, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_reqPri(0:1)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,1760)
+   VERTEXES ( (2,99090) )
+  }
+  TEXT  98712, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (797,1743,1089,1778)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98710
+  }
+  INSTANCE  98713, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_TAttribute(0:15)"
+    #SYMBOL="BusInput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (1140,1800)
+   VERTEXES ( (2,99092) )
+  }
+  TEXT  98715, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (732,1783,1089,1818)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 98713
+  }
+  NET WIRE  98716, 0, 0
+  NET WIRE  98718, 0, 0
+  NET WIRE  98720, 0, 0
+  NET WIRE  98722, 0, 0
+  NET WIRE  98724, 0, 0
+  NET WIRE  98726, 0, 0
+  NET WIRE  98728, 0, 0
+  NET WIRE  98730, 0, 0
+  NET WIRE  98732, 0, 0
+  NET WIRE  98734, 0, 0
+  NET WIRE  98736, 0, 0
+  NET WIRE  98738, 0, 0
+  NET WIRE  98740, 0, 0
+  NET WIRE  98742, 0, 0
+  NET BUS  98744, 0, 0
+  NET BUS  98746, 0, 0
+  NET BUS  98748, 0, 0
+  NET BUS  98750, 0, 0
+  NET BUS  98752, 0, 0
+  NET BUS  98754, 0, 0
+  NET BUS  98756, 0, 0
+  NET BUS  98758, 0, 0
+  NET BUS  98760, 0, 0
+  NET BUS  98762, 0, 0
+  NET BUS  98764, 0, 0
+  NET BUS  98766, 0, 0
+  INSTANCE  98768, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_addrAck"
+    #SYMBOL="Output"
+   }
+   COORD (2280,800)
+   VERTEXES ( (2,99108) )
+  }
+  TEXT  98770, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,783,2592,818)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98768
+  }
+  INSTANCE  98771, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusOutput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_SSize(0:1)"
+    #SYMBOL="BusOutput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (2280,840)
+   VERTEXES ( (2,99128) )
+  }
+  TEXT  98773, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,823,2621,858)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98771
+  }
+  INSTANCE  98774, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_wait"
+    #SYMBOL="Output"
+   }
+   COORD (2280,880)
+   VERTEXES ( (2,99110) )
+  }
+  TEXT  98776, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,863,2538,898)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98774
+  }
+  INSTANCE  98777, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_rearbitrate"
+    #SYMBOL="Output"
+   }
+   COORD (2280,920)
+   VERTEXES ( (2,99112) )
+  }
+  TEXT  98779, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,903,2619,938)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98777
+  }
+  INSTANCE  98780, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_wrDAck"
+    #SYMBOL="Output"
+   }
+   COORD (2280,960)
+   VERTEXES ( (2,99114) )
+  }
+  TEXT  98782, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,943,2586,978)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98780
+  }
+  INSTANCE  98783, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_wrComp"
+    #SYMBOL="Output"
+   }
+   COORD (2280,1000)
+   VERTEXES ( (2,99116) )
+  }
+  TEXT  98785, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,983,2595,1018)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98783
+  }
+  INSTANCE  98786, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_wrBTerm"
+    #SYMBOL="Output"
+   }
+   COORD (2280,1040)
+   VERTEXES ( (2,99118) )
+  }
+  TEXT  98788, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,1023,2606,1058)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98786
+  }
+  INSTANCE  98789, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusOutput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_rdDBus(0:C_SMP_PCP_PLB_DWIDTH-1)"
+    #SYMBOL="BusOutput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (2280,1080)
+   VERTEXES ( (2,99130) )
+  }
+  TEXT  98791, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,1063,3031,1098)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98789
+  }
+  INSTANCE  98792, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusOutput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_rdWdAddr(0:3)"
+    #SYMBOL="BusOutput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (2280,1120)
+   VERTEXES ( (2,99134) )
+  }
+  TEXT  98794, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,1103,2679,1138)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98792
+  }
+  INSTANCE  98795, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_rdDAck"
+    #SYMBOL="Output"
+   }
+   COORD (2280,1160)
+   VERTEXES ( (2,99120) )
+  }
+  TEXT  98797, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,1143,2581,1178)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98795
+  }
+  INSTANCE  98798, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_rdComp"
+    #SYMBOL="Output"
+   }
+   COORD (2280,1200)
+   VERTEXES ( (2,99122) )
+  }
+  TEXT  98800, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,1183,2590,1218)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98798
+  }
+  INSTANCE  98801, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="SMP_PCP_rdBTerm"
+    #SYMBOL="Output"
+   }
+   COORD (2280,1240)
+   VERTEXES ( (2,99124) )
+  }
+  TEXT  98803, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,1223,2601,1258)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98801
+  }
+  INSTANCE  98804, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusOutput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_MBusy(0:C_SMP_PCP_PLB_NUM_MASTERS-1)"
+    #SYMBOL="BusOutput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (2280,1280)
+   VERTEXES ( (2,99126) )
+  }
+  TEXT  98806, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,1263,3121,1298)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98804
+  }
+  INSTANCE  98807, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusOutput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_MWrErr(0:C_SMP_PCP_PLB_NUM_MASTERS-1)"
+    #SYMBOL="BusOutput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (2280,1320)
+   VERTEXES ( (2,99132) )
+  }
+  TEXT  98809, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,1303,3137,1338)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98807
+  }
+  INSTANCE  98810, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusOutput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_MRdErr(0:C_SMP_PCP_PLB_NUM_MASTERS-1)"
+    #SYMBOL="BusOutput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (2280,1360)
+   VERTEXES ( (2,99136) )
+  }
+  TEXT  98812, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,1343,3134,1378)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98810
+  }
+  INSTANCE  98813, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusOutput"
+    #DOWNTO="0"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="SMP_PCP_MIRQ(0:C_SMP_PCP_PLB_NUM_MASTERS-1)"
+    #SYMBOL="BusOutput"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+   COORD (2280,1400)
+   VERTEXES ( (2,99138) )
+  }
+  TEXT  98815, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2332,1383,3109,1418)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 98813
+  }
+  NET WIRE  98816, 0, 0
+  NET WIRE  98818, 0, 0
+  NET WIRE  98820, 0, 0
+  NET WIRE  98822, 0, 0
+  NET WIRE  98824, 0, 0
+  NET WIRE  98826, 0, 0
+  NET WIRE  98828, 0, 0
+  NET WIRE  98830, 0, 0
+  NET WIRE  98832, 0, 0
+  NET BUS  98834, 0, 0
+  NET BUS  98836, 0, 0
+  NET BUS  98838, 0, 0
+  NET BUS  98840, 0, 0
+  NET BUS  98842, 0, 0
+  NET BUS  98844, 0, 0
+  NET BUS  98846, 0, 0
+  GENERIC  98848, 0, 0
+  {
+   LABEL "Generics"
+   TEXT 
+"-- PDI AP PLB Slave\n"+
+"C_SMP_PCP_BASEADDR : std_logic_vector := X\"00000000\";\n"+
+"C_SMP_PCP_HIGHADDR : std_logic_vector := X\"000FFFFF\";\n"+
+"C_SMP_PCP_NUM_MASTERS : INTEGER := 1;\n"+
+"C_SMP_PCP_PLB_AWIDTH : INTEGER := 32;\n"+
+"C_SMP_PCP_PLB_DWIDTH : INTEGER := 32;\n"+
+"C_SMP_PCP_PLB_MID_WIDTH : INTEGER := 1;\n"+
+"C_SMP_PCP_PLB_P2P : INTEGER := 0;\n"+
+"C_SMP_PCP_PLB_NUM_MASTERS : INTEGER := 1;\n"+
+"C_SMP_PCP_PLB_NATIVE_DWIDTH : INTEGER := 32;\n"+
+"C_SMP_PCP_PLB_SUPPORT_BURSTS : INTEGER := 0;\n"+
+""
+   RECT (200,220,1240,660)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   CORNER 10
+  }
+  GENERATE  98849, 0, 0
+  {
+   VARIABLES
+   {
+    #CONDITION="genSimpleIO_g"
+    #GENERATE_KIND="IF"
+    #LABEL="g5"
+   }
+   AREA (1240,720,2200,2060)
+   INSTANCES 98581
+  }
+  TEXT  98850, 0, 0
+  {
+   TEXT "@GENERATE_STATEMENT_DESCRIPTION"
+   RECT (1240,684,1691,719)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 98849
+  }
+  TEXT  98851, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2331,1431,2549,1460)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99203
+  }
+  TEXT  98853, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2338,1471,2583,1500)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99204
+  }
+  TEXT  98855, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2322,1511,2919,1540)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99205
+  }
+  TEXT  98857, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2321,1551,2919,1580)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99206
+  }
+  TEXT  98859, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2340,1591,2580,1620)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99207
+  }
+  TEXT  98861, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2312,1631,2928,1660)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99208
+  }
+  TEXT  98863, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2328,1671,2593,1700)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99209
+  }
+  TEXT  98865, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (501,1831,1099,1860)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99210
+  }
+  TEXT  98867, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (834,1871,1087,1900)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99211
+  }
+  TEXT  98869, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (834,1911,1087,1940)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99212
+  }
+  TEXT  98871, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (842,1951,1078,1980)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 99213
+  }
+  VTX  99055, 0, 0
+  {
+   COORD (1300,800)
+  }
+  VTX  99056, 0, 0
+  {
+   COORD (1140,800)
+  }
+  VTX  99057, 0, 0
+  {
+   COORD (1300,840)
+  }
+  VTX  99058, 0, 0
+  {
+   COORD (1140,840)
+  }
+  VTX  99059, 0, 0
+  {
+   COORD (1300,960)
+  }
+  VTX  99060, 0, 0
+  {
+   COORD (1140,960)
+  }
+  VTX  99061, 0, 0
+  {
+   COORD (1300,1000)
+  }
+  VTX  99062, 0, 0
+  {
+   COORD (1140,1000)
+  }
+  VTX  99063, 0, 0
+  {
+   COORD (1300,1040)
+  }
+  VTX  99064, 0, 0
+  {
+   COORD (1140,1040)
+  }
+  VTX  99065, 0, 0
+  {
+   COORD (1300,1080)
+  }
+  VTX  99066, 0, 0
+  {
+   COORD (1140,1080)
+  }
+  VTX  99067, 0, 0
+  {
+   COORD (1300,1160)
+  }
+  VTX  99068, 0, 0
+  {
+   COORD (1140,1160)
+  }
+  VTX  99069, 0, 0
+  {
+   COORD (1300,1200)
+  }
+  VTX  99070, 0, 0
+  {
+   COORD (1140,1200)
+  }
+  VTX  99071, 0, 0
+  {
+   COORD (1300,1240)
+  }
+  VTX  99072, 0, 0
+  {
+   COORD (1140,1240)
+  }
+  VTX  99073, 0, 0
+  {
+   COORD (1300,1440)
+  }
+  VTX  99074, 0, 0
+  {
+   COORD (1140,1440)
+  }
+  VTX  99075, 0, 0
+  {
+   COORD (1300,1520)
+  }
+  VTX  99076, 0, 0
+  {
+   COORD (1140,1520)
+  }
+  VTX  99077, 0, 0
+  {
+   COORD (1300,1560)
+  }
+  VTX  99078, 0, 0
+  {
+   COORD (1140,1560)
+  }
+  VTX  99079, 0, 0
+  {
+   COORD (1300,1600)
+  }
+  VTX  99080, 0, 0
+  {
+   COORD (1140,1600)
+  }
+  VTX  99081, 0, 0
+  {
+   COORD (1300,1640)
+  }
+  VTX  99082, 0, 0
+  {
+   COORD (1140,1640)
+  }
+  VTX  99083, 0, 0
+  {
+   COORD (1300,1120)
+  }
+  VTX  99084, 0, 0
+  {
+   COORD (1140,1120)
+  }
+  VTX  99085, 0, 0
+  {
+   COORD (1300,1680)
+  }
+  VTX  99086, 0, 0
+  {
+   COORD (1140,1680)
+  }
+  VTX  99087, 0, 0
+  {
+   COORD (1300,1720)
+  }
+  VTX  99088, 0, 0
+  {
+   COORD (1140,1720)
+  }
+  VTX  99089, 0, 0
+  {
+   COORD (1300,1760)
+  }
+  VTX  99090, 0, 0
+  {
+   COORD (1140,1760)
+  }
+  VTX  99091, 0, 0
+  {
+   COORD (1300,1800)
+  }
+  VTX  99092, 0, 0
+  {
+   COORD (1140,1800)
+  }
+  VTX  99093, 0, 0
+  {
+   COORD (1300,1280)
+  }
+  VTX  99094, 0, 0
+  {
+   COORD (1140,1280)
+  }
+  VTX  99095, 0, 0
+  {
+   COORD (1300,1320)
+  }
+  VTX  99096, 0, 0
+  {
+   COORD (1140,1320)
+  }
+  VTX  99097, 0, 0
+  {
+   COORD (1300,1360)
+  }
+  VTX  99098, 0, 0
+  {
+   COORD (1140,1360)
+  }
+  VTX  99099, 0, 0
+  {
+   COORD (1300,1400)
+  }
+  VTX  99100, 0, 0
+  {
+   COORD (1140,1400)
+  }
+  VTX  99101, 0, 0
+  {
+   COORD (1300,880)
+  }
+  VTX  99102, 0, 0
+  {
+   COORD (1140,880)
+  }
+  VTX  99103, 0, 0
+  {
+   COORD (1300,920)
+  }
+  VTX  99104, 0, 0
+  {
+   COORD (1140,920)
+  }
+  VTX  99105, 0, 0
+  {
+   COORD (1300,1480)
+  }
+  VTX  99106, 0, 0
+  {
+   COORD (1140,1480)
+  }
+  VTX  99107, 0, 0
+  {
+   COORD (2140,800)
+  }
+  VTX  99108, 0, 0
+  {
+   COORD (2280,800)
+  }
+  VTX  99109, 0, 0
+  {
+   COORD (2140,880)
+  }
+  VTX  99110, 0, 0
+  {
+   COORD (2280,880)
+  }
+  VTX  99111, 0, 0
+  {
+   COORD (2140,920)
+  }
+  VTX  99112, 0, 0
+  {
+   COORD (2280,920)
+  }
+  VTX  99113, 0, 0
+  {
+   COORD (2140,960)
+  }
+  VTX  99114, 0, 0
+  {
+   COORD (2280,960)
+  }
+  VTX  99115, 0, 0
+  {
+   COORD (2140,1000)
+  }
+  VTX  99116, 0, 0
+  {
+   COORD (2280,1000)
+  }
+  VTX  99117, 0, 0
+  {
+   COORD (2140,1040)
+  }
+  VTX  99118, 0, 0
+  {
+   COORD (2280,1040)
+  }
+  VTX  99119, 0, 0
+  {
+   COORD (2140,1160)
+  }
+  VTX  99120, 0, 0
+  {
+   COORD (2280,1160)
+  }
+  VTX  99121, 0, 0
+  {
+   COORD (2140,1200)
+  }
+  VTX  99122, 0, 0
+  {
+   COORD (2280,1200)
+  }
+  VTX  99123, 0, 0
+  {
+   COORD (2140,1240)
+  }
+  VTX  99124, 0, 0
+  {
+   COORD (2280,1240)
+  }
+  VTX  99125, 0, 0
+  {
+   COORD (2140,1280)
+  }
+  VTX  99126, 0, 0
+  {
+   COORD (2280,1280)
+  }
+  VTX  99127, 0, 0
+  {
+   COORD (2140,840)
+  }
+  VTX  99128, 0, 0
+  {
+   COORD (2280,840)
+  }
+  VTX  99129, 0, 0
+  {
+   COORD (2140,1080)
+  }
+  VTX  99130, 0, 0
+  {
+   COORD (2280,1080)
+  }
+  VTX  99131, 0, 0
+  {
+   COORD (2140,1320)
+  }
+  VTX  99132, 0, 0
+  {
+   COORD (2280,1320)
+  }
+  VTX  99133, 0, 0
+  {
+   COORD (2140,1120)
+  }
+  VTX  99134, 0, 0
+  {
+   COORD (2280,1120)
+  }
+  VTX  99135, 0, 0
+  {
+   COORD (2140,1360)
+  }
+  VTX  99136, 0, 0
+  {
+   COORD (2280,1360)
+  }
+  VTX  99137, 0, 0
+  {
+   COORD (2140,1400)
+  }
+  VTX  99138, 0, 0
+  {
+   COORD (2280,1400)
+  }
+  VTX  99139, 0, 0
+  {
+   COORD (2140,1440)
+  }
+  VTX  99140, 0, 0
+  {
+   COORD (2320,1440)
+  }
+  VTX  99141, 0, 0
+  {
+   COORD (2140,1480)
+  }
+  VTX  99142, 0, 0
+  {
+   COORD (2320,1480)
+  }
+  VTX  99143, 0, 0
+  {
+   COORD (2140,1520)
+  }
+  VTX  99144, 0, 0
+  {
+   COORD (2320,1520)
+  }
+  VTX  99145, 0, 0
+  {
+   COORD (2140,1560)
+  }
+  VTX  99146, 0, 0
+  {
+   COORD (2320,1560)
+  }
+  VTX  99147, 0, 0
+  {
+   COORD (2140,1600)
+  }
+  VTX  99148, 0, 0
+  {
+   COORD (2320,1600)
+  }
+  VTX  99149, 0, 0
+  {
+   COORD (2140,1640)
+  }
+  VTX  99150, 0, 0
+  {
+   COORD (2320,1640)
+  }
+  VTX  99151, 0, 0
+  {
+   COORD (2140,1680)
+  }
+  VTX  99152, 0, 0
+  {
+   COORD (2320,1680)
+  }
+  VTX  99153, 0, 0
+  {
+   COORD (1120,1840)
+  }
+  VTX  99154, 0, 0
+  {
+   COORD (1300,1840)
+  }
+  VTX  99155, 0, 0
+  {
+   COORD (1120,1880)
+  }
+  VTX  99156, 0, 0
+  {
+   COORD (1300,1880)
+  }
+  VTX  99157, 0, 0
+  {
+   COORD (1120,1920)
+  }
+  VTX  99158, 0, 0
+  {
+   COORD (1300,1920)
+  }
+  VTX  99159, 0, 0
+  {
+   COORD (1120,1960)
+  }
+  VTX  99160, 0, 0
+  {
+   COORD (1300,1960)
+  }
+  WIRE  99161, 0, 0
+  {
+   NET 98716
+   VTX 99055, 99056
+  }
+  WIRE  99162, 0, 0
+  {
+   NET 98718
+   VTX 99057, 99058
+  }
+  WIRE  99163, 0, 0
+  {
+   NET 98720
+   VTX 99059, 99060
+  }
+  WIRE  99164, 0, 0
+  {
+   NET 98722
+   VTX 99061, 99062
+  }
+  WIRE  99165, 0, 0
+  {
+   NET 98724
+   VTX 99063, 99064
+  }
+  WIRE  99166, 0, 0
+  {
+   NET 98726
+   VTX 99065, 99066
+  }
+  WIRE  99167, 0, 0
+  {
+   NET 98728
+   VTX 99067, 99068
+  }
+  WIRE  99168, 0, 0
+  {
+   NET 98730
+   VTX 99069, 99070
+  }
+  WIRE  99169, 0, 0
+  {
+   NET 98732
+   VTX 99071, 99072
+  }
+  WIRE  99170, 0, 0
+  {
+   NET 98734
+   VTX 99073, 99074
+  }
+  WIRE  99171, 0, 0
+  {
+   NET 98736
+   VTX 99075, 99076
+  }
+  WIRE  99172, 0, 0
+  {
+   NET 98738
+   VTX 99077, 99078
+  }
+  WIRE  99173, 0, 0
+  {
+   NET 98740
+   VTX 99079, 99080
+  }
+  WIRE  99174, 0, 0
+  {
+   NET 98742
+   VTX 99081, 99082
+  }
+  BUS  99175, 0, 0
+  {
+   NET 98744
+   VTX 99083, 99084
+  }
+  BUS  99176, 0, 0
+  {
+   NET 98746
+   VTX 99085, 99086
+  }
+  BUS  99177, 0, 0
+  {
+   NET 98748
+   VTX 99087, 99088
+  }
+  BUS  99178, 0, 0
+  {
+   NET 98750
+   VTX 99089, 99090
+  }
+  BUS  99179, 0, 0
+  {
+   NET 98752
+   VTX 99091, 99092
+  }
+  BUS  99180, 0, 0
+  {
+   NET 98754
+   VTX 99093, 99094
+  }
+  BUS  99181, 0, 0
+  {
+   NET 98756
+   VTX 99095, 99096
+  }
+  BUS  99182, 0, 0
+  {
+   NET 98758
+   VTX 99097, 99098
+  }
+  BUS  99183, 0, 0
+  {
+   NET 98760
+   VTX 99099, 99100
+  }
+  BUS  99184, 0, 0
+  {
+   NET 98762
+   VTX 99101, 99102
+  }
+  BUS  99185, 0, 0
+  {
+   NET 98764
+   VTX 99103, 99104
+  }
+  BUS  99186, 0, 0
+  {
+   NET 98766
+   VTX 99105, 99106
+  }
+  WIRE  99187, 0, 0
+  {
+   NET 98816
+   VTX 99107, 99108
+  }
+  WIRE  99188, 0, 0
+  {
+   NET 98818
+   VTX 99109, 99110
+  }
+  WIRE  99189, 0, 0
+  {
+   NET 98820
+   VTX 99111, 99112
+  }
+  WIRE  99190, 0, 0
+  {
+   NET 98822
+   VTX 99113, 99114
+  }
+  WIRE  99191, 0, 0
+  {
+   NET 98824
+   VTX 99115, 99116
+  }
+  WIRE  99192, 0, 0
+  {
+   NET 98826
+   VTX 99117, 99118
+  }
+  WIRE  99193, 0, 0
+  {
+   NET 98828
+   VTX 99119, 99120
+  }
+  WIRE  99194, 0, 0
+  {
+   NET 98830
+   VTX 99121, 99122
+  }
+  WIRE  99195, 0, 0
+  {
+   NET 98832
+   VTX 99123, 99124
+  }
+  BUS  99196, 0, 0
+  {
+   NET 98834
+   VTX 99125, 99126
+  }
+  BUS  99197, 0, 0
+  {
+   NET 98836
+   VTX 99127, 99128
+  }
+  BUS  99198, 0, 0
+  {
+   NET 98838
+   VTX 99129, 99130
+  }
+  BUS  99199, 0, 0
+  {
+   NET 98840
+   VTX 99131, 99132
+  }
+  BUS  99200, 0, 0
+  {
+   NET 98842
+   VTX 99133, 99134
+  }
+  BUS  99201, 0, 0
+  {
+   NET 98844
+   VTX 99135, 99136
+  }
+  BUS  99202, 0, 0
+  {
+   NET 98846
+   VTX 99137, 99138
+  }
+  WIRE  99203, 0, 0
+  {
+   NET 99316
+   VTX 99139, 99140
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  99204, 0, 0
+  {
+   NET 99317
+   VTX 99141, 99142
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  99205, 0, 0
+  {
+   NET 99318
+   VTX 99143, 99144
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  99206, 0, 0
+  {
+   NET 99319
+   VTX 99145, 99146
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  99207, 0, 0
+  {
+   NET 99320
+   VTX 99147, 99148
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  99208, 0, 0
+  {
+   NET 99321
+   VTX 99149, 99150
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  99209, 0, 0
+  {
+   NET 99322
+   VTX 99151, 99152
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  99210, 0, 0
+  {
+   NET 99323
+   VTX 99153, 99154
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  99211, 0, 0
+  {
+   NET 99324
+   VTX 99155, 99156
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  99212, 0, 0
+  {
+   NET 99325
+   VTX 99157, 99158
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  99213, 0, 0
+  {
+   NET 99326
+   VTX 99159, 99160
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  99316, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="Bus2SMP_PCP_Clk"
+   }
+  }
+  NET WIRE  99317, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="Bus2SMP_PCP_Reset"
+   }
+  }
+  NET BUS  99318, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2SMP_PCP_Addr(C_SMP_PCP_PLB_AWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  99319, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2SMP_PCP_Data(C_SMP_PCP_PLB_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET WIRE  99320, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="Bus2SMP_PCP_RNW"
+   }
+  }
+  NET BUS  99321, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2SMP_PCP_BE((C_SMP_PCP_PLB_DWIDTH/8)-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  99322, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2SMP_PCP_CS(0:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  99323, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="SMP_PCP2Bus_Data(C_SMP_PCP_PLB_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET WIRE  99324, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="SMP_PCP2Bus_WrAck"
+   }
+  }
+  NET WIRE  99325, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="SMP_PCP2Bus_RdAck"
+   }
+  }
+  NET WIRE  99326, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="SMP_PCP2Bus_Error"
+   }
+  }
+ }
+ 
+}
+
 PAGE ""
 {
  PAGEHEADER
@@ -29301,15 +32314,15 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311684073"
-   PAGENAME="AP_PCP"
-   PAGENUMBER="13"
+   PAGENAME="MAC_CMP"
+   PAGENUMBER="7"
    REVISION="1.0"
   }
  }
  
  BODY
  {
-  TEXT  97845, 0, 0
+  TEXT  99362, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -29320,7 +32333,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  97846, 0, 0
+  TEXT  99363, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -29331,7 +32344,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  97847, 0, 0
+  TEXT  99364, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -29341,7 +32354,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  97848, 0, 0
+  TEXT  99365, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -29353,7 +32366,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  97849, 0, 0
+  TEXT  99366, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -29367,7 +32380,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  97850, 0, 0
+  TEXT  99367, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -29377,7 +32390,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  97851, 0, 0
+  TEXT  99368, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -29389,7 +32402,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  97852, 0, 0
+  TEXT  99369, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -29399,7 +32412,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  97853, 0, 0
+  TEXT  99370, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -29410,7 +32423,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  97854, 0, 0
+  GROUP  99371, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -29422,7 +32435,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  97855, 0, 0
+  GROUP  99372, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -29434,7 +32447,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  97856, 0, 0
+  GROUP  99373, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -29446,7 +32459,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  97857, 0, 0
+  GROUP  99374, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -29458,7 +32471,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  97858, 0, 0
+  GROUP  99375, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -29470,7 +32483,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  97859, 0, 0
+  GROUP  99376, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -29481,17 +32494,17 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  97860, 0, 0
+  LINE  99377, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  97861, 0, 0
+  LINKBMPPICT  99378, 0, 0
   {
    PAGEALIGN 10
-   FILENAME "\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
+   FILENAME ".\\..\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
    RECT (2247,1758,2387,1838)
   }
  }
