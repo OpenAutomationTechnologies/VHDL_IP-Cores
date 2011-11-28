@@ -88,6 +88,7 @@
 #-- 2011-11-07	V1.07	zelenkaj	added generic for dma master qualifiers
 #-- 2011-11-17	V1.08	zelenkaj	pdi dpr vhd-file renamed
 #-- 2011-11-21	V1.09	zelenkaj	added time synchronization feature
+#-- 2011-11-28	V1.10	zelenkaj	added waitrequest signals to pdi pcp/ap
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -1342,6 +1343,7 @@ add_interface_port PDI_PCP pcp_byteenable byteenable Input 4
 add_interface_port PDI_PCP pcp_address address Input 13
 add_interface_port PDI_PCP pcp_writedata writedata Input 32
 add_interface_port PDI_PCP pcp_readdata readdata Output 32
+add_interface_port PDI_PCP pcp_waitrequest waitrequest Output 1
 
 ##Avalon Memory Mapped Slave: AP
 add_interface PDI_AP avalon end
@@ -1369,6 +1371,7 @@ add_interface_port PDI_AP ap_byteenable byteenable Input 4
 add_interface_port PDI_AP ap_address address Input 13
 add_interface_port PDI_AP ap_writedata writedata Input 32
 add_interface_port PDI_AP ap_readdata readdata Output 32
+add_interface_port PDI_AP ap_waitrequest waitrequest Output 1
 
 ###PDI AP IRQ source
 add_interface PDI_AP_IRQ interrupt end

@@ -69,6 +69,7 @@
 -- 2011-10-20	V1.02	zelenkaj	SMI export of in, out and tristate, endian generic
 -- 2011-11-07	V1.03	zelenkaj	dma generic for PLB/AXI support necessary
 -- 2011-11-21	V1.04	zelenkaj	added time synchronization feature
+-- 2011-11-28	V1.05	zelenkaj	added waitrequest signals to pdi pcp/ap
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -191,6 +192,7 @@ entity powerlink is
 	    pcp_address                 : in    std_logic_vector(12 downto 0);
 	    pcp_writedata               : in    std_logic_vector(31 downto 0);
 	    pcp_readdata                : out   std_logic_vector(31 downto 0) := (others => '0');
+		pcp_waitrequest				: out	std_logic;
 	--- AP PORTS
 		ap_irq						: out	std_logic := '0';
 		ap_irq_n					: out	std_logic := '1';
@@ -204,6 +206,7 @@ entity powerlink is
 		ap_address                  : in    std_logic_vector(12 downto 0);
 		ap_writedata                : in    std_logic_vector(31 downto 0);
 		ap_readdata                 : out   std_logic_vector(31 downto 0) := (others => '0');
+		ap_waitrequest				: out	std_logic;
 	---- 8/16bit parallel
 		pap_cs						: in    std_logic;
 		pap_rd						: in    std_logic;
@@ -391,6 +394,7 @@ begin
 				pcp_address                 => pcp_address,
 				pcp_writedata               => pcp_writedata,
 				pcp_readdata                => pcp_readdata,
+				pcp_waitrequest				=> pcp_waitrequest,
 				pcp_irq						=> irqToggle,
 				-- Avalon Slave Interface for AP
 				ap_chipselect               => ap_chipselect,
@@ -400,6 +404,7 @@ begin
 				ap_address                  => ap_address,
 				ap_writedata                => ap_writedata,
 				ap_readdata                 => ap_readdata,
+				ap_waitrequest				=> ap_waitrequest,
 				ap_irq						=> ap_irq_s,
 				-- async interrupt
 				ap_asyncIrq					=> ap_asyncIrq_s,
@@ -508,6 +513,7 @@ begin
 				pcp_address                 => pcp_address,
 				pcp_writedata               => pcp_writedata,
 				pcp_readdata                => pcp_readdata,
+				pcp_waitrequest				=> pcp_waitrequest,
 				pcp_irq						=> irqToggle,
 				-- Avalon Slave Interface for AP
 				ap_chipselect               => ap_chipselect_s,
@@ -517,6 +523,7 @@ begin
 				ap_address                  => ap_address_s,
 				ap_writedata                => ap_writedata_s,
 				ap_readdata                 => ap_readdata_s,
+				ap_waitrequest				=> open,
 				ap_irq						=> ap_irq_s,
 				-- async interrupt
 				ap_asyncIrq					=> ap_asyncIrq_s,
@@ -623,6 +630,7 @@ begin
 				pcp_address                 => pcp_address,
 				pcp_writedata               => pcp_writedata,
 				pcp_readdata                => pcp_readdata,
+				pcp_waitrequest				=> pcp_waitrequest,
 				pcp_irq						=> irqToggle,
 				-- Avalon Slave Interface for AP
 				ap_chipselect               => ap_chipselect_s,
@@ -632,6 +640,7 @@ begin
 				ap_address                  => ap_address_s,
 				ap_writedata                => ap_writedata_s,
 				ap_readdata                 => ap_readdata_s,
+				ap_waitrequest				=> open,
 				ap_irq						=> ap_irq_s,
 				-- async interrupt
 				ap_asyncIrq					=> ap_asyncIrq_s,

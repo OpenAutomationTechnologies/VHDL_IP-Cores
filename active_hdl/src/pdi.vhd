@@ -64,6 +64,7 @@
 -- 2011-08-08	V0.30	zelenkaj	LED gadget enhancement -> added 8 general purpose outputs
 -- 2011-08-16	V0.31	zelenkaj	status/control register enhanced by 8 bytes (again...)
 -- 2011-11-21	V0.32	zelenkaj	added time synchronization feature
+-- 2011-11-28	V0.33	zelenkaj	added waitrequest signals
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -107,6 +108,7 @@ entity pdi is
             pcp_address               	: in    std_logic_vector(12 DOWNTO 0);
             pcp_writedata             	: in    std_logic_vector(31 DOWNTO 0);
             pcp_readdata              	: out   std_logic_vector(31 DOWNTO 0);
+			pcp_waitrequest				: out	std_logic;
 			pcp_irq						: in	std_logic; --should be connected to the Time Cmp Toggle of openMAC!
 		-- Avalon Slave Interface for AP
             ap_chipselect               : in    std_logic;
@@ -116,6 +118,7 @@ entity pdi is
             ap_address                  : in    std_logic_vector(12 DOWNTO 0);
             ap_writedata                : in    std_logic_vector(31 DOWNTO 0);
             ap_readdata                 : out   std_logic_vector(31 DOWNTO 0);
+			ap_waitrequest				: out	std_logic;
 			ap_irq						: out	std_logic; --Sync Irq to the AP
 		-- async interrupt
 			ap_asyncIrq					: out	std_logic; --Async Irq to the Ap
@@ -1229,5 +1232,73 @@ genRpdo2 : if iRpdos_g >= 3 generate
 --
 ------------------------------------------------------------------------------------------------------------------------
 end generate;
+
+------------------------------------------------------------------------------------------------------------------------
+-- waitrequest signals
+	theWaitrequestGenerators : block
+		signal pcp_wr, pcp_rd, pcp_rd_ack, pcp_wr_ack : std_logic;
+		signal ap_wr, ap_rd, ap_rd_ack, ap_wr_ack : std_logic;
+	begin
+		
+		-- PCP
+		thePcpWrWaitReqAckGen : entity work.req_ack
+		generic map (
+			zero_delay_g => true
+		)
+		port map (
+			clk => pcp_clk,
+			rst => pcp_reset,
+			enable => pcp_wr,
+			ack => pcp_wr_ack
+		);
+		
+		thePcpRdWaitReqAckGen : entity work.req_ack
+		generic map (
+			ack_delay_g => 2,
+			zero_delay_g => false
+		)
+		port map (
+			clk => pcp_clk,
+			rst => pcp_reset,
+			enable => pcp_rd,
+			ack => pcp_rd_ack
+		);
+		
+		pcp_wr <= pcp_chipselect and pcp_write;
+		pcp_rd <= pcp_chipselect and pcp_read;
+		pcp_waitrequest <= not(pcp_rd_ack or pcp_wr_ack);
+		
+		-- AP
+		theApWrWaitReqAckGen : entity work.req_ack
+		generic map (
+			zero_delay_g => true
+		)
+		port map (
+			clk => ap_clk,
+			rst => ap_reset,
+			enable => ap_wr,
+			ack => ap_wr_ack
+		);
+		
+		theApRdWaitReqAckGen : entity work.req_ack
+		generic map (
+			ack_delay_g => 2,
+			zero_delay_g => false
+		)
+		port map (
+			clk => ap_clk,
+			rst => ap_reset,
+			enable => ap_rd,
+			ack => ap_rd_ack
+		);
+		
+		ap_wr <= ap_chipselect and ap_write;
+		ap_rd <= ap_chipselect and ap_read;
+		ap_waitrequest <= not(ap_rd_ack or ap_wr_ack);
+		
+	end block;
+
+--
+------------------------------------------------------------------------------------------------------------------------
 
 end architecture rtl;
