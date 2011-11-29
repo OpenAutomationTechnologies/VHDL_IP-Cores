@@ -232,7 +232,8 @@ entity powerlink is
 		smp_readdata   				: out   std_logic_vector(31 downto 0) := (others => '0');
 		smp_write      				: in    std_logic;
 		smp_writedata  				: in    std_logic_vector(31 downto 0);
-		smp_byteenable 				: in    std_logic_vector(3 downto 0);
+		smp_byteenable 				: in    std_logic_vector(3 downto 0); 
+		smp_waitrequest				: out 	std_logic;
 		pio_pconfig    				: in    std_logic_vector(3 downto 0);
 		pio_portInLatch				: in 	std_logic_vector(3 downto 0);
 		pio_portOutValid 			: out 	std_logic_vector(3 downto 0) := (others => '0');
@@ -669,7 +670,8 @@ begin
 				s0_readdata			=> smp_readdata,
 				s0_write			=> smp_write,
 				s0_writedata		=> smp_writedata,
-				s0_byteenable		=> smp_byteenable,
+				s0_byteenable		=> smp_byteenable,		   
+				s0_waitrequest		=> smp_waitrequest,
 				clk					=> clkPcp,
 				reset				=> rstPcp,
 				x_pconfig			=> pio_pconfig,
