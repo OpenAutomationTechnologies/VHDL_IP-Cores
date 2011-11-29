@@ -58,6 +58,7 @@ entity portio is
 		s0_write      	: in    std_logic;
 		s0_writedata  	: in    std_logic_vector(31 downto 0);
 		s0_byteenable 	: in    std_logic_vector(3 downto 0);
+		s0_waitrequest	: out	std_logic;
 		clk        		: in    std_logic;
 		reset      		: in    std_logic;
 		x_pconfig    	: in    std_logic_vector(3 downto 0);
@@ -158,6 +159,37 @@ begin
 			
 		end if;
 	end process;
+	
+	-- waitrequest signals
+	theWaitrequestGenerators : block
+		signal s0_rd_ack, s0_wr_ack : std_logic;
+	begin
+		
+		-- PCP
+		thePcpWrWaitReqAckGen : entity work.req_ack
+		generic map (
+			zero_delay_g => true
+		)
+		port map (
+			clk => clk,
+			rst => reset,
+			enable => s0_write,
+			ack => s0_wr_ack
+		);
+		
+		thePcpRdWaitReqAckGen : entity work.req_ack
+		generic map (
+			zero_delay_g => true
+		)
+		port map (
+			clk => clk,
+			rst => reset,
+			enable => s0_read,
+			ack => s0_rd_ack
+		);
+		
+		s0_waitrequest <= not(s0_rd_ack or s0_wr_ack);
+	end block;
 	
 	--synchronize input signals
 	genSyncInputs : for i in sPortIn'range generate
