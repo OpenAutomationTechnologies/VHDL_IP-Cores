@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_DMAmaster.vhd
--- Generated   : Thu Nov 24 15:08:51 2011
+-- Generated   : Tue Nov 29 09:42:57 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_DMAmaster.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -54,6 +54,7 @@
 --
 -- 2011-08-03	V0.01	zelenkaj	First version
 -- 2011-10-13	V0.02	zelenkaj	changed names of instances
+-- 2011-11-28	V0.02	zelenkaj	Added DMA observer
 --
 -------------------------------------------------------------------------------
 
@@ -99,6 +100,8 @@ entity openMAC_DMAmaster is
        m_read : out std_logic;
        m_write : out std_logic;
        dma_din : out std_logic_vector(15 downto 0);
+       dma_rd_err : out std_logic_vector(7 downto 0);
+       dma_wr_err : out std_logic_vector(7 downto 0);
        m_address : out std_logic_vector(dma_highadr_g downto 0);
        m_burstcount : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_burstcounter : out std_logic_vector(m_burstcount_width_g-1 downto 0);
@@ -142,6 +145,8 @@ component dma_handler
        dma_addr_out : out std_logic_vector(dma_highadr_g downto 1);
        dma_new_addr_rd : out std_logic;
        dma_new_addr_wr : out std_logic;
+       dma_rd_err : out std_logic_vector(7 downto 0);
+       dma_wr_err : out std_logic_vector(7 downto 0);
        rx_aclr : out std_logic;
        rx_wr_req : out std_logic;
        tx_rd_req : out std_logic
@@ -307,8 +312,10 @@ THE_DMA_HANDLER : dma_handler
        dma_clk => dma_clk,
        dma_new_addr_rd => dma_new_addr_rd,
        dma_new_addr_wr => dma_new_addr_wr,
+       dma_rd_err => dma_rd_err,
        dma_req_rd => dma_req_rd,
        dma_req_wr => dma_req_wr,
+       dma_wr_err => dma_wr_err,
        mac_rx_off => mac_rx_off,
        mac_rx_on => mac_rx_on,
        mac_tx_off => mac_tx_off,

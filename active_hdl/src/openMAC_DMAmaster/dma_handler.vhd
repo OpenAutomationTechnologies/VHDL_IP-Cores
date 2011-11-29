@@ -46,6 +46,7 @@
 -------------------------------------------------------------------------------
 --
 -- 2011-08-03  	V0.01	zelenkaj    First version
+-- 2011-11-28	V0.02	zelenkaj	Added DMA observer
 --
 -------------------------------------------------------------------------------
 
@@ -87,7 +88,9 @@ entity dma_handler is
 		rx_wr_clk : in std_logic;
 		dma_addr_out : out std_logic_vector(dma_highadr_g downto 1);
 		dma_new_addr_wr : out std_logic;
-		dma_new_addr_rd : out std_logic
+		dma_new_addr_rd : out std_logic;
+		dma_rd_err : out std_logic_vector(7 downto 0);
+		dma_wr_err : out std_logic_vector(7 downto 0)
 	);
 end dma_handler;
 
@@ -101,6 +104,11 @@ signal tx_fsm, tx_fsm_next, rx_fsm, rx_fsm_next : transfer_t := idle;
 
 --dma signals
 signal dma_ack_rd_s, dma_ack_wr_s : std_logic;
+
+--dma observer
+signal observ_cnt, observ_cnt_next : std_logic_vector(2 downto 0);
+signal observ_rd_err, observ_wr_err : std_logic_vector(7 downto 0);
+signal observ_rd_err_next, observ_wr_err_next : std_logic_vector(7 downto 0);
 begin
 	--dma_clk, tx_rd_clk and rx_wr_clk are the same!
 	clk <= dma_clk; --to ease typing
@@ -112,31 +120,60 @@ begin
 		if rst = '1' then
 			if gen_tx_fifo_g then
 				tx_fsm <= idle;
+				observ_rd_err <= (others => '0');
 			end if;
 			if gen_rx_fifo_g then
 				rx_fsm <= idle;
+				observ_wr_err <= (others => '0');
 			end if;
+			
+			observ_cnt <= (others => '0');
+			
 		elsif clk = '1' and clk'event then
 			if gen_tx_fifo_g then
 				tx_fsm <= tx_fsm_next;
+				observ_rd_err <= observ_rd_err_next;
 			end if;
 			if gen_rx_fifo_g then
 				rx_fsm <= rx_fsm_next;
+				observ_wr_err <= observ_wr_err_next;
 			end if;
+			
+			observ_cnt <= observ_cnt_next;
+			
 		end if;
 	end process;
 	
 	tx_fsm_next <= 	idle when gen_tx_fifo_g = false else --hang here if generic disables tx handling
 					first when tx_fsm = idle and dma_req_rd = '1' else
-					run when tx_fsm = first else
-					idle when tx_fsm = run and mac_tx_off = '1' else
+					run when tx_fsm = first and dma_ack_rd_s = '1' else
+					idle when mac_tx_off = '1' else
 					tx_fsm;
 	
 	rx_fsm_next <= 	idle when gen_rx_fifo_g = false else --hang here if generic disables rx handling
 					first when rx_fsm = idle and dma_req_wr = '1' else
 					run when rx_fsm = first else
-					idle when rx_fsm = run and mac_rx_off = '1' else
+					idle when mac_rx_off = '1' else
 					rx_fsm;
+	
+	observ_cnt_next <= --count up if there is an request (for TX only after the first req)
+					observ_cnt + 1 when dma_req_wr = '1' or (dma_req_rd = '1' and tx_fsm = run) else
+					(others => '0');
+	
+	observ_rd_err_next <= --count read errors
+					(others => '0') when gen_tx_fifo_g = false else
+					observ_rd_err when observ_rd_err = x"FF" else --saturate
+					observ_rd_err + 1 when dma_req_rd = '1' and dma_ack_rd_s = '0' and observ_cnt = "111" else
+					observ_rd_err;
+	
+	observ_wr_err_next <= --count write errors
+					(others => '0') when gen_rx_fifo_g = false else
+					observ_wr_err when observ_wr_err = x"FF" else --saturate
+					observ_wr_err + 1 when dma_req_wr = '1' and dma_ack_wr_s = '0' and observ_cnt = "111" else
+					observ_wr_err;
+	
+	dma_rd_err <= observ_rd_err;
+	dma_wr_err <= observ_wr_err;
 	
 	dma_ack_rd <= dma_ack_rd_s;
 	dma_ack_wr <= dma_ack_wr_s;

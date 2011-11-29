@@ -58,6 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 							added optional debugging and CPU UTIL feature
  2011/08/09		zelenkaj	RX packet pending works with int. packet buffers
  2011/10/25		zelenkaj	added Microblaze support
+ 2011/11/29		zelenkaj	added DMA observer feature
+							removed old IP-core support
 ----------------------------------------------------------------------------*/
 
 
@@ -111,6 +113,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
 	#define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
 	#define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
+	#define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
 	#define EDRV_CMP_BASE           (void *)POWERLINK_0_MAC_CMP_BASE
 	#define EDRV_CMP_SPAN                   POWERLINK_0_MAC_CMP_SPAN
 	#define EDRV_PKT_LOC					POWERLINK_0_MAC_REG_PKTLOC
@@ -129,20 +132,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
 #endif
 #elif defined(__OPENMAC) //OPENMAC IP-core used
-	#define EDRV_MAC_BASE           (void*)(OPENMAC_0_REG_BASE)
-	#define EDRV_MAC_SPAN                  (OPENMAC_0_REG_SPAN)
-	#define EDRV_MAC_IRQ                   (OPENMAC_0_REG_IRQ)
-	#define EDRV_RAM_BASE                  (EDRV_MAC_BASE + 0x0800)
-	#define EDRV_MII_BASE                  (EDRV_MAC_BASE + 0x1000)
-	#define EDRV_IRQ_BASE                  (EDRV_MAC_BASE + 0x1010)
-	#define EDRV_PKT_BASE           (void*)(OPENMAC_0_IBUF_BASE)
-	#define EDRV_PKT_SPAN                  (OPENMAC_0_IBUF_TXBUFSIZE + OPENMAC_0_IBUF_RXBUFSIZE)
-	#define EDRV_CMP_BASE           (void *)OPENMAC_0_CMP_BASE
-	#define EDRV_CMP_SPAN                   OPENMAC_0_CMP_SPAN
-
-	#define EDRV_MAX_RX_BUFFERS         	OPENMAC_0_REG_RXBUFFERS
-	#define EDRV_PKT_LOC					0 //TODO: use generic from SOPC
-	#define EDRV_PHY_NUM					1 //TODO: use generic from SOPC
+	#error "Not supported! Please change to POWERLINK IP-core!"
 #else
 	#error "Configuration is unknown!"
 #endif
@@ -155,6 +145,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
 	#define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
 	#define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
+	#define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
 	#define EDRV_CMP_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
 	#define EDRV_CMP_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_CMP_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR+1)
 	#define EDRV_PKT_LOC					0 //TODO: set value in XPS
@@ -234,8 +225,10 @@ void usleep(int time)
 
 #ifdef __NIOS2__
 #define EDRV_RD32(base, offset)		IORD_32DIRECT(base, offset)
+#define EDRV_RD16(base, offset)		IORD_16DIRECT(base, offset)
 #elif defined(__MICROBLAZE__)
 #define EDRV_RD32(base, offset)		Xil_In32((base+offset))
+#define EDRV_RD16(base, offset)		Xil_In16((base+offset))
 #else
 #error "Configuration unknown!"
 #endif
@@ -273,6 +266,9 @@ typedef struct _tEdrvInstance
     BYTE                    m_ubTxBufCnt;
     void*					m_pBufBase;
     DWORD					m_dwBufSpan;
+#endif
+#ifdef EDRV_DEBUG
+    BOOL					m_fDmaError;
 #endif
 
 #ifdef EDRV_2NDTXQUEUE
@@ -600,6 +596,13 @@ tEplKernel EdrvShutdown(void)
     	}
     	PRINTF0("\n");
     }
+
+    if( EdrvInstance_l.m_fDmaError == TRUE )
+    {
+    	//if you see this the openMAC DMA is connected to slow memory!
+    	// -> use embedded memory or 10 nsec SRAM!!!
+    	printf("OPENMAC DMA TRANSFER ERROR\n");
+    }
 #endif
 
     PRINTF0("Shutdown Ethernet Driver... ");
@@ -801,7 +804,16 @@ tEplKernel EdrvUpdateTxMsgBuffer     (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 
-    if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_FILTERS)
+#ifdef EDRV_DEBUG
+    if( EdrvInstance_l.m_fDmaError == TRUE )
+    {
+    	//provoke error to kill the node
+		Ret = kEplEdrvInvalidParam;
+		goto Exit;
+    }
+#endif
+
+	if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_FILTERS)
     {
         Ret = kEplEdrvInvalidParam;
         goto Exit;
@@ -846,6 +858,15 @@ tEplKernel EdrvSendTxMsg              (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 unsigned long       ulTxLength;
+
+#ifdef EDRV_DEBUG
+	if( EdrvInstance_l.m_fDmaError == TRUE )
+	{
+		//provoke error to kill the node
+		Ret = kEplEdrvNoFreeBufEntry;
+		goto Exit;
+	}
+#endif
 
 #ifndef EDRV_TTTX
     if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
@@ -1243,6 +1264,14 @@ static void EdrvIrqHandler (void* pArg_p, DWORD dwInt_p)
 	isrcall_cpuutil();
 #endif
 
+#ifdef EDRV_DEBUG
+	//read DMA observer feature
+	if( EDRV_RD16(EDRV_DOB_BASE, 0) != 0 )
+	{
+		EdrvInstance_l.m_fDmaError = TRUE;
+	}
+#endif
+
 	//handle sent packets
 	while( EDRV_RD32(EDRV_IRQ_BASE, 0) & 0x1 )
     {
@@ -1344,6 +1373,7 @@ unsigned int        uiIndex;
 tEplTgtTimeStamp    TimeStamp;
 
     BENCHMARK_MOD_01_SET(6);
+
     rxBuffer.m_BufferInFrame = kEdrvBufferLastInFrame;
     rxBuffer.m_pbBuffer = (BYTE *) &pPacket->data;
     rxBuffer.m_uiRxMsgLen = pPacket->length;
