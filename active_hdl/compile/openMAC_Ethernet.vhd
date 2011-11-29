@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_Ethernet.vhd
--- Generated   : Mon Nov 28 07:54:28 2011
+-- Generated   : Tue Nov 29 12:58:48 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -57,6 +57,7 @@
 -- 2011-10-13	V0.03	zelenkaj	changed names of instances
 -- 2011-11-07	V0.04	zelenkaj	added big/little endian consideration
 --					minor changes in SMI core generation
+-- 2011-11-28	V0.05	zelenkaj	Added DMA observer
 --
 -------------------------------------------------------------------------------
 
@@ -330,6 +331,8 @@ component openMAC_DMAmaster
        dma_ack_rd : out std_logic;
        dma_ack_wr : out std_logic;
        dma_din : out std_logic_vector(15 downto 0);
+       dma_rd_err : out std_logic_vector(7 downto 0);
+       dma_wr_err : out std_logic_vector(7 downto 0);
        m_address : out std_logic_vector(dma_highadr_g downto 0);
        m_burstcount : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_burstcounter : out std_logic_vector(m_burstcount_width_g-1 downto 0);
@@ -439,6 +442,9 @@ signal cmp_rd : std_logic;
 signal cmp_rd_ack : std_logic;
 signal cmp_wr : std_logic;
 signal cmp_wr_ack : std_logic;
+signal dmaErr_ack : std_logic;
+signal dmaErr_read : std_logic;
+signal dmaErr_sel : std_logic;
 signal dma_ack : std_logic;
 signal dma_ack_rd_mst : std_logic;
 signal dma_ack_read : std_logic;
@@ -477,6 +483,7 @@ signal mac_tx_off : std_logic;
 signal mac_tx_on : std_logic;
 signal mac_write : std_logic;
 signal mac_write_n : std_logic;
+signal minor_sel : std_logic;
 signal NET19788 : std_logic;
 signal phy0_rx_dv_s : std_logic;
 signal phy0_rx_err_s : std_logic;
@@ -514,6 +521,8 @@ signal dma_din_mst : std_logic_vector (15 downto 0);
 signal dma_din_s : std_logic_vector (15 downto 0);
 signal dma_dout : std_logic_vector (15 downto 0);
 signal dma_dout_s : std_logic_vector (15 downto 0);
+signal dma_rd_err : std_logic_vector (7 downto 0);
+signal dma_wr_err : std_logic_vector (7 downto 0);
 signal flt0_rx_dat : std_logic_vector (1 downto 0);
 signal flt0_tx_dat : std_logic_vector (1 downto 0);
 signal flt1_rx_dat : std_logic_vector (1 downto 0);
@@ -552,7 +561,7 @@ begin
 s_waitrequest <= 
 	not(s_write_ack or mac_cont_ack
 	or mac_ram_ack or smi_ack 
-	or irqTable_ack);
+	or irqTable_ack or dmaErr_ack);
 --assign address bus and be to openMAC
 mac_addr <= 
 	s_address(9 downto 1) & s_address(0) when mac_selfilter = '1' and endian_g = "little" else
@@ -574,6 +583,7 @@ s_readdata <=
 	mac_dout when (mac_selram = '1' or mac_selcont = '1') and endian_g = "big" else
 	smi_dout when smi_sel = '1' else
 	irqTable when irqTable_sel = '1' else
+	dma_rd_err & dma_wr_err when dmaErr_sel = '1' else
 	(others => '0');
 --assign writedata to input data
 mac_din <=
@@ -695,6 +705,8 @@ dma_req_write <= not(dma_rw) and dma_req;
 
 dma_ack <= dma_ack_write or dma_ack_read;
 
+minor_sel <= irqTable_sel or dmaErr_sel;
+
 dma_req_read <= dma_rw and dma_req;
 
 phy0_smi_clk <= smi_clk;
@@ -709,6 +721,8 @@ t_waitrequest <= not(cmp_wr_ack or cmp_rd_ack);
 
 cmp_rd <= t_read and t_chipselect;
 
+dmaErr_read <= s_read and dmaErr_sel;
+
 mac_cont_read <= s_read and mac_selcont;
 
 mac_ram_read <= s_read and mac_selram;
@@ -717,7 +731,7 @@ smi_read <= s_read and smi_sel;
 
 irqTable_read <= s_read and irqTable_sel;
 
-slave_sel_invalid <= not(irqTable_sel or smi_sel or mac_selram or mac_selcont);
+slave_sel_invalid <= not(minor_sel or smi_sel or mac_selram or mac_selcont);
 
 NET19788 <= slave_sel_invalid or s_write;
 
@@ -781,6 +795,18 @@ addrdec4 : addr_decoder
        addr => s_address_s( s_address'length downto 0 ),
        selin => s_chipselect,
        selout => irqTable_sel
+  );
+
+addrdec5 : addr_decoder
+  generic map (
+       addrWidth_g => s_address'length+1,
+       baseaddr_g => 16#1020#,
+       highaddr_g => 16#102F#
+  )
+  port map(
+       addr => s_address_s( s_address'length downto 0 ),
+       selin => s_chipselect,
+       selout => dmaErr_sel
   );
 
 edgedet0 : edgeDet
@@ -882,6 +908,18 @@ regack6 : req_ack
        ack => cmp_wr_ack,
        clk => clk,
        enable => cmp_wr,
+       rst => rst
+  );
+
+regack9 : req_ack
+  generic map (
+       ack_delay_g => 1,
+       zero_delay_g => false
+  )
+  port map(
+       ack => dmaErr_ack,
+       clk => clk,
+       enable => dmaErr_read,
        rst => rst
   );
 
@@ -1234,8 +1272,10 @@ begin
          dma_clk => clk,
          dma_din => dma_din_mst,
          dma_dout => dma_dout,
+         dma_rd_err => dma_rd_err,
          dma_req_rd => dma_req_read,
          dma_req_wr => dma_req_write,
+         dma_wr_err => dma_wr_err,
          m_address => m_address( 29 downto 0 ),
          m_burstcount => m_burstcount( m_burstcount_width_g-1 downto 0 ),
          m_burstcounter => m_burstcounter( m_burstcount_width_g-1 downto 0 ),
