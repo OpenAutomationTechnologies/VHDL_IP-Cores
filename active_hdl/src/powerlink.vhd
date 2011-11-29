@@ -70,6 +70,7 @@
 -- 2011-11-07	V1.03	zelenkaj	dma generic for PLB/AXI support necessary
 -- 2011-11-21	V1.04	zelenkaj	added time synchronization feature
 -- 2011-11-28	V1.05	zelenkaj	added waitrequest signals to pdi pcp/ap
+-- 2011-11-29	V1.06	zelenkaj	event is optional
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -111,6 +112,7 @@ entity powerlink is
 		genABuf2_g					:		boolean 							:= true; --if false iABuf2_g must be set to 0!
 		genLedGadget_g				:		boolean 							:= false;
 		genTimeSync_g				:		boolean								:= false;
+		genEvent_g					:		boolean								:= false;
 		--PDO buffer size *3
 		iTpdoBufSize_g				:		integer 							:= 100;
 		iRpdo0BufSize_g				:		integer 							:= 100;
@@ -298,8 +300,6 @@ architecture rtl of powerlink is
 	signal smi_Do					:		std_logic							:= '0';
 	signal smi_Doe					:		std_logic							:= '0';
 	signal phy_nResetOut			:		std_logic							:= '0';
-	signal rstPcp_n					:		std_logic							:= '0';
-	signal rstAp_n					:		std_logic							:= '0';
 	signal irqToggle				:		std_logic							:= '0';
 	
 	signal ap_chipselect_s			:		std_logic							:= '0';
@@ -340,8 +340,6 @@ architecture rtl of powerlink is
 	
 begin
 	--general signals
-	rstPcp_n <= not rstPcp;
-	rstAp_n <= not rstAp_s;
 	clkAp_s <= clkAp when genOnePdiClkDomain_g = FALSE else clkPcp;
 	rstAp_s <= rstAp when genOnePdiClkDomain_g = FALSE else rstPcp;
 	
@@ -373,6 +371,7 @@ begin
 				genABuf2_g					=> genABuf2_g,
 				genLedGadget_g				=> genLedGadget_g,
 				genTimeSync_g				=> genTimeSync_g,
+				genEvent_g					=> genEvent_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -492,6 +491,7 @@ begin
 				genABuf2_g					=> genABuf2_g,
 				genLedGadget_g				=> genLedGadget_g,
 				genTimeSync_g				=> genTimeSync_g,
+				genEvent_g					=> genEvent_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -609,6 +609,7 @@ begin
 				genABuf2_g					=> genABuf2_g,
 				genLedGadget_g				=> genLedGadget_g,
 				genTimeSync_g				=> genTimeSync_g,
+				genEvent_g					=> genEvent_g,
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -705,7 +706,8 @@ begin
 			m_rx_fifo_size_g => m_rx_fifo_size_g,
 			m_tx_burst_size_g => m_tx_burst_size_g,
 			m_rx_burst_size_g => m_rx_burst_size_g,
-			genSmiIO => genSmiIO
+			genSmiIO => genSmiIO,
+			genPhyActLed_g => genLedGadget_g
 		)
 		port map(
 			clk => clk50,

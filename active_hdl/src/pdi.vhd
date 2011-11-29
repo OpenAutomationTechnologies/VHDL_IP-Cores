@@ -65,6 +65,7 @@
 -- 2011-08-16	V0.31	zelenkaj	status/control register enhanced by 8 bytes (again...)
 -- 2011-11-21	V0.32	zelenkaj	added time synchronization feature
 -- 2011-11-28	V0.33	zelenkaj	added waitrequest signals
+-- 2011-11-29	V0.34	zelenkaj	event support is optional
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -85,6 +86,7 @@ entity pdi is
 			genABuf2_g					:		boolean := true; --if false iABuf2_g must be set to 0!
 			genLedGadget_g				:		boolean := false;
 			genTimeSync_g				:		boolean := false;
+			genEvent_g					:		boolean := false;
 			--PDO buffer size *3
 			iTpdoBufSize_g				:		integer := 100;
 			iRpdo0BufSize_g				:		integer := 116; --includes header
@@ -466,7 +468,9 @@ begin
 			iBaseMap2_g					=> intCntStReg_c.base/4, --base address in dpr
 			iDprAddrWidth_g				=> dprCntStReg_s.pcp.addr'length,
 			iRpdos_g					=> iRpdos_g,
+			genLedGadget_g				=> genLedGadget_g,
 			genTimeSync_g				=> genTimeSync_g,
+			genEvent_g					=> genEvent_g,
 			--register content
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
@@ -552,19 +556,16 @@ begin
 	
 	--sync double buffer select for time sync to AP if the feature is enabled
 	-- note: signal toggles on PCP side when NETTIME [seconds] is written
-	genDBufSync : if genTimeSync_g generate
-	begin
-		syncDBuf_TimeSync : entity work.sync
-			generic map (
-				doSync_g => not genOnePdiClkDomain_g
-			)
-			port map (
-				din => pcp_timeSyncDBufSel,
-				dout => ap_timeSyncDBufSel,
-				clk => ap_clk,
-				rst => ap_reset
-			);
-	end generate;
+	syncDBuf_TimeSync : entity work.sync
+		generic map (
+			doSync_g => not genOnePdiClkDomain_g
+		)
+		port map (
+			din => pcp_timeSyncDBufSel,
+			dout => ap_timeSyncDBufSel,
+			clk => ap_clk,
+			rst => ap_reset
+		);
 	
 	theCntrlStatReg4Ap : entity work.pdiControlStatusReg
 	generic map (
@@ -575,7 +576,9 @@ begin
 			iBaseMap2_g					=> intCntStReg_c.base/4, --base address in dpr
 			iDprAddrWidth_g				=> dprCntStReg_s.ap.addr'length,
 			iRpdos_g					=> iRpdos_g,
+			genLedGadget_g				=> genLedGadget_g,
 			genTimeSync_g				=> genTimeSync_g,
+			genEvent_g					=> genEvent_g,
 			--register content
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
@@ -692,94 +695,97 @@ begin
 		);
 	end generate;
 	
-	theEventBlock : block
-		--set here the number of events
-		constant iSwEvent_c : integer := 1;
-		constant iHwEvent_c : integer := 2;
-		
-		signal eventSetA	: std_logic_vector(iSwEvent_c-1 downto 0);
-		signal eventReadA	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
-		
-		signal eventAckB	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
-		signal eventReadB	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
+	genEventComp : if genEvent_g generate
 	begin
-		
-		--event mapping: 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
-		-- in register    x  x  x  x  x  x  x  x hw hw  x  x  x  x  x sw
-		-- in pdiEvent                                          hw hw sw
-		eventSetA <= pcp_eventSet_s(0 downto 0); --pcp sets sw event (I know, its called generic event, bla...)
-		pcp_eventRead <= x"00" & eventReadA(iSwEvent_c+iHwEvent_c-1 downto iSwEvent_c) & 
-						"00000" & eventReadA(iSwEvent_c-1 downto 0);
-		
-		eventAckB <= ap_eventAck_p(7 downto 6) & ap_eventAck_p(0); --ap acks events
-		ap_eventAck <= x"00" & eventReadB(iSwEvent_c+iHwEvent_c-1 downto iSwEvent_c) & 
-						"00000" & eventReadB(iSwEvent_c-1 downto 0);
-		
-		theEventStuff : entity work.pdiEvent
-		--16 bit
-		-- sw is at bit 0
-		-- hw is at bit 6 and 7
-		generic map (
-				genOnePdiClkDomain_g => genOnePdiClkDomain_g,
-				iSwEvent_g => 1,
-				iHwEvent_g => 2
-		)
-				
-		port map (  
-				--port A -> PCP
-				clkA						=> pcp_clk,
-				rstA						=> pcp_reset,
-				eventSetA					=> eventSetA,
-				eventReadA					=> eventReadA,
-				--port B -> AP
-				clkB						=> ap_clk,
-				rstB						=> ap_reset,
-				eventAckB					=> eventAckB,
-				eventReadB					=> eventReadB,
-				--hw event set pulse (must be synchronous to clkB!)
-				hwEventSetPulseB			=> phyLinkEvent
-		);
-		
-		--generate async interrupt
-		asyncIrq : process(ap_eventAck)
-		variable tmp : std_logic;
-		begin
-			tmp := '0';
-			for i in ap_eventAck'range loop
-				tmp := tmp or ap_eventAck(i);
-			end loop;
-			ap_asyncIrq_s <= tmp;
-		end process;
-		--IRQ is asserted if enabled by AP
-		ap_asyncIrq <= ap_asyncIrq_s and asyncIrqCtrlOut_s(15);
-		
-		asyncIrqCtrlIn_s(15) <= asyncIrqCtrlOut_s(15);
-		asyncIrqCtrlIn_s(14 downto 1) <= (others => '0'); --ignoring the rest
-		asyncIrqCtrlIn_s(0) <= ap_asyncIrq_s; --AP may poll IRQ level
-		
-		syncPhyLinkGen : for i in phyLink'range generate
-			syncPhyLink : entity work.sync
-				generic map (
-					doSync_g => not genOnePdiClkDomain_g
-				)
-				port map (
-					din => phyLink(i),
-					dout => phyLink_s(i),
-					clk => ap_clk,
-					rst => ap_reset
-				);
+		theEventBlock : block
+			--set here the number of events
+			constant iSwEvent_c : integer := 1;
+			constant iHwEvent_c : integer := 2;
 			
-			detPhyLinkEdge : entity work.edgeDet
-				port map (
-					din => phyLink_s(i),
-					rising => open,
-					falling => phyLinkEvent(i), --if phy link deasserts - EVENT!!!
-					any => open,
-					clk => ap_clk,
-					rst => ap_reset
-				);
-		end generate;
-	end block;
+			signal eventSetA	: std_logic_vector(iSwEvent_c-1 downto 0);
+			signal eventReadA	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
+			
+			signal eventAckB	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
+			signal eventReadB	: std_logic_vector(iSwEvent_c+iHwEvent_c-1 downto 0);
+		begin
+			
+			--event mapping: 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+			-- in register    x  x  x  x  x  x  x  x hw hw  x  x  x  x  x sw
+			-- in pdiEvent                                          hw hw sw
+			eventSetA <= pcp_eventSet_s(0 downto 0); --pcp sets sw event (I know, its called generic event, bla...)
+			pcp_eventRead <= x"00" & eventReadA(iSwEvent_c+iHwEvent_c-1 downto iSwEvent_c) & 
+							"00000" & eventReadA(iSwEvent_c-1 downto 0);
+			
+			eventAckB <= ap_eventAck_p(7 downto 6) & ap_eventAck_p(0); --ap acks events
+			ap_eventAck <= x"00" & eventReadB(iSwEvent_c+iHwEvent_c-1 downto iSwEvent_c) & 
+							"00000" & eventReadB(iSwEvent_c-1 downto 0);
+			
+			theEventStuff : entity work.pdiEvent
+			--16 bit
+			-- sw is at bit 0
+			-- hw is at bit 6 and 7
+			generic map (
+					genOnePdiClkDomain_g => genOnePdiClkDomain_g,
+					iSwEvent_g => 1,
+					iHwEvent_g => 2
+			)
+					
+			port map (  
+					--port A -> PCP
+					clkA						=> pcp_clk,
+					rstA						=> pcp_reset,
+					eventSetA					=> eventSetA,
+					eventReadA					=> eventReadA,
+					--port B -> AP
+					clkB						=> ap_clk,
+					rstB						=> ap_reset,
+					eventAckB					=> eventAckB,
+					eventReadB					=> eventReadB,
+					--hw event set pulse (must be synchronous to clkB!)
+					hwEventSetPulseB			=> phyLinkEvent
+			);
+			
+			--generate async interrupt
+			asyncIrq : process(ap_eventAck)
+			variable tmp : std_logic;
+			begin
+				tmp := '0';
+				for i in ap_eventAck'range loop
+					tmp := tmp or ap_eventAck(i);
+				end loop;
+				ap_asyncIrq_s <= tmp;
+			end process;
+			--IRQ is asserted if enabled by AP
+			ap_asyncIrq <= ap_asyncIrq_s and asyncIrqCtrlOut_s(15);
+			
+			asyncIrqCtrlIn_s(15) <= asyncIrqCtrlOut_s(15);
+			asyncIrqCtrlIn_s(14 downto 1) <= (others => '0'); --ignoring the rest
+			asyncIrqCtrlIn_s(0) <= ap_asyncIrq_s; --AP may poll IRQ level
+			
+			syncPhyLinkGen : for i in phyLink'range generate
+				syncPhyLink : entity work.sync
+					generic map (
+						doSync_g => not genOnePdiClkDomain_g
+					)
+					port map (
+						din => phyLink(i),
+						dout => phyLink_s(i),
+						clk => ap_clk,
+						rst => ap_reset
+					);
+				
+				detPhyLinkEdge : entity work.edgeDet
+					port map (
+						din => phyLink_s(i),
+						rising => open,
+						falling => phyLinkEvent(i), --if phy link deasserts - EVENT!!!
+						any => open,
+						clk => ap_clk,
+						rst => ap_reset
+					);
+			end generate;
+		end block;
+	end generate;
 ------------------------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------------------------------

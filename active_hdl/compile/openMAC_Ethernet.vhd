@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_Ethernet.vhd
--- Generated   : Tue Nov 29 12:58:48 2011
+-- Generated   : Tue Nov 29 16:27:19 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -58,6 +58,7 @@
 -- 2011-11-07	V0.04	zelenkaj	added big/little endian consideration
 --					minor changes in SMI core generation
 -- 2011-11-28	V0.05	zelenkaj	Added DMA observer
+-- 2011-11-29	V0.06	zelenkaj	waitrequest for mac_reg is gen. once
 --
 -------------------------------------------------------------------------------
 
@@ -80,6 +81,7 @@ entity openmac_ethernet is
        m_tx_burst_size_g : integer := 16;
        m_rx_burst_size_g : integer := 16;
        endian_g : string := "little";
+       genPhyActLed_g : boolean := false;
        useIntPktBuf_g : boolean := false;
        useRxIntPktBuf_g : boolean := false;
        iPktBufSize_g : integer := 1024;
@@ -442,8 +444,6 @@ signal cmp_rd : std_logic;
 signal cmp_rd_ack : std_logic;
 signal cmp_wr : std_logic;
 signal cmp_wr_ack : std_logic;
-signal dmaErr_ack : std_logic;
-signal dmaErr_read : std_logic;
 signal dmaErr_sel : std_logic;
 signal dma_ack : std_logic;
 signal dma_ack_rd_mst : std_logic;
@@ -460,13 +460,7 @@ signal flt1_rx_dv : std_logic;
 signal flt1_tx_en : std_logic;
 signal hub_intern_port : integer;
 signal hub_rx_port : integer;
-signal irqTable_ack : std_logic;
-signal irqTable_read : std_logic;
 signal irqTable_sel : std_logic;
-signal mac_cont_ack : std_logic;
-signal mac_cont_read : std_logic;
-signal mac_ram_ack : std_logic;
-signal mac_ram_read : std_logic;
 signal mac_rx_dv : std_logic;
 signal mac_rx_irq_s : std_logic;
 signal mac_rx_irq_s_n : std_logic;
@@ -483,8 +477,6 @@ signal mac_tx_off : std_logic;
 signal mac_tx_on : std_logic;
 signal mac_write : std_logic;
 signal mac_write_n : std_logic;
-signal minor_sel : std_logic;
-signal NET19788 : std_logic;
 signal phy0_rx_dv_s : std_logic;
 signal phy0_rx_err_s : std_logic;
 signal phy0_tx_en_s : std_logic;
@@ -496,19 +488,18 @@ signal pkt_read_ack : std_logic;
 signal pkt_write_ack : std_logic;
 signal read_a : std_logic;
 signal read_b : std_logic;
-signal rst_n : std_logic;
-signal slave_sel_invalid : std_logic;
-signal smi_ack : std_logic;
 signal smi_clk : std_logic;
 signal smi_di_s : std_logic;
 signal smi_doe_s : std_logic;
 signal smi_doe_s_n : std_logic;
 signal smi_do_s : std_logic;
-signal smi_read : std_logic;
 signal smi_sel : std_logic;
 signal smi_write : std_logic;
 signal smi_write_n : std_logic;
-signal s_write_ack : std_logic;
+signal s_rd : std_logic;
+signal s_rd_ack : std_logic;
+signal s_wr : std_logic;
+signal s_wr_ack : std_logic;
 signal toggle : std_logic;
 signal VCC : std_logic;
 signal write_a : std_logic;
@@ -558,10 +549,6 @@ signal s_address_s : std_logic_vector (s_address'length downto 0);
 begin
 
 ---- User Signal Assignments ----
-s_waitrequest <= 
-	not(s_write_ack or mac_cont_ack
-	or mac_ram_ack or smi_ack 
-	or irqTable_ack or dmaErr_ack);
 --assign address bus and be to openMAC
 mac_addr <= 
 	s_address(9 downto 1) & s_address(0) when mac_selfilter = '1' and endian_g = "little" else
@@ -646,18 +633,6 @@ THE_OPENMAC : OpenMAC
        s_nWr => mac_write_n
   );
 
-THE_PHY_ACT : OpenMAC_phyAct
-  generic map (
-       iBlinkFreq_g => 6
-  )
-  port map(
-       act_led => act_led,
-       clk => clk,
-       rst => rst,
-       rx_dv => mac_rx_dv,
-       tx_en => mac_tx_en
-  );
-
 THE_PHY_MGMT : OpenMAC_MII
   port map(
        Addr => smi_addr,
@@ -689,7 +664,7 @@ smi_write_n <= not(smi_write);
 smi_be_n(1) <= not(smi_be(1));
 smi_be_n(0) <= not(smi_be(0));
 
-rst_n <= not(rst);
+s_wr <= s_write and s_chipselect;
 
 irqTable(0) <= mac_tx_irq_s;
 
@@ -705,7 +680,7 @@ dma_req_write <= not(dma_rw) and dma_req;
 
 dma_ack <= dma_ack_write or dma_ack_read;
 
-minor_sel <= irqTable_sel or dmaErr_sel;
+s_rd <= s_read and s_chipselect;
 
 dma_req_read <= dma_rw and dma_req;
 
@@ -721,19 +696,7 @@ t_waitrequest <= not(cmp_wr_ack or cmp_rd_ack);
 
 cmp_rd <= t_read and t_chipselect;
 
-dmaErr_read <= s_read and dmaErr_sel;
-
-mac_cont_read <= s_read and mac_selcont;
-
-mac_ram_read <= s_read and mac_selram;
-
-smi_read <= s_read and smi_sel;
-
-irqTable_read <= s_read and irqTable_sel;
-
-slave_sel_invalid <= not(minor_sel or smi_sel or mac_selram or mac_selcont);
-
-NET19788 <= slave_sel_invalid or s_write;
+s_waitrequest <= not(s_rd_ack or s_wr_ack);
 
 mac_tx_irq_s <= not(mac_tx_irq_s_n);
 
@@ -833,9 +796,9 @@ regack0 : req_ack
        zero_delay_g => true
   )
   port map(
-       ack => s_write_ack,
+       ack => s_wr_ack,
        clk => clk,
-       enable => NET19788,
+       enable => s_wr,
        rst => rst
   );
 
@@ -845,45 +808,9 @@ regack1 : req_ack
        zero_delay_g => false
   )
   port map(
-       ack => mac_cont_ack,
+       ack => s_rd_ack,
        clk => clk,
-       enable => mac_cont_read,
-       rst => rst
-  );
-
-regack2 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => mac_ram_ack,
-       clk => clk,
-       enable => mac_ram_read,
-       rst => rst
-  );
-
-regack3 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => smi_ack,
-       clk => clk,
-       enable => smi_read,
-       rst => rst
-  );
-
-regack4 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => irqTable_ack,
-       clk => clk,
-       enable => irqTable_read,
+       enable => s_rd,
        rst => rst
   );
 
@@ -911,18 +838,6 @@ regack6 : req_ack
        rst => rst
   );
 
-regack9 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => dmaErr_ack,
-       clk => clk,
-       enable => dmaErr_read,
-       rst => rst
-  );
-
 
 ---- Power , ground assignment ----
 
@@ -943,6 +858,21 @@ dma_be(0) <= VCC;
 
 
 ----  Generate statements  ----
+
+genPhyActLed : if genPhyActLed_g generate
+begin
+  THE_PHY_ACT : OpenMAC_phyAct
+    generic map (
+         iBlinkFreq_g => 6
+    )  
+    port map(
+         act_led => act_led,
+         clk => clk,
+         rst => rst,
+         rx_dv => mac_rx_dv,
+         tx_en => mac_tx_en
+    );
+end generate genPhyActLed;
 
 genHub : if genHub_g generate
 begin

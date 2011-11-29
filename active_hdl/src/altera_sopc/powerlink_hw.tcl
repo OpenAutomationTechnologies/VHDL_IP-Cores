@@ -89,6 +89,7 @@
 #-- 2011-11-17	V1.08	zelenkaj	pdi dpr vhd-file renamed
 #-- 2011-11-21	V1.09	zelenkaj	added time synchronization feature
 #-- 2011-11-28	V1.10	zelenkaj	added waitrequest signals to pdi pcp/ap
+#-- 2011-11-29	V1.11	zelenkaj	event feature is optional
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -364,6 +365,12 @@ add_parameter genLedGadget_g BOOLEAN true
 set_parameter_property genLedGadget_g HDL_PARAMETER true
 set_parameter_property genLedGadget_g VISIBLE false
 set_parameter_property genLedGadget_g DERIVED TRUE
+
+add_parameter genEvent_g BOOLEAN true
+set_parameter_property genEvent_g HDL_PARAMETER true
+set_parameter_property genEvent_g DISPLAY_NAME "Enable Event Hardware Support"
+set_parameter_property genEvent_g DESCRIPTION "The POWERLINK Slave provides hardware resources for immediate event handling."
+set_parameter_property genEvent_g VISIBLE false
 
 add_parameter genTimeSync_g BOOLEAN true
 set_parameter_property genTimeSync_g DISPLAY_NAME "Enable Timer for Time Synchronization"
@@ -716,6 +723,7 @@ proc my_validation_callback {} {
 	set_parameter_property configApSpi_IRQ VISIBLE false
 	set_parameter_property genLedGadget VISIBLE false
 	set_parameter_property genTimeSync_g VISIBLE false
+	set_parameter_property genEvent_g VISIBLE false
 	set_parameter_property asyncBuf1Size VISIBLE false
 	set_parameter_property asyncBuf2Size VISIBLE false
 	set_parameter_property rpdo0size VISIBLE false
@@ -780,6 +788,7 @@ proc my_validation_callback {} {
 		set_parameter_property asyncBuf2Size VISIBLE true
 		set_parameter_property genLedGadget VISIBLE true
 		set_parameter_property genTimeSync_g VISIBLE true
+		set_parameter_property genEvent_g VISIBLE true
 		#AP can be big or little endian - allow choice
 		set_parameter_property configApEndian VISIBLE true
 		set_parameter_property mac2cmpTimer VISIBLE true
@@ -1012,6 +1021,18 @@ proc my_validation_callback {} {
 		set_module_assignment embeddedsw.CMacro.LEDGADGET			FALSE
 	}
 	
+	if {[get_parameter_value genTimeSync_g]} {
+		set_module_assignment embeddedsw.CMacro.TIMESYNC			TRUE
+	} else {
+		set_module_assignment embeddedsw.CMacro.TIMESYNC			FALSE
+	}
+	
+	if {[get_parameter_value genEvent_g]} {
+		set_module_assignment embeddedsw.CMacro.EVENT			TRUE
+	} else {
+		set_module_assignment embeddedsw.CMacro.EVENT			FALSE
+	}
+	
 	if {$configPowerlink == "Direct I/O CN"} {
 																	#direct I/O
 		set_module_assignment embeddedsw.CMacro.CONFIG				0
@@ -1070,6 +1091,7 @@ proc my_validation_callback {} {
 	set_module_assignment embeddedsw.CMacro.PDIRPDOS				$rpdos
 	set_module_assignment embeddedsw.CMacro.PDITPDOS				$tpdos
 	set_module_assignment embeddedsw.CMacro.FPGAREV					[get_parameter_value iPdiRev_g]
+	
 	if {[get_parameter_value useHwAcc_g]} {
 		set_module_assignment embeddedsw.CMacro.HWACC				1
 	} else {
@@ -1091,8 +1113,9 @@ add_display_item "Process Data Interface Settings" configApSpi_CPHA PARAMETER
 add_display_item "Process Data Interface Settings" validSet PARAMETER
 add_display_item "Process Data Interface Settings" validAssertDuration PARAMETER
 add_display_item "Process Data Interface Settings" mac2cmpTimer PARAMETER
-add_display_item "Process Data Interface Settings" genLedGadget PARAMETER
 add_display_item "Process Data Interface Settings" genTimeSync_g PARAMETER
+add_display_item "Process Data Interface Settings" genLedGadget PARAMETER
+add_display_item "Process Data Interface Settings" genEvent_g PARAMETER
 add_display_item "Receive Process Data" rpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdo0size PARAMETER
