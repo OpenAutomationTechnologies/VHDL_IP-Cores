@@ -148,7 +148,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
 	#define EDRV_CMP_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
 	#define EDRV_CMP_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_CMP_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR+1)
-	#define EDRV_PKT_LOC					0 //TODO: set value in XPS
+	//#define EDRV_PKT_LOC					0 //TX + RX in BRAM
+	//#define EDRV_PKT_LOC					1 //TX + RX in EXT (not yet verified!)
+	#define EDRV_PKT_LOC					2 //TX in BRAM, RX in EXT
 	#define EDRV_PHY_NUM					2 //TODO: set value in XPS
 #if EDRV_PKT_LOC == 0
 	#define EDRV_MAX_RX_BUFFERS         	6
@@ -160,8 +162,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_PKT_SPAN                   0 //not used
 #elif EDRV_PKT_LOC == 2
 	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
-	#define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
-	#define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
+	#define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
+	#define EDRV_PKT_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_PKT_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR+1)
 #else
 	#error "Configuration is unknown!"
 #endif
@@ -397,9 +399,13 @@ BYTE            abFilterMask[31],
     EdrvInstance_l.m_EthConf.pktLoc = OMETH_PKT_LOC_HEAP;
 #elif EDRV_PKT_LOC == 2
     //use heap as rx packet buffer
+#ifdef __NIOS2__
+    EdrvInstance_l.m_pBufBase = (void*) alt_remap_uncached(EDRV_PKT_BASE, EDRV_PKT_SPAN);
+#elif defined(__MICROBLAZE__)
+    EdrvInstance_l.m_pBufBase = (void*) EDRV_PKT_BASE;
+#endif
     EdrvInstance_l.m_EthConf.pBufBase = 0;
     EdrvInstance_l.m_EthConf.pktLoc = OMETH_PKT_LOC_HEAP;
-    EdrvInstance_l.m_pBufBase = (void*) alt_remap_uncached(EDRV_PKT_BASE, EDRV_PKT_SPAN);
     EdrvInstance_l.m_dwBufSpan = EDRV_PKT_SPAN;
 #else
 #error "Configuration unknown!"
@@ -491,7 +497,11 @@ BYTE            abFilterMask[31],
     EdrvInstance_l.m_pTxBufBase = omethGetTxBufBase(EdrvInstance_l.m_hOpenMac);
 #elif EDRV_PKT_LOC == 2
     //get tx buffer base
+#ifdef __NIOS2__
     EdrvInstance_l.m_pTxBufBase = (void*) alt_remap_uncached(EDRV_PKT_BASE, EDRV_PKT_SPAN);
+#elif defined(__MICROBLAZE__)
+    EdrvInstance_l.m_pTxBufBase = (void*) EDRV_PKT_BASE;
+#endif
 #endif
 
     // $$$ d.k. additional Filters for own MAC address and broadcast MAC
@@ -1373,7 +1383,6 @@ unsigned int        uiIndex;
 tEplTgtTimeStamp    TimeStamp;
 
     BENCHMARK_MOD_01_SET(6);
-
     rxBuffer.m_BufferInFrame = kEdrvBufferLastInFrame;
     rxBuffer.m_pbBuffer = (BYTE *) &pPacket->data;
     rxBuffer.m_uiRxMsgLen = pPacket->length;
