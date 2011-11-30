@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 43442
+ FREEID 43707
  VARIABLES
  {
   #ARCHITECTURE="rtl"
@@ -189,7 +189,7 @@ HEADER
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1322461574"
+    #MODIFIED="1322642095"
    }
   }
   PAGE "" 
@@ -197,7 +197,7 @@ HEADER
    PAGEHEADER
    {
     RECT (0,-20,360,620)
-    FREEID 53
+    FREEID 56
    }
    
    BODY
@@ -401,6 +401,22 @@ HEADER
      ALIGN 4
      MARGINS (1,1)
      PARENT 50
+    }
+    TEXT  53, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (200,470,335,494)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 52
+    }
+    TEXT  55, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (200,510,335,534)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 54
     }
     PIN  4, 0, 0
     {
@@ -802,183 +818,36 @@ HEADER
       POINTS ( (0,0), (20,0) )
      }
     }
-   }
-  }
- }
- SYMBOL "#default" "edgeDet" "edgeDet"
- {
-  HEADER
-  {
-   VARIABLES
-   {
-    #DESCRIPTION=""
-    #HDL_ENTRIES=
-"library IEEE;\n"+
-"use ieee.std_logic_1164.all;"
-    #LANGUAGE="VHDL"
-    #MODIFIED="1312374301"
-   }
-  }
-  PAGE "" 
-  {
-   PAGEHEADER
-   {
-    RECT (0,-20,160,180)
-    FREEID 14
-   }
-   
-   BODY
-   {
-    RECT  1, -1, 0
+    PIN  52, 0, 0
     {
-     VARIABLES
-     {
-      #OUTLINE_FILLING="1"
-     }
-     AREA (20,0,140,160)
-    }
-    TEXT  3, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,30,52,54)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 2
-    }
-    TEXT  5, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (88,30,135,54)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 4
-    }
-    TEXT  7, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,70,50,94)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 6
-    }
-    TEXT  9, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (84,70,135,94)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 8
-    }
-    TEXT  11, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,110,48,134)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 10
-    }
-    TEXT  13, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (104,110,135,134)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 12
-    }
-    PIN  2, 0, 0
-    {
-     COORD (0,40)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="din"
-      #NUMBER="0"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  4, 0, 0
-    {
-     COORD (160,40)
+     COORD (360,480)
      VARIABLES
      {
       #DIRECTION="OUT"
       #LENGTH="20"
       #MDA_RECORD_TOKEN="OTHER"
-      #NAME="rising"
+      #NAME="Dma_Rd_Done"
       #NUMBER="0"
      }
      LINE  2, 0, 0
      {
-      POINTS ( (-20,0), (0,0) )
+      POINTS ( (0,0), (-20,0) )
      }
     }
-    PIN  6, 0, 0
+    PIN  54, 0, 0
     {
-     COORD (0,80)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="clk"
-      #NUMBER="0"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  8, 0, 0
-    {
-     COORD (160,80)
+     COORD (360,520)
      VARIABLES
      {
       #DIRECTION="OUT"
       #LENGTH="20"
       #MDA_RECORD_TOKEN="OTHER"
-      #NAME="falling"
+      #NAME="Dma_Wr_Done"
       #NUMBER="0"
      }
      LINE  2, 0, 0
      {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  10, 0, 0
-    {
-     COORD (0,120)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="rst"
-      #NUMBER="0"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  12, 0, 0
-    {
-     COORD (160,120)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="any"
-      #NUMBER="0"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
+      POINTS ( (0,0), (-20,0) )
      }
     }
    }
@@ -2916,7 +2785,7 @@ HEADER
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1322556192"
+    #MODIFIED="1322639424"
    }
   }
   PAGE "" 
@@ -3055,14 +2924,6 @@ HEADER
      MARGINS (1,1)
      PARENT 28
     }
-    TEXT  31, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,470,121,494)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 30
-    }
     TEXT  33, 0, 0
     {
      TEXT "$#NAME"
@@ -3087,14 +2948,6 @@ HEADER
      MARGINS (1,1)
      PARENT 36
      ORIENTATION 2
-    }
-    TEXT  39, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,550,120,574)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 38
     }
     TEXT  41, 0, 0
     {
@@ -3379,22 +3232,6 @@ HEADER
       POINTS ( (-20,0), (0,0) )
      }
     }
-    PIN  30, 0, 0
-    {
-     COORD (0,480)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="mac_rx_on"
-      #NUMBER="0"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
     PIN  32, 0, 0
     {
      COORD (580,360)
@@ -3443,22 +3280,6 @@ HEADER
      LINE  2, 0, 0
      {
       POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  38, 0, 0
-    {
-     COORD (0,560)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="mac_tx_on"
-      #NUMBER="0"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
      }
     }
     PIN  40, 0, 0
@@ -3577,142 +3398,6 @@ HEADER
      LINE  2, 0, 0
      {
       POINTS ( (0,0), (-20,0) )
-     }
-    }
-   }
-  }
- }
- SYMBOL "#default" "delay_pulse" "delay_pulse"
- {
-  HEADER
-  {
-   VARIABLES
-   {
-    #DESCRIPTION=""
-    #GENERIC0="delay_g:NATURAL:=1"
-    #HDL_ENTRIES=
-"library STD,IEEE;\n"+
-"use STD.STANDARD.all,ieee.std_logic_1164.all;"
-    #LANGUAGE="VHDL"
-    #MODIFIED="1312817433"
-   }
-  }
-  PAGE "" 
-  {
-   PAGEHEADER
-   {
-    RECT (0,0,160,160)
-    FREEID 10
-   }
-   
-   BODY
-   {
-    RECT  1, -1, 0
-    {
-     VARIABLES
-     {
-      #OUTLINE_FILLING="1"
-     }
-     AREA (20,0,140,160)
-    }
-    TEXT  3, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,30,50,54)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 2
-    }
-    TEXT  5, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (85,30,135,54)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 4
-    }
-    TEXT  7, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,70,48,94)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 6
-    }
-    TEXT  9, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,110,63,134)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 8
-    }
-    PIN  2, 0, 0
-    {
-     COORD (0,40)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="clk"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  4, 0, 0
-    {
-     COORD (160,40)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="out_p"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  6, 0, 0
-    {
-     COORD (0,80)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="rst"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  8, 0, 0
-    {
-     COORD (0,120)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="in_p"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
      }
     }
    }
@@ -4728,14 +4413,14 @@ PAGE "MAC"
     #REFERENCE="THE_PHY_ACT"
     #SYMBOL="OpenMAC_phyAct"
    }
-   COORD (2560,1240)
-   VERTEXES ( (2,15316), (4,15324), (6,15318), (8,15320), (10,15322) )
+   COORD (1460,1700)
+   VERTEXES ( (2,43627), (6,43629), (8,43631), (10,43633), (4,43635) )
    PINPROP 4,"#PIN_STATE","0"
   }
   TEXT  10698, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (2560,1184,2771,1219)
+   RECT (1460,1644,1671,1679)
    ALIGN 8
    MARGINS (1,1)
    PARENT 10697
@@ -4743,7 +4428,7 @@ PAGE "MAC"
   TEXT  10702, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (2560,1460,2799,1495)
+   RECT (1460,1920,1699,1955)
    MARGINS (1,1)
    PARENT 10697
   }
@@ -5122,34 +4807,34 @@ PAGE "MAC"
   TEXT  10827, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2474,1250,2506,1279)
+   RECT (1374,1710,1406,1739)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 15326
+   PARENT 43637
   }
   TEXT  10835, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2476,1290,2505,1319)
+   RECT (1376,1750,1405,1779)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 15327
+   PARENT 43638
   }
   TEXT  10839, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2431,1330,2549,1359)
+   RECT (1331,1790,1449,1819)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 15328
+   PARENT 43639
   }
   TEXT  10843, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2432,1370,2549,1399)
+   RECT (1332,1830,1449,1859)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 15329
+   PARENT 43640
   }
   NET WIRE  10895, 0, 0
   {
@@ -5167,13 +4852,13 @@ PAGE "MAC"
     #REFERENCE="act_led"
     #SYMBOL="Output"
    }
-   COORD (2860,1280)
-   VERTEXES ( (2,15325) )
+   COORD (1760,1740)
+   VERTEXES ( (2,43636) )
   }
   TEXT  10897, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (2912,1263,3008,1298)
+   RECT (1812,1723,1908,1758)
    ALIGN 4
    MARGINS (1,1)
    PARENT 10896
@@ -5190,27 +4875,10 @@ PAGE "MAC"
   TEXT  13028, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1911,1150,2049,1179)
+   RECT (1911,1350,2049,1379)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 13033
-  }
-  VTX  13031, 0, 0
-  {
-   COORD (2080,1180)
-  }
-  VTX  13032, 0, 0
-  {
-   COORD (1880,1180)
-  }
-  BUS  13033, 0, 0
-  {
-   NET 13026
-   VTX 13031, 13032
-   VARIABLES
-   {
-    #NAMED="1"
-   }
+   PARENT 43505
   }
   INSTANCE  13034, 0, 0
   {
@@ -5221,14 +4889,14 @@ PAGE "MAC"
     #REFERENCE="VCC"
     #SYMBOL="Power"
    }
-   COORD (1880,1180)
+   COORD (1880,1380)
    ORIENTATION 2
-   VERTEXES ( (2,13032) )
+   VERTEXES ( (2,43504) )
   }
   TEXT  13035, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (1806,1133,1869,1168)
+   RECT (1806,1333,1869,1368)
    ALIGN 6
    MARGINS (1,1)
    PARENT 13034
@@ -5436,91 +5104,6 @@ PAGE "MAC"
    VARIABLES
    {
     #NAME="dma_req_write"
-   }
-  }
-  VTX  15316, 0, 0
-  {
-   COORD (2560,1280)
-  }
-  VTX  15317, 0, 0
-  {
-   COORD (2420,1280)
-  }
-  VTX  15318, 0, 0
-  {
-   COORD (2560,1320)
-  }
-  VTX  15319, 0, 0
-  {
-   COORD (2420,1320)
-  }
-  VTX  15320, 0, 0
-  {
-   COORD (2560,1360)
-  }
-  VTX  15321, 0, 0
-  {
-   COORD (2420,1360)
-  }
-  VTX  15322, 0, 0
-  {
-   COORD (2560,1400)
-  }
-  VTX  15323, 0, 0
-  {
-   COORD (2420,1400)
-  }
-  VTX  15324, 0, 0
-  {
-   COORD (2720,1280)
-  }
-  VTX  15325, 0, 0
-  {
-   COORD (2860,1280)
-  }
-  WIRE  15326, 0, 0
-  {
-   NET 642
-   VTX 15316, 15317
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  15327, 0, 0
-  {
-   NET 10816
-   VTX 15318, 15319
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  15328, 0, 0
-  {
-   NET 908
-   VTX 15320, 15321
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  15329, 0, 0
-  {
-   NET 903
-   VTX 15322, 15323
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  15330, 0, 0
-  {
-   NET 10895
-   VTX 15324, 15325
-   VARIABLES
-   {
-    #NAMED="1"
    }
   }
   VTX  15331, 0, 0
@@ -5735,8 +5318,8 @@ PAGE "MAC"
     #SYMBOL="OpenMAC"
    }
    COORD (1400,620)
-   VERTEXES ( (4,10750), (6,10719), (8,10727), (10,10730), (12,10729), (14,10732), (18,10734), (20,15114), (22,10736), (24,15123), (26,10738), (28,10764), (30,10740), (32,10758), (34,14507), (36,10748), (38,10763), (40,10746), (42,10723), (44,10752), (46,10721), (48,10724), (50,41168) )
-   PINPROP 50,"#PIN_STATE","0"
+   VERTEXES ( (4,10750), (6,10719), (8,10727), (10,10730), (12,10729), (14,10732), (18,10734), (20,15114), (22,10736), (24,15123), (26,10738), (28,10764), (30,10740), (32,10758), (34,14507), (36,10748), (38,10763), (40,10746), (42,10723), (44,10752), (46,10721), (48,10724), (50,41168), (52,43684), (54,43686) )
+   PINPROP 54,"#PIN_STATE","0"
   }
   TEXT  24175, 0, 0
   {
@@ -5762,342 +5345,8 @@ PAGE "MAC"
   TEXT  24770, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (2560,1496,2788,1529)
+   RECT (1460,1956,1688,1989)
    PARENT 10697
-  }
-  INSTANCE  28063, 0, 0
-  {
-   VARIABLES
-   {
-    #COMPONENT="edgeDet"
-    #LIBRARY="#default"
-    #REFERENCE="edgedet0"
-    #SYMBOL="edgeDet"
-   }
-   COORD (540,1120)
-   VERTEXES ( (2,28072), (4,28077), (6,28082), (8,28087), (10,28092) )
-   PINPROP 12,"#PIN_STATE","0"
-  }
-  TEXT  28064, 0, 0
-  {
-   TEXT "$#REFERENCE"
-   RECT (540,1064,662,1099)
-   ALIGN 8
-   MARGINS (1,1)
-   PARENT 28063
-  }
-  TEXT  28068, 0, 0
-  {
-   TEXT "$#COMPONENT"
-   RECT (540,1300,651,1335)
-   MARGINS (1,1)
-   PARENT 28063
-  }
-  VTX  28072, 0, 0
-  {
-   COORD (540,1160)
-  }
-  VTX  28073, 0, 0
-  {
-   COORD (400,1160)
-  }
-  WIRE  28075, 0, 0
-  {
-   NET 908
-   VTX 28072, 28073
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  28077, 0, 0
-  {
-   COORD (700,1160)
-  }
-  VTX  28078, 0, 0
-  {
-   COORD (840,1160)
-  }
-  WIRE  28080, 0, 0
-  {
-   NET 28126
-   VTX 28077, 28078
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  28082, 0, 0
-  {
-   COORD (540,1200)
-  }
-  VTX  28083, 0, 0
-  {
-   COORD (400,1200)
-  }
-  WIRE  28085, 0, 0
-  {
-   NET 642
-   VTX 28082, 28083
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  28087, 0, 0
-  {
-   COORD (700,1200)
-  }
-  VTX  28088, 0, 0
-  {
-   COORD (840,1200)
-  }
-  WIRE  28090, 0, 0
-  {
-   NET 28127
-   VTX 28087, 28088
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  28092, 0, 0
-  {
-   COORD (540,1240)
-  }
-  VTX  28093, 0, 0
-  {
-   COORD (400,1240)
-  }
-  WIRE  28095, 0, 0
-  {
-   NET 10816
-   VTX 28092, 28093
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  TEXT  28102, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (411,1130,529,1159)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 28075
-  }
-  TEXT  28106, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (711,1130,829,1159)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 28080
-  }
-  TEXT  28110, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (454,1170,486,1199)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 28085
-  }
-  TEXT  28114, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (711,1170,829,1199)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 28090
-  }
-  TEXT  28118, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (456,1210,485,1239)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 28095
-  }
-  NET WIRE  28126, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="mac_tx_on"
-   }
-  }
-  NET WIRE  28127, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="mac_tx_off"
-   }
-  }
-  INSTANCE  28128, 0, 0
-  {
-   VARIABLES
-   {
-    #COMPONENT="edgeDet"
-    #LIBRARY="#default"
-    #REFERENCE="edgedet1"
-    #SYMBOL="edgeDet"
-   }
-   COORD (540,1400)
-   VERTEXES ( (2,29077), (6,29081), (10,29085), (4,29079), (8,29083) )
-   PINPROP 10,"#PIN_STATE","0"
-  }
-  TEXT  28134, 0, 0
-  {
-   TEXT "$#REFERENCE"
-   RECT (540,1344,662,1379)
-   ALIGN 8
-   MARGINS (1,1)
-   PARENT 28128
-  }
-  TEXT  28135, 0, 0
-  {
-   TEXT "$#COMPONENT"
-   RECT (540,1580,651,1615)
-   MARGINS (1,1)
-   PARENT 28128
-  }
-  TEXT  28139, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (412,1410,529,1439)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29087
-  }
-  TEXT  28142, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (711,1410,830,1439)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29088
-  }
-  TEXT  28145, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (454,1450,486,1479)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29089
-  }
-  TEXT  28148, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (711,1450,830,1479)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29090
-  }
-  TEXT  28151, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (456,1490,485,1519)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29091
-  }
-  NET WIRE  28167, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="mac_rx_on"
-   }
-  }
-  NET WIRE  28168, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="mac_rx_off"
-   }
-  }
-  VTX  29077, 0, 0
-  {
-   COORD (540,1440)
-  }
-  VTX  29078, 0, 0
-  {
-   COORD (400,1440)
-  }
-  VTX  29079, 0, 0
-  {
-   COORD (700,1440)
-  }
-  VTX  29080, 0, 0
-  {
-   COORD (840,1440)
-  }
-  VTX  29081, 0, 0
-  {
-   COORD (540,1480)
-  }
-  VTX  29082, 0, 0
-  {
-   COORD (400,1480)
-  }
-  VTX  29083, 0, 0
-  {
-   COORD (700,1480)
-  }
-  VTX  29084, 0, 0
-  {
-   COORD (840,1480)
-  }
-  VTX  29085, 0, 0
-  {
-   COORD (540,1520)
-  }
-  VTX  29086, 0, 0
-  {
-   COORD (400,1520)
-  }
-  WIRE  29087, 0, 0
-  {
-   NET 903
-   VTX 29077, 29078
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  29088, 0, 0
-  {
-   NET 28167
-   VTX 29079, 29080
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  29089, 0, 0
-  {
-   NET 642
-   VTX 29081, 29082
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  29090, 0, 0
-  {
-   NET 28168
-   VTX 29083, 29084
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  29091, 0, 0
-  {
-   NET 10816
-   VTX 29085, 29086
-   VARIABLES
-   {
-    #NAMED="1"
-   }
   }
   VTX  41168, 0, 0
   {
@@ -6132,16 +5381,182 @@ PAGE "MAC"
     #GENERATE_KIND="IF"
     #LABEL="genPhyActLed"
    }
-   AREA (2360,1160,3020,1540)
+   AREA (1260,1620,1920,2000)
    INSTANCES 10697
   }
   TEXT  42216, 0, 0
   {
    TEXT "@GENERATE_STATEMENT_DESCRIPTION"
-   RECT (2360,1124,2983,1159)
+   RECT (1260,1584,1883,1619)
    ALIGN 8
    MARGINS (1,1)
    PARENT 42215
+  }
+  VTX  43503, 0, 0
+  {
+   COORD (2080,1380)
+  }
+  VTX  43504, 0, 0
+  {
+   COORD (1880,1380)
+  }
+  BUS  43505, 0, 0
+  {
+   NET 13026
+   VTX 43503, 43504
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  43508, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="mac_tx_off"
+   }
+  }
+  TEXT  43510, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1811,1070,1929,1099)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 43688
+  }
+  TEXT  43553, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1811,1110,1930,1139)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 43689
+  }
+  NET WIRE  43555, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="mac_rx_off"
+   }
+  }
+  VTX  43627, 0, 0
+  {
+   COORD (1460,1740)
+  }
+  VTX  43628, 0, 0
+  {
+   COORD (1320,1740)
+  }
+  VTX  43629, 0, 0
+  {
+   COORD (1460,1780)
+  }
+  VTX  43630, 0, 0
+  {
+   COORD (1320,1780)
+  }
+  VTX  43631, 0, 0
+  {
+   COORD (1460,1820)
+  }
+  VTX  43632, 0, 0
+  {
+   COORD (1320,1820)
+  }
+  VTX  43633, 0, 0
+  {
+   COORD (1460,1860)
+  }
+  VTX  43634, 0, 0
+  {
+   COORD (1320,1860)
+  }
+  VTX  43635, 0, 0
+  {
+   COORD (1620,1740)
+  }
+  VTX  43636, 0, 0
+  {
+   COORD (1760,1740)
+  }
+  WIRE  43637, 0, 0
+  {
+   NET 642
+   VTX 43627, 43628
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  43638, 0, 0
+  {
+   NET 10816
+   VTX 43629, 43630
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  43639, 0, 0
+  {
+   NET 908
+   VTX 43631, 43632
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  43640, 0, 0
+  {
+   NET 903
+   VTX 43633, 43634
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  43641, 0, 0
+  {
+   NET 10895
+   VTX 43635, 43636
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  43684, 0, 0
+  {
+   COORD (1760,1100)
+  }
+  VTX  43685, 0, 0
+  {
+   COORD (2020,1100)
+  }
+  VTX  43686, 0, 0
+  {
+   COORD (1760,1140)
+  }
+  VTX  43687, 0, 0
+  {
+   COORD (2020,1140)
+  }
+  WIRE  43688, 0, 0
+  {
+   NET 43508
+   VTX 43684, 43685
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  43689, 0, 0
+  {
+   NET 43555
+   VTX 43686, 43687
+   VARIABLES
+   {
+    #NAMED="1"
+   }
   }
  }
  
@@ -15205,8 +14620,8 @@ PAGE "PACKET DMA MASTER"
     #SYMBOL="openMAC_DMAmaster"
    }
    COORD (1220,660)
-   VERTEXES ( (2,29579), (4,29858), (6,29581), (8,29587), (10,29583), (12,29596), (14,29606), (16,29594), (18,29608), (20,29593), (22,29610), (24,29600), (26,29620), (28,29604), (30,29619), (32,29598), (34,29617), (36,29602), (38,29615), (40,29577), (42,29589), (44,29591), (46,29612), (48,40166), (50,41240), (52,41245) )
-   PINPROP 56,"#PIN_STATE","0"
+   VERTEXES ( (2,29579), (4,29858), (6,29581), (8,29587), (10,29583), (12,29596), (14,29606), (16,29594), (18,29608), (20,29593), (22,29610), (24,29600), (28,29604), (32,29598), (36,29602), (40,29577), (42,29589), (44,29591), (46,29612), (48,40166), (50,41240), (52,41245), (26,43622), (34,43624) )
+   PINPROP 34,"#PIN_STATE","0"
   }
   TEXT  28213, 0, 0
   {
@@ -15233,59 +14648,6 @@ PAGE "PACKET DMA MASTER"
   NET WIRE  28307, 0, 0
   NET WIRE  28311, 0, 0
   NET BUS  28319, 0, 0
-  NET WIRE  28502, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="mac_tx_on"
-   }
-  }
-  TEXT  28504, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (1011,1190,1129,1219)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29647
-  }
-  NET WIRE  28507, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="mac_tx_off"
-   }
-  }
-  TEXT  28509, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (1011,1150,1129,1179)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29648
-  }
-  TEXT  28510, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (1011,1110,1130,1139)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29649
-  }
-  TEXT  28512, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (998,1071,1163,1100)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29650
-  }
-  NET WIRE  28515, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="mac_rx_on"
-   }
-  }
   TEXT  28721, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
@@ -15310,80 +14672,6 @@ PAGE "PACKET DMA MASTER"
    SHOWTEXT
    CORNER 10
   }
-  NET WIRE  29161, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="mac_rx_off_del"
-   }
-  }
-  INSTANCE  29483, 0, 0
-  {
-   VARIABLES
-   {
-    #COMPONENT="delay_pulse"
-    #GENERIC0="delay_g : NATURAL := 8"
-    #LIBRARY="#default"
-    #PRAGMED_GENERICS=""
-    #REFERENCE="delayp0"
-    #SYMBOL="delay_pulse"
-   }
-   COORD (540,1060)
-   VERTEXES ( (2,29622), (6,29624), (8,29627), (4,29621) )
-   PINPROP 8,"#PIN_STATE","0"
-  }
-  TEXT  29484, 0, 0
-  {
-   TEXT "$#REFERENCE"
-   RECT (540,1024,642,1059)
-   ALIGN 8
-   MARGINS (1,1)
-   PARENT 29483
-  }
-  TEXT  29488, 0, 0
-  {
-   TEXT "$#COMPONENT"
-   RECT (540,1220,696,1255)
-   MARGINS (1,1)
-   PARENT 29483
-  }
-  TEXT  29510, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (454,1070,486,1099)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29651
-  }
-  TEXT  29514, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (456,1110,485,1139)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29652
-  }
-  TEXT  29522, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (331,1150,450,1179)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 29653
-  }
-  NET WIRE  29529, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="mac_rx_off"
-   }
-  }
-  TEXT  29533, 0, 0
-  {
-   TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (540,1256,706,1289)
-   PARENT 29483
-  }
   GENERATE  29554, 0, 0
   {
    VARIABLES
@@ -15393,7 +14681,7 @@ PAGE "PACKET DMA MASTER"
     #LABEL="genDmaMaster"
    }
    AREA (240,580,2540,1680)
-   INSTANCES 28212, 29483
+   INSTANCES 28212
    GENERATES 29667
   }
   TEXT  29555, 0, 0
@@ -15548,62 +14836,6 @@ PAGE "PACKET DMA MASTER"
   {
    COORD (1920,1100)
   }
-  VTX  29614, 0, 0
-  {
-   COORD (960,1220)
-  }
-  VTX  29615, 0, 0
-  {
-   COORD (1220,1220)
-  }
-  VTX  29616, 0, 0
-  {
-   COORD (960,1180)
-  }
-  VTX  29617, 0, 0
-  {
-   COORD (1220,1180)
-  }
-  VTX  29618, 0, 0
-  {
-   COORD (960,1140)
-  }
-  VTX  29619, 0, 0
-  {
-   COORD (1220,1140)
-  }
-  VTX  29620, 0, 0
-  {
-   COORD (1220,1100)
-  }
-  VTX  29621, 0, 0
-  {
-   COORD (700,1100)
-  }
-  VTX  29622, 0, 0
-  {
-   COORD (540,1100)
-  }
-  VTX  29623, 0, 0
-  {
-   COORD (400,1100)
-  }
-  VTX  29624, 0, 0
-  {
-   COORD (540,1140)
-  }
-  VTX  29625, 0, 0
-  {
-   COORD (400,1140)
-  }
-  VTX  29626, 0, 0
-  {
-   COORD (280,1180)
-  }
-  VTX  29627, 0, 0
-  {
-   COORD (540,1180)
-  }
   WIRE  29628, 0, 0
   {
    NET 16414
@@ -15725,69 +14957,6 @@ PAGE "PACKET DMA MASTER"
   {
    NET 28319
    VTX 29612, 29613
-  }
-  WIRE  29647, 0, 0
-  {
-   NET 28502
-   VTX 29614, 29615
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  29648, 0, 0
-  {
-   NET 28507
-   VTX 29616, 29617
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  29649, 0, 0
-  {
-   NET 28515
-   VTX 29618, 29619
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  29650, 0, 0
-  {
-   NET 29161
-   VTX 29620, 29621
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  29651, 0, 0
-  {
-   NET 16399
-   VTX 29622, 29623
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  29652, 0, 0
-  {
-   NET 16414
-   VTX 29624, 29625
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  29653, 0, 0
-  {
-   NET 29529
-   VTX 29626, 29627
-   VARIABLES
-   {
-    #NAMED="1"
-   }
   }
   INSTANCE  29658, 0, 0
   {
@@ -16099,6 +15268,70 @@ PAGE "PACKET DMA MASTER"
    ALIGN 9
    MARGINS (1,1)
    PARENT 41248
+  }
+  NET WIRE  43577, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="mac_rx_off"
+   }
+  }
+  NET WIRE  43582, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="mac_tx_off"
+   }
+  }
+  TEXT  43583, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (971,1070,1090,1099)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 43625
+  }
+  TEXT  43587, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (971,1150,1089,1179)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 43626
+  }
+  VTX  43621, 0, 0
+  {
+   COORD (960,1100)
+  }
+  VTX  43622, 0, 0
+  {
+   COORD (1220,1100)
+  }
+  VTX  43623, 0, 0
+  {
+   COORD (960,1180)
+  }
+  VTX  43624, 0, 0
+  {
+   COORD (1220,1180)
+  }
+  WIRE  43625, 0, 0
+  {
+   NET 43577
+   VTX 43621, 43622
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  43626, 0, 0
+  {
+   NET 43582
+   VTX 43623, 43624
+   VARIABLES
+   {
+    #NAMED="1"
+   }
   }
  }
  
@@ -17809,7 +17042,7 @@ PAGE ""
  
  BODY
  {
-  TEXT  43425, 0, 0
+  TEXT  43690, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17820,7 +17053,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  43426, 0, 0
+  TEXT  43691, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -17831,7 +17064,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  43427, 0, 0
+  TEXT  43692, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -17841,7 +17074,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  43428, 0, 0
+  TEXT  43693, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17853,7 +17086,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  43429, 0, 0
+  TEXT  43694, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -17867,7 +17100,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  43430, 0, 0
+  TEXT  43695, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -17877,7 +17110,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  43431, 0, 0
+  TEXT  43696, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17889,7 +17122,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  43432, 0, 0
+  TEXT  43697, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -17899,7 +17132,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  43433, 0, 0
+  TEXT  43698, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -17910,7 +17143,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  43434, 0, 0
+  GROUP  43699, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -17922,7 +17155,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  43435, 0, 0
+  GROUP  43700, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -17934,7 +17167,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  43436, 0, 0
+  GROUP  43701, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -17946,7 +17179,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  43437, 0, 0
+  GROUP  43702, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -17958,7 +17191,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  43438, 0, 0
+  GROUP  43703, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -17970,7 +17203,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  43439, 0, 0
+  GROUP  43704, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -17981,14 +17214,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  43440, 0, 0
+  LINE  43705, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  43441, 0, 0
+  LINKBMPPICT  43706, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"

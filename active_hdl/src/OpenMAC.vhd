@@ -47,6 +47,7 @@
 -- 2011-01-25  	V0.43	zelenkaj	Changed IPG preload value from 900ns to 960ns
 -- 2011-11-28	V0.44	zelenkaj	Changed reset level to high-active
 --									Clean up
+--									Added Dma qualifiers (Rd/Wr done)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -71,6 +72,8 @@ ENTITY OpenMAC IS
            nTx_Int, nRx_Int			: OUT   std_logic;
            nTx_BegInt               : OUT   std_logic;
            -- DMA
+		   Dma_Rd_Done				: OUT	std_logic;
+		   Dma_Wr_Done				: OUT	std_logic;
            Dma_Req, Dma_Rw          : OUT   std_logic;
            Dma_Ack                  : IN    std_logic;
            Dma_Addr                 : OUT   std_logic_vector(HighAdr DOWNTO 1);
@@ -409,6 +412,8 @@ bTxDesc:	BLOCK
 	
 BEGIN
 
+	Dma_Rd_Done <= '1' when Dsm = sStat or Dsm = sColl else '0';
+	
 	Ram_Wr    <= '1' WHEN	s_nWr = '0' AND Sel_Ram = '1' AND s_Adr(10) = '1'	ELSE '0';
 	Ram_Be(1) <= '1' WHEN	s_nWr = '1' OR s_nBE(1) = '0'						ELSE '0';
 	Ram_Be(0) <= '1' WHEN	s_nWr = '1' OR s_nBE(0) = '0'						ELSE '0';
@@ -922,6 +927,9 @@ bRxDesc:	BLOCK
 	SIGNAL	Rx_Dma_Out								: std_logic;
 
 BEGIN
+	
+	Dma_Wr_Done <= '1' when Dsm /= sIdle and Rx_Dsm_Next = sIdle else '0';
+	
 	WrDescStat <= '1' WHEN Dsm = sStat	ELSE '0';	
 
 	Ram_Wr    <= '1' WHEN	s_nWr = '0' AND Sel_Ram = '1' AND s_Adr(10) = '1'	ELSE '0';

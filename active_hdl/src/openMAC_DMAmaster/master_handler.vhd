@@ -47,6 +47,7 @@
 --
 -- 2011-08-03  	V0.01	zelenkaj    First version
 -- 2011-11-08	V0.02	zelenkaj	Added transfer qualifiers
+-- 2011-11-30	V0.03	zelenkaj	Removed unnecessary ports
 --
 -------------------------------------------------------------------------------
 
@@ -71,9 +72,7 @@ entity master_handler is
 	port(
 		m_clk : in std_logic;
 		rst : in std_logic;
-		mac_tx_on : in std_logic;
 		mac_tx_off : in std_logic;
-		mac_rx_on : in std_logic;
 		mac_rx_off : in std_logic;
 		tx_wr_clk : in std_logic;
 		tx_wr_empty : in std_logic;

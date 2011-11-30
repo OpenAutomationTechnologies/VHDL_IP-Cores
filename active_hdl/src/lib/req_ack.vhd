@@ -46,12 +46,9 @@
 -------------------------------------------------------------------------------
 --
 -- 2011-08-01  	V0.01	zelenkaj    First version
+-- 2011-11-30	V0.02	zelenkaj	removed enable at ack output
 --
 -------------------------------------------------------------------------------
-
---{{ Section below this comment is automatically maintained
---   and may be overwritten
---{entity {req_ack} architecture {rtl}}
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -72,8 +69,6 @@ entity req_ack is
 		ack : out std_logic
 	);
 end req_ack;
-
---}} End of automatically maintained section
 
 architecture rtl of req_ack is
 constant iMaxCnt : integer := ack_delay_g;
@@ -96,7 +91,7 @@ begin
 		
 		cnt_tc <= '1' when cnt = iMaxCnt else '0';
 		
-		ack <= cnt_tc and enable;
+		ack <= cnt_tc;
 	end generate;
 	
 	genNoDelay : if zero_delay_g = true generate

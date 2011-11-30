@@ -47,6 +47,7 @@
 --
 -- 2011-08-03  	V0.01	zelenkaj    First version
 -- 2011-11-28	V0.02	zelenkaj	Added DMA observer
+-- 2011-11-30	V0.03	zelenkaj	Removed unnecessary ports
 --
 -------------------------------------------------------------------------------
 
@@ -66,9 +67,7 @@ entity dma_handler is
 	port(
 		dma_clk : in std_logic;
 		rst : in std_logic;
-		mac_tx_on : in std_logic;
 		mac_tx_off : in std_logic;
-		mac_rx_on : in std_logic;
 		mac_rx_off : in std_logic;
 		dma_req_wr : in std_logic;
 		dma_req_rd : in std_logic;
