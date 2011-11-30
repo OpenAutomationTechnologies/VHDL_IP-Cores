@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_DMAmaster.vhd
--- Generated   : Tue Nov 29 09:42:57 2011
+-- Generated   : Wed Nov 30 14:09:34 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_DMAmaster.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -54,7 +54,8 @@
 --
 -- 2011-08-03	V0.01	zelenkaj	First version
 -- 2011-10-13	V0.02	zelenkaj	changed names of instances
--- 2011-11-28	V0.02	zelenkaj	Added DMA observer
+-- 2011-11-28	V0.03	zelenkaj	Added DMA observer
+-- 2011-11-29	V0.04	zelenkaj	Changed clkXing of Dma Addr
 --
 -------------------------------------------------------------------------------
 
@@ -88,9 +89,7 @@ entity openMAC_DMAmaster is
        m_readdatavalid : in std_logic;
        m_waitrequest : in std_logic;
        mac_rx_off : in std_logic;
-       mac_rx_on : in std_logic;
        mac_tx_off : in std_logic;
-       mac_tx_on : in std_logic;
        rst : in std_logic;
        dma_addr : in std_logic_vector(dma_highadr_g downto 1);
        dma_dout : in std_logic_vector(15 downto 0);
@@ -128,9 +127,7 @@ component dma_handler
        dma_req_rd : in std_logic;
        dma_req_wr : in std_logic;
        mac_rx_off : in std_logic;
-       mac_rx_on : in std_logic;
        mac_tx_off : in std_logic;
-       mac_tx_on : in std_logic;
        rst : in std_logic;
        rx_wr_clk : in std_logic;
        rx_wr_empty : in std_logic;
@@ -173,9 +170,7 @@ component master_handler
        m_readdatavalid : in std_logic;
        m_waitrequest : in std_logic;
        mac_rx_off : in std_logic;
-       mac_rx_on : in std_logic;
        mac_tx_off : in std_logic;
-       mac_tx_on : in std_logic;
        rst : in std_logic;
        rx_rd_clk : in std_logic;
        rx_rd_empty : in std_logic;
@@ -231,17 +226,6 @@ component slow2fastSync
        dataDst : out std_logic
   );
 end component;
-component sync
-  generic(
-       doSync_g : boolean := true
-  );
-  port (
-       clk : in std_logic;
-       din : in std_logic;
-       rst : in std_logic;
-       dout : out std_logic
-  );
-end component;
 
 ---- Architecture declarations -----
 --constants
@@ -255,12 +239,10 @@ constant rx_fifo_word_size_log2_c : natural := natural(ceil(log2(real(rx_fifo_wo
 
 signal dma_new_addr_rd : std_logic;
 signal dma_new_addr_wr : std_logic;
+signal m_dma_new_addr_rd : std_logic;
+signal m_dma_new_addr_wr : std_logic;
 signal m_mac_rx_off : std_logic;
-signal m_mac_rx_on : std_logic;
 signal m_mac_tx_off : std_logic;
-signal m_mac_tx_on : std_logic;
-signal m_new_dma_addr_rd : std_logic;
-signal m_new_dma_addr_wr : std_logic;
 signal rx_aclr : std_logic;
 signal rx_rd_clk : std_logic;
 signal rx_rd_empty : std_logic;
@@ -283,7 +265,6 @@ signal tx_wr_empty : std_logic;
 signal tx_wr_full : std_logic;
 signal tx_wr_req : std_logic;
 signal dma_addr_trans : std_logic_vector (dma_highadr_g downto 1);
-signal m_addr_trans : std_logic_vector (dma_highadr_g downto 1);
 signal rd_data : std_logic_vector (fifo_data_width_g-1 downto 0);
 signal rx_rd_usedw : std_logic_vector (rx_fifo_word_size_log2_c-1 downto 0);
 signal rx_wr_usedw : std_logic_vector (rx_fifo_word_size_log2_c-1 downto 0);
@@ -317,9 +298,7 @@ THE_DMA_HANDLER : dma_handler
        dma_req_wr => dma_req_wr,
        dma_wr_err => dma_wr_err,
        mac_rx_off => mac_rx_off,
-       mac_rx_on => mac_rx_on,
        mac_tx_off => mac_tx_off,
-       mac_tx_on => mac_tx_on,
        rst => rst,
        rx_aclr => rx_aclr,
        rx_wr_clk => rx_wr_clk,
@@ -348,9 +327,9 @@ THE_MASTER_HANDLER : master_handler
        tx_fifo_word_size_log2_g => tx_fifo_word_size_log2_c
   )
   port map(
-       dma_addr_in => m_addr_trans( dma_highadr_g downto 1 ),
-       dma_new_addr_rd => m_new_dma_addr_rd,
-       dma_new_addr_wr => m_new_dma_addr_wr,
+       dma_addr_in => dma_addr_trans( dma_highadr_g downto 1 ),
+       dma_new_addr_rd => m_dma_new_addr_rd,
+       dma_new_addr_wr => m_dma_new_addr_wr,
        m_address => m_address( dma_highadr_g downto 0 ),
        m_burstcount => m_burstcount( m_burstcount_width_g-1 downto 0 ),
        m_burstcounter => m_burstcounter( m_burstcount_width_g-1 downto 0 ),
@@ -361,9 +340,7 @@ THE_MASTER_HANDLER : master_handler
        m_waitrequest => m_waitrequest,
        m_write => m_write,
        mac_rx_off => m_mac_rx_off,
-       mac_rx_on => m_mac_rx_on,
        mac_tx_off => m_mac_tx_off,
-       mac_tx_on => m_mac_tx_on,
        rst => rst,
        rx_rd_clk => rx_rd_clk,
        rx_rd_empty => rx_rd_empty,
@@ -386,16 +363,6 @@ rx_wr_clk <= dma_clk;
 
 tx_wr_clk <= m_clk;
 
-sync0 : slow2fastSync
-  port map(
-       clkDst => m_clk,
-       clkSrc => dma_clk,
-       dataDst => m_mac_tx_on,
-       dataSrc => mac_tx_on,
-       rstDst => rst,
-       rstSrc => rst
-  );
-
 sync1 : slow2fastSync
   port map(
        clkDst => m_clk,
@@ -407,16 +374,6 @@ sync1 : slow2fastSync
   );
 
 sync2 : slow2fastSync
-  port map(
-       clkDst => m_clk,
-       clkSrc => dma_clk,
-       dataDst => m_mac_rx_on,
-       dataSrc => mac_rx_on,
-       rstDst => rst,
-       rstSrc => rst
-  );
-
-sync3 : slow2fastSync
   port map(
        clkDst => m_clk,
        clkSrc => dma_clk,
@@ -487,45 +444,31 @@ dma_din <= rd_data(7 downto 0) & rd_data(15 downto 8) when endian_g = "little" e
 		rd_data;
 end generate gen16bitFifo;
 
-syncDmaAddrGen : for i in dma_highadr_g downto 1 generate
-begin
-  g2 : if gen_rx_fifo_g or gen_tx_fifo_g generate
-  begin
-    sync6 : sync
-      port map(
-           clk => m_clk,
-           din => dma_addr_trans(i),
-           dout => m_addr_trans(i),
-           rst => rst
-      );
-  end generate g2;
-end generate syncDmaAddrGen;
-
-newWrAddrSync : if gen_rx_fifo_g generate
+genRxAddrSync : if gen_rx_fifo_g generate
 begin
   sync4 : slow2fastSync
     port map(
          clkDst => m_clk,
          clkSrc => dma_clk,
-         dataDst => m_new_dma_addr_wr,
+         dataDst => m_dma_new_addr_wr,
          dataSrc => dma_new_addr_wr,
          rstDst => rst,
          rstSrc => rst
     );
-end generate newWrAddrSync;
+end generate genRxAddrSync;
 
-newRdAddrSync : if gen_tx_fifo_g generate
+genTxAddrSync : if gen_tx_fifo_g generate
 begin
   sync5 : slow2fastSync
     port map(
          clkDst => m_clk,
          clkSrc => dma_clk,
-         dataDst => m_new_dma_addr_rd,
+         dataDst => m_dma_new_addr_rd,
          dataSrc => dma_new_addr_rd,
          rstDst => rst,
          rstSrc => rst
     );
-end generate newRdAddrSync;
+end generate genTxAddrSync;
 
 gen32bitFifo : if fifo_data_width_g = 32 generate
 begin

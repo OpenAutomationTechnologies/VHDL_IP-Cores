@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_Ethernet.vhd
--- Generated   : Tue Nov 29 16:27:19 2011
+-- Generated   : Wed Nov 30 14:09:36 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -59,6 +59,7 @@
 --					minor changes in SMI core generation
 -- 2011-11-28	V0.05	zelenkaj	Added DMA observer
 -- 2011-11-29	V0.06	zelenkaj	waitrequest for mac_reg is gen. once
+--					tx_off / rx_off is derived in openMAC
 --
 -------------------------------------------------------------------------------
 
@@ -190,27 +191,6 @@ component addr_decoder
        selout : out std_logic
   );
 end component;
-component delay_pulse
-  generic(
-       delay_g : natural := 1
-  );
-  port (
-       clk : in std_logic;
-       in_p : in std_logic;
-       rst : in std_logic;
-       out_p : out std_logic
-  );
-end component;
-component edgeDet
-  port (
-       clk : in std_logic;
-       din : in std_logic;
-       rst : in std_logic;
-       any : out std_logic;
-       falling : out std_logic;
-       rising : out std_logic
-  );
-end component;
 component openFILTER
   generic(
        bypassFilter : boolean := false
@@ -272,8 +252,10 @@ component OpenMAC
        s_nWr : in std_logic := '0';
        Dma_Addr : out std_logic_vector(HighAdr downto 1);
        Dma_Dout : out std_logic_vector(15 downto 0);
+       Dma_Rd_Done : out std_logic;
        Dma_Req : out std_logic;
        Dma_Rw : out std_logic;
+       Dma_Wr_Done : out std_logic;
        Mac_Zeit : out std_logic_vector(31 downto 0);
        S_Dout : out std_logic_vector(15 downto 0);
        nRx_Int : out std_logic;
@@ -326,9 +308,7 @@ component openMAC_DMAmaster
        m_readdatavalid : in std_logic;
        m_waitrequest : in std_logic;
        mac_rx_off : in std_logic;
-       mac_rx_on : in std_logic;
        mac_tx_off : in std_logic;
-       mac_tx_on : in std_logic;
        rst : in std_logic;
        dma_ack_rd : out std_logic;
        dma_ack_wr : out std_logic;
@@ -465,8 +445,6 @@ signal mac_rx_dv : std_logic;
 signal mac_rx_irq_s : std_logic;
 signal mac_rx_irq_s_n : std_logic;
 signal mac_rx_off : std_logic;
-signal mac_rx_off_del : std_logic;
-signal mac_rx_on : std_logic;
 signal mac_selcont : std_logic;
 signal mac_selfilter : std_logic;
 signal mac_selram : std_logic;
@@ -474,7 +452,6 @@ signal mac_tx_en : std_logic;
 signal mac_tx_irq_s : std_logic;
 signal mac_tx_irq_s_n : std_logic;
 signal mac_tx_off : std_logic;
-signal mac_tx_on : std_logic;
 signal mac_write : std_logic;
 signal mac_write_n : std_logic;
 signal phy0_rx_dv_s : std_logic;
@@ -613,8 +590,10 @@ THE_OPENMAC : OpenMAC
        Dma_Addr => dma_addr( dma_highadr_g downto 1 ),
        Dma_Din => dma_din,
        Dma_Dout => dma_dout,
+       Dma_Rd_Done => mac_tx_off,
        Dma_Req => dma_req,
        Dma_Rw => dma_rw,
+       Dma_Wr_Done => mac_rx_off,
        Hub_Rx => hub_rx,
        Mac_Zeit => mac_time,
        Rst => rst,
@@ -770,24 +749,6 @@ addrdec5 : addr_decoder
        addr => s_address_s( s_address'length downto 0 ),
        selin => s_chipselect,
        selout => dmaErr_sel
-  );
-
-edgedet0 : edgeDet
-  port map(
-       clk => clk,
-       din => mac_tx_en,
-       falling => mac_tx_off,
-       rising => mac_tx_on,
-       rst => rst
-  );
-
-edgedet1 : edgeDet
-  port map(
-       clk => clk,
-       din => mac_rx_dv,
-       falling => mac_rx_off,
-       rising => mac_rx_on,
-       rst => rst
   );
 
 regack0 : req_ack
@@ -1217,21 +1178,8 @@ begin
          m_waitrequest => m_waitrequest,
          m_write => m_write,
          m_writedata => m_writedata( m_data_width_g-1 downto 0 ),
-         mac_rx_off => mac_rx_off_del,
-         mac_rx_on => mac_rx_on,
+         mac_rx_off => mac_rx_off,
          mac_tx_off => mac_tx_off,
-         mac_tx_on => mac_tx_on,
-         rst => rst
-    );
-  
-  delayp0 : delay_pulse
-    generic map (
-         delay_g => 8
-    )  
-    port map(
-         clk => clk,
-         in_p => mac_rx_off,
-         out_p => mac_rx_off_del,
          rst => rst
     );
 end generate genDmaMaster;
