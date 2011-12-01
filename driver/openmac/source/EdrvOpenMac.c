@@ -792,7 +792,11 @@ ometh_packet_typ*   pPacket = NULL;
     pBuffer_p->m_pbBuffer = NULL;
 #if EDRV_PKT_LOC == 1
     //free tx buffer
+#ifdef __NIOS2__
     alt_uncached_free(pPacket);
+#elif defined(__MICROBLAZE__)
+    free(pPacket);
+#endif
 #elif (EDRV_PKT_LOC == 0 || EDRV_PKT_LOC == 2)
     EdrvInstance_l.m_ubTxBufCnt--;
 #else
