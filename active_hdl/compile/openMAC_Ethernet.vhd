@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_Ethernet.vhd
--- Generated   : Thu Dec  1 12:58:04 2011
+-- Generated   : Thu Dec  1 13:44:07 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -60,6 +60,8 @@
 -- 2011-11-28	V0.05	zelenkaj	Added DMA observer
 -- 2011-11-29	V0.06	zelenkaj	waitrequest for mac_reg is gen. once
 --					tx_off / rx_off is derived in openMAC
+-- 2011-11-30	V0.07	zelenkaj	Added generic for DMA observer
+--					Fixed generic assignments for DMA master
 --
 -------------------------------------------------------------------------------
 
@@ -83,6 +85,7 @@ entity openmac_ethernet is
        m_rx_burst_size_g : integer := 16;
        endian_g : string := "little";
        genPhyActLed_g : boolean := false;
+       gen_dma_observer_g : boolean := true;
        useIntPktBuf_g : boolean := false;
        useRxIntPktBuf_g : boolean := false;
        iPktBufSize_g : integer := 1024;
@@ -287,6 +290,7 @@ component openMAC_DMAmaster
        dma_highadr_g : integer := 31;
        endian_g : string := "little";
        fifo_data_width_g : integer := 16;
+       gen_dma_observer_g : boolean := true;
        gen_rx_fifo_g : boolean := true;
        gen_tx_fifo_g : boolean := true;
        m_burstcount_const_g : boolean := true;
@@ -1146,9 +1150,12 @@ begin
   THE_MAC_DMA_MASTER : openMAC_DMAmaster
     generic map (
          dma_highadr_g => dma_highadr_g,
+         endian_g => endian_g,
          fifo_data_width_g => fifo_data_width_c,
+         gen_dma_observer_g => gen_dma_observer_g,
          gen_rx_fifo_g => gen_rx_fifo_c,
          gen_tx_fifo_g => gen_tx_fifo_c,
+         m_burstcount_const_g => m_burstcount_const_g,
          m_burstcount_width_g => m_burstcount'length,
          m_rx_burst_size_g => m_rx_burst_size_g,
          m_tx_burst_size_g => m_tx_burst_size_g,

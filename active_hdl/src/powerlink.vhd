@@ -71,6 +71,7 @@
 -- 2011-11-21	V1.04	zelenkaj	added time synchronization feature
 -- 2011-11-28	V1.05	zelenkaj	added waitrequest signals to pdi pcp/ap
 -- 2011-11-29	V1.06	zelenkaj	event is optional
+-- 2011-11-30	V1.07	zelenkaj	Added generic for DMA observer
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -104,6 +105,7 @@ entity powerlink is
 		m_tx_fifo_size_g			:		integer								:= 16;
 		m_rx_fifo_size_g			:		integer								:= 16;
 		m_data_width_g				:		integer								:= 16;
+		gen_dma_observer_g			:		boolean								:= true;
 		genSmiIO 					: 		boolean 							:= true; --drive SMI IO if true
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
@@ -707,7 +709,8 @@ begin
 			m_tx_burst_size_g => m_tx_burst_size_g,
 			m_rx_burst_size_g => m_rx_burst_size_g,
 			genSmiIO => genSmiIO,
-			genPhyActLed_g => genLedGadget_g
+			genPhyActLed_g => genLedGadget_g,
+			gen_dma_observer_g => gen_dma_observer_g
 		)
 		port map(
 			clk => clk50,

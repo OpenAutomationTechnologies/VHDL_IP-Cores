@@ -90,6 +90,7 @@
 #-- 2011-11-21	V1.09	zelenkaj	added time synchronization feature
 #-- 2011-11-28	V1.10	zelenkaj	added waitrequest signals to pdi pcp/ap
 #-- 2011-11-29	V1.11	zelenkaj	event feature is optional
+#-- 2011-11-30	V1.12	zelenkaj	Added generic for DMA observer
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -316,6 +317,10 @@ set_parameter_property macRxBurstSize ALLOWED_RANGES {1 4 8 16}
 set_parameter_property macRxBurstSize DISPLAY_NAME "Number of Words per DMA Write Transfer (RX direction)"
 set_parameter_property macRxBurstSize DESCRIPTION "Sets the number of words (2 bytes) for each openMAC DMA write transfer (RX direction). A value of 1 refers to single beat transfers and disables burst transfers."
 
+add_parameter enDmaObserver BOOLEAN false
+set_parameter_property enDmaObserver DISPLAY_NAME "Enable packet DMA transfer monitor circuit"
+set_parameter_property enDmaObserver DESCRIPTION "The DMA monitor verifies the error-free Ethernet packet data transfer to/from the memory."
+
 add_parameter enHwAcc BOOLEAN FALSE
 set_parameter_property enHwAcc VISIBLE true
 ####################################
@@ -466,6 +471,11 @@ set_parameter_property useHwAcc_g HDL_PARAMETER true
 set_parameter_property useHwAcc_g VISIBLE false
 set_parameter_property useHwAcc_g DERIVED true
 
+add_parameter gen_dma_observer_g BOOLEAN false
+set_parameter_property gen_dma_observer_g HDL_PARAMETER true
+set_parameter_property gen_dma_observer_g VISIBLE false
+set_parameter_property gen_dma_observer_g DERIVED true
+
 #the following generic is fixed to 16 bit
 add_parameter m_data_width_g INTEGER 16
 set_parameter_property m_data_width_g HDL_PARAMETER true
@@ -565,6 +575,7 @@ proc my_validation_callback {} {
 	
 	set mii							[get_parameter_value phyIF]
 	set ploc						[get_parameter_value packetLoc]
+	set enDmaObserver 				[get_parameter_value enDmaObserver]
 	
 	if {$mii == "RMII"} {
 		set_parameter_value useRmii_g true
@@ -734,6 +745,7 @@ proc my_validation_callback {} {
 	set_parameter_property macRxBuf VISIBLE false
 	set_parameter_property mac2cmpTimer VISIBLE false
 	set_parameter_property enHwAcc VISIBLE false
+	set_parameter_property enDmaObserver VISIBLE false
 	
 	set_parameter_property mac2phys VISIBLE true
 	
@@ -924,13 +936,16 @@ proc my_validation_callback {} {
 	if {$ploc == "TX and RX into DPRAM"} {
 		set macBufSize [expr $txBufSize + $rxBufSize]
 		set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
+		set enDmaObserver false
 	} elseif {$ploc == "TX into DPRAM and RX over Avalon Master" } {
 		set macBufSize $txBufSize
+		set_parameter_property enDmaObserver VISIBLE true
 		#no rx buffers are stored in dpram => set to zero
 		set rxBufSize 0
 		set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
 		set macRxBuffers 16
 	} elseif {$ploc == "TX and RX over Avalon Master"} {
+		set_parameter_property enDmaObserver VISIBLE true
 		#any value to avoid errors in SOPC
 		set macBufSize 0
 		#no rx and tx buffers are stored in dpram => set to zero
@@ -963,6 +978,8 @@ proc my_validation_callback {} {
 	set_parameter_value Simulate			false
 	set_parameter_value iBufSize_g			$macBufSize
 	set_parameter_value iBufSizeLOG2_g		$log2MacBufSize
+	
+	set_parameter_value gen_dma_observer_g	[get_parameter_value enDmaObserver]
 	
 	if {[get_parameter_value configApParallelInterface] == "8bit"} {
 		set_parameter_value papDataWidth_g	8
@@ -1019,6 +1036,12 @@ proc my_validation_callback {} {
 		set_module_assignment embeddedsw.CMacro.LEDGADGET			TRUE
 	} else {
 		set_module_assignment embeddedsw.CMacro.LEDGADGET			FALSE
+	}
+	
+	if {[get_parameter_value enDmaObserver]} {
+		set_module_assignment embeddedsw.CMacro.DMAOBSERV			TRUE
+	} else {
+		set_module_assignment embeddedsw.CMacro.DMAOBSERV			FALSE
 	}
 	
 	if {[get_parameter_value genTimeSync_g]} {
@@ -1125,6 +1148,7 @@ add_display_item "Asynchronous Buffer" asyncBuf2Size  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
 add_display_item "openMAC" mac2phys PARAMETER
 add_display_item "openMAC" packetLoc  PARAMETER
+add_display_item "openMAC" enDmaObserver PARAMETER
 add_display_item "openMAC" macTxBurstSize  PARAMETER
 add_display_item "openMAC" macRxBurstSize  PARAMETER
 add_display_item "openMAC" enHwAcc  PARAMETER

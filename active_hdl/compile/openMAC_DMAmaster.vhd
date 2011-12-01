@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_DMAmaster.vhd
--- Generated   : Wed Nov 30 14:09:34 2011
+-- Generated   : Thu Dec  1 13:14:28 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_DMAmaster.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -56,6 +56,7 @@
 -- 2011-10-13	V0.02	zelenkaj	changed names of instances
 -- 2011-11-28	V0.03	zelenkaj	Added DMA observer
 -- 2011-11-29	V0.04	zelenkaj	Changed clkXing of Dma Addr
+-- 2011-11-30	V0.05	zelenkaj	Added generic for DMA observer
 --
 -------------------------------------------------------------------------------
 
@@ -79,7 +80,8 @@ entity openMAC_DMAmaster is
        tx_fifo_word_size_g : integer := 32;
        rx_fifo_word_size_g : integer := 32;
        fifo_data_width_g : integer := 16;
-       endian_g : string := "little"
+       endian_g : string := "little";
+       gen_dma_observer_g : boolean := true
   );
   port(
        dma_clk : in std_logic;
@@ -116,6 +118,7 @@ architecture strct of openMAC_DMAmaster is
 component dma_handler
   generic(
        dma_highadr_g : integer := 31;
+       gen_dma_observer_g : boolean := true;
        gen_rx_fifo_g : boolean := true;
        gen_tx_fifo_g : boolean := true;
        rx_fifo_word_size_log2_g : natural := 5;
@@ -280,6 +283,7 @@ begin
 THE_DMA_HANDLER : dma_handler
   generic map (
        dma_highadr_g => dma_highadr_g,
+       gen_dma_observer_g => gen_dma_observer_g,
        gen_rx_fifo_g => gen_rx_fifo_g,
        gen_tx_fifo_g => gen_tx_fifo_g,
        rx_fifo_word_size_log2_g => rx_fifo_word_size_log2_c,

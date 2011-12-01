@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 33973
+ FREEID 34145
  VARIABLES
  {
   #ARCHITECTURE="strct"
@@ -568,8 +568,9 @@ HEADER
     #GENERIC2="dma_highadr_g:INTEGER:=31"
     #GENERIC3="tx_fifo_word_size_log2_g:NATURAL:=5"
     #GENERIC4="rx_fifo_word_size_log2_g:NATURAL:=5"
+    #GENERIC5="gen_dma_observer_g:BOOLEAN:=true"
     #LANGUAGE="VHDL"
-    #MODIFIED="1322639345"
+    #MODIFIED="1322741592"
    }
   }
   PAGE "" 
@@ -2081,6 +2082,7 @@ PAGE ""
 "-- 2011-10-13\tV0.02\tzelenkaj\tchanged names of instances\n"+
 "-- 2011-11-28\tV0.03\tzelenkaj\tAdded DMA observer\n"+
 "-- 2011-11-29\tV0.04\tzelenkaj\tChanged clkXing of Dma Addr\n"+
+"-- 2011-11-30\tV0.05\tzelenkaj\tAdded generic for DMA observer\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -2444,8 +2446,9 @@ PAGE ""
 "rx_fifo_word_size_g : integer := 32;\n"+
 "fifo_data_width_g : integer := 16;\n"+
 "endian_g : string := \"little\";\n"+
+"gen_dma_observer_g : boolean := true;\n"+
 ""
-   RECT (2060,940,3020,1380)
+   RECT (2060,940,3020,1440)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -3829,11 +3832,12 @@ PAGE "DMA HANDLER"
    VARIABLES
    {
     #COMPONENT="dma_handler"
-    #GENERIC0="dma_highadr_g : INTEGER := dma_highadr_g"
-    #GENERIC1="gen_tx_fifo_g : BOOLEAN := gen_tx_fifo_g"
-    #GENERIC2="gen_rx_fifo_g : BOOLEAN := gen_rx_fifo_g"
+    #GENERIC0="gen_tx_fifo_g : BOOLEAN := gen_tx_fifo_g"
+    #GENERIC1="gen_rx_fifo_g : BOOLEAN := gen_rx_fifo_g"
+    #GENERIC2="gen_dma_observer_g : BOOLEAN := gen_dma_observer_g"
     #GENERIC3="rx_fifo_word_size_log2_g : NATURAL := rx_fifo_word_size_log2_c"
-    #GENERIC4="tx_fifo_word_size_log2_g : NATURAL := tx_fifo_word_size_log2_c"
+    #GENERIC4="dma_highadr_g : INTEGER := dma_highadr_g"
+    #GENERIC5="tx_fifo_word_size_log2_g : NATURAL := tx_fifo_word_size_log2_c"
     #IMPL="dma_handler"
     #LIBRARY="#default"
     #PRAGMED_GENERICS=""
@@ -3841,7 +3845,7 @@ PAGE "DMA HANDLER"
     #SYMBOL="dma_handler"
    }
    COORD (1260,780)
-   VERTEXES ( (26,33894), (32,33885), (38,33901), (50,33903), (56,33899), (62,33905), (68,33896), (80,33887), (92,33889), (98,33866), (110,33868), (122,33890), (128,33870), (134,33872), (170,33876), (164,33874), (158,33878), (152,33892), (146,33882), (140,33880), (180,33914), (182,33910), (184,33912), (186,33906), (188,33908) )
+   VERTEXES ( (26,33894), (32,33885), (38,33901), (50,33903), (56,33899), (62,33905), (68,33896), (80,33887), (92,33889), (98,33866), (110,33868), (122,33890), (128,33870), (134,33872), (140,33880), (146,33882), (152,33892), (158,33878), (164,33874), (170,33876), (180,33914), (182,33910), (184,33912), (186,33906), (188,33908) )
    PINPROP 180,"#PIN_STATE","0"
   }
   TEXT  3052, 0, 0
@@ -3862,7 +3866,7 @@ PAGE "DMA HANDLER"
   TEXT  3054, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (1260,1716,1965,1881)
+   RECT (1260,1716,1965,1914)
    PARENT 3029
   }
   NET WIRE  3055, 0, 0
@@ -7854,7 +7858,7 @@ PAGE ""
  
  BODY
  {
-  TEXT  33956, 0, 0
+  TEXT  34128, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7865,7 +7869,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  33957, 0, 0
+  TEXT  34129, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -7876,7 +7880,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  33958, 0, 0
+  TEXT  34130, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -7886,7 +7890,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  33959, 0, 0
+  TEXT  34131, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7898,7 +7902,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  33960, 0, 0
+  TEXT  34132, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -7912,7 +7916,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  33961, 0, 0
+  TEXT  34133, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -7922,7 +7926,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  33962, 0, 0
+  TEXT  34134, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7934,7 +7938,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  33963, 0, 0
+  TEXT  34135, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -7944,7 +7948,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  33964, 0, 0
+  TEXT  34136, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -7955,7 +7959,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  33965, 0, 0
+  GROUP  34137, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -7967,7 +7971,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  33966, 0, 0
+  GROUP  34138, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -7979,7 +7983,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  33967, 0, 0
+  GROUP  34139, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -7991,7 +7995,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  33968, 0, 0
+  GROUP  34140, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -8003,7 +8007,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  33969, 0, 0
+  GROUP  34141, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -8015,7 +8019,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  33970, 0, 0
+  GROUP  34142, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -8026,14 +8030,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  33971, 0, 0
+  LINE  34143, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  33972, 0, 0
+  LINKBMPPICT  34144, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\dat\\#BR.bmp"

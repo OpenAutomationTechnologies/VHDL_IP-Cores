@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 44620
+ FREEID 44981
  VARIABLES
  {
   #ARCHITECTURE="rtl"
@@ -2773,6 +2773,7 @@ HEADER
     #GENERIC1="dma_highadr_g:integer:=31"
     #GENERIC10="fifo_data_width_g:integer:=16"
     #GENERIC11="endian_g:string:=\"little\""
+    #GENERIC12="gen_dma_observer_g:boolean:=true"
     #GENERIC2="gen_tx_fifo_g:boolean:=true"
     #GENERIC3="gen_rx_fifo_g:boolean:=true"
     #GENERIC4="m_burstcount_width_g:integer:=4"
@@ -2785,7 +2786,7 @@ HEADER
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1322639424"
+    #MODIFIED="1322741679"
    }
   }
   PAGE "" 
@@ -3787,6 +3788,7 @@ PAGE "MAC"
 "m_rx_burst_size_g : integer := 16;\n"+
 "endian_g : string := \"little\";\n"+
 "genPhyActLed_g : boolean := false;\n"+
+"gen_dma_observer_g : boolean := true;\n"+
 ""
    RECT (240,240,820,700)
    MARGINS (20,20)
@@ -3951,6 +3953,8 @@ PAGE "MAC"
 "-- 2011-11-28\tV0.05\tzelenkaj\tAdded DMA observer\n"+
 "-- 2011-11-29\tV0.06\tzelenkaj\twaitrequest for mac_reg is gen. once\n"+
 "--\t\t\t\t\ttx_off / rx_off is derived in openMAC\n"+
+"-- 2011-11-30\tV0.07\tzelenkaj\tAdded generic for DMA observer\n"+
+"--\t\t\t\t\tFixed generic assignments for DMA master\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -14605,23 +14609,26 @@ PAGE "PACKET DMA MASTER"
    VARIABLES
    {
     #COMPONENT="openMAC_DMAmaster"
-    #GENERIC0="gen_tx_fifo_g : boolean := gen_tx_fifo_c"
-    #GENERIC1="dma_highadr_g : integer := dma_highadr_g"
-    #GENERIC2="simulate : boolean := simulate"
-    #GENERIC3="gen_rx_fifo_g : boolean := gen_rx_fifo_c"
-    #GENERIC4="m_rx_burst_size_g : integer := m_rx_burst_size_g"
-    #GENERIC5="m_tx_burst_size_g : integer := m_tx_burst_size_g"
-    #GENERIC6="m_burstcount_width_g : integer := m_burstcount'length"
-    #GENERIC7="fifo_data_width_g : integer := fifo_data_width_c"
-    #GENERIC8="rx_fifo_word_size_g : integer := rx_fifo_word_size_c"
-    #GENERIC9="tx_fifo_word_size_g : integer := tx_fifo_word_size_c"
+    #GENERIC0="simulate : boolean := simulate"
+    #GENERIC1="rx_fifo_word_size_g : integer := rx_fifo_word_size_c"
+    #GENERIC10="gen_rx_fifo_g : boolean := gen_rx_fifo_c"
+    #GENERIC11="gen_tx_fifo_g : boolean := gen_tx_fifo_c"
+    #GENERIC12="gen_dma_observer_g : boolean := gen_dma_observer_g"
+    #GENERIC2="tx_fifo_word_size_g : integer := tx_fifo_word_size_c"
+    #GENERIC3="m_rx_burst_size_g : integer := m_rx_burst_size_g"
+    #GENERIC4="m_tx_burst_size_g : integer := m_tx_burst_size_g"
+    #GENERIC5="fifo_data_width_g : integer := fifo_data_width_c"
+    #GENERIC6="endian_g : string := endian_g"
+    #GENERIC7="dma_highadr_g : integer := dma_highadr_g"
+    #GENERIC8="m_burstcount_const_g : boolean := m_burstcount_const_g"
+    #GENERIC9="m_burstcount_width_g : integer := m_burstcount'length"
     #LIBRARY="#default"
     #PRAGMED_GENERICS=""
     #REFERENCE="THE_MAC_DMA_MASTER"
     #SYMBOL="openMAC_DMAmaster"
    }
    COORD (1220,660)
-   VERTEXES ( (2,29579), (4,29858), (6,29581), (8,29587), (10,29583), (12,29596), (14,29606), (16,29594), (18,29608), (20,29593), (22,29610), (24,29600), (28,29604), (32,29598), (36,29602), (40,29577), (42,29589), (44,29591), (46,29612), (48,40166), (50,41240), (52,41245), (26,43622), (34,43624) )
+   VERTEXES ( (2,29579), (4,29858), (6,29581), (8,29587), (10,29583), (12,29596), (14,29606), (16,29594), (18,29608), (20,29593), (22,29610), (24,29600), (26,43622), (28,29604), (32,29598), (34,43624), (36,29602), (40,29577), (42,29589), (44,29591), (46,29612), (48,40166), (50,41240), (52,41245) )
    PINPROP 34,"#PIN_STATE","0"
   }
   TEXT  28213, 0, 0
@@ -14652,7 +14659,7 @@ PAGE "PACKET DMA MASTER"
   TEXT  28721, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (1800,1300,2405,1630)
+   RECT (1800,1260,2440,1689)
    PARENT 28212
   }
   ARCHITECTUREDECLARATIONS  28726, 0, 0
@@ -14681,7 +14688,7 @@ PAGE "PACKET DMA MASTER"
     #GENERATE_KIND="IF"
     #LABEL="genDmaMaster"
    }
-   AREA (240,580,2540,1680)
+   AREA (240,580,2540,1720)
    INSTANCES 28212
    GENERATES 29667
   }
@@ -17036,14 +17043,14 @@ PAGE ""
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311687673"
    DESCRIPTION="bla",BOTH
-   PAGENAME="PACKET BUFFER"
-   PAGENUMBER="6"
+   PAGENAME="MAC"
+   PAGENUMBER="1"
   }
  }
  
  BODY
  {
-  TEXT  44603, 0, 0
+  TEXT  44964, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17054,7 +17061,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  44604, 0, 0
+  TEXT  44965, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -17065,7 +17072,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  44605, 0, 0
+  TEXT  44966, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -17075,7 +17082,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  44606, 0, 0
+  TEXT  44967, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17087,7 +17094,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  44607, 0, 0
+  TEXT  44968, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -17101,7 +17108,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  44608, 0, 0
+  TEXT  44969, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -17111,7 +17118,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  44609, 0, 0
+  TEXT  44970, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17123,7 +17130,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  44610, 0, 0
+  TEXT  44971, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -17133,7 +17140,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  44611, 0, 0
+  TEXT  44972, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -17144,7 +17151,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  44612, 0, 0
+  GROUP  44973, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -17156,7 +17163,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  44613, 0, 0
+  GROUP  44974, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -17168,7 +17175,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  44614, 0, 0
+  GROUP  44975, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -17180,7 +17187,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  44615, 0, 0
+  GROUP  44976, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -17192,7 +17199,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  44616, 0, 0
+  GROUP  44977, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -17204,7 +17211,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  44617, 0, 0
+  GROUP  44978, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -17215,14 +17222,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  44618, 0, 0
+  LINE  44979, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  44619, 0, 0
+  LINKBMPPICT  44980, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
