@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Mon Nov 28 08:38:22 2011
+-- Generated   : Tue Nov 29 13:37:01 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -52,6 +52,8 @@
 -------------------------------------------------------------------------------
 --
 -- 2011-09-13  	V0.01	zelenkaj    First version
+-- 2011-11-24 	V0.02	mairt    		added slave interface for pdi pcp and pdi ap
+-- 2011-11-26 	V0.03	mairt    		added slave interface for simpleIO
 --
 -------------------------------------------------------------------------------
 
@@ -77,10 +79,47 @@ entity plb_powerlink is
   generic(
        -- name : type := value
        papDataWidth_g : integer := 16;
+       genPDI_g : boolean := false;
+       genPLBAp_g : boolean := false;
+       genSPIAp_g : boolean := false;
+       genSimpleIO_g : boolean := false;
        C_USE_RMII : boolean := false;
        C_TX_INT_PKT : boolean := false;
        C_RX_INT_PKT : boolean := false;
        C_USE_2ND_PHY : boolean := true;
+       -- PDI AP PLB Slave
+       C_PDI_AP_BASEADDR : std_logic_vector := X"00000000";
+       C_PDI_AP_HIGHADDR : std_logic_vector := X"000FFFFF";
+       C_PDI_AP_NUM_MASTERS : INTEGER := 1;
+       C_PDI_AP_PLB_AWIDTH : INTEGER := 32;
+       C_PDI_AP_PLB_DWIDTH : INTEGER := 32;
+       C_PDI_AP_PLB_MID_WIDTH : INTEGER := 1;
+       C_PDI_AP_PLB_P2P : INTEGER := 0;
+       C_PDI_AP_PLB_NUM_MASTERS : INTEGER := 1;
+       C_PDI_AP_PLB_NATIVE_DWIDTH : INTEGER := 32;
+       C_PDI_AP_PLB_SUPPORT_BURSTS : INTEGER := 0;
+       -- PDI AP PLB Slave
+       C_SMP_PCP_BASEADDR : std_logic_vector := X"00000000";
+       C_SMP_PCP_HIGHADDR : std_logic_vector := X"000FFFFF";
+       C_SMP_PCP_NUM_MASTERS : INTEGER := 1;
+       C_SMP_PCP_PLB_AWIDTH : INTEGER := 32;
+       C_SMP_PCP_PLB_DWIDTH : INTEGER := 32;
+       C_SMP_PCP_PLB_MID_WIDTH : INTEGER := 1;
+       C_SMP_PCP_PLB_P2P : INTEGER := 0;
+       C_SMP_PCP_PLB_NUM_MASTERS : INTEGER := 1;
+       C_SMP_PCP_PLB_NATIVE_DWIDTH : INTEGER := 32;
+       C_SMP_PCP_PLB_SUPPORT_BURSTS : INTEGER := 0;
+       -- PDI PCP PLB Slave
+       C_PDI_PCP_BASEADDR : std_logic_vector := X"00000000";
+       C_PDI_PCP_HIGHADDR : std_logic_vector := X"000FFFFF";
+       C_PDI_PCP_NUM_MASTERS : INTEGER := 1;
+       C_PDI_PCP_PLB_AWIDTH : INTEGER := 32;
+       C_PDI_PCP_PLB_DWIDTH : INTEGER := 32;
+       C_PDI_PCP_PLB_MID_WIDTH : INTEGER := 1;
+       C_PDI_PCP_PLB_P2P : INTEGER := 0;
+       C_PDI_PCP_PLB_NUM_MASTERS : INTEGER := 1;
+       C_PDI_PCP_PLB_NATIVE_DWIDTH : INTEGER := 32;
+       C_PDI_PCP_PLB_SUPPORT_BURSTS : INTEGER := 0;
        -- openMAC CMP PLB Slave
        C_MAC_PKT_BASEADDR : std_logic_vector := X"00000000";
        C_MAC_PKT_HIGHADDR : std_logic_vector := X"000FFFFF";
@@ -154,6 +193,48 @@ entity plb_powerlink is
        MAC_REG_wrBurst : in std_logic;
        MAC_REG_wrPendReq : in std_logic;
        MAC_REG_wrPrim : in std_logic;
+       PDI_AP_Clk : in std_logic;
+       PDI_AP_PAValid : in std_logic;
+       PDI_AP_RNW : in std_logic;
+       PDI_AP_Rst : in std_logic;
+       PDI_AP_SAValid : in std_logic;
+       PDI_AP_abort : in std_logic;
+       PDI_AP_busLock : in std_logic;
+       PDI_AP_lockErr : in std_logic;
+       PDI_AP_rdBurst : in std_logic;
+       PDI_AP_rdPendReq : in std_logic;
+       PDI_AP_rdPrim : in std_logic;
+       PDI_AP_wrBurst : in std_logic;
+       PDI_AP_wrPendReq : in std_logic;
+       PDI_AP_wrPrim : in std_logic;
+       PDI_PCP_Clk : in std_logic;
+       PDI_PCP_PAValid : in std_logic;
+       PDI_PCP_RNW : in std_logic;
+       PDI_PCP_Rst : in std_logic;
+       PDI_PCP_SAValid : in std_logic;
+       PDI_PCP_abort : in std_logic;
+       PDI_PCP_busLock : in std_logic;
+       PDI_PCP_lockErr : in std_logic;
+       PDI_PCP_rdBurst : in std_logic;
+       PDI_PCP_rdPendReq : in std_logic;
+       PDI_PCP_rdPrim : in std_logic;
+       PDI_PCP_wrBurst : in std_logic;
+       PDI_PCP_wrPendReq : in std_logic;
+       PDI_PCP_wrPrim : in std_logic;
+       SMP_PCP_Clk : in std_logic;
+       SMP_PCP_PAValid : in std_logic;
+       SMP_PCP_RNW : in std_logic;
+       SMP_PCP_Rst : in std_logic;
+       SMP_PCP_SAValid : in std_logic;
+       SMP_PCP_abort : in std_logic;
+       SMP_PCP_busLock : in std_logic;
+       SMP_PCP_lockErr : in std_logic;
+       SMP_PCP_rdBurst : in std_logic;
+       SMP_PCP_rdPendReq : in std_logic;
+       SMP_PCP_rdPrim : in std_logic;
+       SMP_PCP_wrBurst : in std_logic;
+       SMP_PCP_wrPendReq : in std_logic;
+       SMP_PCP_wrPrim : in std_logic;
        clk100 : in std_logic;
        pap_cs : in std_logic;
        pap_cs_n : in std_logic;
@@ -207,6 +288,42 @@ entity plb_powerlink is
        MAC_REG_type : in std_logic_vector(0 to 2);
        MAC_REG_wrDBus : in std_logic_vector(0 to C_MAC_REG_PLB_DWIDTH - 1);
        MAC_REG_wrPendPri : in std_logic_vector(0 to 1);
+       PDI_AP_ABus : in std_logic_vector(0 to 31);
+       PDI_AP_BE : in std_logic_vector(0 to (C_PDI_AP_PLB_DWIDTH/8)-1);
+       PDI_AP_MSize : in std_logic_vector(0 to 1);
+       PDI_AP_TAttribute : in std_logic_vector(0 to 15);
+       PDI_AP_UABus : in std_logic_vector(0 to 31);
+       PDI_AP_masterID : in std_logic_vector(0 to C_PDI_AP_PLB_MID_WIDTH-1);
+       PDI_AP_rdPendPri : in std_logic_vector(0 to 1);
+       PDI_AP_reqPri : in std_logic_vector(0 to 1);
+       PDI_AP_size : in std_logic_vector(0 to 3);
+       PDI_AP_type : in std_logic_vector(0 to 2);
+       PDI_AP_wrDBus : in std_logic_vector(0 to C_PDI_AP_PLB_DWIDTH-1);
+       PDI_AP_wrPendPri : in std_logic_vector(0 to 1);
+       PDI_PCP_ABus : in std_logic_vector(0 to 31);
+       PDI_PCP_BE : in std_logic_vector(0 to (C_PDI_PCP_PLB_DWIDTH/8)-1);
+       PDI_PCP_MSize : in std_logic_vector(0 to 1);
+       PDI_PCP_TAttribute : in std_logic_vector(0 to 15);
+       PDI_PCP_UABus : in std_logic_vector(0 to 31);
+       PDI_PCP_masterID : in std_logic_vector(0 to C_PDI_PCP_PLB_MID_WIDTH-1);
+       PDI_PCP_rdPendPri : in std_logic_vector(0 to 1);
+       PDI_PCP_reqPri : in std_logic_vector(0 to 1);
+       PDI_PCP_size : in std_logic_vector(0 to 3);
+       PDI_PCP_type : in std_logic_vector(0 to 2);
+       PDI_PCP_wrDBus : in std_logic_vector(0 to C_PDI_PCP_PLB_DWIDTH-1);
+       PDI_PCP_wrPendPri : in std_logic_vector(0 to 1);
+       SMP_PCP_ABus : in std_logic_vector(0 to 31);
+       SMP_PCP_BE : in std_logic_vector(0 to (C_SMP_PCP_PLB_DWIDTH/8)-1);
+       SMP_PCP_MSize : in std_logic_vector(0 to 1);
+       SMP_PCP_TAttribute : in std_logic_vector(0 to 15);
+       SMP_PCP_UABus : in std_logic_vector(0 to 31);
+       SMP_PCP_masterID : in std_logic_vector(0 to C_SMP_PCP_PLB_MID_WIDTH-1);
+       SMP_PCP_rdPendPri : in std_logic_vector(0 to 1);
+       SMP_PCP_reqPri : in std_logic_vector(0 to 1);
+       SMP_PCP_size : in std_logic_vector(0 to 3);
+       SMP_PCP_type : in std_logic_vector(0 to 2);
+       SMP_PCP_wrDBus : in std_logic_vector(0 to C_SMP_PCP_PLB_DWIDTH-1);
+       SMP_PCP_wrPendPri : in std_logic_vector(0 to 1);
        pap_addr : in std_logic_vector(15 downto 0);
        pap_be : in std_logic_vector(papDataWidth_g/8-1 downto 0);
        pap_be_n : in std_logic_vector(papDataWidth_g/8-1 downto 0);
@@ -242,6 +359,33 @@ entity plb_powerlink is
        MAC_REG_wrBTerm : out std_logic;
        MAC_REG_wrComp : out std_logic;
        MAC_REG_wrDAck : out std_logic;
+       PDI_AP_addrAck : out std_logic;
+       PDI_AP_rdBTerm : out std_logic;
+       PDI_AP_rdComp : out std_logic;
+       PDI_AP_rdDAck : out std_logic;
+       PDI_AP_rearbitrate : out std_logic;
+       PDI_AP_wait : out std_logic;
+       PDI_AP_wrBTerm : out std_logic;
+       PDI_AP_wrComp : out std_logic;
+       PDI_AP_wrDAck : out std_logic;
+       PDI_PCP_addrAck : out std_logic;
+       PDI_PCP_rdBTerm : out std_logic;
+       PDI_PCP_rdComp : out std_logic;
+       PDI_PCP_rdDAck : out std_logic;
+       PDI_PCP_rearbitrate : out std_logic;
+       PDI_PCP_wait : out std_logic;
+       PDI_PCP_wrBTerm : out std_logic;
+       PDI_PCP_wrComp : out std_logic;
+       PDI_PCP_wrDAck : out std_logic;
+       SMP_PCP_addrAck : out std_logic;
+       SMP_PCP_rdBTerm : out std_logic;
+       SMP_PCP_rdComp : out std_logic;
+       SMP_PCP_rdDAck : out std_logic;
+       SMP_PCP_rearbitrate : out std_logic;
+       SMP_PCP_wait : out std_logic;
+       SMP_PCP_wrBTerm : out std_logic;
+       SMP_PCP_wrComp : out std_logic;
+       SMP_PCP_wrDAck : out std_logic;
        ap_asyncIrq : out std_logic;
        ap_asyncIrq_n : out std_logic;
        ap_irq : out std_logic;
@@ -291,6 +435,27 @@ entity plb_powerlink is
        MAC_REG_SSize : out std_logic_vector(0 to 1);
        MAC_REG_rdDBus : out std_logic_vector(0 to C_MAC_REG_PLB_DWIDTH-1);
        MAC_REG_rdWdAddr : out std_logic_vector(0 to 3);
+       PDI_AP_MBusy : out std_logic_vector(0 to C_PDI_AP_PLB_NUM_MASTERS-1);
+       PDI_AP_MIRQ : out std_logic_vector(0 to C_PDI_AP_PLB_NUM_MASTERS-1);
+       PDI_AP_MRdErr : out std_logic_vector(0 to C_PDI_AP_PLB_NUM_MASTERS-1);
+       PDI_AP_MWrErr : out std_logic_vector(0 to C_PDI_AP_PLB_NUM_MASTERS-1);
+       PDI_AP_SSize : out std_logic_vector(0 to 1);
+       PDI_AP_rdDBus : out std_logic_vector(0 to C_PDI_AP_PLB_DWIDTH-1);
+       PDI_AP_rdWdAddr : out std_logic_vector(0 to 3);
+       PDI_PCP_MBusy : out std_logic_vector(0 to C_PDI_PCP_NUM_MASTERS-1);
+       PDI_PCP_MIRQ : out std_logic_vector(0 to C_PDI_PCP_NUM_MASTERS-1);
+       PDI_PCP_MRdErr : out std_logic_vector(0 to C_PDI_PCP_NUM_MASTERS-1);
+       PDI_PCP_MWrErr : out std_logic_vector(0 to C_PDI_PCP_NUM_MASTERS-1);
+       PDI_PCP_SSize : out std_logic_vector(0 to 1);
+       PDI_PCP_rdDBus : out std_logic_vector(0 to C_PDI_PCP_PLB_DWIDTH-1);
+       PDI_PCP_rdWdAddr : out std_logic_vector(0 to 3);
+       SMP_PCP_MBusy : out std_logic_vector(0 to C_SMP_PCP_PLB_NUM_MASTERS-1);
+       SMP_PCP_MIRQ : out std_logic_vector(0 to C_SMP_PCP_PLB_NUM_MASTERS-1);
+       SMP_PCP_MRdErr : out std_logic_vector(0 to C_SMP_PCP_PLB_NUM_MASTERS-1);
+       SMP_PCP_MWrErr : out std_logic_vector(0 to C_SMP_PCP_PLB_NUM_MASTERS-1);
+       SMP_PCP_SSize : out std_logic_vector(0 to 1);
+       SMP_PCP_rdDBus : out std_logic_vector(0 to C_SMP_PCP_PLB_DWIDTH-1);
+       SMP_PCP_rdWdAddr : out std_logic_vector(0 to 3);
        led_gpo : out std_logic_vector(7 downto 0);
        led_opt : out std_logic_vector(1 downto 0);
        led_phyAct : out std_logic_vector(1 downto 0);
@@ -397,13 +562,14 @@ component powerlink
        endian_g : string := "little";
        genABuf1_g : boolean := true;
        genABuf2_g : boolean := true;
-       genAvalonAp_g : boolean := true;
+       genInternalAp_g : boolean := true;
        genLedGadget_g : boolean := false;
        genOnePdiClkDomain_g : boolean := false;
        genPdi_g : boolean := true;
        genSimpleIO_g : boolean := false;
        genSmiIO : boolean := true;
        genSpiAp_g : boolean := false;
+       genTimeSync_g : boolean := false;
        iAsyBuf1Size_g : integer := 100;
        iAsyBuf2Size_g : integer := 100;
        iBufSizeLOG2_g : integer := 10;
@@ -523,6 +689,7 @@ component powerlink
        ap_irq : out std_logic := '0';
        ap_irq_n : out std_logic := '1';
        ap_readdata : out std_logic_vector(31 downto 0) := (others => '0');
+       ap_waitrequest : out std_logic;
        led_error : out std_logic := '0';
        led_gpo : out std_logic_vector(7 downto 0) := (others => '0');
        led_opt : out std_logic_vector(1 downto 0) := (others => '0');
@@ -544,6 +711,7 @@ component powerlink
        pap_ack : out std_logic := '0';
        pap_ack_n : out std_logic := '1';
        pcp_readdata : out std_logic_vector(31 downto 0) := (others => '0');
+       pcp_waitrequest : out std_logic;
        phy0_Rst_n : out std_logic := '1';
        phy0_SMIClk : out std_logic := '0';
        phy0_SMIDat_O : out std_logic;
@@ -565,6 +733,7 @@ component powerlink
        pio_operational : out std_logic := '0';
        pio_portOutValid : out std_logic_vector(3 downto 0) := (others => '0');
        smp_readdata : out std_logic_vector(31 downto 0) := (others => '0');
+       smp_waitrequest : out std_logic;
        spi_miso : out std_logic := '0';
        tcp_irq : out std_logic := '0';
        tcp_readdata : out std_logic_vector(31 downto 0) := (others => '0');
@@ -738,6 +907,15 @@ constant C_MAC_PKT_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_M
 constant C_MAC_PKT_HIGH : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_MAC_PKT_HIGHADDR;
 constant C_MAC_PKT_SIZE : integer := conv_integer(C_MAC_PKT_HIGHADDR - C_MAC_PKT_BASEADDR + 1);
 constant C_MAC_PKT_SIZE_LOG2 : integer := integer(ceil(log2(real(C_MAC_PKT_SIZE))));
+-- SimpleIO Slave
+constant C_SMP_PCP_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_SMP_PCP_BASEADDR;
+constant C_SMP_PCP_HIGH : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_SMP_PCP_HIGHADDR;
+-- PDI PCP Slave
+constant C_PDI_PCP_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_PDI_PCP_BASEADDR;
+constant C_PDI_PCP_HIGH : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_PDI_PCP_HIGHADDR;
+-- AP PCP Slave
+constant C_PDI_AP_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_PDI_AP_BASEADDR;
+constant C_PDI_AP_HIGH : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_PDI_AP_HIGHADDR;
 -- POWERLINK IP-core
 constant C_MAC_PKT_EN : boolean := C_TX_INT_PKT or C_RX_INT_PKT;
 constant C_MAC_PKT_RX_EN : boolean := C_RX_INT_PKT;
@@ -748,11 +926,14 @@ constant C_M_FIFO_SIZE : integer := C_MAC_DMA_FIFO_SIZE/4; --in dwords
 
 
 ----     Constants     -----
-constant DANGLING_INPUT_CONSTANT : std_logic := 'Z';
 constant GND_CONSTANT   : std_logic := '0';
 
 ---- Signal declarations used on the diagram ----
 
+signal ap_chipselect : std_logic;
+signal ap_read : std_logic;
+signal ap_waitrequest : std_logic;
+signal ap_write : std_logic;
 signal Bus2MAC_CMP_Reset : std_logic;
 signal Bus2MAC_DMA_MstRd_eof_n : std_logic;
 signal Bus2MAC_DMA_MstRd_sof_n : std_logic;
@@ -772,6 +953,15 @@ signal Bus2MAC_REG_Clk : std_logic;
 signal Bus2MAC_REG_Reset : std_logic;
 signal Bus2MAC_REG_RNW : std_logic;
 signal Bus2MAC_REG_RNW_n : std_logic;
+signal Bus2PDI_AP_Clk : std_logic;
+signal Bus2PDI_AP_Reset : std_logic;
+signal Bus2PDI_AP_RNW : std_logic;
+signal Bus2PDI_PCP_Clk : std_logic;
+signal Bus2PDI_PCP_Reset : std_logic;
+signal Bus2PDI_PCP_RNW : std_logic;
+signal Bus2SMP_PCP_Clk : std_logic;
+signal Bus2SMP_PCP_Reset : std_logic;
+signal Bus2SMP_PCP_RNW : std_logic;
 signal clk50 : std_logic;
 signal clkAp : std_logic;
 signal clkPcp : std_logic;
@@ -813,15 +1003,37 @@ signal m_read : std_logic;
 signal m_readdatavalid : std_logic;
 signal m_waitrequest : std_logic;
 signal m_write : std_logic;
+signal pcp_chipselect : std_logic;
+signal pcp_read : std_logic;
+signal pcp_waitrequest : std_logic;
+signal pcp_write : std_logic;
+signal PDI_AP2Bus_Error : std_logic;
+signal PDI_AP2Bus_RdAck : std_logic;
+signal PDI_AP2Bus_WrAck : std_logic;
+signal PDI_PCP2Bus_Error : std_logic;
+signal PDI_PCP2Bus_RdAck : std_logic;
+signal PDI_PCP2Bus_WrAck : std_logic;
 signal pkt_clk : std_logic;
 signal rst : std_logic;
 signal rstAp : std_logic;
 signal rstPcp : std_logic;
+signal smp_address : std_logic;
+signal smp_chipselect : std_logic;
+signal SMP_PCP2Bus_Error : std_logic;
+signal SMP_PCP2Bus_RdAck : std_logic;
+signal SMP_PCP2Bus_WrAck : std_logic;
+signal smp_read : std_logic;
+signal smp_waitrequest : std_logic;
+signal smp_write : std_logic;
 signal tcp_chipselect : std_logic;
 signal tcp_irq_s : std_logic;
 signal tcp_read : std_logic;
 signal tcp_waitrequest : std_logic;
 signal tcp_write : std_logic;
+signal ap_address : std_logic_vector (12 downto 0);
+signal ap_byteenable : std_logic_vector (3 downto 0);
+signal ap_readdata : std_logic_vector (31 downto 0);
+signal ap_writedata : std_logic_vector (31 downto 0);
 signal Bus2MAC_DMA_MstRd_d : std_logic_vector (0 to C_MAC_DMA_PLB_NATIVE_DWIDTH-1);
 signal Bus2MAC_DMA_MstRd_rem : std_logic_vector (0 to (C_MAC_DMA_PLB_NATIVE_DWIDTH/8)-1);
 signal Bus2MAC_PKT_Addr : std_logic_vector (C_MAC_PKT_PLB_AWIDTH-1 downto 0);
@@ -833,6 +1045,18 @@ signal Bus2MAC_REG_BE : std_logic_vector ((C_MAC_REG_PLB_DWIDTH/8)-1 downto 0);
 signal Bus2MAC_REG_BE_s : std_logic_vector ((C_MAC_REG_PLB_DWIDTH/8)-1 downto 0);
 signal Bus2MAC_REG_CS : std_logic_vector (1 downto 0);
 signal Bus2MAC_REG_Data : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
+signal Bus2PDI_AP_Addr : std_logic_vector (C_PDI_AP_PLB_AWIDTH-1 downto 0);
+signal Bus2PDI_AP_BE : std_logic_vector ((C_PDI_AP_PLB_DWIDTH/8)-1 downto 0);
+signal Bus2PDI_AP_CS : std_logic_vector (0 downto 0);
+signal Bus2PDI_AP_Data : std_logic_vector (C_PDI_AP_PLB_DWIDTH-1 downto 0);
+signal Bus2PDI_PCP_Addr : std_logic_vector (C_PDI_PCP_PLB_AWIDTH-1 downto 0);
+signal Bus2PDI_PCP_BE : std_logic_vector ((C_PDI_PCP_PLB_DWIDTH/8)-1 downto 0);
+signal Bus2PDI_PCP_CS : std_logic_vector (0 downto 0);
+signal Bus2PDI_PCP_Data : std_logic_vector (C_PDI_PCP_PLB_DWIDTH-1 downto 0);
+signal Bus2SMP_PCP_Addr : std_logic_vector (C_SMP_PCP_PLB_AWIDTH-1 downto 0);
+signal Bus2SMP_PCP_BE : std_logic_vector ((C_SMP_PCP_PLB_DWIDTH/8)-1 downto 0);
+signal Bus2SMP_PCP_CS : std_logic_vector (0 downto 0);
+signal Bus2SMP_PCP_Data : std_logic_vector (C_SMP_PCP_PLB_DWIDTH-1 downto 0);
 signal IP2Bus_Data_s : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
 signal mac_address : std_logic_vector (C_MAC_REG_PLB_AWIDTH-1 downto 0);
 signal mac_byteenable : std_logic_vector (1 downto 0);
@@ -856,13 +1080,20 @@ signal m_burstcounter : std_logic_vector (C_M_BURSTCOUNT_WIDTH-1 downto 0);
 signal m_byteenable : std_logic_vector (3 downto 0);
 signal m_readdata : std_logic_vector (31 downto 0);
 signal m_writedata : std_logic_vector (31 downto 0);
+signal pcp_address : std_logic_vector (12 downto 0);
+signal pcp_byteenable : std_logic_vector (3 downto 0);
+signal pcp_readdata : std_logic_vector (31 downto 0);
+signal pcp_writedata : std_logic_vector (31 downto 0);
+signal PDI_AP2Bus_Data : std_logic_vector (C_PDI_AP_PLB_DWIDTH-1 downto 0);
+signal PDI_PCP2Bus_Data : std_logic_vector (C_PDI_PCP_PLB_DWIDTH-1 downto 0);
+signal smp_byteenable : std_logic_vector (3 downto 0);
+signal SMP_PCP2Bus_Data : std_logic_vector (C_SMP_PCP_PLB_DWIDTH-1 downto 0);
+signal smp_readdata : std_logic_vector (31 downto 0);
+signal smp_writedata : std_logic_vector (31 downto 0);
 signal tcp_address : std_logic_vector (1 downto 0);
 signal tcp_byteenable : std_logic_vector (3 downto 0);
 signal tcp_readdata : std_logic_vector (31 downto 0);
 signal tcp_writedata : std_logic_vector (31 downto 0);
-
----- Declaration for Dangling input ----
-signal Dangling_Input_Signal : STD_LOGIC;
 
 begin
 
@@ -888,6 +1119,23 @@ with Bus2MAC_REG_CS select
 						MAC_CMP2Bus_Error 					when "01",
 						'0'										when others;
 Bus2MAC_REG_BE_s <= Bus2MAC_REG_BE;
+--ap_pcp assignments
+clkAp <= Bus2PDI_AP_Clk;
+ap_writedata <= Bus2PDI_AP_Data;
+--	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
+--	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
+ap_read <= Bus2PDI_AP_RNW;
+ap_write <= not Bus2PDI_AP_RNW;
+ap_chipselect <= Bus2PDI_AP_CS(0);
+ap_byteenable <= Bus2PDI_AP_BE;
+ap_address <= Bus2PDI_AP_Addr(12 downto 0);
+
+PDI_AP2Bus_Data <= ap_readdata;
+--	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
+--	mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);
+PDI_AP2Bus_RdAck <= ap_chipselect and ap_read and not ap_waitrequest;
+PDI_AP2Bus_WrAck <= ap_chipselect and ap_write and not ap_waitrequest;
+PDI_AP2Bus_Error <= '0';
 --mac_cmp assignments
 ---cmp_clk <= Bus2MAC_CMP_Clk;
 tcp_writedata <= Bus2MAC_REG_Data;
@@ -918,6 +1166,36 @@ MAC_PKT2Bus_Data <= mbf_readdata;
 MAC_PKT2Bus_RdAck <= mbf_chipselect and mbf_read and not mbf_waitrequest;
 MAC_PKT2Bus_WrAck <= mbf_chipselect and mbf_write and not mbf_waitrequest;
 MAC_PKT2Bus_Error <= '0';
+--pdi_pcp assignments
+clkPcp <= Bus2PDI_PCP_Clk;
+pcp_writedata <= Bus2PDI_PCP_Data;
+--	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
+--	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
+pcp_read <= Bus2PDI_PCP_RNW;
+pcp_write <= not Bus2PDI_PCP_RNW;
+pcp_chipselect <= Bus2PDI_PCP_CS(0);
+pcp_byteenable <= Bus2PDI_PCP_BE;
+pcp_address <= Bus2PDI_PCP_Addr(12 downto 0);
+
+PDI_PCP2Bus_Data <= pcp_readdata;
+--	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
+--	mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);
+PDI_PCP2Bus_RdAck <= pcp_chipselect and pcp_read and not pcp_waitrequest;
+PDI_PCP2Bus_WrAck <= pcp_chipselect and pcp_write and not pcp_waitrequest;
+PDI_PCP2Bus_Error <= '0';
+--SMP_PCP assignments
+---cmp_clk <= Bus2SMP_PCP_Clk;
+smp_writedata <= Bus2SMP_PCP_Data;
+smp_read <= Bus2SMP_PCP_RNW and Bus2SMP_PCP_CS(0);
+smp_write <= not Bus2SMP_PCP_RNW and Bus2SMP_PCP_CS(0);
+--smp_chipselect <= Bus2SMP_PCP_CS(0);
+smp_byteenable <= Bus2SMP_PCP_BE;
+smp_address <= Bus2SMP_PCP_Addr(2);
+
+SMP_PCP2Bus_Data <= smp_readdata;
+SMP_PCP2Bus_RdAck <= smp_chipselect and smp_read and not smp_waitrequest;
+SMP_PCP2Bus_WrAck <= smp_chipselect and smp_write and not smp_waitrequest;
+SMP_PCP2Bus_Error <= '0';
 --test_port
 test_port(255 downto 251) <= m_read & m_write & m_waitrequest & m_readdatavalid & MAC_DMA2Bus_Mst_Type;
 
@@ -1038,13 +1316,14 @@ THE_POWERLINK_IP_CORE : powerlink
        endian_g => "big",
        genABuf1_g => false,
        genABuf2_g => false,
-       genAvalonAp_g => false,
+       genInternalAp_g => true,
        genLedGadget_g => false,
        genOnePdiClkDomain_g => false,
-       genPdi_g => false,
-       genSimpleIO_g => false,
+       genPdi_g => genPDI_g,
+       genSimpleIO_g => genSimpleIO_g,
        genSmiIO => false,
-       genSpiAp_g => false,
+       genSpiAp_g => genSPIAp_g,
+       genTimeSync_g => false,
        iAsyBuf1Size_g => 100,
        iAsyBuf2Size_g => 100,
        iBufSizeLOG2_g => C_MAC_PKT_SIZE_LOG2,
@@ -1078,55 +1357,6 @@ THE_POWERLINK_IP_CORE : powerlink
        useRxIntPacketBuf_g => C_MAC_PKT_RX_EN
   )
   port map(
-       ap_address(0) => Dangling_Input_Signal,
-       ap_address(1) => Dangling_Input_Signal,
-       ap_address(2) => Dangling_Input_Signal,
-       ap_address(3) => Dangling_Input_Signal,
-       ap_address(4) => Dangling_Input_Signal,
-       ap_address(5) => Dangling_Input_Signal,
-       ap_address(6) => Dangling_Input_Signal,
-       ap_address(7) => Dangling_Input_Signal,
-       ap_address(8) => Dangling_Input_Signal,
-       ap_address(9) => Dangling_Input_Signal,
-       ap_address(10) => Dangling_Input_Signal,
-       ap_address(11) => Dangling_Input_Signal,
-       ap_address(12) => Dangling_Input_Signal,
-       ap_byteenable(0) => Dangling_Input_Signal,
-       ap_byteenable(1) => Dangling_Input_Signal,
-       ap_byteenable(2) => Dangling_Input_Signal,
-       ap_byteenable(3) => Dangling_Input_Signal,
-       ap_writedata(0) => Dangling_Input_Signal,
-       ap_writedata(1) => Dangling_Input_Signal,
-       ap_writedata(2) => Dangling_Input_Signal,
-       ap_writedata(3) => Dangling_Input_Signal,
-       ap_writedata(4) => Dangling_Input_Signal,
-       ap_writedata(5) => Dangling_Input_Signal,
-       ap_writedata(6) => Dangling_Input_Signal,
-       ap_writedata(7) => Dangling_Input_Signal,
-       ap_writedata(8) => Dangling_Input_Signal,
-       ap_writedata(9) => Dangling_Input_Signal,
-       ap_writedata(10) => Dangling_Input_Signal,
-       ap_writedata(11) => Dangling_Input_Signal,
-       ap_writedata(12) => Dangling_Input_Signal,
-       ap_writedata(13) => Dangling_Input_Signal,
-       ap_writedata(14) => Dangling_Input_Signal,
-       ap_writedata(15) => Dangling_Input_Signal,
-       ap_writedata(16) => Dangling_Input_Signal,
-       ap_writedata(17) => Dangling_Input_Signal,
-       ap_writedata(18) => Dangling_Input_Signal,
-       ap_writedata(19) => Dangling_Input_Signal,
-       ap_writedata(20) => Dangling_Input_Signal,
-       ap_writedata(21) => Dangling_Input_Signal,
-       ap_writedata(22) => Dangling_Input_Signal,
-       ap_writedata(23) => Dangling_Input_Signal,
-       ap_writedata(24) => Dangling_Input_Signal,
-       ap_writedata(25) => Dangling_Input_Signal,
-       ap_writedata(26) => Dangling_Input_Signal,
-       ap_writedata(27) => Dangling_Input_Signal,
-       ap_writedata(28) => Dangling_Input_Signal,
-       ap_writedata(29) => Dangling_Input_Signal,
-       ap_writedata(30) => Dangling_Input_Signal,
-       ap_writedata(31) => Dangling_Input_Signal,
        mac_address(0) => mac_address(0),
        mac_address(1) => mac_address(1),
        mac_address(2) => mac_address(2),
@@ -1169,98 +1399,18 @@ THE_POWERLINK_IP_CORE : powerlink
        m_address(27) => m_address(27),
        m_address(28) => m_address(28),
        m_address(29) => m_address(29),
-       pcp_address(0) => Dangling_Input_Signal,
-       pcp_address(1) => Dangling_Input_Signal,
-       pcp_address(2) => Dangling_Input_Signal,
-       pcp_address(3) => Dangling_Input_Signal,
-       pcp_address(4) => Dangling_Input_Signal,
-       pcp_address(5) => Dangling_Input_Signal,
-       pcp_address(6) => Dangling_Input_Signal,
-       pcp_address(7) => Dangling_Input_Signal,
-       pcp_address(8) => Dangling_Input_Signal,
-       pcp_address(9) => Dangling_Input_Signal,
-       pcp_address(10) => Dangling_Input_Signal,
-       pcp_address(11) => Dangling_Input_Signal,
-       pcp_address(12) => Dangling_Input_Signal,
-       pcp_byteenable(0) => Dangling_Input_Signal,
-       pcp_byteenable(1) => Dangling_Input_Signal,
-       pcp_byteenable(2) => Dangling_Input_Signal,
-       pcp_byteenable(3) => Dangling_Input_Signal,
-       pcp_writedata(0) => Dangling_Input_Signal,
-       pcp_writedata(1) => Dangling_Input_Signal,
-       pcp_writedata(2) => Dangling_Input_Signal,
-       pcp_writedata(3) => Dangling_Input_Signal,
-       pcp_writedata(4) => Dangling_Input_Signal,
-       pcp_writedata(5) => Dangling_Input_Signal,
-       pcp_writedata(6) => Dangling_Input_Signal,
-       pcp_writedata(7) => Dangling_Input_Signal,
-       pcp_writedata(8) => Dangling_Input_Signal,
-       pcp_writedata(9) => Dangling_Input_Signal,
-       pcp_writedata(10) => Dangling_Input_Signal,
-       pcp_writedata(11) => Dangling_Input_Signal,
-       pcp_writedata(12) => Dangling_Input_Signal,
-       pcp_writedata(13) => Dangling_Input_Signal,
-       pcp_writedata(14) => Dangling_Input_Signal,
-       pcp_writedata(15) => Dangling_Input_Signal,
-       pcp_writedata(16) => Dangling_Input_Signal,
-       pcp_writedata(17) => Dangling_Input_Signal,
-       pcp_writedata(18) => Dangling_Input_Signal,
-       pcp_writedata(19) => Dangling_Input_Signal,
-       pcp_writedata(20) => Dangling_Input_Signal,
-       pcp_writedata(21) => Dangling_Input_Signal,
-       pcp_writedata(22) => Dangling_Input_Signal,
-       pcp_writedata(23) => Dangling_Input_Signal,
-       pcp_writedata(24) => Dangling_Input_Signal,
-       pcp_writedata(25) => Dangling_Input_Signal,
-       pcp_writedata(26) => Dangling_Input_Signal,
-       pcp_writedata(27) => Dangling_Input_Signal,
-       pcp_writedata(28) => Dangling_Input_Signal,
-       pcp_writedata(29) => Dangling_Input_Signal,
-       pcp_writedata(30) => Dangling_Input_Signal,
-       pcp_writedata(31) => Dangling_Input_Signal,
-       smp_byteenable(0) => Dangling_Input_Signal,
-       smp_byteenable(1) => Dangling_Input_Signal,
-       smp_byteenable(2) => Dangling_Input_Signal,
-       smp_byteenable(3) => Dangling_Input_Signal,
-       smp_writedata(0) => Dangling_Input_Signal,
-       smp_writedata(1) => Dangling_Input_Signal,
-       smp_writedata(2) => Dangling_Input_Signal,
-       smp_writedata(3) => Dangling_Input_Signal,
-       smp_writedata(4) => Dangling_Input_Signal,
-       smp_writedata(5) => Dangling_Input_Signal,
-       smp_writedata(6) => Dangling_Input_Signal,
-       smp_writedata(7) => Dangling_Input_Signal,
-       smp_writedata(8) => Dangling_Input_Signal,
-       smp_writedata(9) => Dangling_Input_Signal,
-       smp_writedata(10) => Dangling_Input_Signal,
-       smp_writedata(11) => Dangling_Input_Signal,
-       smp_writedata(12) => Dangling_Input_Signal,
-       smp_writedata(13) => Dangling_Input_Signal,
-       smp_writedata(14) => Dangling_Input_Signal,
-       smp_writedata(15) => Dangling_Input_Signal,
-       smp_writedata(16) => Dangling_Input_Signal,
-       smp_writedata(17) => Dangling_Input_Signal,
-       smp_writedata(18) => Dangling_Input_Signal,
-       smp_writedata(19) => Dangling_Input_Signal,
-       smp_writedata(20) => Dangling_Input_Signal,
-       smp_writedata(21) => Dangling_Input_Signal,
-       smp_writedata(22) => Dangling_Input_Signal,
-       smp_writedata(23) => Dangling_Input_Signal,
-       smp_writedata(24) => Dangling_Input_Signal,
-       smp_writedata(25) => Dangling_Input_Signal,
-       smp_writedata(26) => Dangling_Input_Signal,
-       smp_writedata(27) => Dangling_Input_Signal,
-       smp_writedata(28) => Dangling_Input_Signal,
-       smp_writedata(29) => Dangling_Input_Signal,
-       smp_writedata(30) => Dangling_Input_Signal,
-       smp_writedata(31) => Dangling_Input_Signal,
+       ap_address => ap_address,
        ap_asyncIrq => ap_asyncIrq,
        ap_asyncIrq_n => ap_asyncIrq_n,
-       ap_chipselect => Dangling_Input_Signal,
+       ap_byteenable => ap_byteenable,
+       ap_chipselect => ap_chipselect,
        ap_irq => ap_irq,
        ap_irq_n => ap_irq_n,
-       ap_read => Dangling_Input_Signal,
-       ap_write => Dangling_Input_Signal,
+       ap_read => ap_read,
+       ap_readdata => ap_readdata,
+       ap_waitrequest => ap_waitrequest,
+       ap_write => ap_write,
+       ap_writedata => ap_writedata,
        clk50 => clk50,
        clkAp => clkAp,
        clkEth => clk100,
@@ -1310,9 +1460,14 @@ THE_POWERLINK_IP_CORE : powerlink
        pap_rd_n => pap_rd_n,
        pap_wr => pap_wr,
        pap_wr_n => pap_wr_n,
-       pcp_chipselect => Dangling_Input_Signal,
-       pcp_read => Dangling_Input_Signal,
-       pcp_write => Dangling_Input_Signal,
+       pcp_address => pcp_address,
+       pcp_byteenable => pcp_byteenable,
+       pcp_chipselect => pcp_chipselect,
+       pcp_read => pcp_read,
+       pcp_readdata => pcp_readdata,
+       pcp_waitrequest => pcp_waitrequest,
+       pcp_write => pcp_write,
+       pcp_writedata => pcp_writedata,
        phy0_Rst_n => phy0_Rst_n,
        phy0_RxDat => phy0_RxDat,
        phy0_RxDv => phy0_RxDv,
@@ -1360,9 +1515,13 @@ THE_POWERLINK_IP_CORE : powerlink
        rst => rst,
        rstAp => rstAp,
        rstPcp => rstPcp,
-       smp_address => Dangling_Input_Signal,
-       smp_read => Dangling_Input_Signal,
-       smp_write => Dangling_Input_Signal,
+       smp_address => smp_address,
+       smp_byteenable => smp_byteenable,
+       smp_read => smp_read,
+       smp_readdata => smp_readdata,
+       smp_waitrequest => smp_waitrequest,
+       smp_write => smp_write,
+       smp_writedata => smp_writedata,
        spi_clk => spi_clk,
        spi_miso => spi_miso,
        spi_mosi => spi_mosi,
@@ -1396,10 +1555,6 @@ MAC_REG2Bus_Error <= GND;
 	mac_irq <= mac_irq_s;
 	tcp_irq <= tcp_irq_s;
 
-
----- Dangling input signal assignment ----
-
-Dangling_Input_Signal <= DANGLING_INPUT_CONSTANT;
 
 ----  Generate statements  ----
 
@@ -1609,5 +1764,224 @@ begin
          Sl_wrDAck => MAC_PKT_wrDAck
     );
 end generate g1;
+
+g3 : if genPdi_g generate
+begin
+  U3 : plbv46_slave_single
+    generic map (
+         C_ARD_ADDR_RANGE_ARRAY => (C_PDI_PCP_BASE,C_PDI_PCP_HIGH),
+         C_ARD_NUM_CE_ARRAY => (0 => 1),
+         C_BUS2CORE_CLK_RATIO => 1,
+         C_FAMILY => C_FAMILY,
+         C_INCLUDE_DPHASE_TIMER => 0,
+         C_SIPIF_DWIDTH => C_PDI_PCP_PLB_DWIDTH,
+         C_SPLB_AWIDTH => C_PDI_PCP_PLB_AWIDTH,
+         C_SPLB_DWIDTH => C_PDI_PCP_PLB_DWIDTH,
+         C_SPLB_MID_WIDTH => C_PDI_PCP_PLB_MID_WIDTH,
+         C_SPLB_NUM_MASTERS => C_PDI_PCP_PLB_NUM_MASTERS,
+         C_SPLB_P2P => C_PDI_PCP_PLB_P2P
+    )  
+    port map(
+         Bus2IP_Addr => Bus2PDI_PCP_Addr( C_PDI_PCP_PLB_AWIDTH-1 downto 0 ),
+         Bus2IP_BE => Bus2PDI_PCP_BE( (C_PDI_PCP_PLB_DWIDTH/8)-1 downto 0 ),
+         Bus2IP_CS => Bus2PDI_PCP_CS( 0 downto 0 ),
+         Bus2IP_Clk => Bus2PDI_PCP_Clk,
+         Bus2IP_Data => Bus2PDI_PCP_Data( C_PDI_PCP_PLB_DWIDTH-1 downto 0 ),
+         Bus2IP_RNW => Bus2PDI_PCP_RNW,
+         Bus2IP_Reset => Bus2PDI_PCP_Reset,
+         IP2Bus_Data => PDI_PCP2Bus_Data( C_PDI_PCP_PLB_DWIDTH-1 downto 0 ),
+         IP2Bus_Error => PDI_PCP2Bus_Error,
+         IP2Bus_RdAck => PDI_PCP2Bus_RdAck,
+         IP2Bus_WrAck => PDI_PCP2Bus_WrAck,
+         PLB_ABus => PDI_PCP_ABus,
+         PLB_BE => PDI_PCP_BE( 0 to (C_PDI_PCP_PLB_DWIDTH/8)-1 ),
+         PLB_MSize => PDI_PCP_MSize,
+         PLB_PAValid => PDI_PCP_PAValid,
+         PLB_RNW => PDI_PCP_RNW,
+         PLB_SAValid => PDI_PCP_SAValid,
+         PLB_TAttribute => PDI_PCP_TAttribute,
+         PLB_UABus => PDI_PCP_UABus,
+         PLB_abort => PDI_PCP_abort,
+         PLB_busLock => PDI_PCP_busLock,
+         PLB_lockErr => PDI_PCP_lockErr,
+         PLB_masterID => PDI_PCP_masterID( 0 to C_PDI_PCP_PLB_MID_WIDTH-1 ),
+         PLB_rdBurst => PDI_PCP_rdBurst,
+         PLB_rdPendPri => PDI_PCP_rdPendPri,
+         PLB_rdPendReq => PDI_PCP_rdPendReq,
+         PLB_rdPrim => PDI_PCP_rdPrim,
+         PLB_reqPri => PDI_PCP_reqPri,
+         PLB_size => PDI_PCP_size,
+         PLB_type => PDI_PCP_type,
+         PLB_wrBurst => PDI_PCP_wrBurst,
+         PLB_wrDBus => PDI_PCP_wrDBus( 0 to C_PDI_PCP_PLB_DWIDTH-1 ),
+         PLB_wrPendPri => PDI_PCP_wrPendPri,
+         PLB_wrPendReq => PDI_PCP_wrPendReq,
+         PLB_wrPrim => PDI_PCP_wrPrim,
+         SPLB_Clk => PDI_PCP_Clk,
+         SPLB_Rst => PDI_PCP_Rst,
+         Sl_MBusy => PDI_PCP_MBusy( 0 to C_PDI_PCP_NUM_MASTERS-1 ),
+         Sl_MIRQ => PDI_PCP_MIRQ( 0 to C_PDI_PCP_NUM_MASTERS-1 ),
+         Sl_MRdErr => PDI_PCP_MRdErr( 0 to C_PDI_PCP_NUM_MASTERS-1 ),
+         Sl_MWrErr => PDI_PCP_MWrErr( 0 to C_PDI_PCP_NUM_MASTERS-1 ),
+         Sl_SSize => PDI_PCP_SSize,
+         Sl_addrAck => PDI_PCP_addrAck,
+         Sl_rdBTerm => PDI_PCP_rdBTerm,
+         Sl_rdComp => PDI_PCP_rdComp,
+         Sl_rdDAck => PDI_PCP_rdDAck,
+         Sl_rdDBus => PDI_PCP_rdDBus( 0 to C_PDI_PCP_PLB_DWIDTH-1 ),
+         Sl_rdWdAddr => PDI_PCP_rdWdAddr,
+         Sl_rearbitrate => PDI_PCP_rearbitrate,
+         Sl_wait => PDI_PCP_wait,
+         Sl_wrBTerm => PDI_PCP_wrBTerm,
+         Sl_wrComp => PDI_PCP_wrComp,
+         Sl_wrDAck => PDI_PCP_wrDAck
+    );
+end generate g3;
+
+g4 : if genPLBAp_g generate
+begin
+  U4 : plbv46_slave_single
+    generic map (
+         C_ARD_ADDR_RANGE_ARRAY => (C_PDI_AP_BASE,C_PDI_AP_HIGH),
+         C_ARD_NUM_CE_ARRAY => (0 => 1),
+         C_BUS2CORE_CLK_RATIO => 1,
+         C_FAMILY => C_FAMILY,
+         C_INCLUDE_DPHASE_TIMER => 0,
+         C_SIPIF_DWIDTH => C_PDI_AP_PLB_DWIDTH,
+         C_SPLB_AWIDTH => C_PDI_AP_PLB_AWIDTH,
+         C_SPLB_DWIDTH => C_PDI_AP_PLB_DWIDTH,
+         C_SPLB_MID_WIDTH => C_PDI_AP_PLB_MID_WIDTH,
+         C_SPLB_NUM_MASTERS => C_PDI_AP_PLB_NUM_MASTERS,
+         C_SPLB_P2P => C_PDI_AP_PLB_P2P
+    )  
+    port map(
+         Bus2IP_Addr => Bus2PDI_AP_Addr( C_PDI_AP_PLB_AWIDTH-1 downto 0 ),
+         Bus2IP_BE => Bus2PDI_AP_BE( (C_PDI_AP_PLB_DWIDTH/8)-1 downto 0 ),
+         Bus2IP_CS => Bus2PDI_AP_CS( 0 downto 0 ),
+         Bus2IP_Clk => Bus2PDI_AP_Clk,
+         Bus2IP_Data => Bus2PDI_AP_Data( C_PDI_AP_PLB_DWIDTH-1 downto 0 ),
+         Bus2IP_RNW => Bus2PDI_AP_RNW,
+         Bus2IP_Reset => Bus2PDI_AP_Reset,
+         IP2Bus_Data => PDI_AP2Bus_Data( C_PDI_AP_PLB_DWIDTH-1 downto 0 ),
+         IP2Bus_Error => PDI_AP2Bus_Error,
+         IP2Bus_RdAck => PDI_AP2Bus_RdAck,
+         IP2Bus_WrAck => PDI_AP2Bus_WrAck,
+         PLB_ABus => PDI_AP_ABus,
+         PLB_BE => PDI_AP_BE( 0 to (C_PDI_AP_PLB_DWIDTH/8)-1 ),
+         PLB_MSize => PDI_AP_MSize,
+         PLB_PAValid => PDI_AP_PAValid,
+         PLB_RNW => PDI_AP_RNW,
+         PLB_SAValid => PDI_AP_SAValid,
+         PLB_TAttribute => PDI_AP_TAttribute,
+         PLB_UABus => PDI_AP_UABus,
+         PLB_abort => PDI_AP_abort,
+         PLB_busLock => PDI_AP_busLock,
+         PLB_lockErr => PDI_AP_lockErr,
+         PLB_masterID => PDI_AP_masterID( 0 to C_PDI_AP_PLB_MID_WIDTH-1 ),
+         PLB_rdBurst => PDI_AP_rdBurst,
+         PLB_rdPendPri => PDI_AP_rdPendPri,
+         PLB_rdPendReq => PDI_AP_rdPendReq,
+         PLB_rdPrim => PDI_AP_rdPrim,
+         PLB_reqPri => PDI_AP_reqPri,
+         PLB_size => PDI_AP_size,
+         PLB_type => PDI_AP_type,
+         PLB_wrBurst => PDI_AP_wrBurst,
+         PLB_wrDBus => PDI_AP_wrDBus( 0 to C_PDI_AP_PLB_DWIDTH-1 ),
+         PLB_wrPendPri => PDI_AP_wrPendPri,
+         PLB_wrPendReq => PDI_AP_wrPendReq,
+         PLB_wrPrim => PDI_AP_wrPrim,
+         SPLB_Clk => PDI_AP_Clk,
+         SPLB_Rst => PDI_AP_Rst,
+         Sl_MBusy => PDI_AP_MBusy( 0 to C_PDI_AP_PLB_NUM_MASTERS-1 ),
+         Sl_MIRQ => PDI_AP_MIRQ( 0 to C_PDI_AP_PLB_NUM_MASTERS-1 ),
+         Sl_MRdErr => PDI_AP_MRdErr( 0 to C_PDI_AP_PLB_NUM_MASTERS-1 ),
+         Sl_MWrErr => PDI_AP_MWrErr( 0 to C_PDI_AP_PLB_NUM_MASTERS-1 ),
+         Sl_SSize => PDI_AP_SSize,
+         Sl_addrAck => PDI_AP_addrAck,
+         Sl_rdBTerm => PDI_AP_rdBTerm,
+         Sl_rdComp => PDI_AP_rdComp,
+         Sl_rdDAck => PDI_AP_rdDAck,
+         Sl_rdDBus => PDI_AP_rdDBus( 0 to C_PDI_AP_PLB_DWIDTH-1 ),
+         Sl_rdWdAddr => PDI_AP_rdWdAddr,
+         Sl_rearbitrate => PDI_AP_rearbitrate,
+         Sl_wait => PDI_AP_wait,
+         Sl_wrBTerm => PDI_AP_wrBTerm,
+         Sl_wrComp => PDI_AP_wrComp,
+         Sl_wrDAck => PDI_AP_wrDAck
+    );
+end generate g4;
+
+g5 : if genSimpleIO_g generate
+begin
+  U5 : plbv46_slave_single
+    generic map (
+         C_ARD_ADDR_RANGE_ARRAY => (C_SMP_PCP_BASE,C_SMP_PCP_HIGH),
+         C_ARD_NUM_CE_ARRAY => (0 => 1),
+         C_BUS2CORE_CLK_RATIO => 1,
+         C_FAMILY => C_FAMILY,
+         C_INCLUDE_DPHASE_TIMER => 0,
+         C_SIPIF_DWIDTH => C_SMP_PCP_PLB_DWIDTH,
+         C_SPLB_AWIDTH => C_SMP_PCP_PLB_AWIDTH,
+         C_SPLB_DWIDTH => C_SMP_PCP_PLB_DWIDTH,
+         C_SPLB_MID_WIDTH => C_SMP_PCP_PLB_MID_WIDTH,
+         C_SPLB_NUM_MASTERS => C_SMP_PCP_PLB_NUM_MASTERS,
+         C_SPLB_P2P => C_SMP_PCP_PLB_P2P
+    )  
+    port map(
+         Bus2IP_Addr => Bus2SMP_PCP_Addr( C_SMP_PCP_PLB_AWIDTH-1 downto 0 ),
+         Bus2IP_BE => Bus2SMP_PCP_BE( (C_SMP_PCP_PLB_DWIDTH/8)-1 downto 0 ),
+         Bus2IP_CS => Bus2SMP_PCP_CS( 0 downto 0 ),
+         Bus2IP_Clk => Bus2SMP_PCP_Clk,
+         Bus2IP_Data => Bus2SMP_PCP_Data( C_SMP_PCP_PLB_DWIDTH-1 downto 0 ),
+         Bus2IP_RNW => Bus2SMP_PCP_RNW,
+         Bus2IP_Reset => Bus2SMP_PCP_Reset,
+         IP2Bus_Data => SMP_PCP2Bus_Data( C_SMP_PCP_PLB_DWIDTH-1 downto 0 ),
+         IP2Bus_Error => SMP_PCP2Bus_Error,
+         IP2Bus_RdAck => SMP_PCP2Bus_RdAck,
+         IP2Bus_WrAck => SMP_PCP2Bus_WrAck,
+         PLB_ABus => SMP_PCP_ABus,
+         PLB_BE => SMP_PCP_BE( 0 to (C_SMP_PCP_PLB_DWIDTH/8)-1 ),
+         PLB_MSize => SMP_PCP_MSize,
+         PLB_PAValid => SMP_PCP_PAValid,
+         PLB_RNW => SMP_PCP_RNW,
+         PLB_SAValid => SMP_PCP_SAValid,
+         PLB_TAttribute => SMP_PCP_TAttribute,
+         PLB_UABus => SMP_PCP_UABus,
+         PLB_abort => SMP_PCP_abort,
+         PLB_busLock => SMP_PCP_busLock,
+         PLB_lockErr => SMP_PCP_lockErr,
+         PLB_masterID => SMP_PCP_masterID( 0 to C_SMP_PCP_PLB_MID_WIDTH-1 ),
+         PLB_rdBurst => SMP_PCP_rdBurst,
+         PLB_rdPendPri => SMP_PCP_rdPendPri,
+         PLB_rdPendReq => SMP_PCP_rdPendReq,
+         PLB_rdPrim => SMP_PCP_rdPrim,
+         PLB_reqPri => SMP_PCP_reqPri,
+         PLB_size => SMP_PCP_size,
+         PLB_type => SMP_PCP_type,
+         PLB_wrBurst => SMP_PCP_wrBurst,
+         PLB_wrDBus => SMP_PCP_wrDBus( 0 to C_SMP_PCP_PLB_DWIDTH-1 ),
+         PLB_wrPendPri => SMP_PCP_wrPendPri,
+         PLB_wrPendReq => SMP_PCP_wrPendReq,
+         PLB_wrPrim => SMP_PCP_wrPrim,
+         SPLB_Clk => SMP_PCP_Clk,
+         SPLB_Rst => SMP_PCP_Rst,
+         Sl_MBusy => SMP_PCP_MBusy( 0 to C_SMP_PCP_PLB_NUM_MASTERS-1 ),
+         Sl_MIRQ => SMP_PCP_MIRQ( 0 to C_SMP_PCP_PLB_NUM_MASTERS-1 ),
+         Sl_MRdErr => SMP_PCP_MRdErr( 0 to C_SMP_PCP_PLB_NUM_MASTERS-1 ),
+         Sl_MWrErr => SMP_PCP_MWrErr( 0 to C_SMP_PCP_PLB_NUM_MASTERS-1 ),
+         Sl_SSize => SMP_PCP_SSize,
+         Sl_addrAck => SMP_PCP_addrAck,
+         Sl_rdBTerm => SMP_PCP_rdBTerm,
+         Sl_rdComp => SMP_PCP_rdComp,
+         Sl_rdDAck => SMP_PCP_rdDAck,
+         Sl_rdDBus => SMP_PCP_rdDBus( 0 to C_SMP_PCP_PLB_DWIDTH-1 ),
+         Sl_rdWdAddr => SMP_PCP_rdWdAddr,
+         Sl_rearbitrate => SMP_PCP_rearbitrate,
+         Sl_wait => SMP_PCP_wait,
+         Sl_wrBTerm => SMP_PCP_wrBTerm,
+         Sl_wrComp => SMP_PCP_wrComp,
+         Sl_wrDAck => SMP_PCP_wrDAck
+    );
+end generate g5;
 
 end struct;

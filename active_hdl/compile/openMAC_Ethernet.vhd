@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_Ethernet.vhd
--- Generated   : Wed Nov 30 14:09:36 2011
+-- Generated   : Thu Dec  1 12:58:04 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -775,7 +775,7 @@ regack1 : req_ack
        rst => rst
   );
 
-regack5 : req_ack
+regack2 : req_ack
   generic map (
        ack_delay_g => 1,
        zero_delay_g => false
@@ -787,7 +787,7 @@ regack5 : req_ack
        rst => rst
   );
 
-regack6 : req_ack
+regack3 : req_ack
   generic map (
        ack_delay_g => 1,
        zero_delay_g => true
@@ -1076,7 +1076,7 @@ begin
   
   pkt_waitrequest <= not(pkt_write_ack or pkt_read_ack);
   
-  regack7 : req_ack
+  regack4 : req_ack
     generic map (
          ack_delay_g => 1,
          zero_delay_g => true
@@ -1088,7 +1088,7 @@ begin
          rst => rst
     );
   
-  regack8 : req_ack
+  regack5 : req_ack
     generic map (
          ack_delay_g => 2,
          zero_delay_g => false

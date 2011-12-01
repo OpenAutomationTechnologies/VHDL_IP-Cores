@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 44603
+ FREEID 44620
  VARIABLES
  {
   #ARCHITECTURE="rtl"
@@ -11987,7 +11987,7 @@ PAGE "MAC TIMER CMP"
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
-    #REFERENCE="regack6"
+    #REFERENCE="regack3"
     #SYMBOL="req_ack"
    }
    COORD (1220,1740)
@@ -12129,7 +12129,7 @@ PAGE "MAC TIMER CMP"
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
-    #REFERENCE="regack5"
+    #REFERENCE="regack2"
     #SYMBOL="req_ack"
    }
    COORD (1220,1420)
@@ -13606,7 +13606,7 @@ PAGE "PACKET BUFFER"
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
-    #REFERENCE="regack7"
+    #REFERENCE="regack4"
     #SYMBOL="req_ack"
    }
    COORD (760,1660)
@@ -13644,7 +13644,7 @@ PAGE "PACKET BUFFER"
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
-    #REFERENCE="regack8"
+    #REFERENCE="regack5"
     #SYMBOL="req_ack"
    }
    COORD (1440,1780)
@@ -17036,14 +17036,14 @@ PAGE ""
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311687673"
    DESCRIPTION="bla",BOTH
-   PAGENAME="PACKET DMA MASTER"
-   PAGENUMBER="7"
+   PAGENAME="PACKET BUFFER"
+   PAGENUMBER="6"
   }
  }
  
  BODY
  {
-  TEXT  44586, 0, 0
+  TEXT  44603, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17054,7 +17054,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  44587, 0, 0
+  TEXT  44604, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -17065,7 +17065,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  44588, 0, 0
+  TEXT  44605, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -17075,7 +17075,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  44589, 0, 0
+  TEXT  44606, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17087,7 +17087,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  44590, 0, 0
+  TEXT  44607, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -17101,7 +17101,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  44591, 0, 0
+  TEXT  44608, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -17111,7 +17111,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  44592, 0, 0
+  TEXT  44609, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17123,7 +17123,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  44593, 0, 0
+  TEXT  44610, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -17133,7 +17133,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  44594, 0, 0
+  TEXT  44611, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -17144,7 +17144,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  44595, 0, 0
+  GROUP  44612, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -17156,7 +17156,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  44596, 0, 0
+  GROUP  44613, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -17168,7 +17168,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  44597, 0, 0
+  GROUP  44614, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -17180,7 +17180,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  44598, 0, 0
+  GROUP  44615, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -17192,7 +17192,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  44599, 0, 0
+  GROUP  44616, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -17204,7 +17204,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  44600, 0, 0
+  GROUP  44617, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -17215,14 +17215,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  44601, 0, 0
+  LINE  44618, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  44602, 0, 0
+  LINKBMPPICT  44619, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
