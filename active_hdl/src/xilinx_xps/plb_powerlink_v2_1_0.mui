@@ -52,21 +52,16 @@
 		<label>Mode of the Powerlink IP-Core</label>
 		<tip></tip>
 	</widget>
-	'>
-	<!ENTITY C_TX_INT_PKT '
-	<widget id="C_TX_INT_PKT">
-		<key>C_TX_INT_PKT</key>
-		<label>Location of TX Packets</label>
+	'>	   			
+
+	<!-- openMAC settings -->
+	<!ENTITY C_PACKET_LOCATION '
+	<widget id="C_PACKET_LOCATION">
+		<key>C_PACKET_LOCATION</key>
+		<label>Packet buffer location</label>
 		<tip></tip>
 	</widget>
 	'>
-	<!ENTITY C_RX_INT_PKT '
-	<widget id="C_RX_INT_PKT">
-		<key>C_RX_INT_PKT</key>
-		<label>Location of RX Packets</label>
-		<tip></tip>
-	</widget>
-	'>	
 	<!ENTITY C_USE_2ND_PHY '
 	<widget id="C_USE_2ND_PHY">
 		<key>C_USE_2ND_PHY</key>
@@ -552,8 +547,7 @@
 		</group>
 		<group id="openMAC">
 			<display>openMAC</display>
-			<item>&C_TX_INT_PKT;</item>
-			<item>&C_RX_INT_PKT;</item>
+			<item>&C_PACKET_LOCATION;</item>
 			<item>&C_USE_RMII;</item>
 			<item>&C_USE_2ND_PHY;</item>			
 		</group>		
