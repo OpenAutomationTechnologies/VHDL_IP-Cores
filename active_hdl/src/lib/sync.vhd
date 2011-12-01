@@ -74,8 +74,6 @@ begin
 	genSync : if doSync_g = true generate
 		process(clk)--, rst)
 		begin
-			--if rst = '1' then
-			--	s0 <= '0'; s1 <= '0';
 			if clk = '1' and clk'event then
 				s0 <= din; --reg0
 				s1 <= s0; --reg1

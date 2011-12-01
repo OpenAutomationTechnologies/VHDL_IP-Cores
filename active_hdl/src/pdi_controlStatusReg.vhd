@@ -38,6 +38,7 @@
 -- 2011-09-14  	V0.01	zelenkaj    extract from pdi.vhd
 -- 2011-11-21	V0.02	zelenkaj	added time synchronization feature
 --									added 12 bytes to DPR as reserved
+-- 2011-11-29	V0.03	zelenkaj	led and event is optional
 ------------------------------------------------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
@@ -53,7 +54,9 @@ entity pdiControlStatusReg is
 			iBaseMap2_g					:		integer := 0; --base address in dpr
 			iDprAddrWidth_g				:		integer := 11;
 			iRpdos_g					:		integer := 3;
+			genLedGadget_g				:		boolean := false;
 			genTimeSync_g				:		boolean := false;
+			genEvent_g					:		boolean := false;
 			--register content
 			---constant values
 			magicNumber					: 		std_Logic_vector(31 downto 0) := (others => '0');
@@ -308,12 +311,31 @@ begin
 		if rst = '1' then
 			tPdoTrigger <= '0';
 			rPdoTrigger <= (others => '0');
-			apIrqControlOut <= (others => '0');
-			asyncIrqCtrlOut(0) <= '0';
-			asyncIrqCtrlOut(15) <= '0';
-			eventAckOut(7 downto 0) <= (others => '0');
-			ledCtrlOut(7 downto 0) <= (others => '0');
-			ledCnfgOut(7 downto 0) <= (others => '0');
+			
+			--apIrqControlOut <= (others => '0');
+			if bIsPcp = true then
+				apIrqControlOut(7) <= '0';
+				apIrqControlOut(6) <= '0';
+			end if;
+			
+			if bIsPcp = false then
+				apIrqControlOut(15) <= '0';
+			end if;
+			apIrqControlOut(0) <= '0';
+			
+			if genEvent_g then
+				if bIsPcp = false then
+					asyncIrqCtrlOut(0) <= '0';
+					asyncIrqCtrlOut(15) <= '0';
+				end if;
+				eventAckOut(7 downto 0) <= (others => '0');
+			end if;
+			
+			if genLedGadget_g then
+				ledCtrlOut(7 downto 0) <= (others => '0');
+				ledCnfgOut(7 downto 0) <= (others => '0');
+			end if;
+			
 			if bIsPcp then
 				rpdo_change_tog_l <= (others => '0');
 				tpdo_change_tog_l <= '0';
@@ -323,7 +345,10 @@ begin
 			tPdoTrigger <= '0';
 			rPdoTrigger <= (others => '0');
 			apIrqControlOut(0) <= '0'; --PCP: set pulse // AP: ack pulse
-			eventAckOut(7 downto 0) <= (others => '0'); --PCP: set pulse // AP: ack pulse
+			
+			if genEvent_g then
+				eventAckOut(7 downto 0) <= (others => '0'); --PCP: set pulse // AP: ack pulse
+			end if;
 			
 			if bIsPcp then
 				--shift register for edge det
@@ -389,21 +414,23 @@ begin
 						--RO
 					when 16#54# =>
 						--AP ONLY
-						if be(0) = '1' and bIsPcp = false then
-							--asyncIrqCtrlOut(7 downto 0) <= din(7 downto 0);
-							asyncIrqCtrlOut(0) <= din(0); --rest is ignored
-						end if;
-						if be(1) = '1' and bIsPcp = false then
-							--asyncIrqCtrlOut(15 downto 8) <= din(15 downto 8);
-							asyncIrqCtrlOut(15) <= din(15); --rest is ignored
-						end if;
-						if be(2) = '1' then
-							eventAckOut(7 downto 0) <= din(23 downto 16);
-						end if;
+						if genEvent_g then
+							if be(0) = '1' and bIsPcp = false then
+								--asyncIrqCtrlOut(7 downto 0) <= din(7 downto 0);
+								asyncIrqCtrlOut(0) <= din(0); --rest is ignored
+							end if;
+							if be(1) = '1' and bIsPcp = false then
+								--asyncIrqCtrlOut(15 downto 8) <= din(15 downto 8);
+								asyncIrqCtrlOut(15) <= din(15); --rest is ignored
+							end if;
+							if be(2) = '1' then
+								eventAckOut(7 downto 0) <= din(23 downto 16);
+							end if;
 --ignore higher byte of event ack
---						if be(3) = '1' then
---							eventAckOut(15 downto 8) <= din(31 downto 24);
---						end if;
+--							if be(3) = '1' then
+--								eventAckOut(15 downto 8) <= din(31 downto 24);
+--							end if;
+						end if;
 					when 16#58# =>
 						--RO
 					when 16#5C# =>
@@ -452,27 +479,37 @@ begin
 						end if;
 					when 16#88# =>
 						if be(0) = '1' then
-							apIrqControlOut(7 downto 0) <= din(7 downto 0);
+							--apIrqControlOut(7 downto 0) <= din(7 downto 0);
+							if bIsPcp = true then
+								apIrqControlOut(7) <= din(7);
+								apIrqControlOut(6) <= din(6);
+							end if;
+							apIrqControlOut(0) <= din(0);
 						end if;
 						if be(1) = '1' then
-							apIrqControlOut(15 downto 8) <= din(15 downto 8);
+							--apIrqControlOut(15 downto 8) <= din(15 downto 8);							
+							if bIsPcp = false then
+								apIrqControlOut(15) <= din(15);
+							end if;
 						end if;
 					when 16#8C# =>
 						--RESERVED
 					when 16#90# =>
 						--RESERVED
 					when 16#94# =>
-						if be(0) = '1' then
-							ledCtrlOut(7 downto 0) <= din(7 downto 0);
-						end if;
-						if be(1) = '1' then
-							ledCtrlOut(15 downto 8) <= din(15 downto 8);
-						end if;
-						if be(2) = '1' then
-							ledCnfgOut(7 downto 0) <= din(23 downto 16);
-						end if;
-						if be(3) = '1' then
-							ledCnfgOut(15 downto 8) <= din(31 downto 24);
+						if genLedGadget_g then
+							if be(0) = '1' then
+								ledCtrlOut(7 downto 0) <= din(7 downto 0);
+							end if;
+							if be(1) = '1' then
+								ledCtrlOut(15 downto 8) <= din(15 downto 8);
+							end if;
+							if be(2) = '1' then
+								ledCnfgOut(7 downto 0) <= din(23 downto 16);
+							end if;
+							if be(3) = '1' then
+								ledCnfgOut(15 downto 8) <= din(31 downto 24);
+							end if;
 						end if;
 					when others =>
 				end case;

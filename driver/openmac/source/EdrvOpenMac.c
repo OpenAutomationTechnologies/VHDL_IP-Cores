@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  2011/10/25		zelenkaj	added Microblaze support
  2011/11/29		zelenkaj	added DMA observer feature
 							removed old IP-core support
+							added missing Microblaze support
 ----------------------------------------------------------------------------*/
 
 
@@ -118,6 +119,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_CMP_SPAN                   POWERLINK_0_MAC_CMP_SPAN
 	#define EDRV_PKT_LOC					POWERLINK_0_MAC_REG_PKTLOC
 	#define EDRV_PHY_NUM					POWERLINK_0_MAC_REG_PHYCNT
+	#define EDRV_DMA_OBSERVER				POWERLINK_0_MAC_REG_DMAOBSERV
 #if EDRV_PKT_LOC == 0
 	#define EDRV_MAX_RX_BUFFERS         	POWERLINK_0_MAC_REG_MACRXBUFFERS
 	#define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
@@ -148,10 +150,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
 	#define EDRV_CMP_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
 	#define EDRV_CMP_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_CMP_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR+1)
+	//TODO: the following defines shall be set automatically to that value defined in the GUI
 	//#define EDRV_PKT_LOC					0 //TX + RX in BRAM
 	//#define EDRV_PKT_LOC					1 //TX + RX in EXT (not yet verified!)
 	#define EDRV_PKT_LOC					2 //TX in BRAM, RX in EXT
-	#define EDRV_PHY_NUM					2 //TODO: set value in XPS
+	#define EDRV_PHY_NUM					2
+	#define EDRV_DMA_OBSERVER				0 //observer circuit is NOT available
+	//#define EDRV_DMA_OBSERVER				1 //observer circuit is available
 #if EDRV_PKT_LOC == 0
 	#define EDRV_MAX_RX_BUFFERS         	6
 	#define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
@@ -269,7 +274,7 @@ typedef struct _tEdrvInstance
     void*					m_pBufBase;
     DWORD					m_dwBufSpan;
 #endif
-#ifdef EDRV_DEBUG
+#if EDRV_DMA_OBSERVER != 0
     BOOL					m_fDmaError;
 #endif
 
@@ -339,8 +344,10 @@ int             i;
 BYTE            abFilterMask[31],
                 abFilterValue[31];
 
+#if EDRV_DMA_OBSERVER != 0
+    PRINTF0("INFO: DMA monitor circuit is enabled.\n");
+#endif
 
-    PRINTF0("initialize Ethernet Driver for openMAC\n");
     memset(&EdrvInstance_l, 0, sizeof(EdrvInstance_l)); //reset driver struct
 #if (EDRV_PKT_LOC == 0 || EDRV_PKT_LOC == 2)
     memset(EDRV_PKT_BASE, 0, EDRV_PKT_SPAN); //reset MAC-internal buffers
@@ -607,12 +614,14 @@ tEplKernel EdrvShutdown(void)
     	PRINTF0("\n");
     }
 
+#if EDRV_DMA_OBSERVER != 0
     if( EdrvInstance_l.m_fDmaError == TRUE )
     {
     	//if you see this the openMAC DMA is connected to slow memory!
     	// -> use embedded memory or 10 nsec SRAM!!!
     	printf("OPENMAC DMA TRANSFER ERROR\n");
     }
+#endif
 #endif
 
     PRINTF0("Shutdown Ethernet Driver... ");
@@ -814,7 +823,7 @@ tEplKernel EdrvUpdateTxMsgBuffer     (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 
-#ifdef EDRV_DEBUG
+#if EDRV_DMA_OBSERVER != 0
     if( EdrvInstance_l.m_fDmaError == TRUE )
     {
     	//provoke error to kill the node
@@ -823,7 +832,7 @@ ometh_packet_typ*   pPacket = NULL;
     }
 #endif
 
-	if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_FILTERS)
+    if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_FILTERS)
     {
         Ret = kEplEdrvInvalidParam;
         goto Exit;
@@ -869,7 +878,7 @@ tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 unsigned long       ulTxLength;
 
-#ifdef EDRV_DEBUG
+#if EDRV_DMA_OBSERVER != 0
 	if( EdrvInstance_l.m_fDmaError == TRUE )
 	{
 		//provoke error to kill the node
@@ -1274,7 +1283,7 @@ static void EdrvIrqHandler (void* pArg_p, DWORD dwInt_p)
 	isrcall_cpuutil();
 #endif
 
-#ifdef EDRV_DEBUG
+#if EDRV_DMA_OBSERVER != 0
 	//read DMA observer feature
 	if( EDRV_RD16(EDRV_DOB_BASE, 0) != 0 )
 	{

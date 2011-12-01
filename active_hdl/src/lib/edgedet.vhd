@@ -46,6 +46,7 @@
 -------------------------------------------------------------------------------
 --
 -- 2011-07-26  	V0.01	zelenkaj    First version
+-- 2011-11-29	V0.02	zelenkaj	omitted out reset
 --
 -------------------------------------------------------------------------------
 
@@ -66,7 +67,7 @@ ENTITY edgeDet IS
 END ENTITY edgeDet;
 
 ARCHITECTURE rtl OF edgeDet IS
-SIGNAL sreg								: STD_LOGIC_VECTOR(1 downto 0);
+SIGNAL sreg								: STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
 BEGIN
 	
 	any <= sreg(1) xor sreg(0);
@@ -75,9 +76,7 @@ BEGIN
 	
 	shiftReg : PROCESS(clk, rst)
 	BEGIN
-		IF rst = '1' THEN
-			sreg <= (others => '0');
-		ELSIF clk = '1' AND clk'EVENT THEN
+		IF clk = '1' AND clk'EVENT THEN
 			sreg <= sreg(0) & din;
 		END IF;
 	END PROCESS;

@@ -48,9 +48,7 @@ architecture TB_ARCHITECTURE of openmac_dmamaster_tb is
 		m_readdatavalid : in STD_LOGIC;
 		m_waitrequest : in STD_LOGIC;
 		mac_rx_off : in STD_LOGIC;
-		mac_rx_on : in STD_LOGIC;
 		mac_tx_off : in STD_LOGIC;
-		mac_tx_on : in STD_LOGIC;
 		rst : in STD_LOGIC;
 		dma_addr : in STD_LOGIC_VECTOR(dma_highadr_g downto 1);
 		dma_dout : in STD_LOGIC_VECTOR(15 downto 0);
@@ -75,9 +73,7 @@ architecture TB_ARCHITECTURE of openmac_dmamaster_tb is
 	signal m_readdatavalid : STD_LOGIC;
 	signal m_waitrequest : STD_LOGIC;
 	signal mac_rx_off : STD_LOGIC;
-	signal mac_rx_on : STD_LOGIC;
 	signal mac_tx_off : STD_LOGIC;
-	signal mac_tx_on : STD_LOGIC;
 	signal rst : STD_LOGIC;
 	signal dma_addr : STD_LOGIC_VECTOR(dma_highadr_g downto 1);
 	signal dma_dout : STD_LOGIC_VECTOR(15 downto 0);
@@ -158,9 +154,7 @@ begin
 			m_readdatavalid => m_readdatavalid,
 			m_waitrequest => m_waitrequest,
 			mac_rx_off => mac_rx_off,
-			mac_rx_on => mac_rx_on,
 			mac_tx_off => mac_tx_off,
-			mac_tx_on => mac_tx_on,
 			rst => rst,
 			dma_addr => dma_addr,
 			dma_dout => dma_dout,
@@ -221,14 +215,10 @@ begin
 			dma_req_rd <= '0'; dma_req_wr <= '0';
 			i := 0; j := 0;
 			mac_rx_off <= '0';
-			mac_rx_on <= '0';
-			mac_tx_on <= '0';
 			mac_tx_off <= '0';
 		elsif dma_clk = '1' and dma_clk'event then
 			
 			mac_rx_off <= '0';
-			mac_rx_on <= '0';
-			mac_tx_on <= '0';
 			mac_tx_off <= '0';
 			
 			if ((i = 8 and j /= 1) or i = 32) and sim_done = false then

@@ -46,6 +46,8 @@
 -- 2010-08-02  	V0.42	zelenkaj	Added Timer triggered TX functionality (TxSyncOn)
 -- 2011-01-25  	V0.43	zelenkaj	Changed IPG preload value from 900ns to 960ns
 -- 2011-11-28	V0.44	zelenkaj	Changed reset level to high-active
+--									Clean up
+--									Added Dma qualifiers (Rd/Wr done)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -70,6 +72,8 @@ ENTITY OpenMAC IS
            nTx_Int, nRx_Int			: OUT   std_logic;
            nTx_BegInt               : OUT   std_logic;
            -- DMA
+		   Dma_Rd_Done				: OUT	std_logic;
+		   Dma_Wr_Done				: OUT	std_logic;
            Dma_Req, Dma_Rw          : OUT   std_logic;
            Dma_Ack                  : IN    std_logic;
            Dma_Addr                 : OUT   std_logic_vector(HighAdr DOWNTO 1);
@@ -408,6 +412,8 @@ bTxDesc:	BLOCK
 	
 BEGIN
 
+	Dma_Rd_Done <= '1' when Dsm = sStat or Dsm = sColl else '0';
+	
 	Ram_Wr    <= '1' WHEN	s_nWr = '0' AND Sel_Ram = '1' AND s_Adr(10) = '1'	ELSE '0';
 	Ram_Be(1) <= '1' WHEN	s_nWr = '1' OR s_nBE(1) = '0'						ELSE '0';
 	Ram_Be(0) <= '1' WHEN	s_nWr = '1' OR s_nBE(0) = '0'						ELSE '0';
@@ -654,6 +660,8 @@ END PROCESS pTxControl;
 	Sel_TxL <= '1'	WHEN s_nWr = '0' AND Sel_Cont = '1' AND s_Adr(3) = '0' AND	Ram_Be(0) = '1'	ELSE	'0';
 
 	Tx_Desc <= Tx_Desc_One;
+	
+	Tx_SoftInt <= '0';
 
 pTxRegs: PROCESS( Rst, Clk )
 BEGIN
@@ -661,7 +669,7 @@ BEGIN
 	IF	Rst = '1'	THEN
 		Tx_On   <= '0'; Tx_Ie <= '0'; Tx_Half  <= '0'; Tx_Wait  <= '0'; nTx_BegInt <= '0';
 		Tx_Desc_One <= (OTHERS => '0');
-		Tx_Icnt <= (OTHERS => '0'); TxInt <= '0'; Tx_SoftInt <= '0'; Tx_BegInt  <= '0';
+		Tx_Icnt <= (OTHERS => '0'); TxInt <= '0'; Tx_BegInt  <= '0';
 		Tx_Ipg  <= conv_std_logic_vector( 42, 6);	
 	ELSIF	rising_edge( Clk )	THEN
 
@@ -919,6 +927,9 @@ bRxDesc:	BLOCK
 	SIGNAL	Rx_Dma_Out								: std_logic;
 
 BEGIN
+	
+	Dma_Wr_Done <= '1' when Dsm /= sIdle and Rx_Dsm_Next = sIdle else '0';
+	
 	WrDescStat <= '1' WHEN Dsm = sStat	ELSE '0';	
 
 	Ram_Wr    <= '1' WHEN	s_nWr = '0' AND Sel_Ram = '1' AND s_Adr(10) = '1'	ELSE '0';
@@ -1143,10 +1154,10 @@ genMatSel:	FOR i IN 0 TO 3 GENERATE
 	Mat_Sel(i) <=	Mat_Reg( 0 + i)	WHEN  Filt_Idx = "00"	ELSE
 					Mat_Reg( 4 + i)	WHEN  Filt_Idx = "01"	ELSE
 					Mat_Reg( 8 + i)	WHEN  Filt_Idx = "10"	ELSE
-					Mat_Reg(12 + i)	WHEN  Filt_Idx = "11";
+					Mat_Reg(12 + i); --	WHEN  Filt_Idx = "11";
 END GENERATE;
 	
-	M_Prio <= "000" WHEN    Filt_Cmp = '0' OR Match = '1'													ELSE		
+	M_Prio <= "000" WHEN    Filt_Cmp = '0' OR Match = '1'							ELSE		
 			  "100"	WHEN	Mat_Sel(0) = '1'  AND On_0 = '1' AND (DIRON_0 = '0')	ELSE	
 			  "101"	WHEN	Mat_Sel(1) = '1'  AND On_1 = '1' AND (DIRON_1 = '0')	ELSE	
 			  "110"	WHEN	Mat_Sel(2) = '1'  AND On_2 = '1' AND (DIRON_2 = '0')	ELSE	

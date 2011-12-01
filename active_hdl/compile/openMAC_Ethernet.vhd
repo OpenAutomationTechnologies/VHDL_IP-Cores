@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_Ethernet.vhd
--- Generated   : Tue Nov 29 12:58:48 2011
+-- Generated   : Thu Dec  1 13:44:07 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -58,6 +58,10 @@
 -- 2011-11-07	V0.04	zelenkaj	added big/little endian consideration
 --					minor changes in SMI core generation
 -- 2011-11-28	V0.05	zelenkaj	Added DMA observer
+-- 2011-11-29	V0.06	zelenkaj	waitrequest for mac_reg is gen. once
+--					tx_off / rx_off is derived in openMAC
+-- 2011-11-30	V0.07	zelenkaj	Added generic for DMA observer
+--					Fixed generic assignments for DMA master
 --
 -------------------------------------------------------------------------------
 
@@ -80,6 +84,8 @@ entity openmac_ethernet is
        m_tx_burst_size_g : integer := 16;
        m_rx_burst_size_g : integer := 16;
        endian_g : string := "little";
+       genPhyActLed_g : boolean := false;
+       gen_dma_observer_g : boolean := true;
        useIntPktBuf_g : boolean := false;
        useRxIntPktBuf_g : boolean := false;
        iPktBufSize_g : integer := 1024;
@@ -188,27 +194,6 @@ component addr_decoder
        selout : out std_logic
   );
 end component;
-component delay_pulse
-  generic(
-       delay_g : natural := 1
-  );
-  port (
-       clk : in std_logic;
-       in_p : in std_logic;
-       rst : in std_logic;
-       out_p : out std_logic
-  );
-end component;
-component edgeDet
-  port (
-       clk : in std_logic;
-       din : in std_logic;
-       rst : in std_logic;
-       any : out std_logic;
-       falling : out std_logic;
-       rising : out std_logic
-  );
-end component;
 component openFILTER
   generic(
        bypassFilter : boolean := false
@@ -270,8 +255,10 @@ component OpenMAC
        s_nWr : in std_logic := '0';
        Dma_Addr : out std_logic_vector(HighAdr downto 1);
        Dma_Dout : out std_logic_vector(15 downto 0);
+       Dma_Rd_Done : out std_logic;
        Dma_Req : out std_logic;
        Dma_Rw : out std_logic;
+       Dma_Wr_Done : out std_logic;
        Mac_Zeit : out std_logic_vector(31 downto 0);
        S_Dout : out std_logic_vector(15 downto 0);
        nRx_Int : out std_logic;
@@ -303,6 +290,7 @@ component openMAC_DMAmaster
        dma_highadr_g : integer := 31;
        endian_g : string := "little";
        fifo_data_width_g : integer := 16;
+       gen_dma_observer_g : boolean := true;
        gen_rx_fifo_g : boolean := true;
        gen_tx_fifo_g : boolean := true;
        m_burstcount_const_g : boolean := true;
@@ -324,9 +312,7 @@ component openMAC_DMAmaster
        m_readdatavalid : in std_logic;
        m_waitrequest : in std_logic;
        mac_rx_off : in std_logic;
-       mac_rx_on : in std_logic;
        mac_tx_off : in std_logic;
-       mac_tx_on : in std_logic;
        rst : in std_logic;
        dma_ack_rd : out std_logic;
        dma_ack_wr : out std_logic;
@@ -442,8 +428,6 @@ signal cmp_rd : std_logic;
 signal cmp_rd_ack : std_logic;
 signal cmp_wr : std_logic;
 signal cmp_wr_ack : std_logic;
-signal dmaErr_ack : std_logic;
-signal dmaErr_read : std_logic;
 signal dmaErr_sel : std_logic;
 signal dma_ack : std_logic;
 signal dma_ack_rd_mst : std_logic;
@@ -460,19 +444,11 @@ signal flt1_rx_dv : std_logic;
 signal flt1_tx_en : std_logic;
 signal hub_intern_port : integer;
 signal hub_rx_port : integer;
-signal irqTable_ack : std_logic;
-signal irqTable_read : std_logic;
 signal irqTable_sel : std_logic;
-signal mac_cont_ack : std_logic;
-signal mac_cont_read : std_logic;
-signal mac_ram_ack : std_logic;
-signal mac_ram_read : std_logic;
 signal mac_rx_dv : std_logic;
 signal mac_rx_irq_s : std_logic;
 signal mac_rx_irq_s_n : std_logic;
 signal mac_rx_off : std_logic;
-signal mac_rx_off_del : std_logic;
-signal mac_rx_on : std_logic;
 signal mac_selcont : std_logic;
 signal mac_selfilter : std_logic;
 signal mac_selram : std_logic;
@@ -480,11 +456,8 @@ signal mac_tx_en : std_logic;
 signal mac_tx_irq_s : std_logic;
 signal mac_tx_irq_s_n : std_logic;
 signal mac_tx_off : std_logic;
-signal mac_tx_on : std_logic;
 signal mac_write : std_logic;
 signal mac_write_n : std_logic;
-signal minor_sel : std_logic;
-signal NET19788 : std_logic;
 signal phy0_rx_dv_s : std_logic;
 signal phy0_rx_err_s : std_logic;
 signal phy0_tx_en_s : std_logic;
@@ -496,19 +469,18 @@ signal pkt_read_ack : std_logic;
 signal pkt_write_ack : std_logic;
 signal read_a : std_logic;
 signal read_b : std_logic;
-signal rst_n : std_logic;
-signal slave_sel_invalid : std_logic;
-signal smi_ack : std_logic;
 signal smi_clk : std_logic;
 signal smi_di_s : std_logic;
 signal smi_doe_s : std_logic;
 signal smi_doe_s_n : std_logic;
 signal smi_do_s : std_logic;
-signal smi_read : std_logic;
 signal smi_sel : std_logic;
 signal smi_write : std_logic;
 signal smi_write_n : std_logic;
-signal s_write_ack : std_logic;
+signal s_rd : std_logic;
+signal s_rd_ack : std_logic;
+signal s_wr : std_logic;
+signal s_wr_ack : std_logic;
 signal toggle : std_logic;
 signal VCC : std_logic;
 signal write_a : std_logic;
@@ -558,10 +530,6 @@ signal s_address_s : std_logic_vector (s_address'length downto 0);
 begin
 
 ---- User Signal Assignments ----
-s_waitrequest <= 
-	not(s_write_ack or mac_cont_ack
-	or mac_ram_ack or smi_ack 
-	or irqTable_ack or dmaErr_ack);
 --assign address bus and be to openMAC
 mac_addr <= 
 	s_address(9 downto 1) & s_address(0) when mac_selfilter = '1' and endian_g = "little" else
@@ -626,8 +594,10 @@ THE_OPENMAC : OpenMAC
        Dma_Addr => dma_addr( dma_highadr_g downto 1 ),
        Dma_Din => dma_din,
        Dma_Dout => dma_dout,
+       Dma_Rd_Done => mac_tx_off,
        Dma_Req => dma_req,
        Dma_Rw => dma_rw,
+       Dma_Wr_Done => mac_rx_off,
        Hub_Rx => hub_rx,
        Mac_Zeit => mac_time,
        Rst => rst,
@@ -644,18 +614,6 @@ THE_OPENMAC : OpenMAC
        rTx_Dat => mac_tx_dat,
        rTx_En => mac_tx_en,
        s_nWr => mac_write_n
-  );
-
-THE_PHY_ACT : OpenMAC_phyAct
-  generic map (
-       iBlinkFreq_g => 6
-  )
-  port map(
-       act_led => act_led,
-       clk => clk,
-       rst => rst,
-       rx_dv => mac_rx_dv,
-       tx_en => mac_tx_en
   );
 
 THE_PHY_MGMT : OpenMAC_MII
@@ -689,7 +647,7 @@ smi_write_n <= not(smi_write);
 smi_be_n(1) <= not(smi_be(1));
 smi_be_n(0) <= not(smi_be(0));
 
-rst_n <= not(rst);
+s_wr <= s_write and s_chipselect;
 
 irqTable(0) <= mac_tx_irq_s;
 
@@ -705,7 +663,7 @@ dma_req_write <= not(dma_rw) and dma_req;
 
 dma_ack <= dma_ack_write or dma_ack_read;
 
-minor_sel <= irqTable_sel or dmaErr_sel;
+s_rd <= s_read and s_chipselect;
 
 dma_req_read <= dma_rw and dma_req;
 
@@ -721,19 +679,7 @@ t_waitrequest <= not(cmp_wr_ack or cmp_rd_ack);
 
 cmp_rd <= t_read and t_chipselect;
 
-dmaErr_read <= s_read and dmaErr_sel;
-
-mac_cont_read <= s_read and mac_selcont;
-
-mac_ram_read <= s_read and mac_selram;
-
-smi_read <= s_read and smi_sel;
-
-irqTable_read <= s_read and irqTable_sel;
-
-slave_sel_invalid <= not(minor_sel or smi_sel or mac_selram or mac_selcont);
-
-NET19788 <= slave_sel_invalid or s_write;
+s_waitrequest <= not(s_rd_ack or s_wr_ack);
 
 mac_tx_irq_s <= not(mac_tx_irq_s_n);
 
@@ -809,33 +755,15 @@ addrdec5 : addr_decoder
        selout => dmaErr_sel
   );
 
-edgedet0 : edgeDet
-  port map(
-       clk => clk,
-       din => mac_tx_en,
-       falling => mac_tx_off,
-       rising => mac_tx_on,
-       rst => rst
-  );
-
-edgedet1 : edgeDet
-  port map(
-       clk => clk,
-       din => mac_rx_dv,
-       falling => mac_rx_off,
-       rising => mac_rx_on,
-       rst => rst
-  );
-
 regack0 : req_ack
   generic map (
        ack_delay_g => 1,
        zero_delay_g => true
   )
   port map(
-       ack => s_write_ack,
+       ack => s_wr_ack,
        clk => clk,
-       enable => NET19788,
+       enable => s_wr,
        rst => rst
   );
 
@@ -845,49 +773,13 @@ regack1 : req_ack
        zero_delay_g => false
   )
   port map(
-       ack => mac_cont_ack,
+       ack => s_rd_ack,
        clk => clk,
-       enable => mac_cont_read,
+       enable => s_rd,
        rst => rst
   );
 
 regack2 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => mac_ram_ack,
-       clk => clk,
-       enable => mac_ram_read,
-       rst => rst
-  );
-
-regack3 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => smi_ack,
-       clk => clk,
-       enable => smi_read,
-       rst => rst
-  );
-
-regack4 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => irqTable_ack,
-       clk => clk,
-       enable => irqTable_read,
-       rst => rst
-  );
-
-regack5 : req_ack
   generic map (
        ack_delay_g => 1,
        zero_delay_g => false
@@ -899,7 +791,7 @@ regack5 : req_ack
        rst => rst
   );
 
-regack6 : req_ack
+regack3 : req_ack
   generic map (
        ack_delay_g => 1,
        zero_delay_g => true
@@ -908,18 +800,6 @@ regack6 : req_ack
        ack => cmp_wr_ack,
        clk => clk,
        enable => cmp_wr,
-       rst => rst
-  );
-
-regack9 : req_ack
-  generic map (
-       ack_delay_g => 1,
-       zero_delay_g => false
-  )
-  port map(
-       ack => dmaErr_ack,
-       clk => clk,
-       enable => dmaErr_read,
        rst => rst
   );
 
@@ -943,6 +823,21 @@ dma_be(0) <= VCC;
 
 
 ----  Generate statements  ----
+
+genPhyActLed : if genPhyActLed_g generate
+begin
+  THE_PHY_ACT : OpenMAC_phyAct
+    generic map (
+         iBlinkFreq_g => 6
+    )  
+    port map(
+         act_led => act_led,
+         clk => clk,
+         rst => rst,
+         rx_dv => mac_rx_dv,
+         tx_en => mac_tx_en
+    );
+end generate genPhyActLed;
 
 genHub : if genHub_g generate
 begin
@@ -1185,7 +1080,7 @@ begin
   
   pkt_waitrequest <= not(pkt_write_ack or pkt_read_ack);
   
-  regack7 : req_ack
+  regack4 : req_ack
     generic map (
          ack_delay_g => 1,
          zero_delay_g => true
@@ -1197,7 +1092,7 @@ begin
          rst => rst
     );
   
-  regack8 : req_ack
+  regack5 : req_ack
     generic map (
          ack_delay_g => 2,
          zero_delay_g => false
@@ -1255,9 +1150,12 @@ begin
   THE_MAC_DMA_MASTER : openMAC_DMAmaster
     generic map (
          dma_highadr_g => dma_highadr_g,
+         endian_g => endian_g,
          fifo_data_width_g => fifo_data_width_c,
+         gen_dma_observer_g => gen_dma_observer_g,
          gen_rx_fifo_g => gen_rx_fifo_c,
          gen_tx_fifo_g => gen_tx_fifo_c,
+         m_burstcount_const_g => m_burstcount_const_g,
          m_burstcount_width_g => m_burstcount'length,
          m_rx_burst_size_g => m_rx_burst_size_g,
          m_tx_burst_size_g => m_tx_burst_size_g,
@@ -1287,21 +1185,8 @@ begin
          m_waitrequest => m_waitrequest,
          m_write => m_write,
          m_writedata => m_writedata( m_data_width_g-1 downto 0 ),
-         mac_rx_off => mac_rx_off_del,
-         mac_rx_on => mac_rx_on,
+         mac_rx_off => mac_rx_off,
          mac_tx_off => mac_tx_off,
-         mac_tx_on => mac_tx_on,
-         rst => rst
-    );
-  
-  delayp0 : delay_pulse
-    generic map (
-         delay_g => 8
-    )  
-    port map(
-         clk => clk,
-         in_p => mac_rx_off,
-         out_p => mac_rx_off_del,
          rst => rst
     );
 end generate genDmaMaster;

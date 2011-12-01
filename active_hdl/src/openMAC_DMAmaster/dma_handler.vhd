@@ -47,6 +47,8 @@
 --
 -- 2011-08-03  	V0.01	zelenkaj    First version
 -- 2011-11-28	V0.02	zelenkaj	Added DMA observer
+-- 2011-11-30	V0.03	zelenkaj	Removed unnecessary ports
+--									Added generic for DMA observer
 --
 -------------------------------------------------------------------------------
 
@@ -61,14 +63,13 @@ entity dma_handler is
 		gen_tx_fifo_g : boolean := true;
 		dma_highadr_g : integer := 31;
 		tx_fifo_word_size_log2_g : natural := 5;
-		rx_fifo_word_size_log2_g : natural := 5
+		rx_fifo_word_size_log2_g : natural := 5;
+		gen_dma_observer_g : boolean := true
 	);
 	port(
 		dma_clk : in std_logic;
 		rst : in std_logic;
-		mac_tx_on : in std_logic;
 		mac_tx_off : in std_logic;
-		mac_rx_on : in std_logic;
 		mac_rx_off : in std_logic;
 		dma_req_wr : in std_logic;
 		dma_req_rd : in std_logic;
@@ -120,26 +121,38 @@ begin
 		if rst = '1' then
 			if gen_tx_fifo_g then
 				tx_fsm <= idle;
-				observ_rd_err <= (others => '0');
+				if gen_dma_observer_g then
+					observ_rd_err <= (others => '0');
+				end if;
 			end if;
 			if gen_rx_fifo_g then
 				rx_fsm <= idle;
-				observ_wr_err <= (others => '0');
+				if gen_dma_observer_g then
+					observ_wr_err <= (others => '0');
+				end if;
 			end if;
 			
-			observ_cnt <= (others => '0');
+			if gen_dma_observer_g then
+				observ_cnt <= (others => '0');
+			end if;
 			
 		elsif clk = '1' and clk'event then
 			if gen_tx_fifo_g then
 				tx_fsm <= tx_fsm_next;
-				observ_rd_err <= observ_rd_err_next;
+				if gen_dma_observer_g then
+					observ_rd_err <= observ_rd_err_next;
+				end if;
 			end if;
 			if gen_rx_fifo_g then
 				rx_fsm <= rx_fsm_next;
-				observ_wr_err <= observ_wr_err_next;
+				if gen_dma_observer_g then
+					observ_wr_err <= observ_wr_err_next;
+				end if;
 			end if;
 			
-			observ_cnt <= observ_cnt_next;
+			if gen_dma_observer_g then
+				observ_cnt <= observ_cnt_next;
+			end if;
 			
 		end if;
 	end process;
@@ -156,21 +169,24 @@ begin
 					idle when mac_rx_off = '1' else
 					rx_fsm;
 	
-	observ_cnt_next <= --count up if there is an request (for TX only after the first req)
-					observ_cnt + 1 when dma_req_wr = '1' or (dma_req_rd = '1' and tx_fsm = run) else
-					(others => '0');
-	
-	observ_rd_err_next <= --count read errors
-					(others => '0') when gen_tx_fifo_g = false else
-					observ_rd_err when observ_rd_err = x"FF" else --saturate
-					observ_rd_err + 1 when dma_req_rd = '1' and dma_ack_rd_s = '0' and observ_cnt = "111" else
-					observ_rd_err;
-	
-	observ_wr_err_next <= --count write errors
-					(others => '0') when gen_rx_fifo_g = false else
-					observ_wr_err when observ_wr_err = x"FF" else --saturate
-					observ_wr_err + 1 when dma_req_wr = '1' and dma_ack_wr_s = '0' and observ_cnt = "111" else
-					observ_wr_err;
+	genDmaObserver : if gen_dma_observer_g generate
+	begin
+		observ_cnt_next <= --count up if there is an request (for TX only after the first req)
+						observ_cnt + 1 when dma_req_wr = '1' or (dma_req_rd = '1' and tx_fsm = run) else
+						(others => '0');
+		
+		observ_rd_err_next <= --count read errors
+						(others => '0') when gen_tx_fifo_g = false else
+						observ_rd_err when observ_rd_err = x"FF" else --saturate
+						observ_rd_err + 1 when dma_req_rd = '1' and dma_ack_rd_s = '0' and observ_cnt = "111" else
+						observ_rd_err;
+		
+		observ_wr_err_next <= --count write errors
+						(others => '0') when gen_rx_fifo_g = false else
+						observ_wr_err when observ_wr_err = x"FF" else --saturate
+						observ_wr_err + 1 when dma_req_wr = '1' and dma_ack_wr_s = '0' and observ_cnt = "111" else
+						observ_wr_err;
+	end generate;
 	
 	dma_rd_err <= observ_rd_err;
 	dma_wr_err <= observ_wr_err;

@@ -89,6 +89,8 @@
 #-- 2011-11-17	V1.08	zelenkaj	pdi dpr vhd-file renamed
 #-- 2011-11-21	V1.09	zelenkaj	added time synchronization feature
 #-- 2011-11-28	V1.10	zelenkaj	added waitrequest signals to pdi pcp/ap
+#-- 2011-11-29	V1.11	zelenkaj	event feature is optional
+#-- 2011-11-30	V1.12	zelenkaj	Added generic for DMA observer
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -315,6 +317,10 @@ set_parameter_property macRxBurstSize ALLOWED_RANGES {1 4 8 16}
 set_parameter_property macRxBurstSize DISPLAY_NAME "Number of Words per DMA Write Transfer (RX direction)"
 set_parameter_property macRxBurstSize DESCRIPTION "Sets the number of words (2 bytes) for each openMAC DMA write transfer (RX direction). A value of 1 refers to single beat transfers and disables burst transfers."
 
+add_parameter enDmaObserver BOOLEAN false
+set_parameter_property enDmaObserver DISPLAY_NAME "Enable packet DMA transfer monitor circuit"
+set_parameter_property enDmaObserver DESCRIPTION "The DMA monitor verifies the error-free Ethernet packet data transfer to/from the memory."
+
 add_parameter enHwAcc BOOLEAN FALSE
 set_parameter_property enHwAcc VISIBLE true
 ####################################
@@ -364,6 +370,12 @@ add_parameter genLedGadget_g BOOLEAN true
 set_parameter_property genLedGadget_g HDL_PARAMETER true
 set_parameter_property genLedGadget_g VISIBLE false
 set_parameter_property genLedGadget_g DERIVED TRUE
+
+add_parameter genEvent_g BOOLEAN true
+set_parameter_property genEvent_g HDL_PARAMETER true
+set_parameter_property genEvent_g DISPLAY_NAME "Enable Event Hardware Support"
+set_parameter_property genEvent_g DESCRIPTION "The POWERLINK Slave provides hardware resources for immediate event handling."
+set_parameter_property genEvent_g VISIBLE false
 
 add_parameter genTimeSync_g BOOLEAN true
 set_parameter_property genTimeSync_g DISPLAY_NAME "Enable Timer for Time Synchronization"
@@ -458,6 +470,11 @@ add_parameter useHwAcc_g BOOLEAN true
 set_parameter_property useHwAcc_g HDL_PARAMETER true
 set_parameter_property useHwAcc_g VISIBLE false
 set_parameter_property useHwAcc_g DERIVED true
+
+add_parameter gen_dma_observer_g BOOLEAN false
+set_parameter_property gen_dma_observer_g HDL_PARAMETER true
+set_parameter_property gen_dma_observer_g VISIBLE false
+set_parameter_property gen_dma_observer_g DERIVED true
 
 #the following generic is fixed to 16 bit
 add_parameter m_data_width_g INTEGER 16
@@ -558,6 +575,7 @@ proc my_validation_callback {} {
 	
 	set mii							[get_parameter_value phyIF]
 	set ploc						[get_parameter_value packetLoc]
+	set enDmaObserver 				[get_parameter_value enDmaObserver]
 	
 	if {$mii == "RMII"} {
 		set_parameter_value useRmii_g true
@@ -716,6 +734,7 @@ proc my_validation_callback {} {
 	set_parameter_property configApSpi_IRQ VISIBLE false
 	set_parameter_property genLedGadget VISIBLE false
 	set_parameter_property genTimeSync_g VISIBLE false
+	set_parameter_property genEvent_g VISIBLE false
 	set_parameter_property asyncBuf1Size VISIBLE false
 	set_parameter_property asyncBuf2Size VISIBLE false
 	set_parameter_property rpdo0size VISIBLE false
@@ -726,6 +745,7 @@ proc my_validation_callback {} {
 	set_parameter_property macRxBuf VISIBLE false
 	set_parameter_property mac2cmpTimer VISIBLE false
 	set_parameter_property enHwAcc VISIBLE false
+	set_parameter_property enDmaObserver VISIBLE false
 	
 	set_parameter_property mac2phys VISIBLE true
 	
@@ -780,6 +800,7 @@ proc my_validation_callback {} {
 		set_parameter_property asyncBuf2Size VISIBLE true
 		set_parameter_property genLedGadget VISIBLE true
 		set_parameter_property genTimeSync_g VISIBLE true
+		set_parameter_property genEvent_g VISIBLE true
 		#AP can be big or little endian - allow choice
 		set_parameter_property configApEndian VISIBLE true
 		set_parameter_property mac2cmpTimer VISIBLE true
@@ -915,13 +936,16 @@ proc my_validation_callback {} {
 	if {$ploc == "TX and RX into DPRAM"} {
 		set macBufSize [expr $txBufSize + $rxBufSize]
 		set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
+		set enDmaObserver false
 	} elseif {$ploc == "TX into DPRAM and RX over Avalon Master" } {
 		set macBufSize $txBufSize
+		set_parameter_property enDmaObserver VISIBLE true
 		#no rx buffers are stored in dpram => set to zero
 		set rxBufSize 0
 		set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
 		set macRxBuffers 16
 	} elseif {$ploc == "TX and RX over Avalon Master"} {
+		set_parameter_property enDmaObserver VISIBLE true
 		#any value to avoid errors in SOPC
 		set macBufSize 0
 		#no rx and tx buffers are stored in dpram => set to zero
@@ -954,6 +978,8 @@ proc my_validation_callback {} {
 	set_parameter_value Simulate			false
 	set_parameter_value iBufSize_g			$macBufSize
 	set_parameter_value iBufSizeLOG2_g		$log2MacBufSize
+	
+	set_parameter_value gen_dma_observer_g	[get_parameter_value enDmaObserver]
 	
 	if {[get_parameter_value configApParallelInterface] == "8bit"} {
 		set_parameter_value papDataWidth_g	8
@@ -1010,6 +1036,24 @@ proc my_validation_callback {} {
 		set_module_assignment embeddedsw.CMacro.LEDGADGET			TRUE
 	} else {
 		set_module_assignment embeddedsw.CMacro.LEDGADGET			FALSE
+	}
+	
+	if {[get_parameter_value enDmaObserver]} {
+		set_module_assignment embeddedsw.CMacro.DMAOBSERV			TRUE
+	} else {
+		set_module_assignment embeddedsw.CMacro.DMAOBSERV			FALSE
+	}
+	
+	if {[get_parameter_value genTimeSync_g]} {
+		set_module_assignment embeddedsw.CMacro.TIMESYNC			TRUE
+	} else {
+		set_module_assignment embeddedsw.CMacro.TIMESYNC			FALSE
+	}
+	
+	if {[get_parameter_value genEvent_g]} {
+		set_module_assignment embeddedsw.CMacro.EVENT			TRUE
+	} else {
+		set_module_assignment embeddedsw.CMacro.EVENT			FALSE
 	}
 	
 	if {$configPowerlink == "Direct I/O CN"} {
@@ -1070,6 +1114,7 @@ proc my_validation_callback {} {
 	set_module_assignment embeddedsw.CMacro.PDIRPDOS				$rpdos
 	set_module_assignment embeddedsw.CMacro.PDITPDOS				$tpdos
 	set_module_assignment embeddedsw.CMacro.FPGAREV					[get_parameter_value iPdiRev_g]
+	
 	if {[get_parameter_value useHwAcc_g]} {
 		set_module_assignment embeddedsw.CMacro.HWACC				1
 	} else {
@@ -1091,8 +1136,9 @@ add_display_item "Process Data Interface Settings" configApSpi_CPHA PARAMETER
 add_display_item "Process Data Interface Settings" validSet PARAMETER
 add_display_item "Process Data Interface Settings" validAssertDuration PARAMETER
 add_display_item "Process Data Interface Settings" mac2cmpTimer PARAMETER
-add_display_item "Process Data Interface Settings" genLedGadget PARAMETER
 add_display_item "Process Data Interface Settings" genTimeSync_g PARAMETER
+add_display_item "Process Data Interface Settings" genLedGadget PARAMETER
+add_display_item "Process Data Interface Settings" genEvent_g PARAMETER
 add_display_item "Receive Process Data" rpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdo0size PARAMETER
@@ -1102,6 +1148,7 @@ add_display_item "Asynchronous Buffer" asyncBuf2Size  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
 add_display_item "openMAC" mac2phys PARAMETER
 add_display_item "openMAC" packetLoc  PARAMETER
+add_display_item "openMAC" enDmaObserver PARAMETER
 add_display_item "openMAC" macTxBurstSize  PARAMETER
 add_display_item "openMAC" macRxBurstSize  PARAMETER
 add_display_item "openMAC" enHwAcc  PARAMETER
