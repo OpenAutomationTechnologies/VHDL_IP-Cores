@@ -71,18 +71,27 @@ BUS_INTERFACE BUS = PDI_AP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (ipcor
 BUS_INTERFACE BUS = SMP_PCP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (ipcore_mode_g == 0)
 
 ## GUI parameters
+# General 
 PARAMETER ipcore_mode_g = 0, DT = INTEGER, DESC = "Mode of the Powerlink IP-Core", TYPE = NON_HDL, RANGE = (0,1,3,4,5), VALUES = (0 = DirectIO, 1 = "Parallel interface", 3 = SPI, 4 = "PLB bus", 5 = "openMAC only") 
-## Generics for VHDL		
-PARAMETER genPDI_g = FALSE, DT = BOOLEAN, DESC = "Location of TX Packets"																	
-PARAMETER C_TX_INT_PKT = FALSE, DT = BOOLEAN, DESC = "Location of TX Packets", VALUES = (FALSE = EXT, TRUE = BRAM)
-PARAMETER C_RX_INT_PKT = FALSE, DT = BOOLEAN, DESC = "Location of RX Packets", VALUES = (FALSE = EXT, TRUE = BRAM)
+PARAMETER C_GEN_PDI = FALSE, DT = BOOLEAN, SYSLEVEL_UPDATE_VALUE_PROC = get_pdi_enable
+PARAMETER C_GEN_PAR_IF = FALSE, DT = BOOLEAN, SYSLEVEL_UPDATE_VALUE_PROC = get_par_if_enable
+PARAMETER C_GEN_SPI_IF = FALSE, DT = BOOLEAN, SYSLEVEL_UPDATE_VALUE_PROC = get_spi_if_enable
+PARAMETER C_GEN_PLB_BUS_IF = FALSE, DT = BOOLEAN, SYSLEVEL_UPDATE_VALUE_PROC = get_plb_bus_enable
+PARAMETER C_GEN_SIMPLE_IO = FALSE, DT = BOOLEAN, SYSLEVEL_UPDATE_VALUE_PROC = get_simple_io_enable
+
+# openMAC	
+PARAMETER C_PACKET_LOCATION = 0, DT = INTEGER, RANGE = (0:2), TYPE = NON_HDL, VALUES = ( 0 = "TX and RX into DPRAM", 1 = "TX into DPRAM and RX over PLB", 2 = "TX and RX over PLB" )																
+PARAMETER C_TX_INT_PKT = FALSE, DT = BOOLEAN, VALUES = (FALSE = EXT, TRUE = BRAM), SYSLEVEL_UPDATE_VALUE_PROC = update_tx_packet_location
+PARAMETER C_RX_INT_PKT = FALSE, DT = BOOLEAN, VALUES = (FALSE = EXT, TRUE = BRAM), SYSLEVEL_UPDATE_VALUE_PROC = update_rx_packet_location
+
 PARAMETER C_USE_RMII = TRUE, DT = BOOLEAN, DESC = "Set Ethernet Port(s) Interface", VALUES = (FALSE = MII, TRUE = RMII)
-PARAMETER C_USE_2ND_PHY = TRUE, DT = BOOLEAN, DESC = "Generate OpenHUB for 2nd Ethernet Port"  
+PARAMETER C_USE_2ND_PHY = TRUE, DT = BOOLEAN, DESC = "Generate OpenHUB for 2nd Ethernet Port"
+
 # PDI
 PARAMETER C_PDI_NUM_RPDO = 3, DT = INTEGER,RANGE = (1:3), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
 PARAMETER C_PDI_RPDO_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
 PARAMETER C_PDI_NUM_TPDO = 1, DT = INTEGER,	RANGE = (1), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
-PARAMETER C_PDI_TPDO_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
+PARAMETER C_PDI_TPDO_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), SYSLEVEL_UPDATE_VALUE_PROC = calc_tpdo_buffer_size, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
 PARAMETER C_PDI_GEN_ASYNC_BUF_0 = TRUE, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
 PARAMETER C_PDI_ASYNC_BUF_0 = 50, DT = INTEGER,	RANGE = (1:1500), ISVALID = ((ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) && C_PDI_GEN_ASYNC_BUF_0 == TRUE)
 PARAMETER C_PDI_GEN_ASYNC_BUF_1 = TRUE, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 

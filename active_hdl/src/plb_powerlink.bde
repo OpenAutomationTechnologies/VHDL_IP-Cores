@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 102716
+ FREEID 102801
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -8539,12 +8539,6 @@ PAGE "header"
    TEXT 
 "--\n"+
 "constant C_FAMILY : string := \"spartan6\";\n"+
-"-- IP core modes\n"+
-"constant C_SIMPLE_IO : integer := 0;\n"+
-"constant C_PAP_IF : integer := 1;\n"+
-"constant C_SPI_IF : integer := 3;\n"+
-"constant C_PLB_BUS_IF : integer := 4;\n"+
-"constant C_OPENMAC_ONLY_IF : integer := 5;\n"+
 "constant C_ADDR_PAD_ZERO : std_logic_vector(31 downto 0) := (others => '0');\n"+
 "-- openMAC REG PLB Slave\n"+
 "constant C_MAC_REG_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_MAC_REG_BASEADDR;\n"+
@@ -8574,29 +8568,6 @@ PAGE "header"
 "constant C_M_BURSTCOUNT_WIDTH : integer := integer(ceil(log2(real(C_MAC_DMA_BURST_SIZE/4)))) + 1; --in dwords\n"+
 "constant C_M_FIFO_SIZE : integer := C_MAC_DMA_FIFO_SIZE/4; --in dwords"
    RECT (280,1160,2000,2140)
-   MARGINS (20,20)
-   MULTILINE
-   SYNTAXCOLORED
-   SHOWLABEL
-   SHOWTEXT
-   CORNER 10
-  }
-  ARCHITECTUREDECLARATIONSBC  101401, 0, 0
-  {
-   LABEL "Architecture declarations before components"
-   TEXT 
-"-- this function returns a bool from the integer state variable\n"+
-"function get_bool(state, name : integer) return boolean is\n"+
-"begin\n"+
-"\tif state = name then\n"+
-"\t\treturn true;\n"+
-"\telse\n"+
-"\t\treturn false;\t\n"+
-"\tend if;\n"+
-"end get_bool;\n"+
-"\n"+
-""
-   RECT (2040,960,2960,1320)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -12748,49 +12719,49 @@ PAGE "POWERLINK IP-CORE"
    VARIABLES
    {
     #COMPONENT="powerlink"
-    #GENERIC0="m_data_width_g : INTEGER := 32"
-    #GENERIC1="genPdi_g : BOOLEAN := get_bool(ipcore_mode_g,C_PAP_IF) or get_bool(ipcore_mode_g,C_SPI_IF) or get_bool(ipcore_mode_g,C_PLB_BUS_IF)"
-    #GENERIC10="papDataWidth_g : INTEGER := C_PAP_DATA_WIDTH"
-    #GENERIC11="iPdiRev_g : INTEGER := 21930"
-    #GENERIC12="iRpdos_g : INTEGER := C_PDI_NUM_RPDO"
-    #GENERIC13="genSmiIO : BOOLEAN := false"
-    #GENERIC14="useRxIntPacketBuf_g : BOOLEAN := C_MAC_PKT_RX_EN"
-    #GENERIC15="m_burstcount_width_g : INTEGER := C_M_BURSTCOUNT_WIDTH"
-    #GENERIC16="m_burstcount_const_g : BOOLEAN := true"
-    #GENERIC17="use2ndPhy_g : BOOLEAN := C_USE_2ND_PHY"
-    #GENERIC18="genOnePdiClkDomain_g : BOOLEAN := false"
-    #GENERIC19="use2ndCmpTimer_g : BOOLEAN := C_PDI_GEN_SECOND_TIMER"
-    #GENERIC2="m_tx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
-    #GENERIC20="genInternalAp_g : BOOLEAN := get_bool(ipcore_mode_g,C_PLB_BUS_IF)"
-    #GENERIC21="iTpdoBufSize_g : INTEGER := C_PDI_TPDO_BUF_SIZE"
-    #GENERIC22="useRmii_g : BOOLEAN := C_USE_RMII"
-    #GENERIC23="iBufSizeLOG2_g : INTEGER := C_MAC_PKT_SIZE_LOG2"
-    #GENERIC24="m_tx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
-    #GENERIC25="genABuf2_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_1"
-    #GENERIC26="genABuf1_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_0"
-    #GENERIC27="m_rx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
-    #GENERIC28="useHwAcc_g : BOOLEAN := false"
-    #GENERIC29="iBufSize_g : INTEGER := C_MAC_PKT_SIZE"
-    #GENERIC3="pioValLen_g : INTEGER := C_PIO_VAL_LENGTH"
-    #GENERIC30="Simulate : BOOLEAN := false"
-    #GENERIC31="genSpiAp_g : BOOLEAN := get_bool(ipcore_mode_g,C_PAP_IF)"
-    #GENERIC32="useIntPacketBuf_g : BOOLEAN := C_MAC_PKT_EN"
-    #GENERIC33="iRpdo2BufSize_g : INTEGER := C_PDI_RPDO_BUF_SIZE"
-    #GENERIC34="iRpdo1BufSize_g : INTEGER := C_PDI_RPDO_BUF_SIZE"
-    #GENERIC35="iRpdo0BufSize_g : INTEGER := C_PDI_RPDO_BUF_SIZE"
-    #GENERIC36="spiCPOL_g : BOOLEAN := C_SPI_CPOL"
-    #GENERIC37="papBigEnd_g : BOOLEAN := C_PAP_BIG_END"
-    #GENERIC38="endian_g : STRING := \"big\""
-    #GENERIC39="genTimeSync_g : BOOLEAN := C_PDI_GEN_TIME_SYNC"
-    #GENERIC4="spiBigEnd_g : BOOLEAN := C_SPI_BIG_END"
-    #GENERIC40="genLedGadget_g : BOOLEAN := C_PDI_GEN_LED"
-    #GENERIC41="iTpdos_g : INTEGER := C_PDI_NUM_TPDO"
-    #GENERIC42="m_rx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
-    #GENERIC5="spiCPHA_g : BOOLEAN := C_SPI_CPHA"
-    #GENERIC6="genSimpleIO_g : BOOLEAN := get_bool(ipcore_mode_g,C_SIMPLE_IO)"
-    #GENERIC7="iAsyBuf2Size_g : INTEGER := C_PDI_ASYNC_BUF_1"
-    #GENERIC8="iAsyBuf1Size_g : INTEGER := C_PDI_ASYNC_BUF_0"
-    #GENERIC9="papLowAct_g : BOOLEAN := C_PAP_LOW_ACT"
+    #GENERIC0="genSmiIO : BOOLEAN := false"
+    #GENERIC1="m_data_width_g : INTEGER := 32"
+    #GENERIC10="genLedGadget_g : BOOLEAN := C_PDI_GEN_LED"
+    #GENERIC11="genABuf2_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_1"
+    #GENERIC12="genABuf1_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_0"
+    #GENERIC13="iTpdos_g : INTEGER := C_PDI_NUM_TPDO"
+    #GENERIC14="iRpdos_g : INTEGER := C_PDI_NUM_RPDO"
+    #GENERIC15="useRmii_g : BOOLEAN := C_USE_RMII"
+    #GENERIC16="iBufSizeLOG2_g : INTEGER := C_MAC_PKT_SIZE_LOG2"
+    #GENERIC17="iBufSize_g : INTEGER := C_MAC_PKT_SIZE"
+    #GENERIC18="Simulate : BOOLEAN := false"
+    #GENERIC19="genSpiAp_g : BOOLEAN := C_GEN_SPI_IF"
+    #GENERIC2="m_rx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
+    #GENERIC20="pioValLen_g : INTEGER := C_PIO_VAL_LENGTH"
+    #GENERIC21="spiBigEnd_g : BOOLEAN := C_SPI_BIG_END"
+    #GENERIC22="spiCPHA_g : BOOLEAN := C_SPI_CPHA"
+    #GENERIC23="genSimpleIO_g : BOOLEAN := C_GEN_SIMPLE_IO"
+    #GENERIC24="spiCPOL_g : BOOLEAN := C_SPI_CPOL"
+    #GENERIC25="papBigEnd_g : BOOLEAN := C_PAP_BIG_END"
+    #GENERIC26="papLowAct_g : BOOLEAN := C_PAP_LOW_ACT"
+    #GENERIC27="papDataWidth_g : INTEGER := C_PAP_DATA_WIDTH"
+    #GENERIC28="iPdiRev_g : INTEGER := 21930"
+    #GENERIC29="iAsyBuf2Size_g : INTEGER := C_PDI_ASYNC_BUF_1"
+    #GENERIC3="genPdi_g : BOOLEAN := C_GEN_PDI"
+    #GENERIC30="iAsyBuf1Size_g : INTEGER := C_PDI_ASYNC_BUF_0"
+    #GENERIC31="iRpdo2BufSize_g : INTEGER := C_PDI_RPDO_BUF_SIZE"
+    #GENERIC32="iRpdo1BufSize_g : INTEGER := C_PDI_RPDO_BUF_SIZE"
+    #GENERIC33="iRpdo0BufSize_g : INTEGER := C_PDI_RPDO_BUF_SIZE"
+    #GENERIC34="genInternalAp_g : BOOLEAN := C_GEN_PLB_BUS_IF"
+    #GENERIC35="endian_g : STRING := \"big\""
+    #GENERIC36="m_burstcount_const_g : BOOLEAN := true"
+    #GENERIC37="m_burstcount_width_g : INTEGER := C_M_BURSTCOUNT_WIDTH"
+    #GENERIC38="useHwAcc_g : BOOLEAN := false"
+    #GENERIC39="use2ndPhy_g : BOOLEAN := C_USE_2ND_PHY"
+    #GENERIC4="m_tx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
+    #GENERIC40="use2ndCmpTimer_g : BOOLEAN := C_PDI_GEN_SECOND_TIMER"
+    #GENERIC41="useRxIntPacketBuf_g : BOOLEAN := C_MAC_PKT_RX_EN"
+    #GENERIC42="useIntPacketBuf_g : BOOLEAN := C_MAC_PKT_EN"
+    #GENERIC5="m_rx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
+    #GENERIC6="m_tx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
+    #GENERIC7="genOnePdiClkDomain_g : BOOLEAN := false"
+    #GENERIC8="iTpdoBufSize_g : INTEGER := C_PDI_TPDO_BUF_SIZE"
+    #GENERIC9="genTimeSync_g : BOOLEAN := C_PDI_GEN_TIME_SYNC"
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
@@ -12811,7 +12782,7 @@ PAGE "POWERLINK IP-CORE"
   TEXT  11998, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (4200,860,5941,2279)
+   RECT (4200,860,4937,2279)
    PARENT 11989
   }
   NET WIRE  12178, 0, 0
@@ -15920,7 +15891,11 @@ PAGE "POWERLINK IP-CORE"
    LABEL "Generic_1"
    TEXT 
 "-- general\n"+
-"ipcore_mode_g : integer := 0;\n"+
+"C_GEN_PDI : boolean := false;\n"+
+"C_GEN_PAR_IF : boolean := false;\n"+
+"C_GEN_SPI_IF : boolean := false;\n"+
+"C_GEN_PLB_BUS_IF : boolean := false;\n"+
+"C_GEN_SIMPLE_IO : boolean := false;\n"+
 "-- openMAC\n"+
 "C_USE_RMII : boolean := false;\n"+
 "C_TX_INT_PKT : boolean := false;\n"+
@@ -15949,7 +15924,7 @@ PAGE "POWERLINK IP-CORE"
 "-- simpleIO\n"+
 "C_PIO_VAL_LENGTH : integer := 50;\n"+
 ""
-   RECT (80,200,780,1300)
+   RECT (80,200,780,1340)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -25261,7 +25236,7 @@ PAGE "PDI_PCP_PLB"
   {
    VARIABLES
    {
-    #CONDITION="(ipcore_mode_g = C_PAP_IF or ipcore_mode_g = C_SPI_IF or ipcore_mode_g = C_PLB_BUS_IF)"
+    #CONDITION="(C_GEN_PDI)"
     #GENERATE_KIND="IF"
     #LABEL="g3"
    }
@@ -25271,7 +25246,7 @@ PAGE "PDI_PCP_PLB"
   TEXT  95691, 0, 0
   {
    TEXT "@GENERATE_STATEMENT_DESCRIPTION"
-   RECT (1120,564,2642,599)
+   RECT (1120,564,1554,599)
    ALIGN 8
    MARGINS (1,1)
    PARENT 95690
@@ -27987,7 +27962,7 @@ PAGE "AP_PDI_PLB"
   {
    VARIABLES
    {
-    #CONDITION="(ipcore_mode_g = C_PLB_BUS_IF)"
+    #CONDITION="(C_GEN_PLB_BUS_IF)"
     #GENERATE_KIND="IF"
     #LABEL="g4"
    }
@@ -27997,7 +27972,7 @@ PAGE "AP_PDI_PLB"
   TEXT  96852, 0, 0
   {
    TEXT "@GENERATE_STATEMENT_DESCRIPTION"
-   RECT (1200,584,1912,619)
+   RECT (1200,584,1757,619)
    ALIGN 8
    MARGINS (1,1)
    PARENT 96851
@@ -31416,7 +31391,7 @@ PAGE "SMP_PCP_PLB"
   {
    VARIABLES
    {
-    #CONDITION="(ipcore_mode_g = C_SIMPLE_IO)"
+    #CONDITION="(C_GEN_SIMPLE_IO)"
     #GENERATE_KIND="IF"
     #LABEL="g5"
    }
@@ -31426,7 +31401,7 @@ PAGE "SMP_PCP_PLB"
   TEXT  98850, 0, 0
   {
    TEXT "@GENERATE_STATEMENT_DESCRIPTION"
-   RECT (1240,684,1931,719)
+   RECT (1240,684,1776,719)
    ALIGN 8
    MARGINS (1,1)
    PARENT 98849
@@ -32361,15 +32336,15 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311684073"
-   PAGENAME="header"
-   PAGENUMBER="1"
+   PAGENAME="PDI_PCP_PLB"
+   PAGENUMBER="10"
    REVISION="1.0"
   }
  }
  
  BODY
  {
-  TEXT  102699, 0, 0
+  TEXT  102784, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -32380,7 +32355,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  102700, 0, 0
+  TEXT  102785, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -32391,7 +32366,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  102701, 0, 0
+  TEXT  102786, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -32401,7 +32376,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  102702, 0, 0
+  TEXT  102787, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -32413,7 +32388,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  102703, 0, 0
+  TEXT  102788, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -32427,7 +32402,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  102704, 0, 0
+  TEXT  102789, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -32437,7 +32412,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  102705, 0, 0
+  TEXT  102790, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -32449,7 +32424,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  102706, 0, 0
+  TEXT  102791, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -32459,7 +32434,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  102707, 0, 0
+  TEXT  102792, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -32470,7 +32445,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  102708, 0, 0
+  GROUP  102793, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -32482,7 +32457,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  102709, 0, 0
+  GROUP  102794, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -32494,7 +32469,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  102710, 0, 0
+  GROUP  102795, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -32506,7 +32481,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  102711, 0, 0
+  GROUP  102796, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -32518,7 +32493,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  102712, 0, 0
+  GROUP  102797, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -32530,7 +32505,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  102713, 0, 0
+  GROUP  102798, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -32541,14 +32516,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  102714, 0, 0
+  LINE  102799, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  102715, 0, 0
+  LINKBMPPICT  102800, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
