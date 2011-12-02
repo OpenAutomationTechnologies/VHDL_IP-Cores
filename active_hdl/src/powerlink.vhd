@@ -72,6 +72,7 @@
 -- 2011-11-28	V1.05	zelenkaj	added waitrequest signals to pdi pcp/ap
 -- 2011-11-29	V1.06	zelenkaj	event is optional
 -- 2011-11-30	V1.07	zelenkaj	Added generic for DMA observer
+-- 2011-12-02	V1.08	zelenkaj	Added I, O and T instead of IO ports
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -133,7 +134,9 @@ entity powerlink is
 		spiCPHA_g					:		boolean 							:= false;
 		spiBigEnd_g					:		boolean								:= false;
 	-- PORTIO
-		pioValLen_g					:		integer								:= 50 --clock ticks of pcp_clk
+		pioValLen_g					:		integer								:= 50; --clock ticks of pcp_clk
+	-- GENERAL TARGET DEPENDINGS
+		genIoBuf_g					:		boolean								:= true --generates IO buffers
 	);
 	port(
 	-- CLOCK / RESET PORTS
@@ -222,9 +225,15 @@ entity powerlink is
 		pap_be_n					: in    std_logic_vector(papDataWidth_g/8-1 downto 0);
 		pap_addr 					: in    std_logic_vector(15 downto 0);
 		pap_data					: inout std_logic_vector(papDataWidth_g-1 downto 0) := (others => '0');
+		pap_data_I					: in 	std_logic_vector(papDataWidth_g-1 downto 0) := (others => '0');
+		pap_data_O					: out	std_logic_vector(papDataWidth_g-1 downto 0);
+		pap_data_T					: out	std_logic;
 		pap_ack						: out	std_logic := '0';
 		pap_ack_n					: out	std_logic := '1';
 		pap_gpio					: inout	std_logic_vector(1 downto 0) := (others => '0');
+		pap_gpio_I					: in 	std_logic_vector(1 downto 0) := (others => '0');
+		pap_gpio_O					: out	std_logic_vector(1 downto 0);
+		pap_gpio_T					: out	std_logic_vector(1 downto 0);
 	---- SPI
 		spi_clk						: in	std_logic;
 		spi_sel_n					: in	std_logic;
@@ -242,6 +251,9 @@ entity powerlink is
 		pio_portInLatch				: in 	std_logic_vector(3 downto 0);
 		pio_portOutValid 			: out 	std_logic_vector(3 downto 0) := (others => '0');
 		pio_portio     				: inout std_logic_vector(31 downto 0) := (others => '0');
+		pio_portio_I				: in 	std_logic_vector(31 downto 0) := (others => '0');
+		pio_portio_O				: out	std_logic_vector(31 downto 0);
+		pio_portio_T				: out	std_logic_vector(31 downto 0);
 		pio_operational				: out	std_logic := '0';
 	-- EXTERNAL
 	--- RMII PORTS
@@ -458,7 +470,8 @@ begin
 		theParPort : entity work.pdi_par
 			generic map (
 				papDataWidth_g				=> papDataWidth_g,
-				papBigEnd_g					=> papBigEnd_g
+				papBigEnd_g					=> papBigEnd_g,
+				papGenIoBuf_g				=> genIoBuf_g
 			)
 			port map (
 			-- 8/16bit parallel
@@ -468,8 +481,14 @@ begin
 				pap_be						=> pap_be_s,
 				pap_addr					=> pap_addr,
 				pap_data					=> pap_data,
+				pap_data_I					=> pap_data_I,
+				pap_data_O					=> pap_data_O,
+				pap_data_T					=> pap_data_T,
 				pap_ack						=> pap_ack_s,
 				pap_gpio					=> pap_gpio,
+				pap_gpio_I					=> pap_gpio_I,
+				pap_gpio_O					=> pap_gpio_O,
+				pap_gpio_T					=> pap_gpio_T,
 			-- clock for AP side
 				ap_reset					=> rstPcp,
 				ap_clk						=> clk50,
@@ -665,7 +684,8 @@ begin
 	genSimpleIO : if genSimpleIO_g generate
 		thePortIO : entity work.portio
 			generic map (
-				pioValLen_g			=> pioValLen_g
+				pioValLen_g			=> pioValLen_g,
+				pioGenIoBuf_g		=> genIoBuf_g
 			)
 			port map (
 				s0_address			=> smp_address,
@@ -681,6 +701,9 @@ begin
 				x_portInLatch		=> pio_portInLatch,
 				x_portOutValid		=> pio_portOutValid,
 				x_portio			=> pio_portio,
+				x_portio_I			=> pio_portio_I,
+				x_portio_O			=> pio_portio_O,
+				x_portio_T			=> pio_portio_T,
 				x_operational		=> pio_operational
 			);
 	end generate genSimpleIO;

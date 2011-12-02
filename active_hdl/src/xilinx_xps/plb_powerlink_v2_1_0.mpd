@@ -38,6 +38,7 @@
 #-- 2011-11-16	V0.01	zelenkaj	converted to first stable solution with MAC-layer only		   
 #-- 2011-11-25	V0.02	mairt		removed MAC_CMP to reduce resource utilization
 #-- 2011-11-28	V0.03	mairt		added bus interface for pdi pcp, pdi ap and simple io
+#-- 2011-12-02	V0.04	zelenkaj	Exchanged IOs with _I, _O and _T, added missing ISVALIDs
 #------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
@@ -131,8 +132,8 @@ PARAMETER C_MAC_REG_PLB_P2P = 0, DT = INTEGER, BUS = MAC_REG, ASSIGNMENT = CONST
 PARAMETER C_MAC_REG_PLB_NATIVE_DWIDTH = 32, DT = INTEGER, BUS = MAC_REG, ASSIGNMENT = CONSTANT
 PARAMETER C_MAC_REG_PLB_SUPPORT_BURSTS = 0, DT = INTEGER, BUS = MAC_REG, ASSIGNMENT = CONSTANT
 ### openMAC PKT
-PARAMETER C_MAC_PKT_BASEADDR = 0xffffffff, DT = std_logic_vector, BUS = MAC_PKT, ADDRESS = BASE, PAIR = C_MAC_PKT_HIGHADDR, MIN_SIZE = 0x40, ASSIGNMENT = REQUIRE
-PARAMETER C_MAC_PKT_HIGHADDR = 0x00000000, DT = std_logic_vector, BUS = MAC_PKT, ADDRESS = HIGH, PAIR = C_MAC_PKT_BASEADDR, ASSIGNMENT = REQUIRE
+PARAMETER C_MAC_PKT_BASEADDR = 0xffffffff, DT = std_logic_vector, BUS = MAC_PKT, ADDRESS = BASE, PAIR = C_MAC_PKT_HIGHADDR, MIN_SIZE = 0x40, ASSIGNMENT = REQUIRE, ISVALID = (C_PACKET_LOCATION != 2)
+PARAMETER C_MAC_PKT_HIGHADDR = 0x00000000, DT = std_logic_vector, BUS = MAC_PKT, ADDRESS = HIGH, PAIR = C_MAC_PKT_BASEADDR, ASSIGNMENT = REQUIRE, ISVALID = (C_PACKET_LOCATION != 2)
 PARAMETER C_MAC_PKT_PLB_DWIDTH = 32, DT = INTEGER, BUS = MAC_PKT, ASSIGNMENT = CONSTANT
 PARAMETER C_MAC_PKT_PLB_AWIDTH = 32, DT = INTEGER, BUS = MAC_PKT, ASSIGNMENT = CONSTANT
 PARAMETER C_MAC_PKT_PLB_NUM_MASTERS = 1, DT = INTEGER, BUS = MAC_PKT, ASSIGNMENT = CONSTANT
@@ -229,7 +230,7 @@ PORT ap_asyncIrq_n = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_LOW
 ### Portio
 PORT pio_pconfig = "", DIR = IN, VEC = [3:0], ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO
 PORT pio_portinlatch = "", DIR = IN, VEC = [3:0], ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO
-PORT pio_portio = "", DIR = INOUT, VEC = [31:0], ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO
+PORT pio_portio = "", DIR = INOUT, VEC = [31:0], THREE_STATE = TRUE, ENABLE = MULTI, ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO
 PORT pio_portOutValid = "", DIR = OUT, VEC = [3:0], ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO 
 PORT pio_operational = "", DIR = OUT, ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO 
 
@@ -249,12 +250,12 @@ PORT pap_rd_n = "", DIR = IN, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PA
 PORT pap_wr = "", DIR = IN, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == FALSE)
 PORT pap_wr_n = "", DIR = IN, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == TRUE)
 PORT pap_addr = "", DIR = IN, IO_IF = PAP, VEC = [15:0], ISVALID = ipcore_mode_g == 1
-PORT pap_data = "", DIR = INOUT, IO_IF = PAP, VEC = [C_PAP_DATA_WIDTH-1:0], ISVALID = (ipcore_mode_g == 1)
+PORT pap_data = "", DIR = INOUT, IO_IF = PAP, VEC = [C_PAP_DATA_WIDTH-1:0], THREE_STATE = TRUE, ISVALID = (ipcore_mode_g == 1)
 PORT pap_be = "", DIR = IN, IO_IF = PAP, VEC = [(C_PAP_DATA_WIDTH/8)-1:0], ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == FALSE)
 PORT pap_be_n = "", DIR = IN, IO_IF = PAP, VEC = [(C_PAP_DATA_WIDTH/8)-1:0], ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == TRUE)
 PORT pap_ack = "", DIR = OUT, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == FALSE)
 PORT pap_ack_n = "", DIR = OUT, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == TRUE)
-PORT pap_gpio = "", DIR = INOUT, IO_IF = PAP, VEC = [1:0], ISVALID = (ipcore_mode_g == 1)
+PORT pap_gpio = "", DIR = INOUT, IO_IF = PAP, VEC = [1:0], THREE_STATE = TRUE, ENABLE = MULTI, ISVALID = (ipcore_mode_g == 1)
 
 ### openMAC DMA
 PORT MAC_DMA_Clk = "", DIR = I, SIGIS = CLK, BUS = MAC_DMA

@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Tue Nov 29 13:37:01 2011
+-- Generated   : Fri Dec  2 12:57:22 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -51,9 +51,10 @@
 --
 -------------------------------------------------------------------------------
 --
--- 2011-09-13  	V0.01	zelenkaj    First version
--- 2011-11-24 	V0.02	mairt    		added slave interface for pdi pcp and pdi ap
--- 2011-11-26 	V0.03	mairt    		added slave interface for simpleIO
+-- 2011-09-13  	V0.01	zelenkaj	First version
+-- 2011-11-24 	V0.02	mairt    	added slave interface for pdi pcp and pdi ap
+-- 2011-11-26 	V0.03	mairt    	added slave interface for simpleIO
+-- 2011-12-02	V0.04	zelenkaj	Exchanged IOs with _I, _O and _T
 --
 -------------------------------------------------------------------------------
 
@@ -77,16 +78,39 @@ library PLBV46_SLAVE_SINGLE_V1_01_A;
 
 entity plb_powerlink is
   generic(
-       -- name : type := value
-       papDataWidth_g : integer := 16;
-       genPDI_g : boolean := false;
-       genPLBAp_g : boolean := false;
-       genSPIAp_g : boolean := false;
-       genSimpleIO_g : boolean := false;
+       -- general
+       C_GEN_PDI : boolean := false;
+       C_GEN_PAR_IF : boolean := false;
+       C_GEN_SPI_IF : boolean := false;
+       C_GEN_PLB_BUS_IF : boolean := false;
+       C_GEN_SIMPLE_IO : boolean := false;
+       -- openMAC
        C_USE_RMII : boolean := false;
        C_TX_INT_PKT : boolean := false;
        C_RX_INT_PKT : boolean := false;
        C_USE_2ND_PHY : boolean := true;
+       --pdi
+       C_PDI_NUM_RPDO : integer := 3;
+       C_PDI_RPDO_BUF_SIZE : integer := 100;
+       C_PDI_NUM_TPDO : integer := 1;
+       C_PDI_TPDO_BUF_SIZE : integer := 100;
+       C_PDI_GEN_ASYNC_BUF_0 : boolean := true;
+       C_PDI_ASYNC_BUF_0 : integer := 50;
+       C_PDI_GEN_ASYNC_BUF_1 : boolean := true;
+       C_PDI_ASYNC_BUF_1 : integer := 50;
+       C_PDI_GEN_LED : boolean := false;
+       C_PDI_GEN_TIME_SYNC : boolean := true;
+       C_PDI_GEN_SECOND_TIMER : boolean := false;
+       -- pap
+       C_PAP_DATA_WIDTH : integer := 16;
+       C_PAP_BIG_END : boolean := false;
+       C_PAP_LOW_ACT : boolean := false;
+       -- spi
+       C_SPI_CPOL : boolean := false;
+       C_SPI_CPHA : boolean := false;
+       C_SPI_BIG_END : boolean := false;
+       -- simpleIO
+       C_PIO_VAL_LENGTH : integer := 50;
        -- PDI AP PLB Slave
        C_PDI_AP_BASEADDR : std_logic_vector := X"00000000";
        C_PDI_AP_HIGHADDR : std_logic_vector := X"000FFFFF";
@@ -325,14 +349,17 @@ entity plb_powerlink is
        SMP_PCP_wrDBus : in std_logic_vector(0 to C_SMP_PCP_PLB_DWIDTH-1);
        SMP_PCP_wrPendPri : in std_logic_vector(0 to 1);
        pap_addr : in std_logic_vector(15 downto 0);
-       pap_be : in std_logic_vector(papDataWidth_g/8-1 downto 0);
-       pap_be_n : in std_logic_vector(papDataWidth_g/8-1 downto 0);
+       pap_be : in std_logic_vector(C_PAP_DATA_WIDTH/8-1 downto 0);
+       pap_be_n : in std_logic_vector(C_PAP_DATA_WIDTH/8-1 downto 0);
+       pap_data_I : in std_logic_vector(C_PAP_DATA_WIDTH-1 downto 0);
+       pap_gpio_I : in std_logic_vector(1 downto 0);
        phy0_RxDat : in std_logic_vector(1 downto 0);
        phy1_RxDat : in std_logic_vector(1 downto 0);
        phyMii0_RxDat : in std_logic_vector(3 downto 0);
        phyMii1_RxDat : in std_logic_vector(3 downto 0);
        pio_pconfig : in std_logic_vector(3 downto 0);
        pio_portInLatch : in std_logic_vector(3 downto 0);
+       pio_portio_I : in std_logic_vector(31 downto 0);
        MAC_DMA_RNW : out std_logic;
        MAC_DMA_abort : out std_logic;
        MAC_DMA_busLock : out std_logic;
@@ -395,6 +422,7 @@ entity plb_powerlink is
        mac_irq : out std_logic;
        pap_ack : out std_logic;
        pap_ack_n : out std_logic;
+       pap_data_T : out std_logic;
        phy0_Rst_n : out std_logic;
        phy0_SMIClk : out std_logic;
        phy0_SMIDat_O : out std_logic;
@@ -460,15 +488,17 @@ entity plb_powerlink is
        led_opt : out std_logic_vector(1 downto 0);
        led_phyAct : out std_logic_vector(1 downto 0);
        led_phyLink : out std_logic_vector(1 downto 0);
+       pap_data_O : out std_logic_vector(C_PAP_DATA_WIDTH-1 downto 0);
+       pap_gpio_O : out std_logic_vector(1 downto 0);
+       pap_gpio_T : out std_logic_vector(1 downto 0);
        phy0_TxDat : out std_logic_vector(1 downto 0);
        phy1_TxDat : out std_logic_vector(1 downto 0);
        phyMii0_TxDat : out std_logic_vector(3 downto 0);
        phyMii1_TxDat : out std_logic_vector(3 downto 0);
        pio_portOutValid : out std_logic_vector(3 downto 0);
-       test_port : out std_logic_vector(255 downto 0) := (others => '0');
-       pap_data : inout std_logic_vector(papDataWidth_g-1 downto 0);
-       pap_gpio : inout std_logic_vector(1 downto 0);
-       pio_portio : inout std_logic_vector(31 downto 0)
+       pio_portio_O : out std_logic_vector(31 downto 0);
+       pio_portio_T : out std_logic_vector(31 downto 0);
+       test_port : out std_logic_vector(255 downto 0) := (others => '0')
   );
 end plb_powerlink;
 
@@ -562,7 +592,9 @@ component powerlink
        endian_g : string := "little";
        genABuf1_g : boolean := true;
        genABuf2_g : boolean := true;
+       genEvent_g : boolean := false;
        genInternalAp_g : boolean := true;
+       genIoBuf_g : boolean := true;
        genLedGadget_g : boolean := false;
        genOnePdiClkDomain_g : boolean := false;
        genPdi_g : boolean := true;
@@ -570,6 +602,7 @@ component powerlink
        genSmiIO : boolean := true;
        genSpiAp_g : boolean := false;
        genTimeSync_g : boolean := false;
+       gen_dma_observer_g : boolean := true;
        iAsyBuf1Size_g : integer := 100;
        iAsyBuf2Size_g : integer := 100;
        iBufSizeLOG2_g : integer := 10;
@@ -634,6 +667,8 @@ component powerlink
        pap_be_n : in std_logic_vector(papDataWidth_g/8-1 downto 0);
        pap_cs : in std_logic;
        pap_cs_n : in std_logic;
+       pap_data_I : in std_logic_vector(papDataWidth_g-1 downto 0) := (others => '0');
+       pap_gpio_I : in std_logic_vector(1 downto 0) := (others => '0');
        pap_rd : in std_logic;
        pap_rd_n : in std_logic;
        pap_wr : in std_logic;
@@ -666,6 +701,7 @@ component powerlink
        phyMii1_TxClk : in std_logic;
        pio_pconfig : in std_logic_vector(3 downto 0);
        pio_portInLatch : in std_logic_vector(3 downto 0);
+       pio_portio_I : in std_logic_vector(31 downto 0) := (others => '0');
        pkt_clk : in std_logic;
        rst : in std_logic;
        rstAp : in std_logic;
@@ -710,6 +746,10 @@ component powerlink
        mbf_waitrequest : out std_logic;
        pap_ack : out std_logic := '0';
        pap_ack_n : out std_logic := '1';
+       pap_data_O : out std_logic_vector(papDataWidth_g-1 downto 0);
+       pap_data_T : out std_logic;
+       pap_gpio_O : out std_logic_vector(1 downto 0);
+       pap_gpio_T : out std_logic_vector(1 downto 0);
        pcp_readdata : out std_logic_vector(31 downto 0) := (others => '0');
        pcp_waitrequest : out std_logic;
        phy0_Rst_n : out std_logic := '1';
@@ -732,6 +772,8 @@ component powerlink
        phyMii1_TxEr : out std_logic := '0';
        pio_operational : out std_logic := '0';
        pio_portOutValid : out std_logic_vector(3 downto 0) := (others => '0');
+       pio_portio_O : out std_logic_vector(31 downto 0);
+       pio_portio_T : out std_logic_vector(31 downto 0);
        smp_readdata : out std_logic_vector(31 downto 0) := (others => '0');
        smp_waitrequest : out std_logic;
        spi_miso : out std_logic := '0';
@@ -1314,27 +1356,30 @@ THE_POWERLINK_IP_CORE : powerlink
   generic map (
        Simulate => false,
        endian_g => "big",
-       genABuf1_g => false,
-       genABuf2_g => false,
-       genInternalAp_g => true,
-       genLedGadget_g => false,
+       genABuf1_g => C_PDI_GEN_ASYNC_BUF_0,
+       genABuf2_g => C_PDI_GEN_ASYNC_BUF_1,
+       genEvent_g => false,
+       genInternalAp_g => C_GEN_PLB_BUS_IF,
+       genIoBuf_g => false,
+       genLedGadget_g => C_PDI_GEN_LED,
        genOnePdiClkDomain_g => false,
-       genPdi_g => genPDI_g,
-       genSimpleIO_g => genSimpleIO_g,
+       genPdi_g => C_GEN_PDI,
+       genSimpleIO_g => C_GEN_SIMPLE_IO,
        genSmiIO => false,
-       genSpiAp_g => genSPIAp_g,
-       genTimeSync_g => false,
-       iAsyBuf1Size_g => 100,
-       iAsyBuf2Size_g => 100,
+       genSpiAp_g => C_GEN_SPI_IF,
+       genTimeSync_g => C_PDI_GEN_TIME_SYNC,
+       gen_dma_observer_g => true,
+       iAsyBuf1Size_g => C_PDI_ASYNC_BUF_0,
+       iAsyBuf2Size_g => C_PDI_ASYNC_BUF_1,
        iBufSizeLOG2_g => C_MAC_PKT_SIZE_LOG2,
        iBufSize_g => C_MAC_PKT_SIZE,
        iPdiRev_g => 21930,
-       iRpdo0BufSize_g => 100,
-       iRpdo1BufSize_g => 100,
-       iRpdo2BufSize_g => 100,
-       iRpdos_g => 3,
-       iTpdoBufSize_g => 100,
-       iTpdos_g => 1,
+       iRpdo0BufSize_g => C_PDI_RPDO_BUF_SIZE,
+       iRpdo1BufSize_g => C_PDI_RPDO_BUF_SIZE,
+       iRpdo2BufSize_g => C_PDI_RPDO_BUF_SIZE,
+       iRpdos_g => C_PDI_NUM_RPDO,
+       iTpdoBufSize_g => C_PDI_TPDO_BUF_SIZE,
+       iTpdos_g => C_PDI_NUM_TPDO,
        m_burstcount_const_g => true,
        m_burstcount_width_g => C_M_BURSTCOUNT_WIDTH,
        m_data_width_g => 32,
@@ -1342,14 +1387,14 @@ THE_POWERLINK_IP_CORE : powerlink
        m_rx_fifo_size_g => C_M_FIFO_SIZE,
        m_tx_burst_size_g => C_MAC_DMA_BURST_SIZE/4,
        m_tx_fifo_size_g => C_M_FIFO_SIZE,
-       papBigEnd_g => false,
-       papDataWidth_g => papDataWidth_g,
-       papLowAct_g => false,
-       pioValLen_g => 50,
-       spiBigEnd_g => false,
-       spiCPHA_g => false,
-       spiCPOL_g => false,
-       use2ndCmpTimer_g => false,
+       papBigEnd_g => C_PAP_BIG_END,
+       papDataWidth_g => C_PAP_DATA_WIDTH,
+       papLowAct_g => C_PAP_LOW_ACT,
+       pioValLen_g => C_PIO_VAL_LENGTH,
+       spiBigEnd_g => C_SPI_BIG_END,
+       spiCPHA_g => C_SPI_CPHA,
+       spiCPOL_g => C_SPI_CPOL,
+       use2ndCmpTimer_g => C_PDI_GEN_SECOND_TIMER,
        use2ndPhy_g => C_USE_2ND_PHY,
        useHwAcc_g => false,
        useIntPacketBuf_g => C_MAC_PKT_EN,
@@ -1450,12 +1495,16 @@ THE_POWERLINK_IP_CORE : powerlink
        pap_ack => pap_ack,
        pap_ack_n => pap_ack_n,
        pap_addr => pap_addr,
-       pap_be => pap_be( papDataWidth_g/8-1 downto 0 ),
-       pap_be_n => pap_be_n( papDataWidth_g/8-1 downto 0 ),
+       pap_be => pap_be( C_PAP_DATA_WIDTH/8-1 downto 0 ),
+       pap_be_n => pap_be_n( C_PAP_DATA_WIDTH/8-1 downto 0 ),
        pap_cs => pap_cs,
        pap_cs_n => pap_cs_n,
-       pap_data => pap_data( papDataWidth_g-1 downto 0 ),
-       pap_gpio => pap_gpio,
+       pap_data_I => pap_data_I( C_PAP_DATA_WIDTH-1 downto 0 ),
+       pap_data_O => pap_data_O( C_PAP_DATA_WIDTH-1 downto 0 ),
+       pap_data_T => pap_data_T,
+       pap_gpio_I => pap_gpio_I,
+       pap_gpio_O => pap_gpio_O,
+       pap_gpio_T => pap_gpio_T,
        pap_rd => pap_rd,
        pap_rd_n => pap_rd_n,
        pap_wr => pap_wr,
@@ -1510,7 +1559,9 @@ THE_POWERLINK_IP_CORE : powerlink
        pio_pconfig => pio_pconfig,
        pio_portInLatch => pio_portInLatch,
        pio_portOutValid => pio_portOutValid,
-       pio_portio => pio_portio,
+       pio_portio_I => pio_portio_I,
+       pio_portio_O => pio_portio_O,
+       pio_portio_T => pio_portio_T,
        pkt_clk => pkt_clk,
        rst => rst,
        rstAp => rstAp,
@@ -1765,7 +1816,7 @@ begin
     );
 end generate g1;
 
-g3 : if genPdi_g generate
+g3 : if (C_GEN_PDI) generate
 begin
   U3 : plbv46_slave_single
     generic map (
@@ -1838,7 +1889,7 @@ begin
     );
 end generate g3;
 
-g4 : if genPLBAp_g generate
+g4 : if (C_GEN_PLB_BUS_IF) generate
 begin
   U4 : plbv46_slave_single
     generic map (
@@ -1911,7 +1962,7 @@ begin
     );
 end generate g4;
 
-g5 : if genSimpleIO_g generate
+g5 : if (C_GEN_SIMPLE_IO) generate
 begin
   U5 : plbv46_slave_single
     generic map (

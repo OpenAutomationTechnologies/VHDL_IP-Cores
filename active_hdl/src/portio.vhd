@@ -40,6 +40,7 @@
 -- 2010-11-23	V0.03	zelenkaj	Added Operational Flag to portio
 --									Added counter for valid assertion duration
 -- 2010-04-20	V0.10	zelenkaj	Added synchronizer at inputs
+-- 2011-12-02	V0.11	zelenkaj	Added I, O and T instead of IO ports
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -49,7 +50,8 @@ USE ieee.std_logic_unsigned.all;
 
 entity portio is
 	generic (
-		pioValLen_g 	:		integer := 50 --clock ticks of pcp_clk
+		pioValLen_g 	:		integer := 50; --clock ticks of pcp_clk
+		pioGenIoBuf_g	:		boolean := true
 	);
 	port (
 		s0_address    	: in    std_logic;
@@ -65,6 +67,9 @@ entity portio is
 		x_portInLatch	: in 	std_logic_vector(3 downto 0);
 		x_portOutValid 	: out 	std_logic_vector(3 downto 0);
 		x_portio     	: inout std_logic_vector(31 downto 0);
+		x_portio_I		: in 	std_logic_vector(31 downto 0) := (others => '0');
+		x_portio_O		: out	std_logic_vector(31 downto 0);
+		x_portio_T		: out	std_logic_vector(31 downto 0);
 		x_operational 	: out 	std_logic
 	);
 end entity portio;
@@ -82,10 +87,22 @@ begin
 	x_operational <= x_operational_s;
 	
 	portGen : for i in 3 downto 0 generate
-		--if port configuration bit is set to '0', the appropriate port-byte is an output
-		x_portio((i+1)*8-1 downto (i+1)*8-8) 	<= sPortOut((i+1)*8-1 downto (i+1)*8-8) when sPortConfig(i) = '0' else (others => 'Z');
-		--if port configuration bit is set to '1', the appropriate port-byte is forwarded to the portio registers for the PCP
-		sPortIn((i+1)*8-1 downto (i+1)*8-8)		<= x_portio((i+1)*8-1 downto (i+1)*8-8) when sPortConfig(i) = '1' else (others => '0');
+		genIoBuf : if pioGenIoBuf_g generate
+		begin
+			--if port configuration bit is set to '0', the appropriate port-byte is an output
+			x_portio((i+1)*8-1 downto (i+1)*8-8) 	<= sPortOut((i+1)*8-1 downto (i+1)*8-8) when sPortConfig(i) = '0' else (others => 'Z');
+			--if port configuration bit is set to '1', the appropriate port-byte is forwarded to the portio registers for the PCP
+			sPortIn((i+1)*8-1 downto (i+1)*8-8)		<= x_portio((i+1)*8-1 downto (i+1)*8-8) when sPortConfig(i) = '1' else (others => '0');
+		end generate;
+		
+		dontGenIoBuf : if not pioGenIoBuf_g generate
+		begin
+			x_portio_O((i+1)*8-1 downto (i+1)*8-8) 	<= sPortOut((i+1)*8-1 downto (i+1)*8-8);
+			sPortIn((i+1)*8-1 downto (i+1)*8-8)		<= x_portio_I((i+1)*8-1 downto (i+1)*8-8);
+			--if port configuration bit is set to '0', the appropriate port-byte is an output ('0')
+			--if port configuration bit is set to '1', the appropriate port-byte is an input ('1')
+			x_portio_T((i+1)*8-1 downto (i+1)*8-8)	<= (others => '0') when sPortConfig(i) = '0' else (others => '1');
+		end generate;
 	end generate;
 	
 	--Avalon interface
