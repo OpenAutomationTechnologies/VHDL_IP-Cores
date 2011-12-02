@@ -1,0 +1,702 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+###############################################################################
+## DISCLAIMER OF LIABILITY
+##
+## This file contains proprietary and confidential information of
+## Xilinx, Inc. ("Xilinx"), that is distributed under a license
+## from Xilinx, and may be used, copied and/or disclosed only
+## pursuant to the terms of a valid license agreement with Xilinx.
+##
+## XILINX IS PROVIDING THIS DESIGN, CODE, OR INFORMATION
+## ("MATERIALS") "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+## EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING WITHOUT
+## LIMITATION, ANY WARRANTY WITH RESPECT TO NONINFRINGEMENT,
+## MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE. Xilinx
+## does not warrant that functions included in the Materials will
+## meet the requirements of Licensee, or that the operation of the
+## Materials will be uninterrupted or error-free, or that defects
+## in the Materials will be corrected. Furthermore, Xilinx does
+## not warrant or make any representations regarding use, or the
+## results of the use, of the Materials in terms of correctness,
+## accuracy, reliability or otherwise.
+##
+## Xilinx products are not designed or intended to be fail-safe,
+## or for use in any application requiring fail-safe performance,
+## such as life-support or safety devices or systems, Class III
+## medical devices, nuclear facilities, applications related to
+## the deployment of airbags, or any other applications that could
+## lead to death, personal injury or severe property or
+## environmental damage (individually and collectively, "critical
+## applications"). Customer assumes the sole risk and liability
+## of any use of Xilinx products in critical applications,
+## subject only to applicable laws and regulations governing
+## limitations on product liability.
+##
+## Copyright 2007, 2009 Xilinx, Inc.
+## All rights reserved.
+##
+## This disclaimer and copyright notice must be retained as part
+## of this file at all times.
+##
+###############################################################################
+-->
+
+<!DOCTYPE doc SYSTEM "$XILINX_EDK\hw\XilinxProcessorIPLib\pcores\ipdialog.dtd" [
+	<!-- -->
+	<!-- General -->
+	<!ENTITY ipcore_mode_g '
+	<widget id="ipcore_mode_g">
+		<key>ipcore_mode_g</key>
+		<label>Mode of the Powerlink IP-Core</label>
+		<tip></tip>
+	</widget>
+	'>
+	<!ENTITY C_TX_INT_PKT '
+	<widget id="C_TX_INT_PKT">
+		<key>C_TX_INT_PKT</key>
+		<label>Location of TX Packets</label>
+		<tip></tip>
+	</widget>
+	'>
+	<!ENTITY C_RX_INT_PKT '
+	<widget id="C_RX_INT_PKT">
+		<key>C_RX_INT_PKT</key>
+		<label>Location of RX Packets</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_USE_2ND_PHY '
+	<widget id="C_USE_2ND_PHY">
+		<key>C_USE_2ND_PHY</key>
+		<label>Generate OpenHUB for 2nd Ethernet Port</label>
+		<tip></tip>
+	</widget>
+	'>
+	<!ENTITY C_USE_RMII '
+	<widget id="C_USE_RMII">
+		<key>C_USE_RMII</key>
+		<label>Set Ethernet Port(s) Interface</label>
+		<tip>RMII interface is recommended because it reduces the area usage of the powerlink IP Core</tip>
+	</widget>
+	'>	
+	<!-- PDI -->
+	<!ENTITY C_PDI_NUM_RPDO '
+	<widget id="C_PDI_NUM_RPDO">
+		<key>C_PDI_NUM_RPDO</key>
+		<label>Number of RPDO buffers</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_RPDO_BUF_SIZE '
+	<widget id="C_PDI_RPDO_BUF_SIZE">
+		<key>C_PDI_RPDO_BUF_SIZE</key>
+		<label>RPDO buffer size</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_NUM_TPDO '
+	<widget id="C_PDI_NUM_TPDO">
+		<key>C_PDI_NUM_TPDO</key>
+		<label>Number of TPDO buffers</label>
+		<tip></tip>
+	</widget>
+	'>
+	<!ENTITY C_PDI_TPDO_BUF_SIZE '
+	<widget id="C_PDI_TPDO_BUF_SIZE">
+		<key>C_PDI_TPDO_BUF_SIZE</key>
+		<label>TPDO buffer size</label>
+		<tip></tip>
+	</widget>
+	'>
+
+	<!ENTITY C_PDI_GEN_ASYNC_BUF_0 '
+	<widget id="C_PDI_GEN_ASYNC_BUF_0">
+		<key>C_PDI_GEN_ASYNC_BUF_0</key>
+		<label>Generate asynchronous buffer 0</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_ASYNC_BUF_0 '
+	<widget id="C_PDI_ASYNC_BUF_0">
+		<key>C_PDI_ASYNC_BUF_0</key>
+		<label>Asynchronous buffer 0 size</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_GEN_ASYNC_BUF_1 '
+	<widget id="C_PDI_GEN_ASYNC_BUF_1">
+		<key>C_PDI_GEN_ASYNC_BUF_1</key>
+		<label>Generate asynchronous buffer 1</label>
+		<tip></tip>
+	</widget>
+	'>
+	<!ENTITY C_PDI_ASYNC_BUF_1 '
+	<widget id="C_PDI_ASYNC_BUF_1">
+		<key>C_PDI_ASYNC_BUF_1</key>
+		<label>Asynchronous buffer 1 size</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_GEN_LED '
+	<widget id="C_PDI_GEN_LED">
+		<key>C_PDI_GEN_LED</key>
+		<label>Enable LED outputs</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_GEN_TIME_SYNC '
+	<widget id="C_PDI_GEN_TIME_SYNC">
+		<key>C_PDI_GEN_TIME_SYNC</key>
+		<label>Generate timebase on AP</label>
+		<tip></tip>
+	</widget>
+	'>
+	<!ENTITY C_PDI_GEN_SECOND_TIMER '
+	<widget id="C_PDI_GEN_SECOND_TIMER">
+		<key>C_PDI_GEN_SECOND_TIMER</key>
+		<label>Use low-jitter sync interrupt for AP synchronisation</label>
+		<tip></tip>
+	</widget>
+	'>		
+	
+	<!-- Parallel interface -->
+	<!ENTITY C_PAP_LOW_ACT '
+	<widget id="C_PAP_LOW_ACT">
+		<key>C_PAP_LOW_ACT</key>
+		<label>Parallel Interface Polarity</label>
+		<tip></tip>
+	</widget>
+	'>
+	<!ENTITY C_PAP_DATA_WIDTH '
+	<widget id="C_PAP_DATA_WIDTH">
+		<key>C_PAP_DATA_WIDTH</key>
+		<label>Data width of the parallel interface</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PAP_BIG_END '
+	<widget id="C_PAP_BIG_END">
+		<key>C_PAP_BIG_END</key>
+		<label>Parallel Interface Big Endian</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!-- SPI interface -->
+	<!ENTITY C_SPI_BIG_END '
+	<widget id="C_SPI_BIG_END">
+		<key>C_SPI_BIG_END</key>
+		<label>SPI Interface Big Endian</label>
+		<tip></tip>
+	</widget>
+	'>
+	<!ENTITY C_SPI_CPHA '
+	<widget id="C_SPI_CPHA">
+		<key>C_SPI_CPHA</key>
+		<label>SPI in CPHA mode</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_SPI_CPOL '
+	<widget id="C_SPI_CPOL">
+		<key>C_SPI_CPOL</key>
+		<label>SPI in CPOL mode</label>
+		<tip></tip>
+	</widget>
+	'>	
+	<!-- Simple IO -->
+	<!ENTITY C_PIO_VAL_LENGTH '
+	<widget id="C_PIO_VAL_LENGTH">
+		<key>C_PIO_VAL_LENGTH</key>
+		<label>Simple IO value length</label>
+		<tip></tip>
+	</widget>
+	'>		
+	<!-- Base Adresses -->
+	<!ENTITY C_MAC_REG_BASEADDR '
+	<widget id="C_MAC_REG_BASEADDR">
+		<key>C_MAC_REG_BASEADDR</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_REG_HIGHADDR '
+	<widget id="C_MAC_REG_HIGHADDR">
+		<key>C_MAC_REG_HIGHADDR</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_CMP_BASEADDR '
+	<widget id="C_MAC_CMP_BASEADDR">
+		<key>C_MAC_CMP_BASEADDR</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_CMP_HIGHADDR '
+	<widget id="C_MAC_CMP_HIGHADDR">
+		<key>C_MAC_CMP_HIGHADDR</key>
+		<tip></tip>
+	</widget>
+	'>		
+	<!ENTITY C_MAC_PKT_BASEADDR '
+	<widget id="C_MAC_PKT_BASEADDR">
+		<key>C_MAC_PKT_BASEADDR</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_PKT_HIGHADDR '
+	<widget id="C_MAC_PKT_HIGHADDR">
+		<key>C_MAC_PKT_HIGHADDR</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_PCP_BASEADDR '
+	<widget id="C_PDI_PCP_BASEADDR">
+		<key>C_PDI_PCP_BASEADDR</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_PCP_HIGHADDR '
+	<widget id="C_PDI_PCP_HIGHADDR">
+		<key>C_PDI_PCP_HIGHADDR</key>
+		<tip></tip>
+	</widget>
+	'>		
+	
+	<!ENTITY C_PDI_AP_BASEADDR '
+	<widget id="C_PDI_AP_BASEADDR">
+		<key>C_PDI_AP_BASEADDR</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_AP_HIGHADDR '
+	<widget id="C_PDI_AP_HIGHADDR">
+		<key>C_PDI_AP_HIGHADDR</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_SMP_PCP_BASEADDR '
+	<widget id="C_SMP_PCP_BASEADDR">
+		<key>C_SMP_PCP_BASEADDR</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_SMP_PCP_HIGHADDR '
+	<widget id="C_SMP_PCP_HIGHADDR">
+		<key>C_SMP_PCP_HIGHADDR</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!-- MAC DMA -->
+	<!ENTITY C_MAC_DMA_BURST_SIZE '
+	<widget id="C_MAC_DMA_BURST_SIZE">
+		<key>C_MAC_DMA_BURST_SIZE</key>
+		<tip></tip>
+	</widget>
+	'>		
+	
+	<!ENTITY C_MAC_DMA_FIFO_SIZE '
+	<widget id="C_MAC_DMA_FIFO_SIZE">
+		<key>C_MAC_DMA_FIFO_SIZE</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_DMA_PLB_NATIVE_DWIDTH '
+	<widget id="C_MAC_DMA_PLB_NATIVE_DWIDTH">
+		<key>C_MAC_DMA_PLB_NATIVE_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_DMA_PLB_AWIDTH '
+	<widget id="C_MAC_DMA_PLB_AWIDTH">
+		<key>C_MAC_DMA_PLB_AWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_DMA_PLB_DWIDTH '
+	<widget id="C_MAC_DMA_PLB_DWIDTH">
+		<key>C_MAC_DMA_PLB_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	
+	<!-- MAC REG PLB -->
+		<!ENTITY C_MAC_REG_PLB_DWIDTH '
+	<widget id="C_MAC_REG_PLB_DWIDTH">
+		<key>C_MAC_REG_PLB_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>		
+	
+	<!ENTITY C_MAC_REG_PLB_AWIDTH '
+	<widget id="C_MAC_REG_PLB_AWIDTH">
+		<key>C_MAC_REG_PLB_AWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_REG_PLB_NUM_MASTERS '
+	<widget id="C_MAC_REG_PLB_NUM_MASTERS">
+		<key>C_MAC_REG_PLB_NUM_MASTERS</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_REG_PLB_MID_WIDTH '
+	<widget id="C_MAC_REG_PLB_MID_WIDTH">
+		<key>C_MAC_REG_PLB_MID_WIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_REG_PLB_P2P '
+	<widget id="C_MAC_REG_PLB_P2P">
+		<key>C_MAC_REG_PLB_P2P</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_REG_PLB_NATIVE_DWIDTH '
+	<widget id="C_MAC_REG_PLB_NATIVE_DWIDTH">
+		<key>C_MAC_REG_PLB_NATIVE_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_REG_PLB_SUPPORT_BURSTS '
+	<widget id="C_MAC_REG_PLB_SUPPORT_BURSTS">
+		<key>C_MAC_REG_PLB_SUPPORT_BURSTS</key>
+		<tip></tip>
+	</widget>
+	'>	
+	
+	<!-- MAC PKG PLB -->
+		<!ENTITY C_MAC_PKT_PLB_DWIDTH '
+	<widget id="C_MAC_PKT_PLB_DWIDTH">
+		<key>C_MAC_PKT_PLB_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>		
+	
+	<!ENTITY C_MAC_PKT_PLB_AWIDTH '
+	<widget id="C_MAC_PKT_PLB_AWIDTH">
+		<key>C_MAC_PKT_PLB_AWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_PKT_PLB_NUM_MASTERS '
+	<widget id="C_MAC_PKT_PLB_NUM_MASTERS">
+		<key>C_MAC_PKT_PLB_NUM_MASTERS</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_PKT_PLB_MID_WIDTH '
+	<widget id="C_MAC_PKT_PLB_MID_WIDTH">
+		<key>C_MAC_PKT_PLB_MID_WIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_PKT_PLB_P2P '
+	<widget id="C_MAC_PKT_PLB_P2P">
+		<key>C_MAC_PKT_PLB_P2P</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_PKT_PLB_NATIVE_DWIDTH '
+	<widget id="C_MAC_PKT_PLB_NATIVE_DWIDTH">
+		<key>C_MAC_PKT_PLB_NATIVE_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_PKT_PLB_SUPPORT_BURSTS '
+	<widget id="C_MAC_PKT_PLB_SUPPORT_BURSTS">
+		<key>C_MAC_PKT_PLB_SUPPORT_BURSTS</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!-- PDI PCP PLB -->
+		<!ENTITY C_PDI_PCP_PLB_DWIDTH '
+	<widget id="C_PDI_PCP_PLB_DWIDTH">
+		<key>C_PDI_PCP_PLB_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>		
+	
+	<!ENTITY C_PDI_PCP_PLB_AWIDTH '
+	<widget id="C_PDI_PCP_PLB_AWIDTH">
+		<key>C_PDI_PCP_PLB_AWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_PCP_PLB_NUM_MASTERS '
+	<widget id="C_PDI_PCP_PLB_NUM_MASTERS">
+		<key>C_PDI_PCP_PLB_NUM_MASTERS</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_PCP_PLB_MID_WIDTH '
+	<widget id="C_PDI_PCP_PLB_MID_WIDTH">
+		<key>C_PDI_PCP_PLB_MID_WIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_PCP_PLB_P2P '
+	<widget id="C_PDI_PCP_PLB_P2P">
+		<key>C_PDI_PCP_PLB_P2P</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_PCP_PLB_NATIVE_DWIDTH '
+	<widget id="C_PDI_PCP_PLB_NATIVE_DWIDTH">
+		<key>C_PDI_PCP_PLB_NATIVE_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_PCP_PLB_SUPPORT_BURSTS '
+	<widget id="C_PDI_PCP_PLB_SUPPORT_BURSTS">
+		<key>C_PDI_PCP_PLB_SUPPORT_BURSTS</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!-- PDI AP PLB -->
+		<!ENTITY C_PDI_AP_PLB_DWIDTH '
+	<widget id="C_PDI_AP_PLB_DWIDTH">
+		<key>C_PDI_AP_PLB_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>		
+	
+	<!ENTITY C_PDI_AP_PLB_AWIDTH '
+	<widget id="C_PDI_AP_PLB_AWIDTH">
+		<key>C_PDI_AP_PLB_AWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_AP_PLB_NUM_MASTERS '
+	<widget id="C_PDI_AP_PLB_NUM_MASTERS">
+		<key>C_PDI_AP_PLB_NUM_MASTERS</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_AP_PLB_MID_WIDTH '
+	<widget id="C_PDI_AP_PLB_MID_WIDTH">
+		<key>C_PDI_AP_PLB_MID_WIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_AP_PLB_P2P '
+	<widget id="C_PDI_AP_PLB_P2P">
+		<key>C_PDI_AP_PLB_P2P</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_AP_PLB_NATIVE_DWIDTH '
+	<widget id="C_PDI_AP_PLB_NATIVE_DWIDTH">
+		<key>C_PDI_AP_PLB_NATIVE_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_PDI_AP_PLB_SUPPORT_BURSTS '
+	<widget id="C_PDI_AP_PLB_SUPPORT_BURSTS">
+		<key>C_PDI_AP_PLB_SUPPORT_BURSTS</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!-- SMP PCP PLB -->
+		<!ENTITY C_SMP_PCP_PLB_DWIDTH '
+	<widget id="C_SMP_PCP_PLB_DWIDTH">
+		<key>C_SMP_PCP_PLB_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>		
+	
+	<!ENTITY C_SMP_PCP_PLB_AWIDTH '
+	<widget id="C_SMP_PCP_PLB_AWIDTH">
+		<key>C_SMP_PCP_PLB_AWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_SMP_PCP_PLB_NUM_MASTERS '
+	<widget id="C_SMP_PCP_PLB_NUM_MASTERS">
+		<key>C_SMP_PCP_PLB_NUM_MASTERS</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_SMP_PCP_PLB_MID_WIDTH '
+	<widget id="C_SMP_PCP_PLB_MID_WIDTH">
+		<key>C_SMP_PCP_PLB_MID_WIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_SMP_PCP_PLB_P2P '
+	<widget id="C_SMP_PCP_PLB_P2P">
+		<key>C_SMP_PCP_PLB_P2P</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_SMP_PCP_PLB_NATIVE_DWIDTH '
+	<widget id="C_SMP_PCP_PLB_NATIVE_DWIDTH">
+		<key>C_SMP_PCP_PLB_NATIVE_DWIDTH</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_SMP_PCP_PLB_SUPPORT_BURSTS '
+	<widget id="C_SMP_PCP_PLB_SUPPORT_BURSTS">
+		<key>C_SMP_PCP_PLB_SUPPORT_BURSTS</key>
+		<tip></tip>
+	</widget>
+	'>		
+]>
+
+<doc>
+	<view id="User">
+		<display>User</display>
+		<group id="General">
+			<display>General</display>
+			<item>&ipcore_mode_g;</item>			
+		</group>
+		<group id="openMAC">
+			<display>openMAC</display>
+			<item>&C_TX_INT_PKT;</item>
+			<item>&C_RX_INT_PKT;</item>
+			<item>&C_USE_RMII;</item>
+			<item>&C_USE_2ND_PHY;</item>			
+		</group>		
+		<group id="PDI">
+			<display>PDI</display>
+			<item>&C_PDI_NUM_RPDO;</item>
+			<item>&C_PDI_RPDO_BUF_SIZE;</item>
+			<item>&C_PDI_NUM_TPDO;</item>	
+			<item>&C_PDI_TPDO_BUF_SIZE;</item>
+			<item>&C_PDI_GEN_ASYNC_BUF_0;</item>
+			<item>&C_PDI_ASYNC_BUF_0;</item>
+			<item>&C_PDI_GEN_ASYNC_BUF_1;</item>	
+			<item>&C_PDI_ASYNC_BUF_1;</item>
+			<item>&C_PDI_GEN_LED;</item>
+			<item>&C_PDI_GEN_TIME_SYNC;</item>	
+			<item>&C_PDI_GEN_SECOND_TIMER;</item>					
+		</group>		
+		<group id="Parallel_IF">
+			<display>Parallel interface</display>
+			<item>&C_PAP_LOW_ACT;</item>
+			<item>&C_PAP_DATA_WIDTH;</item>	
+			<item>&C_PAP_BIG_END;</item>
+		</group>
+		<group id="SPI_IF">
+			<display>SPI interface</display>
+			<item>&C_SPI_BIG_END;</item>
+			<item>&C_SPI_CPHA;</item>	
+			<item>&C_SPI_CPOL;</item>
+		</group>
+		<group id="SIMPLE_IO">
+			<display>Simple IO</display>
+			<item>&C_PIO_VAL_LENGTH;</item>
+		</group>
+	</view>
+
+	<view id="System">
+		<display>System</display>
+		<group id="Addresses">
+			<display>Addresses</display>
+			<item>&C_MAC_REG_BASEADDR;</item>
+			<item>&C_MAC_REG_HIGHADDR;</item>
+			<item>&C_MAC_CMP_BASEADDR;</item>
+			<item>&C_MAC_CMP_HIGHADDR;</item>
+			<item>&C_MAC_PKT_BASEADDR;</item>
+			<item>&C_MAC_PKT_HIGHADDR;</item>
+			<item>&C_PDI_PCP_BASEADDR;</item>
+			<item>&C_PDI_PCP_HIGHADDR;</item>
+			<item>&C_PDI_AP_BASEADDR;</item>
+			<item>&C_PDI_AP_HIGHADDR;</item>
+			<item>&C_SMP_PCP_BASEADDR;</item>
+			<item>&C_SMP_PCP_HIGHADDR;</item>
+
+		</group>
+		<group id="MAC_DMA">
+			<display>MAC DMA</display>
+			<item>&C_MAC_DMA_BURST_SIZE;</item>
+			<item>&C_MAC_DMA_FIFO_SIZE;</item>
+			<item>&C_MAC_DMA_PLB_NATIVE_DWIDTH;</item> 
+			<item>&C_MAC_DMA_PLB_AWIDTH;</item>
+			<item>&C_MAC_DMA_PLB_DWIDTH;</item>
+		</group>
+		<group id="MAC_REG_PLB">
+			<display>MAC REG PLB</display>
+			<item>&C_MAC_REG_PLB_DWIDTH;</item>
+			<item>&C_MAC_REG_PLB_AWIDTH;</item>
+			<item>&C_MAC_REG_PLB_NUM_MASTERS;</item> 
+			<item>&C_MAC_REG_PLB_MID_WIDTH;</item>
+			<item>&C_MAC_REG_PLB_P2P;</item>
+			<item>&C_MAC_REG_PLB_NATIVE_DWIDTH;</item>
+			<item>&C_MAC_REG_PLB_SUPPORT_BURSTS;</item>
+		</group>
+		<group id="MAC_PKG_PLB">
+			<display>MAC PKT PLB</display>
+			<item>&C_MAC_PKT_PLB_DWIDTH;</item>
+			<item>&C_MAC_PKT_PLB_AWIDTH;</item>
+			<item>&C_MAC_PKT_PLB_NUM_MASTERS;</item> 
+			<item>&C_MAC_PKT_PLB_MID_WIDTH;</item>
+			<item>&C_MAC_PKT_PLB_P2P;</item>
+			<item>&C_MAC_PKT_PLB_NATIVE_DWIDTH;</item>
+			<item>&C_MAC_PKT_PLB_SUPPORT_BURSTS;</item>
+		</group>
+		<group id="PDI_PCP_PLB">
+			<display>PDI PCP PLB</display>
+			<item>&C_PDI_PCP_PLB_DWIDTH;</item>
+			<item>&C_PDI_PCP_PLB_AWIDTH;</item>
+			<item>&C_PDI_PCP_PLB_NUM_MASTERS;</item> 
+			<item>&C_PDI_PCP_PLB_MID_WIDTH;</item>
+			<item>&C_PDI_PCP_PLB_P2P;</item>
+			<item>&C_PDI_PCP_PLB_NATIVE_DWIDTH;</item>
+			<item>&C_PDI_PCP_PLB_SUPPORT_BURSTS;</item>
+		</group>
+		<group id="PDI_AP_PLB">
+			<display>PDI AP PLB</display>
+			<item>&C_PDI_AP_PLB_DWIDTH;</item>
+			<item>&C_PDI_AP_PLB_AWIDTH;</item>
+			<item>&C_PDI_AP_PLB_NUM_MASTERS;</item> 
+			<item>&C_PDI_AP_PLB_MID_WIDTH;</item>
+			<item>&C_PDI_AP_PLB_P2P;</item>
+			<item>&C_PDI_AP_PLB_NATIVE_DWIDTH;</item>
+			<item>&C_PDI_AP_PLB_SUPPORT_BURSTS;</item>
+		</group>
+		<group id="SMP_PCP_PLB">
+			<display>SMP PCP PLB</display>
+			<item>&C_SMP_PCP_PLB_DWIDTH;</item>
+			<item>&C_SMP_PCP_PLB_AWIDTH;</item>
+			<item>&C_SMP_PCP_PLB_NUM_MASTERS;</item> 
+			<item>&C_SMP_PCP_PLB_MID_WIDTH;</item>
+			<item>&C_SMP_PCP_PLB_P2P;</item>
+			<item>&C_SMP_PCP_PLB_NATIVE_DWIDTH;</item>
+			<item>&C_SMP_PCP_PLB_SUPPORT_BURSTS;</item>
+		</group>		
+		<!--<group id="Hidden">
+			<display>Hidden</display>
+			<item>&C_FAMILY;</item>
+		</group>-->
+	</view>
+
+		<!--
+        <view id="Wizard">
+                <display>Wizard</display>
+                <group id="All">
+                        <display>All</display>
+                        <item>&G_USE_INTERRUPT;</item>
+                </group>
+				
+                <group id="Hidden">
+                        <display>Hidden</display>
+                        <item>
+                           <widget id="DataWidth_Combo">
+                             <key>C_GPIO_WIDTH</key>
+                             <label>GPIO Data Width</label>
+                             <tip>GPIO Data Width</tip>
+                           </widget>
+                        </item>
+                        <item>
+                           <widget id="AllPinInput_Check">
+                             <key>G_ALL_INPUTS</key>
+                             <label>Data pins are all inputs</label>
+                             <tip>Data pins are all inputs</tip>
+                             <value type="bool" default="false" />
+                           </widget>
+                        </item>
+                </group>
+        </view>
+		-->
+</doc>

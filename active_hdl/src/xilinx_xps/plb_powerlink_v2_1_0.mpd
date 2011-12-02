@@ -37,7 +37,7 @@
 #------------------------------------------------------------------------------------------------------------------------
 #-- 2011-11-16	V0.01	zelenkaj	converted to first stable solution with MAC-layer only		   
 #-- 2011-11-25	V0.02	mairt		removed MAC_CMP to reduce resource utilization
-#-- 2011-11-28	V0.03	mairt		added bus interface for pdi pcp and pdi ap
+#-- 2011-11-28	V0.03	mairt		added bus interface for pdi pcp, pdi ap and simple io
 #------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
@@ -52,7 +52,9 @@ OPTION ARCH_SUPPORT_MAP = (others=DEVELOPMENT)
 
 IO_INTERFACE IO_IF = PHY0, IO_TYPE = XIL_Ethernet_V1
 IO_INTERFACE IO_IF = PHY1, IO_TYPE = XIL_Ethernet_V1
-
+IO_INTERFACE IO_IF = PORTIO, IO_TYPE = XIL_GPIO_V1, ISVALID = (ipcore_mode_g == 0)
+IO_INTERFACE IO_IF = PAP, IO_TYPE = XIL_GPIO_V1, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 2)
+IO_INTERFACE IO_IF = SPI, IO_TYPE = XIL_GPIO_V1, ISVALID = (ipcore_mode_g == 3)
 
 ## Bus Interfaces
 ### openMAC DMA (optional)
@@ -62,20 +64,45 @@ BUS_INTERFACE BUS = MAC_REG, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = TRUE
 ### openMAC PKT (optional)
 BUS_INTERFACE BUS = MAC_PKT, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (C_TX_INT_PKT || C_RX_INT_PKT)
 ### PDI PCP (optional)
-BUS_INTERFACE BUS = PDI_PCP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = genPDI_g
+BUS_INTERFACE BUS = PDI_PCP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (ipcore_mode_g > 0 && ipcore_mode_g < 5)
 ### PDI AP (optional)
-BUS_INTERFACE BUS = PDI_AP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = genPLBAP_g	  
+BUS_INTERFACE BUS = PDI_AP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (ipcore_mode_g == 4)	  
 ### SimpleIO PCP (optional)
-BUS_INTERFACE BUS = SMP_PCP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = genSimpleIO_g
+BUS_INTERFACE BUS = SMP_PCP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (ipcore_mode_g == 0)
 
-## Generics for VHDL
+## GUI parameters
+PARAMETER ipcore_mode_g = 0, DT = INTEGER, DESC = "Mode of the Powerlink IP-Core", TYPE = NON_HDL, RANGE = (0,1,3,4,5), VALUES = (0 = DirectIO, 1 = "Parallel interface", 3 = SPI, 4 = "PLB bus", 5 = "openMAC only") 
+## Generics for VHDL		
+PARAMETER genPDI_g = FALSE, DT = BOOLEAN, DESC = "Location of TX Packets"																	
 PARAMETER C_TX_INT_PKT = FALSE, DT = BOOLEAN, DESC = "Location of TX Packets", VALUES = (FALSE = EXT, TRUE = BRAM)
 PARAMETER C_RX_INT_PKT = FALSE, DT = BOOLEAN, DESC = "Location of RX Packets", VALUES = (FALSE = EXT, TRUE = BRAM)
 PARAMETER C_USE_RMII = TRUE, DT = BOOLEAN, DESC = "Set Ethernet Port(s) Interface", VALUES = (FALSE = MII, TRUE = RMII)
-PARAMETER C_USE_2ND_PHY = TRUE, DT = BOOLEAN, DESC = "Generate OpenHUB for 2nd Ethernet Port"		
-PARAMETER genPDI_g = FALSE, DT = BOOLEAN, DESC = "Generate PDI module"
-PARAMETER genPLBAP_g = FALSE, DT = BOOLEAN, DESC = "Generate PLB for AP"  
-PARAMETER genSimpleIO_g = FALSE, DT = BOOLEAN, DESC = "Generate SimpleIO module"
+PARAMETER C_USE_2ND_PHY = TRUE, DT = BOOLEAN, DESC = "Generate OpenHUB for 2nd Ethernet Port"  
+# PDI
+PARAMETER C_PDI_NUM_RPDO = 3, DT = INTEGER,RANGE = (1:3), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
+PARAMETER C_PDI_RPDO_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
+PARAMETER C_PDI_NUM_TPDO = 1, DT = INTEGER,	RANGE = (1), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
+PARAMETER C_PDI_TPDO_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
+PARAMETER C_PDI_GEN_ASYNC_BUF_0 = TRUE, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
+PARAMETER C_PDI_ASYNC_BUF_0 = 50, DT = INTEGER,	RANGE = (1:1500), ISVALID = ((ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) && C_PDI_GEN_ASYNC_BUF_0 == TRUE)
+PARAMETER C_PDI_GEN_ASYNC_BUF_1 = TRUE, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
+PARAMETER C_PDI_ASYNC_BUF_1 = 50, DT = INTEGER,	RANGE = (1:1500), ISVALID = ((ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) && C_PDI_GEN_ASYNC_BUF_1 == TRUE)	   
+PARAMETER C_PDI_GEN_LED = false, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)
+PARAMETER C_PDI_GEN_TIME_SYNC = true, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)
+PARAMETER C_PDI_GEN_SECOND_TIMER = false, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)
+
+# Parallel interface	
+PARAMETER C_PAP_LOW_ACT = FALSE, DT = BOOLEAN, VALUES = (FALSE = "High Active", TRUE = "Low Active"), ISVALID = (ipcore_mode_g == 1)
+PARAMETER C_PAP_DATA_WIDTH = 8, DT = INTEGER,	RANGE = (8,16), ISVALID = (ipcore_mode_g == 1) 
+PARAMETER C_PAP_BIG_END = FALSE, DT = BOOLEAN, VALUES = (FALSE = "Little Endian", TRUE = "Big Endian"), ISVALID = (ipcore_mode_g == 1)
+# SPI interface				  
+PARAMETER C_SPI_CPOL = FALSE, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 3)
+PARAMETER C_SPI_CPHA = FALSE, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 3) 
+PARAMETER C_SPI_BIG_END = FALSE, DT = BOOLEAN, VALUES = (FALSE = "Little Endian", TRUE = "Big Endian"), ISVALID = (ipcore_mode_g == 3)
+# Simple IO	
+PARAMETER C_PIO_VAL_LENGTH = 50, DT = INTEGER, ISVALID = (ipcore_mode_g == 0)
+
+
 ### openMAC DMA
 PARAMETER C_MAC_DMA_BURST_SIZE = 32, DT = INTEGER, DESC = "MAC DMA Burst Size in Byte", RANGE = (4,8,16,24,32,40,48,56,64)
 PARAMETER C_MAC_DMA_FIFO_SIZE = 128, DT = INTEGER, DESC = "MAC DMA TX/RX FIFO Size in Byte", RANGE = (C_MAC_DMA_BURST_SIZE*2,C_MAC_DMA_BURST_SIZE*3,C_MAC_DMA_BURST_SIZE*4)
@@ -105,8 +132,8 @@ PARAMETER C_MAC_PKT_PLB_P2P = 0, DT = INTEGER, BUS = MAC_PKT, ASSIGNMENT = CONST
 PARAMETER C_MAC_PKT_PLB_NATIVE_DWIDTH = 32, DT = INTEGER, BUS = MAC_PKT, ASSIGNMENT = CONSTANT
 PARAMETER C_MAC_PKT_PLB_SUPPORT_BURSTS = 0, DT = INTEGER, BUS = MAC_PKT, ASSIGNMENT = CONSTANT			 
 ### PDI PCP
-PARAMETER C_PDI_PCP_BASEADDR = 0xffffffff, DT = std_logic_vector, BUS = PDI_PCP, ADDRESS = BASE, PAIR = C_PDI_PCP_HIGHADDR, MIN_SIZE = 0x8000, ASSIGNMENT = REQUIRE, ISVALID = genPDI_g
-PARAMETER C_PDI_PCP_HIGHADDR = 0x00000000, DT = std_logic_vector, BUS = PDI_PCP, ADDRESS = HIGH, PAIR = C_PDI_PCP_BASEADDR, ASSIGNMENT = REQUIRE, ISVALID = genPDI_g
+PARAMETER C_PDI_PCP_BASEADDR = 0xffffffff, DT = std_logic_vector, BUS = PDI_PCP, ADDRESS = BASE, PAIR = C_PDI_PCP_HIGHADDR, MIN_SIZE = 0x8000, ASSIGNMENT = REQUIRE, ISVALID = (ipcore_mode_g > 0 && ipcore_mode_g < 5)
+PARAMETER C_PDI_PCP_HIGHADDR = 0x00000000, DT = std_logic_vector, BUS = PDI_PCP, ADDRESS = HIGH, PAIR = C_PDI_PCP_BASEADDR, ASSIGNMENT = REQUIRE, ISVALID = (ipcore_mode_g > 0 && ipcore_mode_g < 5)
 PARAMETER C_PDI_PCP_PLB_DWIDTH = 32, DT = INTEGER, BUS = PDI_PCP, ASSIGNMENT = CONSTANT
 PARAMETER C_PDI_PCP_PLB_AWIDTH = 32, DT = INTEGER, BUS = PDI_PCP, ASSIGNMENT = CONSTANT
 PARAMETER C_PDI_PCP_PLB_NUM_MASTERS = 1, DT = INTEGER, BUS = PDI_PCP, ASSIGNMENT = CONSTANT
@@ -115,8 +142,8 @@ PARAMETER C_PDI_PCP_PLB_P2P = 0, DT = INTEGER, BUS = PDI_PCP, ASSIGNMENT = CONST
 PARAMETER C_PDI_PCP_PLB_NATIVE_DWIDTH = 32, DT = INTEGER, BUS = PDI_PCP, ASSIGNMENT = CONSTANT
 PARAMETER C_PDI_PCP_PLB_SUPPORT_BURSTS = 0, DT = INTEGER, BUS = PDI_PCP, ASSIGNMENT = CONSTANT	 
 ### PDI AP
-PARAMETER C_PDI_AP_BASEADDR = 0xffffffff, DT = std_logic_vector, BUS = PDI_AP, ADDRESS = BASE, PAIR = C_PDI_AP_HIGHADDR, MIN_SIZE = 0x8000, ASSIGNMENT = REQUIRE, ISVALID = genPLBAP_g
-PARAMETER C_PDI_AP_HIGHADDR = 0x00000000, DT = std_logic_vector, BUS = PDI_AP, ADDRESS = HIGH, PAIR = C_PDI_AP_BASEADDR, ASSIGNMENT = REQUIRE, ISVALID = genPLBAP_g
+PARAMETER C_PDI_AP_BASEADDR = 0xffffffff, DT = std_logic_vector, BUS = PDI_AP, ADDRESS = BASE, PAIR = C_PDI_AP_HIGHADDR, MIN_SIZE = 0x8000, ASSIGNMENT = REQUIRE, ISVALID = (ipcore_mode_g == 4)
+PARAMETER C_PDI_AP_HIGHADDR = 0x00000000, DT = std_logic_vector, BUS = PDI_AP, ADDRESS = HIGH, PAIR = C_PDI_AP_BASEADDR, ASSIGNMENT = REQUIRE, ISVALID = (ipcore_mode_g == 4)
 PARAMETER C_PDI_AP_PLB_DWIDTH = 32, DT = INTEGER, BUS = PDI_AP, ASSIGNMENT = CONSTANT
 PARAMETER C_PDI_AP_PLB_AWIDTH = 32, DT = INTEGER, BUS = PDI_AP, ASSIGNMENT = CONSTANT
 PARAMETER C_PDI_AP_PLB_NUM_MASTERS = 1, DT = INTEGER, BUS = PDI_AP, ASSIGNMENT = CONSTANT
@@ -125,8 +152,8 @@ PARAMETER C_PDI_AP_PLB_P2P = 0, DT = INTEGER, BUS = PDI_AP, ASSIGNMENT = CONSTAN
 PARAMETER C_PDI_AP_PLB_NATIVE_DWIDTH = 32, DT = INTEGER, BUS = PDI_AP, ASSIGNMENT = CONSTANT
 PARAMETER C_PDI_AP_PLB_SUPPORT_BURSTS = 0, DT = INTEGER, BUS = PDI_AP, ASSIGNMENT = CONSTANT	
 ### SimpleIO
-PARAMETER C_SMP_PCP_BASEADDR = 0xffffffff, DT = std_logic_vector, BUS = SMP_PCP, ADDRESS = BASE, PAIR = C_SMP_PCP_HIGHADDR, MIN_SIZE = 0x8, ASSIGNMENT = REQUIRE, ISVALID = genSimpleIO_g
-PARAMETER C_SMP_PCP_HIGHADDR = 0x00000000, DT = std_logic_vector, BUS = SMP_PCP, ADDRESS = HIGH, PAIR = C_SMP_PCP_BASEADDR, ASSIGNMENT = REQUIRE, ISVALID = genSimpleIO_g
+PARAMETER C_SMP_PCP_BASEADDR = 0xffffffff, DT = std_logic_vector, BUS = SMP_PCP, ADDRESS = BASE, PAIR = C_SMP_PCP_HIGHADDR, MIN_SIZE = 0x8, ASSIGNMENT = REQUIRE, ISVALID = (ipcore_mode_g == 0)
+PARAMETER C_SMP_PCP_HIGHADDR = 0x00000000, DT = std_logic_vector, BUS = SMP_PCP, ADDRESS = HIGH, PAIR = C_SMP_PCP_BASEADDR, ASSIGNMENT = REQUIRE, ISVALID = (ipcore_mode_g == 0)
 PARAMETER C_SMP_PCP_PLB_DWIDTH = 32, DT = INTEGER, BUS = SMP_PCP, ASSIGNMENT = CONSTANT
 PARAMETER C_SMP_PCP_PLB_AWIDTH = 32, DT = INTEGER, BUS = SMP_PCP, ASSIGNMENT = CONSTANT
 PARAMETER C_SMP_PCP_PLB_NUM_MASTERS = 1, DT = INTEGER, BUS = SMP_PCP, ASSIGNMENT = CONSTANT
@@ -191,25 +218,34 @@ PORT ap_asyncIrq = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_HIGH
 PORT ap_asyncIrq_n = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_LOW
 
 ### Portio
-PORT pio_pconfig = "", DIR = IN, VEC = [3:0], ISVALID = genSimpleIO_g
-PORT pio_portinlatch = "", DIR = IN, VEC = [3:0], ISVALID = genSimpleIO_g
+PORT pio_pconfig = "", DIR = IN, VEC = [3:0], ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO
+PORT pio_portinlatch = "", DIR = IN, VEC = [3:0], ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO
+PORT pio_portio = "", DIR = INOUT, VEC = [31:0], ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO
+PORT pio_portOutValid = "", DIR = OUT, VEC = [3:0], ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO 
+PORT pio_operational = "", DIR = OUT, ISVALID = (ipcore_mode_g == 0), IO_IF = PORTIO 
+
 
 ### SPI
-PORT spi_clk = "", DIR = IN, ISVALID = FALSE
-PORT spi_mosi = "", DIR = IN, ISVALID = FALSE
-PORT spi_sel_n = "", DIR = IN, ISVALID = FALSE
+PORT spi_clk = "", DIR = IN, IO_IF = SPI, ISVALID = (ipcore_mode_g == 3)
+PORT spi_mosi = "", DIR = IN, IO_IF = SPI, ISVALID = (ipcore_mode_g == 3)
+PORT spi_miso = "", DIR = OUT, IO_IF = SPI, ISVALID = (ipcore_mode_g == 3)
+PORT spi_sel_n = "", DIR = IN, IO_IF = SPI, ISVALID = (ipcore_mode_g == 3)
 
 
 ### Parallel Interface
-PORT pap_cs = "", DIR = IN, ISVALID = FALSE
-PORT pap_cs_n = "", DIR = IN, ISVALID = FALSE
-PORT pap_rd = "", DIR = IN, ISVALID = FALSE
-PORT pap_rd_n = "", DIR = IN, ISVALID = FALSE
-PORT pap_wr = "", DIR = IN, ISVALID = FALSE
-PORT pap_wr_n = "", DIR = IN, ISVALID = FALSE
-PORT pap_addr = "", DIR = IN, VEC = [15:0], ISVALID = FALSE
-PORT pap_be = "", DIR = IN, VEC = [1:0], ISVALID = FALSE
-PORT pap_be_n = "", DIR = IN, VEC = [1:0], ISVALID = FALSE
+PORT pap_cs = "", DIR = IN, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == FALSE)
+PORT pap_cs_n = "", DIR = IN, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == TRUE)
+PORT pap_rd = "", DIR = IN, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == FALSE)
+PORT pap_rd_n = "", DIR = IN, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == TRUE)
+PORT pap_wr = "", DIR = IN, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == FALSE)
+PORT pap_wr_n = "", DIR = IN, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == TRUE)
+PORT pap_addr = "", DIR = IN, IO_IF = PAP, VEC = [15:0], ISVALID = ipcore_mode_g == 1
+PORT pap_data = "", DIR = INOUT, IO_IF = PAP, VEC = [C_PAP_DATA_WIDTH-1:0], ISVALID = (ipcore_mode_g == 1)
+PORT pap_be = "", DIR = IN, IO_IF = PAP, VEC = [(C_PAP_DATA_WIDTH/8)-1:0], ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == FALSE)
+PORT pap_be_n = "", DIR = IN, IO_IF = PAP, VEC = [(C_PAP_DATA_WIDTH/8)-1:0], ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == TRUE)
+PORT pap_ack = "", DIR = OUT, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == FALSE)
+PORT pap_ack_n = "", DIR = OUT, IO_IF = PAP, ISVALID = (ipcore_mode_g == 1 && C_PAP_LOW_ACT == TRUE)
+PORT pap_gpio = "", DIR = INOUT, IO_IF = PAP, VEC = [1:0], ISVALID = (ipcore_mode_g == 1)
 
 ### openMAC DMA
 PORT MAC_DMA_Clk = "", DIR = I, SIGIS = CLK, BUS = MAC_DMA
