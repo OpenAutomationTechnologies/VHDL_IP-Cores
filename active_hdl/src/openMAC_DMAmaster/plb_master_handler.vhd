@@ -46,6 +46,7 @@
 -------------------------------------------------------------------------------
 --
 -- 2011-08-03  	V0.01	zelenkaj    First version
+-- 2011-12-01	V0.02	zelenkaj	Fixed read transfer error (dst_rdy_n earlier)
 --
 -------------------------------------------------------------------------------
 
@@ -169,8 +170,16 @@ begin
 	begin
 		if rst = '1' then
 			mst_write_req <= '0'; mst_read_req <= '0';
+			MAC_DMA2Bus_MstRd_dst_rdy_n <= '1';
 		elsif rising_edge(clk) then
 			mst_write_req <= mst_write_req_next; mst_read_req <= mst_read_req_next;
+			
+			if m_read_s = '1' then
+				MAC_DMA2Bus_MstRd_dst_rdy_n <= '0';
+			elsif rd_tran = eof and MAC_DMA2Bus_MstRd_src_rdy_n = '0' then
+				MAC_DMA2Bus_MstRd_dst_rdy_n <= '1';
+			end if;
+	    			
 		end if;
 	end process;
 	
@@ -230,12 +239,13 @@ begin
 	MAC_DMA2Bus_MstWr_rem <= (others => '0'); --no support
 	
 	--set read qualifiers
-	MAC_DMA2Bus_MstRd_dst_rdy_n <= '0' when rd_tran /= idle and rd_tran /= wait4cmplt else '1';
+	--MAC_DMA2Bus_MstRd_dst_rdy_n <= '0' when rd_tran /= idle and rd_tran /= wait4cmplt else '1';
 	MAC_DMA2Bus_MstRd_dst_dsc_n <= '1'; --no support
 	
 	--connect ipif with avalon
 	m_waitrequest <= --waitrequest if not ready or no write active
-		not m_write when Bus2MAC_DMA_MstWr_dst_rdy_n = '0' or (mst_read_req = '1' and Bus2MAC_DMA_Mst_CmdAck = '1') else '1';
+		not m_write when Bus2MAC_DMA_MstWr_dst_rdy_n = '0' else
+		not m_read when mst_read_req = '1' and Bus2MAC_DMA_Mst_CmdAck = '1' else '1';
 	
 	m_readdatavalid <= not Bus2MAC_DMA_MstRd_src_rdy_n;
 	
