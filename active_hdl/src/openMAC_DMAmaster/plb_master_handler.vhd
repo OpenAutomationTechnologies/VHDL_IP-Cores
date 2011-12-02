@@ -176,7 +176,7 @@ begin
 			
 			if m_read_s = '1' then
 				MAC_DMA2Bus_MstRd_dst_rdy_n <= '0';
-			elsif rd_tran = eof and MAC_DMA2Bus_MstRd_src_rdy_n = '0' then
+			elsif rd_tran = eof and Bus2MAC_DMA_MstRd_src_rdy_n = '0' then
 				MAC_DMA2Bus_MstRd_dst_rdy_n <= '1';
 			end if;
 	    			
