@@ -48,6 +48,7 @@
 -- 2011-11-28	V0.44	zelenkaj	Changed reset level to high-active
 --									Clean up
 --									Added Dma qualifiers (Rd/Wr done)
+-- 2011-12-02	V0.45	zelenkaj	Added Dma Request Overflow
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -76,6 +77,7 @@ ENTITY OpenMAC IS
 		   Dma_Wr_Done				: OUT	std_logic;
            Dma_Req, Dma_Rw          : OUT   std_logic;
            Dma_Ack                  : IN    std_logic;
+		   Dma_Req_Overflow			: OUT	std_logic;
            Dma_Addr                 : OUT   std_logic_vector(HighAdr DOWNTO 1);
            Dma_Dout                 : OUT   std_logic_vector(15 DOWNTO 0);
            Dma_Din                  : IN    std_logic_vector(15 DOWNTO 0);
@@ -98,6 +100,8 @@ ARCHITECTURE struct OF OpenMAC IS
 	SIGNAL	Zeit						: std_logic_vector(31 DOWNTO 0);	
 	SIGNAL	Tx_Dma_Req,  Rx_Dma_Req		: std_logic;
 	SIGNAL	Tx_Dma_Ack,  Rx_Dma_Ack		: std_logic;
+	SIGNAL	Tx_Dma_Req_Overflow			: std_logic;
+	SIGNAL	Rx_Dma_Req_Overflow			: std_logic;
 	SIGNAL	Tx_Ram_Dat,  Rx_Ram_Dat		: std_logic_vector(15 DOWNTO 0);
 	SIGNAL	Tx_Reg,		 Rx_Reg			: std_logic_vector(15 DOWNTO 0);
 	SIGNAL	Dma_Tx_Addr, Dma_Rx_Addr	: std_logic_vector(Dma_Addr'RANGE);	
@@ -113,6 +117,8 @@ BEGIN
 				Rx_Reg;
 
 	Mac_Zeit <= Zeit;
+	
+	Dma_Req_Overflow <= Tx_Dma_Req_Overflow or Rx_Dma_Req_Overflow;
 
 b_Dma:	BLOCK
 	SIGNAL	Rx_Dma, Tx_Dma	: std_logic;
@@ -409,10 +415,17 @@ bTxDesc:	BLOCK
 	SIGNAL	Tx_Del_Cnt							: std_logic_vector(32 downto 0);
 	 ALIAS	Tx_Del_End							: std_logic is Tx_Del_Cnt(Tx_Del_Cnt'high);
 	SIGNAL	Tx_Del_Run							: std_logic;
+	signal	Tx_Done								: std_logic;
 	
 BEGIN
 
-	Dma_Rd_Done <= '1' when Dsm = sStat or Dsm = sColl else '0';
+	Dma_Rd_Done <= Tx_Done;
+	
+	Tx_Done <= '1' when Dsm = sStat or Dsm = sColl else '0';
+	
+	--Tx_Dsm_Next is used instead of Dsm
+	-- this generates a one-cycle-pulse, since sAdrH state is exit after one cycle
+	Tx_Dma_Req_Overflow <= '1' when Tx_Dsm_Next = sAdrL or (F_Val = '1' and H_Byte = '0') else '0';
 	
 	Ram_Wr    <= '1' WHEN	s_nWr = '0' AND Sel_Ram = '1' AND s_Adr(10) = '1'	ELSE '0';
 	Ram_Be(1) <= '1' WHEN	s_nWr = '1' OR s_nBE(1) = '0'						ELSE '0';
@@ -929,6 +942,9 @@ bRxDesc:	BLOCK
 BEGIN
 	
 	Dma_Wr_Done <= '1' when Dsm /= sIdle and Rx_Dsm_Next = sIdle else '0';
+	
+	Rx_Dma_Req_Overflow <= '1' when (Dsm = sOdd and Rx_Ovr = '0') or 
+				(Dsm = sData and Rx_Ovr = '0' and F_Val = '1' and Rx_Count(0) = '1') else '0';
 	
 	WrDescStat <= '1' WHEN Dsm = sStat	ELSE '0';	
 

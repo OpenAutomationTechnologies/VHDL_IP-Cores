@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_Ethernet.vhd
--- Generated   : Thu Dec  1 13:44:07 2011
+-- Generated   : Fri Dec  2 14:48:18 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -62,6 +62,7 @@
 --					tx_off / rx_off is derived in openMAC
 -- 2011-11-30	V0.07	zelenkaj	Added generic for DMA observer
 --					Fixed generic assignments for DMA master
+-- 2011-12-02	V0.08	zelenkaj	Added Dma Req Overflow
 --
 -------------------------------------------------------------------------------
 
@@ -257,6 +258,7 @@ component OpenMAC
        Dma_Dout : out std_logic_vector(15 downto 0);
        Dma_Rd_Done : out std_logic;
        Dma_Req : out std_logic;
+       Dma_Req_Overflow : out std_logic;
        Dma_Rw : out std_logic;
        Dma_Wr_Done : out std_logic;
        Mac_Zeit : out std_logic_vector(31 downto 0);
@@ -305,6 +307,7 @@ component openMAC_DMAmaster
        dma_addr : in std_logic_vector(dma_highadr_g downto 1);
        dma_clk : in std_logic;
        dma_dout : in std_logic_vector(15 downto 0);
+       dma_req_overflow : in std_logic;
        dma_req_rd : in std_logic;
        dma_req_wr : in std_logic;
        m_clk : in std_logic;
@@ -435,6 +438,7 @@ signal dma_ack_read : std_logic;
 signal dma_ack_rw : std_logic;
 signal dma_ack_write : std_logic;
 signal dma_req : std_logic;
+signal dma_req_overflow : std_logic;
 signal dma_req_read : std_logic;
 signal dma_req_write : std_logic;
 signal dma_rw : std_logic;
@@ -596,6 +600,7 @@ THE_OPENMAC : OpenMAC
        Dma_Dout => dma_dout,
        Dma_Rd_Done => mac_tx_off,
        Dma_Req => dma_req,
+       Dma_Req_Overflow => dma_req_overflow,
        Dma_Rw => dma_rw,
        Dma_Wr_Done => mac_rx_off,
        Hub_Rx => hub_rx,
@@ -1171,6 +1176,7 @@ begin
          dma_din => dma_din_mst,
          dma_dout => dma_dout,
          dma_rd_err => dma_rd_err,
+         dma_req_overflow => dma_req_overflow,
          dma_req_rd => dma_req_read,
          dma_req_wr => dma_req_write,
          dma_wr_err => dma_wr_err,

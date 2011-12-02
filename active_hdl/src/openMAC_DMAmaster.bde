@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 34145
+ FREEID 34189
  VARIABLES
  {
   #ARCHITECTURE="strct"
@@ -570,7 +570,7 @@ HEADER
     #GENERIC4="rx_fifo_word_size_log2_g:NATURAL:=5"
     #GENERIC5="gen_dma_observer_g:BOOLEAN:=true"
     #LANGUAGE="VHDL"
-    #MODIFIED="1322741592"
+    #MODIFIED="1322833625"
    }
   }
   PAGE "" 
@@ -578,7 +578,7 @@ HEADER
    PAGEHEADER
    {
     RECT (0,-20,580,900)
-    FREEID 195
+    FREEID 193
    }
    
    BODY
@@ -790,6 +790,14 @@ HEADER
      ALIGN 6
      MARGINS (1,1)
      PARENT 188
+    }
+    TEXT  191, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,610,185,634)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 190
     }
     PIN  26, 0, 0
     {
@@ -1278,6 +1286,23 @@ HEADER
      LINE  2, 0, 0
      {
       POINTS ( (0,0), (-20,0) )
+     }
+    }
+    PIN  190, 0, 0
+    {
+     COORD (0,620)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="dma_req_overflow"
+      #NUMBER="0"
+      #SIDE="left"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
      }
     }
    }
@@ -2083,6 +2108,7 @@ PAGE ""
 "-- 2011-11-28\tV0.03\tzelenkaj\tAdded DMA observer\n"+
 "-- 2011-11-29\tV0.04\tzelenkaj\tChanged clkXing of Dma Addr\n"+
 "-- 2011-11-30\tV0.05\tzelenkaj\tAdded generic for DMA observer\n"+
+"-- 2011-12-02\tV0.06\tzelenkaj\tAdded Dma Req Overflow\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -3845,8 +3871,8 @@ PAGE "DMA HANDLER"
     #SYMBOL="dma_handler"
    }
    COORD (1260,780)
-   VERTEXES ( (26,33894), (32,33885), (38,33901), (50,33903), (56,33899), (62,33905), (68,33896), (80,33887), (92,33889), (98,33866), (110,33868), (122,33890), (128,33870), (134,33872), (140,33880), (146,33882), (152,33892), (158,33878), (164,33874), (170,33876), (180,33914), (182,33910), (184,33912), (186,33906), (188,33908) )
-   PINPROP 180,"#PIN_STATE","0"
+   VERTEXES ( (26,33894), (32,33885), (38,33901), (50,33903), (56,33899), (62,33905), (68,33896), (80,33887), (92,33889), (98,33866), (110,33868), (122,33890), (128,33870), (134,33872), (140,33880), (146,33882), (152,33892), (158,33878), (164,33874), (170,33876), (180,33914), (182,33910), (184,33912), (186,33906), (188,33908), (190,34168) )
+   PINPROP 190,"#PIN_STATE","0"
   }
   TEXT  3052, 0, 0
   {
@@ -4792,6 +4818,40 @@ PAGE "DMA HANDLER"
     #NAMED="1"
    }
   }
+  INSTANCE  34145, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="dma_req_overflow"
+    #SYMBOL="Input"
+   }
+   COORD (960,1400)
+   VERTEXES ( (2,34167) )
+  }
+  TEXT  34146, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (669,1383,909,1418)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 34145
+  }
+  VTX  34167, 0, 0
+  {
+   COORD (960,1400)
+  }
+  VTX  34168, 0, 0
+  {
+   COORD (1260,1400)
+  }
+  WIRE  34170, 0, 0
+  {
+   NET 34171
+   VTX 34167, 34168
+  }
+  NET WIRE  34171, 0, 0
  }
  
 }
@@ -7858,7 +7918,7 @@ PAGE ""
  
  BODY
  {
-  TEXT  34128, 0, 0
+  TEXT  34172, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7869,7 +7929,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34129, 0, 0
+  TEXT  34173, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -7880,7 +7940,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  34130, 0, 0
+  TEXT  34174, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -7890,7 +7950,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34131, 0, 0
+  TEXT  34175, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7902,7 +7962,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  34132, 0, 0
+  TEXT  34176, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -7916,7 +7976,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  34133, 0, 0
+  TEXT  34177, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -7926,7 +7986,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34134, 0, 0
+  TEXT  34178, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7938,7 +7998,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  34135, 0, 0
+  TEXT  34179, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -7948,7 +8008,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34136, 0, 0
+  TEXT  34180, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -7959,7 +8019,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  34137, 0, 0
+  GROUP  34181, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -7971,7 +8031,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34138, 0, 0
+  GROUP  34182, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -7983,7 +8043,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34139, 0, 0
+  GROUP  34183, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -7995,7 +8055,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34140, 0, 0
+  GROUP  34184, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -8007,7 +8067,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34141, 0, 0
+  GROUP  34185, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -8019,7 +8079,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34142, 0, 0
+  GROUP  34186, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -8030,14 +8090,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  34143, 0, 0
+  LINE  34187, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  34144, 0, 0
+  LINKBMPPICT  34188, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\dat\\#BR.bmp"

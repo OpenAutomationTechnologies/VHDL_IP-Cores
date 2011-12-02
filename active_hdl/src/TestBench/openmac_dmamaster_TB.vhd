@@ -62,7 +62,8 @@ architecture TB_ARCHITECTURE of openmac_dmamaster_tb is
 		m_burstcount : out STD_LOGIC_VECTOR(m_burstcount_width_g-1 downto 0);
 		m_burstcounter : out STD_LOGIC_VECTOR(m_burstcount_width_g-1 downto 0);
 		m_byteenable : out STD_LOGIC_VECTOR(fifo_data_width_g/8-1 downto 0);
-		m_writedata : out STD_LOGIC_VECTOR(fifo_data_width_g-1 downto 0) );
+		m_writedata : out STD_LOGIC_VECTOR(fifo_data_width_g-1 downto 0);
+		dma_req_overflow : in std_logic);
 	end component;
 
 	-- Stimulus signals - signals mapped to the input and inout ports of tested entity
@@ -168,7 +169,8 @@ begin
 			m_burstcount => m_burstcount,
 			m_burstcounter => m_burstcounter,
 			m_byteenable => m_byteenable,
-			m_writedata => m_writedata
+			m_writedata => m_writedata,
+			dma_req_overflow => '0'
 		);
 
 	-- Add your stimulus here ...

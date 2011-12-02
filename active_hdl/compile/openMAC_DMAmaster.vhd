@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_DMAmaster.vhd
--- Generated   : Thu Dec  1 13:14:28 2011
+-- Generated   : Fri Dec  2 14:48:46 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_DMAmaster.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -57,6 +57,7 @@
 -- 2011-11-28	V0.03	zelenkaj	Added DMA observer
 -- 2011-11-29	V0.04	zelenkaj	Changed clkXing of Dma Addr
 -- 2011-11-30	V0.05	zelenkaj	Added generic for DMA observer
+-- 2011-12-02	V0.06	zelenkaj	Added Dma Req Overflow
 --
 -------------------------------------------------------------------------------
 
@@ -85,6 +86,7 @@ entity openMAC_DMAmaster is
   );
   port(
        dma_clk : in std_logic;
+       dma_req_overflow : in std_logic;
        dma_req_rd : in std_logic;
        dma_req_wr : in std_logic;
        m_clk : in std_logic;
@@ -127,6 +129,7 @@ component dma_handler
   port (
        dma_addr : in std_logic_vector(dma_highadr_g downto 1);
        dma_clk : in std_logic;
+       dma_req_overflow : in std_logic;
        dma_req_rd : in std_logic;
        dma_req_wr : in std_logic;
        mac_rx_off : in std_logic;
@@ -298,6 +301,7 @@ THE_DMA_HANDLER : dma_handler
        dma_new_addr_rd => dma_new_addr_rd,
        dma_new_addr_wr => dma_new_addr_wr,
        dma_rd_err => dma_rd_err,
+       dma_req_overflow => dma_req_overflow,
        dma_req_rd => dma_req_rd,
        dma_req_wr => dma_req_wr,
        dma_wr_err => dma_wr_err,
