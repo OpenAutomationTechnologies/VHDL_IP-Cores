@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_Ethernet.vhd
--- Generated   : Fri Dec  2 14:48:18 2011
+-- Generated   : Mon Dec  5 07:44:08 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_Ethernet.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -63,6 +63,7 @@
 -- 2011-11-30	V0.07	zelenkaj	Added generic for DMA observer
 --					Fixed generic assignments for DMA master
 -- 2011-12-02	V0.08	zelenkaj	Added Dma Req Overflow
+-- 2011-12-05	V0.09	zelenkaj	Reduced Dma Req overflow vector
 --
 -------------------------------------------------------------------------------
 
@@ -320,8 +321,8 @@ component openMAC_DMAmaster
        dma_ack_rd : out std_logic;
        dma_ack_wr : out std_logic;
        dma_din : out std_logic_vector(15 downto 0);
-       dma_rd_err : out std_logic_vector(7 downto 0);
-       dma_wr_err : out std_logic_vector(7 downto 0);
+       dma_rd_err : out std_logic;
+       dma_wr_err : out std_logic;
        m_address : out std_logic_vector(dma_highadr_g downto 0);
        m_burstcount : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_burstcounter : out std_logic_vector(m_burstcount_width_g-1 downto 0);
@@ -437,11 +438,13 @@ signal dma_ack_rd_mst : std_logic;
 signal dma_ack_read : std_logic;
 signal dma_ack_rw : std_logic;
 signal dma_ack_write : std_logic;
+signal dma_rd_err : std_logic;
 signal dma_req : std_logic;
 signal dma_req_overflow : std_logic;
 signal dma_req_read : std_logic;
 signal dma_req_write : std_logic;
 signal dma_rw : std_logic;
+signal dma_wr_err : std_logic;
 signal flt0_rx_dv : std_logic;
 signal flt0_tx_en : std_logic;
 signal flt1_rx_dv : std_logic;
@@ -497,8 +500,6 @@ signal dma_din_mst : std_logic_vector (15 downto 0);
 signal dma_din_s : std_logic_vector (15 downto 0);
 signal dma_dout : std_logic_vector (15 downto 0);
 signal dma_dout_s : std_logic_vector (15 downto 0);
-signal dma_rd_err : std_logic_vector (7 downto 0);
-signal dma_wr_err : std_logic_vector (7 downto 0);
 signal flt0_rx_dat : std_logic_vector (1 downto 0);
 signal flt0_tx_dat : std_logic_vector (1 downto 0);
 signal flt1_rx_dat : std_logic_vector (1 downto 0);
@@ -555,7 +556,7 @@ s_readdata <=
 	mac_dout when (mac_selram = '1' or mac_selcont = '1') and endian_g = "big" else
 	smi_dout when smi_sel = '1' else
 	irqTable when irqTable_sel = '1' else
-	dma_rd_err & dma_wr_err when dmaErr_sel = '1' else
+	(8 => dma_rd_err, 0 => dma_wr_err, others => '0') when dmaErr_sel = '1' else
 	(others => '0');
 --assign writedata to input data
 mac_din <=

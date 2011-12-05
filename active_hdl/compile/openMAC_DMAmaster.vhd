@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_DMAmaster.vhd
--- Generated   : Fri Dec  2 14:48:46 2011
+-- Generated   : Mon Dec  5 07:44:35 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_DMAmaster.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -58,6 +58,7 @@
 -- 2011-11-29	V0.04	zelenkaj	Changed clkXing of Dma Addr
 -- 2011-11-30	V0.05	zelenkaj	Added generic for DMA observer
 -- 2011-12-02	V0.06	zelenkaj	Added Dma Req Overflow
+-- 2011-12-05	V0.07	zelenkaj	Reduced Dma Req overflow 
 --
 -------------------------------------------------------------------------------
 
@@ -100,11 +101,11 @@ entity openMAC_DMAmaster is
        m_readdata : in std_logic_vector(fifo_data_width_g-1 downto 0);
        dma_ack_rd : out std_logic;
        dma_ack_wr : out std_logic;
+       dma_rd_err : out std_logic;
+       dma_wr_err : out std_logic;
        m_read : out std_logic;
        m_write : out std_logic;
        dma_din : out std_logic_vector(15 downto 0);
-       dma_rd_err : out std_logic_vector(7 downto 0);
-       dma_wr_err : out std_logic_vector(7 downto 0);
        m_address : out std_logic_vector(dma_highadr_g downto 0);
        m_burstcount : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_burstcounter : out std_logic_vector(m_burstcount_width_g-1 downto 0);
@@ -148,8 +149,8 @@ component dma_handler
        dma_addr_out : out std_logic_vector(dma_highadr_g downto 1);
        dma_new_addr_rd : out std_logic;
        dma_new_addr_wr : out std_logic;
-       dma_rd_err : out std_logic_vector(7 downto 0);
-       dma_wr_err : out std_logic_vector(7 downto 0);
+       dma_rd_err : out std_logic;
+       dma_wr_err : out std_logic;
        rx_aclr : out std_logic;
        rx_wr_req : out std_logic;
        tx_rd_req : out std_logic

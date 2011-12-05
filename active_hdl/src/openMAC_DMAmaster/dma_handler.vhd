@@ -50,6 +50,7 @@
 -- 2011-11-30	V0.03	zelenkaj	Removed unnecessary ports
 --									Added generic for DMA observer
 -- 2011-12-02	V0.04	zelenkaj	Added Dma Request Overflow
+-- 2011-12-05	V0.05	zelenkaj	Reduced Dma Req overflow cnt to pulse
 --
 -------------------------------------------------------------------------------
 
@@ -92,8 +93,8 @@ entity dma_handler is
 		dma_new_addr_wr : out std_logic;
 		dma_new_addr_rd : out std_logic;
 		dma_req_overflow : in std_logic;
-		dma_rd_err : out std_logic_vector(7 downto 0);
-		dma_wr_err : out std_logic_vector(7 downto 0)
+		dma_rd_err : out std_logic;
+		dma_wr_err : out std_logic
 	);
 end dma_handler;
 
@@ -109,8 +110,8 @@ signal tx_fsm, tx_fsm_next, rx_fsm, rx_fsm_next : transfer_t := idle;
 signal dma_ack_rd_s, dma_ack_wr_s : std_logic;
 
 --dma observer
-signal observ_rd_err, observ_wr_err : std_logic_vector(7 downto 0);
-signal observ_rd_err_next, observ_wr_err_next : std_logic_vector(7 downto 0);
+signal observ_rd_err, observ_wr_err : std_logic;
+signal observ_rd_err_next, observ_wr_err_next : std_logic;
 begin
 	--dma_clk, tx_rd_clk and rx_wr_clk are the same!
 	clk <= dma_clk; --to ease typing
@@ -123,13 +124,13 @@ begin
 			if gen_tx_fifo_g then
 				tx_fsm <= idle;
 				if gen_dma_observer_g then
-					observ_rd_err <= (others => '0');
+					observ_rd_err <= '0';
 				end if;
 			end if;
 			if gen_rx_fifo_g then
 				rx_fsm <= idle;
 				if gen_dma_observer_g then
-					observ_wr_err <= (others => '0');
+					observ_wr_err <= '0';
 				end if;
 			end if;
 			
@@ -165,16 +166,14 @@ begin
 	genDmaObserver : if gen_dma_observer_g generate
 	begin
 		
-		observ_rd_err_next <= --count read errors
-						(others => '0') when gen_tx_fifo_g = false else
-						observ_rd_err when observ_rd_err = x"FF" else --saturate
-						observ_rd_err + 1 when dma_req_rd = '1' and dma_ack_rd_s = '0' and dma_req_overflow = '1' else
+		observ_rd_err_next <= --monoflop (deassertion with rst only)
+						'0' when gen_tx_fifo_g = false else
+						'1' when dma_req_rd = '1' and dma_ack_rd_s = '0' and dma_req_overflow = '1' else
 						observ_rd_err;
 		
-		observ_wr_err_next <= --count write errors
-						(others => '0') when gen_rx_fifo_g = false else
-						observ_wr_err when observ_wr_err = x"FF" else --saturate
-						observ_wr_err + 1 when dma_req_wr = '1' and dma_ack_wr_s = '0' and dma_req_overflow = '1' else
+		observ_wr_err_next <= --monoflop (deassertion with rst only)
+						'0' when gen_rx_fifo_g = false else
+						'1' when dma_req_wr = '1' and dma_ack_wr_s = '0' and dma_req_overflow = '1' else
 						observ_wr_err;
 	end generate;
 	

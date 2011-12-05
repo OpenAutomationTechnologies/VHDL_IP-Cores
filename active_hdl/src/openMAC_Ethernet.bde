@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 45048
+ FREEID 45334
  VARIABLES
  {
   #ARCHITECTURE="rtl"
@@ -2810,7 +2810,7 @@ HEADER
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1322833578"
+    #MODIFIED="1323066534"
    }
   }
   PAGE "" 
@@ -3017,7 +3017,7 @@ HEADER
     TEXT  51, 0, 0
     {
      TEXT "$#NAME"
-     RECT (415,510,555,534)
+     RECT (454,510,555,534)
      ALIGN 6
      MARGINS (1,1)
      PARENT 50
@@ -3025,7 +3025,7 @@ HEADER
     TEXT  53, 0, 0
     {
      TEXT "$#NAME"
-     RECT (413,550,555,574)
+     RECT (452,550,555,574)
      ALIGN 6
      MARGINS (1,1)
      PARENT 52
@@ -3405,10 +3405,9 @@ HEADER
      VARIABLES
      {
       #DIRECTION="OUT"
-      #DOWNTO="1"
       #LENGTH="20"
       #MDA_RECORD_TOKEN="OTHER"
-      #NAME="dma_rd_err(7:0)"
+      #NAME="dma_rd_err"
       #NUMBER="0"
      }
      LINE  2, 0, 0
@@ -3422,10 +3421,9 @@ HEADER
      VARIABLES
      {
       #DIRECTION="OUT"
-      #DOWNTO="1"
       #LENGTH="20"
       #MDA_RECORD_TOKEN="OTHER"
-      #NAME="dma_wr_err(7:0)"
+      #NAME="dma_wr_err"
       #NUMBER="0"
      }
      LINE  2, 0, 0
@@ -4004,6 +4002,7 @@ PAGE "MAC"
 "-- 2011-11-30\tV0.07\tzelenkaj\tAdded generic for DMA observer\n"+
 "--\t\t\t\t\tFixed generic assignments for DMA master\n"+
 "-- 2011-12-02\tV0.08\tzelenkaj\tAdded Dma Req Overflow\n"+
+"-- 2011-12-05\tV0.09\tzelenkaj\tReduced Dma Req overflow vector\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -10734,7 +10733,7 @@ PAGE "SLAVEINTERFACE"
 "\tmac_dout when (mac_selram = '1' or mac_selcont = '1') and endian_g = \"big\" else\n"+
 "\tsmi_dout when smi_sel = '1' else\n"+
 "\tirqTable when irqTable_sel = '1' else\n"+
-"\tdma_rd_err & dma_wr_err when dmaErr_sel = '1' else\n"+
+"\t(8 => dma_rd_err, 0 => dma_wr_err, others => '0') when dmaErr_sel = '1' else\n"+
 "\t(others => '0');"
    RECT (1500,1180,2780,1520)
    MARGINS (20,20)
@@ -10743,7 +10742,7 @@ PAGE "SLAVEINTERFACE"
    SHOWLABEL
    SHOWTEXT
    CORNER 10
-   VTX (  10268, 10270, 10271, 10274, 41438, 41456 )
+   VTX (  10268, 10270, 10271, 10274, 45295, 45297 )
   }
   NET BUS  10006, 0, 0
   TEXT  10016, 0, 0
@@ -11341,74 +11340,6 @@ PAGE "SLAVEINTERFACE"
     #NAMED="1"
    }
   }
-  NET BUS  41372, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #NAME="dma_rd_err(7:0)"
-   }
-  }
-  TEXT  41374, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (1262,1290,1437,1319)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 41439
-   ORIENTATION 2
-  }
-  NET BUS  41377, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #NAME="dma_wr_err(7:0)"
-   }
-  }
-  TEXT  41379, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (1261,1330,1439,1359)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 41457
-   ORIENTATION 2
-  }
-  VTX  41437, 0, 0
-  {
-   COORD (1240,1320)
-  }
-  VTX  41438, 0, 0
-  {
-   COORD (1500,1320)
-  }
-  BUS  41439, 0, 0
-  {
-   NET 41372
-   VTX 41437, 41438
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  41455, 0, 0
-  {
-   COORD (1240,1360)
-  }
-  VTX  41456, 0, 0
-  {
-   COORD (1500,1360)
-  }
-  BUS  41457, 0, 0
-  {
-   NET 41377
-   VTX 41455, 41456
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
   VTX  41458, 0, 0
   {
    COORD (3000,1580)
@@ -11602,6 +11533,70 @@ PAGE "SLAVEINTERFACE"
    VARIABLES
    {
     #NAME="dmaErr_sel"
+   }
+  }
+  NET WIRE  45214, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="dma_rd_err"
+   }
+  }
+  TEXT  45216, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1267,1290,1393,1319)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 45298
+  }
+  NET WIRE  45219, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="dma_wr_err"
+   }
+  }
+  TEXT  45221, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1266,1330,1395,1359)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 45299
+  }
+  VTX  45294, 0, 0
+  {
+   COORD (1240,1320)
+  }
+  VTX  45295, 0, 0
+  {
+   COORD (1500,1320)
+  }
+  VTX  45296, 0, 0
+  {
+   COORD (1240,1360)
+  }
+  VTX  45297, 0, 0
+  {
+   COORD (1500,1360)
+  }
+  WIRE  45298, 0, 0
+  {
+   NET 45214
+   VTX 45294, 45295
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  45299, 0, 0
+  {
+   NET 45219
+   VTX 45296, 45297
+   VARIABLES
+   {
+    #NAMED="1"
    }
   }
  }
@@ -14709,8 +14704,8 @@ PAGE "PACKET DMA MASTER"
     #SYMBOL="openMAC_DMAmaster"
    }
    COORD (1220,660)
-   VERTEXES ( (2,29579), (4,29858), (6,29581), (8,29587), (10,29583), (12,29596), (14,29606), (16,29594), (18,29608), (20,29593), (22,29610), (24,29600), (26,43622), (28,29604), (32,29598), (34,43624), (36,29602), (40,29577), (42,29589), (44,29591), (46,29612), (48,40166), (50,41240), (52,41245), (54,45012) )
-   PINPROP 54,"#PIN_STATE","0"
+   VERTEXES ( (2,29579), (4,29858), (6,29581), (8,29587), (10,29583), (12,29596), (14,29606), (16,29594), (18,29608), (20,29593), (22,29610), (24,29600), (26,43622), (28,29604), (32,29598), (34,43624), (36,29602), (40,29577), (42,29589), (44,29591), (46,29612), (48,40166), (54,45012), (50,45048), (52,45053) )
+   PINPROP 52,"#PIN_STATE","0"
   }
   TEXT  28213, 0, 0
   {
@@ -15292,72 +15287,6 @@ PAGE "PACKET DMA MASTER"
    MARGINS (1,1)
    PARENT 40171
   }
-  VTX  41240, 0, 0
-  {
-   COORD (1800,1180)
-  }
-  VTX  41241, 0, 0
-  {
-   COORD (1940,1180)
-  }
-  BUS  41243, 0, 0
-  {
-   NET 41244
-   VTX 41240, 41241
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  NET BUS  41244, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #NAME="dma_rd_err(7:0)"
-   }
-  }
-  VTX  41245, 0, 0
-  {
-   COORD (1800,1220)
-  }
-  VTX  41246, 0, 0
-  {
-   COORD (1940,1220)
-  }
-  BUS  41248, 0, 0
-  {
-   NET 41249
-   VTX 41245, 41246
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  NET BUS  41249, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #NAME="dma_wr_err(7:0)"
-   }
-  }
-  TEXT  41250, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (1963,1170,2138,1199)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 41243
-  }
-  TEXT  41254, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (1961,1210,2139,1239)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 41248
-  }
   NET WIRE  43577, 0, 0
   {
    VARIABLES
@@ -15453,6 +15382,70 @@ PAGE "PACKET DMA MASTER"
    {
     #NAMED="1"
    }
+  }
+  VTX  45048, 0, 0
+  {
+   COORD (1800,1180)
+  }
+  VTX  45049, 0, 0
+  {
+   COORD (1940,1180)
+  }
+  WIRE  45051, 0, 0
+  {
+   NET 45073
+   VTX 45048, 45049
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  45053, 0, 0
+  {
+   COORD (1800,1220)
+  }
+  VTX  45054, 0, 0
+  {
+   COORD (1940,1220)
+  }
+  WIRE  45056, 0, 0
+  {
+   NET 45078
+   VTX 45053, 45054
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  45073, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="dma_rd_err"
+   }
+  }
+  TEXT  45074, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1807,1150,1933,1179)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 45051
+  }
+  NET WIRE  45078, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="dma_wr_err"
+   }
+  }
+  TEXT  45079, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1806,1190,1935,1219)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 45056
   }
  }
  
@@ -17163,7 +17156,7 @@ PAGE ""
  
  BODY
  {
-  TEXT  45031, 0, 0
+  TEXT  45317, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17174,7 +17167,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  45032, 0, 0
+  TEXT  45318, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -17185,7 +17178,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  45033, 0, 0
+  TEXT  45319, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -17195,7 +17188,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  45034, 0, 0
+  TEXT  45320, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17207,7 +17200,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  45035, 0, 0
+  TEXT  45321, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -17221,7 +17214,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  45036, 0, 0
+  TEXT  45322, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -17231,7 +17224,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  45037, 0, 0
+  TEXT  45323, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17243,7 +17236,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  45038, 0, 0
+  TEXT  45324, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -17253,7 +17246,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  45039, 0, 0
+  TEXT  45325, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -17264,7 +17257,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  45040, 0, 0
+  GROUP  45326, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -17276,7 +17269,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  45041, 0, 0
+  GROUP  45327, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -17288,7 +17281,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  45042, 0, 0
+  GROUP  45328, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -17300,7 +17293,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  45043, 0, 0
+  GROUP  45329, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -17312,7 +17305,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  45044, 0, 0
+  GROUP  45330, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -17324,7 +17317,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  45045, 0, 0
+  GROUP  45331, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -17335,14 +17328,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  45046, 0, 0
+  LINE  45332, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  45047, 0, 0
+  LINKBMPPICT  45333, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
