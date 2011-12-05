@@ -47,6 +47,7 @@
 --
 -- 2011-08-03  	V0.01	zelenkaj    First version
 -- 2011-12-01	V0.02	zelenkaj	Fixed read transfer error (dst_rdy_n earlier)
+-- 2011-12-05	V0.03	zelenkaj	Avoid preset of FFs
 --
 -------------------------------------------------------------------------------
 
@@ -114,7 +115,7 @@ architecture plb_master_handler of plb_master_handler is
 	signal clk, rst : std_logic;
 	
 	--signals for requesting transfers
-	signal m_write_s, m_read_s, m_wrd_en : std_logic;
+	signal m_write_s, m_read_s, m_wrd_en_n : std_logic;
 	signal m_write_l, m_read_l : std_logic;
 	signal m_write_rise, m_read_rise : std_logic;
 	signal m_write_fall, m_read_fall : std_logic;
@@ -127,6 +128,9 @@ architecture plb_master_handler of plb_master_handler is
 	type tran_t is (idle, sof, tran, eof, seof, wait4cmplt); --seof = start/end of frame (single beat)
 	signal wr_tran, wr_tran_next : tran_t;
 	signal rd_tran : tran_t;
+	
+	--avoid preset of FFs
+	signal MAC_DMA2Bus_MstRd_dst_rdy : std_logic;
 begin
 	
 	--some assignments..
@@ -135,8 +139,8 @@ begin
 	rst <= MAC_DMA_Rst;
 	mst_done <= Bus2MAC_DMA_Mst_Cmplt;
 	
-	m_write_s <= m_write and m_wrd_en; --forward request only after complete previous one
-	m_read_s <= m_read and m_wrd_en;
+	m_write_s <= m_write and not m_wrd_en_n; --NOTE: write/read enable is low-active!
+	m_read_s <= m_read and not m_wrd_en_n; --NOTE: write/read enable is low-active!
 	
 	--reserved
 	MAC_DMA2Bus_Mst_Lock <= '0';
@@ -147,14 +151,14 @@ begin
 	begin
 		if rst = '1' then
 			m_write_l <= '0'; m_read_l <= '0';
-			m_wrd_en <= '1'; --preset signal
+			m_wrd_en_n <= '0'; --is low-active to avoid preset of FF
 		elsif rising_edge(clk) then
 			m_write_l <= m_write_s; m_read_l <= m_read_s;
 			
 			if mst_done = '1' then
-				m_wrd_en <= '1';
+				m_wrd_en_n <= '0';
 			elsif m_write_fall = '1' or m_read_fall = '1' then
-				m_wrd_en <= '0'; --write/read done, wait for Mst_Cmplt
+				m_wrd_en_n <= '1'; --write/read done, wait for Mst_Cmplt
 			end if;
 		end if;
 	end process;
@@ -170,18 +174,20 @@ begin
 	begin
 		if rst = '1' then
 			mst_write_req <= '0'; mst_read_req <= '0';
-			MAC_DMA2Bus_MstRd_dst_rdy_n <= '1';
+			MAC_DMA2Bus_MstRd_dst_rdy <= '0';
 		elsif rising_edge(clk) then
 			mst_write_req <= mst_write_req_next; mst_read_req <= mst_read_req_next;
 			
 			if m_read_s = '1' then
-				MAC_DMA2Bus_MstRd_dst_rdy_n <= '0';
+				MAC_DMA2Bus_MstRd_dst_rdy <= '1';
 			elsif rd_tran = eof and Bus2MAC_DMA_MstRd_src_rdy_n = '0' then
-				MAC_DMA2Bus_MstRd_dst_rdy_n <= '1';
+				MAC_DMA2Bus_MstRd_dst_rdy <= '0';
 			end if;
 	    			
 		end if;
 	end process;
+	
+	MAC_DMA2Bus_MstRd_dst_rdy_n <= not MAC_DMA2Bus_MstRd_dst_rdy;
 	
 	mst_write_req_next <= 	'0' when mst_write_req = '1' and Bus2MAC_DMA_Mst_CmdAck = '1' else
 							'1' when mst_write_req = '0' and m_write_rise = '1' else
@@ -239,7 +245,6 @@ begin
 	MAC_DMA2Bus_MstWr_rem <= (others => '0'); --no support
 	
 	--set read qualifiers
-	--MAC_DMA2Bus_MstRd_dst_rdy_n <= '0' when rd_tran /= idle and rd_tran /= wait4cmplt else '1';
 	MAC_DMA2Bus_MstRd_dst_dsc_n <= '1'; --no support
 	
 	--connect ipif with avalon

@@ -49,6 +49,7 @@
 --									Clean up
 --									Added Dma qualifiers (Rd/Wr done)
 -- 2011-12-02	V0.45	zelenkaj	Added Dma Request Overflow
+-- 2011-12-05	V0.46	zelenkaj	Minor change of constants (logic level)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -92,8 +93,8 @@ ENTITY OpenMAC IS
 END ENTITY OpenMAC;
 
 ARCHITECTURE struct OF OpenMAC IS
-	CONSTANT	log0					: std_logic := '0';
-	CONSTANT	log1					: std_logic := '1';
+	CONSTANT	cInactivated			: std_logic := '0';
+	CONSTANT	cActivated				: std_logic := '1';
 	SIGNAL	Rx_Dv						: std_logic;						
 	SIGNAL	R_Req						: std_logic;
 	SIGNAL	Auto_Desc					: std_logic_vector( 3 DOWNTO 0);
@@ -472,7 +473,7 @@ END GENERATE;
 RamH:	ENTITY	work.Dpr_16_16
 	GENERIC MAP(Simulate => Simulate)
 	PORT MAP (	CLKA	=> Clk,					CLKB	=> Clk,
-				EnA		=> log1,				Enb		=> log1,
+				EnA		=> cActivated,			Enb		=> cActivated,
 				BEA		=> Ram_Be,				
 				WEA		=> Ram_Wr,				WEB		=> Desc_We,
 				ADDRA	=> s_Adr(8 DOWNTO 1),	ADDRB	=> Desc_Addr,
@@ -984,7 +985,7 @@ END GENERATE;
 RxRam:	ENTITY	work.Dpr_16_16
 	GENERIC MAP(Simulate => Simulate)
 	PORT MAP (	CLKA	=> Clk,					CLKB	=> Clk,
-				EnA		=> log1,				Enb		=> log1,
+				EnA		=> cActivated,			Enb		=> cActivated,
 				BEA		=> Ram_Be,				
 				WEA		=> Ram_Wr,				WEB		=> Desc_We,
 				ADDRA	=> s_Adr(8 DOWNTO 1),	ADDRB	=> Desc_Addr,
@@ -1144,7 +1145,7 @@ BEGIN
 FiltRamH:	ENTITY	work.Dpr_16_32
 	GENERIC MAP(Simulate => Simulate)
 	PORT MAP (	CLKA	=> Clk,			CLKB	=> Clk,
-				EnA		=> log1,		EnB		=> log1,
+				EnA		=> cActivated,	EnB		=> cActivated,
 				BEA		=> Ram_BeH,		
 				WEA		=> Ram_Wr,
 				ADDRA	=> Ram_Addr,	ADDRB	=> Filter_Addr,
@@ -1154,7 +1155,7 @@ FiltRamH:	ENTITY	work.Dpr_16_32
 FiltRamL:	ENTITY	work.Dpr_16_32
 	GENERIC MAP(Simulate => Simulate)
 	PORT MAP (	CLKA	=> Clk,			CLKB	=> Clk,
-				EnA		=> log1,		EnB		=> log1,
+				EnA		=> cActivated,	EnB		=> cActivated,
 				BEA		=> Ram_BeL,		
 				WEA		=> Ram_Wr,
 				ADDRA	=> Ram_Addr,	ADDRB	=> Filter_Addr,

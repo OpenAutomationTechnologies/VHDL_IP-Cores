@@ -51,6 +51,7 @@
 --									Added generic for DMA observer
 -- 2011-12-02	V0.04	zelenkaj	Added Dma Request Overflow
 -- 2011-12-05	V0.05	zelenkaj	Reduced Dma Req overflow cnt to pulse
+--									Ack done if overflow occurs
 --
 -------------------------------------------------------------------------------
 
@@ -180,8 +181,9 @@ begin
 	dma_rd_err <= observ_rd_err;
 	dma_wr_err <= observ_wr_err;
 	
-	dma_ack_rd <= dma_ack_rd_s;
-	dma_ack_wr <= dma_ack_wr_s;
+	--acknowledge dma request (regular or overflow)
+	dma_ack_rd <= dma_ack_rd_s or (dma_req_rd and dma_req_overflow);
+	dma_ack_wr <= dma_ack_wr_s or (dma_req_wr and dma_req_overflow);
 	
 	dma_new_addr_wr <= '1' when rx_fsm = first else '0';
 	dma_new_addr_rd <= '1' when tx_fsm = first else '0';

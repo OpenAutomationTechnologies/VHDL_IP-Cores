@@ -39,6 +39,7 @@
 #-- 2011-11-25	V0.02	mairt		removed MAC_CMP to reduce resource utilization
 #-- 2011-11-28	V0.03	mairt		added bus interface for pdi pcp, pdi ap and simple io
 #-- 2011-12-02	V0.04	zelenkaj	Exchanged IOs with _I, _O and _T, added missing ISVALIDs
+#-- 2011-12-05	V0.05	zelenkaj	Changed ISVALID for PKT and DMA
 #------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
@@ -59,11 +60,11 @@ IO_INTERFACE IO_IF = SPI, IO_TYPE = XIL_GPIO_V1, ISVALID = (ipcore_mode_g == 3)
 
 ## Bus Interfaces
 ### openMAC DMA (optional)
-BUS_INTERFACE BUS = MAC_DMA, BUS_STD = PLBV46, BUS_TYPE = MASTER, GENERATE_BURSTS = TRUE, ISVALID = (!C_TX_INT_PKT || !C_RX_INT_PKT)
+BUS_INTERFACE BUS = MAC_DMA, BUS_STD = PLBV46, BUS_TYPE = MASTER, GENERATE_BURSTS = TRUE, ISVALID = (C_PACKET_LOCATION != 0)
 ### openMAC REG
 BUS_INTERFACE BUS = MAC_REG, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = TRUE
 ### openMAC PKT (optional)
-BUS_INTERFACE BUS = MAC_PKT, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (C_TX_INT_PKT || C_RX_INT_PKT)
+BUS_INTERFACE BUS = MAC_PKT, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (C_PACKET_LOCATION != 2)
 ### PDI PCP (optional)
 BUS_INTERFACE BUS = PDI_PCP, BUS_STD = PLBV46, BUS_TYPE = SLAVE, ISVALID = (ipcore_mode_g > 0 && ipcore_mode_g < 5)
 ### PDI AP (optional)
