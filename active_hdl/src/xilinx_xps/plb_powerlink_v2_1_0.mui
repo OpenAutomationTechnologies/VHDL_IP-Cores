@@ -89,6 +89,19 @@
 		<label>Number of TPDO Buffers for Direct IO mode</label>
 	</widget>
 	'>	
+	<!ENTITY C_MAC_PKT_SIZE_RX_USER '
+	<widget id="C_MAC_PKT_SIZE_RX_USER">
+		<key>C_MAC_PKT_SIZE_RX_USER</key>
+		<label>Size of the MAC RX packet buffer for openMAC only mode</label>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_PKT_SIZE_TX_USER '
+	<widget id="C_MAC_PKT_SIZE_TX_USER">
+		<key>C_MAC_PKT_SIZE_TX_USER</key>
+		<label>Size of the MAC TX packet buffer for openMAC only mode</label>
+	</widget>
+	'>	
+
 	<!-- PDI -->
 	<!ENTITY C_PDI_NUM_RPDO_USER '
 	<widget id="C_PDI_NUM_RPDO_USER">
@@ -548,7 +561,16 @@
 		<key>C_SMP_PCP_PLB_SUPPORT_BURSTS</key>
 		<tip></tip>
 	</widget>
-	'>		
+	'>			 
+ 	<!-- DEBUG -->
+	<!ENTITY C_OBSERVER_ENABLE '
+	<widget id="C_OBSERVER_ENABLE">
+		<key>C_OBSERVER_ENABLE</key>		
+		<label>Enable MAC DMA observer</label>
+		<tip>The MAC DMA observer signals if a write to the external memory failed and therefore inconsisdent data is transfered throughout the network</tip>
+	</widget>
+	'>
+	
 ]>
 
 <doc>
@@ -564,7 +586,9 @@
 			<item>&C_USE_RMII;</item>
 			<item>&C_USE_2ND_PHY;</item>
 			<item>&C_MAC_NUM_RPDO_USER;</item>
-			<item>&C_MAC_NUM_TPDO_USER;</item>			
+			<item>&C_MAC_NUM_TPDO_USER;</item>	
+			<item>&C_MAC_PKT_SIZE_RX_USER;</item>	
+			<item>&C_MAC_PKT_SIZE_TX_USER;</item>	
 		</group>		
 		<group id="PDI">
 			<display>PDI</display>
@@ -596,8 +620,7 @@
 			<display>Simple IO</display>
 			<item>&C_PIO_VAL_LENGTH;</item>
 		</group>
-	</view>
-
+	</view>	  
 	<view id="System">
 		<display>System</display>
 		<group id="Addresses">
@@ -679,33 +702,11 @@
 			<item>&C_FAMILY;</item>
 		</group>-->
 	</view>
-
-		<!--
-        <view id="Wizard">
-                <display>Wizard</display>
-                <group id="All">
-                        <display>All</display>
-                        <item>&G_USE_INTERRUPT;</item>
-                </group>
-				
-                <group id="Hidden">
-                        <display>Hidden</display>
-                        <item>
-                           <widget id="DataWidth_Combo">
-                             <key>C_GPIO_WIDTH</key>
-                             <label>GPIO Data Width</label>
-                             <tip>GPIO Data Width</tip>
-                           </widget>
-                        </item>
-                        <item>
-                           <widget id="AllPinInput_Check">
-                             <key>G_ALL_INPUTS</key>
-                             <label>Data pins are all inputs</label>
-                             <tip>Data pins are all inputs</tip>
-                             <value type="bool" default="false" />
-                           </widget>
-                        </item>
-                </group>
-        </view>
-		-->
+	<view id="Misc">
+		<display>Misc</display>
+		<group id="Debug">
+			<display>Debug</display>
+			<item>&C_OBSERVER_ENABLE;</item>			
+		</group>
+   	</view>	
 </doc>
