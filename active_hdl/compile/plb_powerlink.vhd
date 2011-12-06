@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Fri Dec  2 12:57:22 2011
+-- Generated   : Mon Dec  5 14:36:21 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -55,6 +55,7 @@
 -- 2011-11-24 	V0.02	mairt    	added slave interface for pdi pcp and pdi ap
 -- 2011-11-26 	V0.03	mairt    	added slave interface for simpleIO
 -- 2011-12-02	V0.04	zelenkaj	Exchanged IOs with _I, _O and _T
+-- 2011-12-06	V0.05	zelenkaj	Changed instance names
 --
 -------------------------------------------------------------------------------
 
@@ -1163,6 +1164,7 @@ with Bus2MAC_REG_CS select
 Bus2MAC_REG_BE_s <= Bus2MAC_REG_BE;
 --ap_pcp assignments
 clkAp <= Bus2PDI_AP_Clk;
+rstAp <= Bus2PDI_AP_Reset;
 ap_writedata <= Bus2PDI_AP_Data;
 --	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
 --	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
@@ -1208,36 +1210,6 @@ MAC_PKT2Bus_Data <= mbf_readdata;
 MAC_PKT2Bus_RdAck <= mbf_chipselect and mbf_read and not mbf_waitrequest;
 MAC_PKT2Bus_WrAck <= mbf_chipselect and mbf_write and not mbf_waitrequest;
 MAC_PKT2Bus_Error <= '0';
---pdi_pcp assignments
-clkPcp <= Bus2PDI_PCP_Clk;
-pcp_writedata <= Bus2PDI_PCP_Data;
---	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
---	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
-pcp_read <= Bus2PDI_PCP_RNW;
-pcp_write <= not Bus2PDI_PCP_RNW;
-pcp_chipselect <= Bus2PDI_PCP_CS(0);
-pcp_byteenable <= Bus2PDI_PCP_BE;
-pcp_address <= Bus2PDI_PCP_Addr(12 downto 0);
-
-PDI_PCP2Bus_Data <= pcp_readdata;
---	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
---	mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);
-PDI_PCP2Bus_RdAck <= pcp_chipselect and pcp_read and not pcp_waitrequest;
-PDI_PCP2Bus_WrAck <= pcp_chipselect and pcp_write and not pcp_waitrequest;
-PDI_PCP2Bus_Error <= '0';
---SMP_PCP assignments
----cmp_clk <= Bus2SMP_PCP_Clk;
-smp_writedata <= Bus2SMP_PCP_Data;
-smp_read <= Bus2SMP_PCP_RNW and Bus2SMP_PCP_CS(0);
-smp_write <= not Bus2SMP_PCP_RNW and Bus2SMP_PCP_CS(0);
---smp_chipselect <= Bus2SMP_PCP_CS(0);
-smp_byteenable <= Bus2SMP_PCP_BE;
-smp_address <= Bus2SMP_PCP_Addr(2);
-
-SMP_PCP2Bus_Data <= smp_readdata;
-SMP_PCP2Bus_RdAck <= smp_chipselect and smp_read and not smp_waitrequest;
-SMP_PCP2Bus_WrAck <= smp_chipselect and smp_write and not smp_waitrequest;
-SMP_PCP2Bus_Error <= '0';
 --test_port
 test_port(255 downto 251) <= m_read & m_write & m_waitrequest & m_readdatavalid & MAC_DMA2Bus_Mst_Type;
 
@@ -1609,7 +1581,7 @@ MAC_REG2Bus_Error <= GND;
 
 ----  Generate statements  ----
 
-g0 : if C_DMA_EN = TRUE generate
+genMacDmaPlbBurst : if C_DMA_EN = TRUE generate
 begin
   MAC_DMA_PLB_BURST_MASTER : plbv46_master_burst
     generic map (
@@ -1684,9 +1656,9 @@ begin
          PLB_MWrDAck => MAC_DMA_MWrDAck,
          PLB_MWrErr => MAC_DMA_MWrErr
     );
-end generate g0;
+end generate genMacDmaPlbBurst;
 
-g2 : if C_DMA_EN = TRUE generate
+genPlbMasterHandler : if C_DMA_EN = TRUE generate
 begin
   THE_PLB_MASTER_HANDLER : plb_master_handler
     generic map (
@@ -1741,9 +1713,9 @@ begin
          m_write => m_write,
          m_writedata => m_writedata
     );
-end generate g2;
+end generate genPlbMasterHandler;
 
-g1 : if C_PKT_BUF_EN generate
+genMacPktPlbSingleSlave : if C_PKT_BUF_EN generate
 begin
   MAC_PKT_PLB_SINGLE_SLAVE : plbv46_slave_single
     generic map (
@@ -1814,11 +1786,11 @@ begin
          Sl_wrComp => MAC_PKT_wrComp,
          Sl_wrDAck => MAC_PKT_wrDAck
     );
-end generate g1;
+end generate genMacPktPlbSingleSlave;
 
-g3 : if (C_GEN_PDI) generate
+genPcpPdi : if (C_GEN_PDI) generate
 begin
-  U3 : plbv46_slave_single
+  PCP_PDI_PLB_SINGLE_SLAVE : plbv46_slave_single
     generic map (
          C_ARD_ADDR_RANGE_ARRAY => (C_PDI_PCP_BASE,C_PDI_PCP_HIGH),
          C_ARD_NUM_CE_ARRAY => (0 => 1),
@@ -1887,11 +1859,33 @@ begin
          Sl_wrComp => PDI_PCP_wrComp,
          Sl_wrDAck => PDI_PCP_wrDAck
     );
-end generate g3;
+end generate genPcpPdi;
 
-g4 : if (C_GEN_PLB_BUS_IF) generate
+genPcpPdiSignals : if C_GEN_PDI generate
 begin
-  U4 : plbv46_slave_single
+  --pdi_pcp assignments
+clkPcp <= Bus2PDI_PCP_Clk;
+rstPcp <= Bus2PDI_PCP_Reset;
+pcp_writedata <= Bus2PDI_PCP_Data;
+--	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
+--	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
+pcp_read <= Bus2PDI_PCP_RNW;
+pcp_write <= not Bus2PDI_PCP_RNW;
+pcp_chipselect <= Bus2PDI_PCP_CS(0);
+pcp_byteenable <= Bus2PDI_PCP_BE;
+pcp_address <= Bus2PDI_PCP_Addr(12 downto 0);
+
+PDI_PCP2Bus_Data <= pcp_readdata;
+--	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
+--	mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);
+PDI_PCP2Bus_RdAck <= pcp_chipselect and pcp_read and not pcp_waitrequest;
+PDI_PCP2Bus_WrAck <= pcp_chipselect and pcp_write and not pcp_waitrequest;
+PDI_PCP2Bus_Error <= '0';
+end generate genPcpPdiSignals;
+
+genApPdi : if (C_GEN_PLB_BUS_IF) generate
+begin
+  AP_PDI_PLB_SINGLE_SLAVE : plbv46_slave_single
     generic map (
          C_ARD_ADDR_RANGE_ARRAY => (C_PDI_AP_BASE,C_PDI_AP_HIGH),
          C_ARD_NUM_CE_ARRAY => (0 => 1),
@@ -1960,11 +1954,29 @@ begin
          Sl_wrComp => PDI_AP_wrComp,
          Sl_wrDAck => PDI_AP_wrDAck
     );
-end generate g4;
+end generate genApPdi;
 
-g5 : if (C_GEN_SIMPLE_IO) generate
+genSimpleIoPlbSignals : if C_GEN_SIMPLE_IO generate
 begin
-  U5 : plbv46_slave_single
+  --SMP_PCP assignments
+clkPcp <= Bus2SMP_PCP_Clk;
+rstPcp <= Bus2SMP_PCP_Reset;
+smp_writedata <= Bus2SMP_PCP_Data;
+smp_read <= Bus2SMP_PCP_RNW and Bus2SMP_PCP_CS(0);
+smp_write <= not Bus2SMP_PCP_RNW and Bus2SMP_PCP_CS(0);
+smp_chipselect <= Bus2SMP_PCP_CS(0);
+smp_byteenable <= Bus2SMP_PCP_BE;
+smp_address <= Bus2SMP_PCP_Addr(2);
+
+SMP_PCP2Bus_Data <= smp_readdata;
+SMP_PCP2Bus_RdAck <= smp_chipselect and smp_read and not smp_waitrequest;
+SMP_PCP2Bus_WrAck <= smp_chipselect and smp_write and not smp_waitrequest;
+SMP_PCP2Bus_Error <= '0';
+end generate genSimpleIoPlbSignals;
+
+genSimpleIoPlb : if (C_GEN_SIMPLE_IO) generate
+begin
+  SIMPLE_IO_PLB_SINGLE_SLAVE : plbv46_slave_single
     generic map (
          C_ARD_ADDR_RANGE_ARRAY => (C_SMP_PCP_BASE,C_SMP_PCP_HIGH),
          C_ARD_NUM_CE_ARRAY => (0 => 1),
@@ -2033,6 +2045,6 @@ begin
          Sl_wrComp => SMP_PCP_wrComp,
          Sl_wrDAck => SMP_PCP_wrDAck
     );
-end generate g5;
+end generate genSimpleIoPlb;
 
 end struct;
