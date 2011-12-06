@@ -76,31 +76,44 @@
 		<tip>RMII interface is recommended because it reduces the area usage of the powerlink IP Core</tip>
 	</widget>
 	'>	
+	<!ENTITY C_MAC_NUM_RPDO_USER '
+	<widget id="C_MAC_NUM_RPDO_USER">
+		<key>C_MAC_NUM_RPDO_USER</key>
+		<label>Number of RPDO Buffers for Direct IO mode</label>
+		<tip></tip>
+	</widget>
+	'>
+	<!ENTITY C_MAC_NUM_TPDO_USER '
+	<widget id="C_MAC_NUM_TPDO_USER">
+		<key>C_MAC_NUM_TPDO_USER</key>
+		<label>Number of TPDO Buffers for Direct IO mode</label>
+	</widget>
+	'>	
 	<!-- PDI -->
-	<!ENTITY C_PDI_NUM_RPDO '
-	<widget id="C_PDI_NUM_RPDO">
-		<key>C_PDI_NUM_RPDO</key>
+	<!ENTITY C_PDI_NUM_RPDO_USER '
+	<widget id="C_PDI_NUM_RPDO_USER">
+		<key>C_PDI_NUM_RPDO_USER</key>
 		<label>Number of RPDO buffers</label>
 		<tip></tip>
 	</widget>
 	'>	
-	<!ENTITY C_PDI_RPDO_BUF_SIZE '
-	<widget id="C_PDI_RPDO_BUF_SIZE">
-		<key>C_PDI_RPDO_BUF_SIZE</key>
+	<!ENTITY C_PDI_RPDO_BUF_SIZE_USER '
+	<widget id="C_PDI_RPDO_BUF_SIZE_USER">
+		<key>C_PDI_RPDO_BUF_SIZE_USER</key>
 		<label>RPDO buffer size</label>
 		<tip></tip>
 	</widget>
 	'>	
-	<!ENTITY C_PDI_NUM_TPDO '
-	<widget id="C_PDI_NUM_TPDO">
-		<key>C_PDI_NUM_TPDO</key>
+	<!ENTITY C_PDI_NUM_TPDO_USER '
+	<widget id="C_PDI_NUM_TPDO_USER">
+		<key>C_PDI_NUM_TPDO_USER</key>
 		<label>Number of TPDO buffers</label>
 		<tip></tip>
 	</widget>
 	'>
-	<!ENTITY C_PDI_TPDO_BUF_SIZE '
-	<widget id="C_PDI_TPDO_BUF_SIZE">
-		<key>C_PDI_TPDO_BUF_SIZE</key>
+	<!ENTITY C_PDI_TPDO_BUF_SIZE_USER '
+	<widget id="C_PDI_TPDO_BUF_SIZE_USER">
+		<key>C_PDI_TPDO_BUF_SIZE_USER</key>
 		<label>TPDO buffer size</label>
 		<tip></tip>
 	</widget>
@@ -549,14 +562,16 @@
 			<display>openMAC</display>
 			<item>&C_PACKET_LOCATION;</item>
 			<item>&C_USE_RMII;</item>
-			<item>&C_USE_2ND_PHY;</item>			
+			<item>&C_USE_2ND_PHY;</item>
+			<item>&C_MAC_NUM_RPDO_USER;</item>
+			<item>&C_MAC_NUM_TPDO_USER;</item>			
 		</group>		
 		<group id="PDI">
 			<display>PDI</display>
-			<item>&C_PDI_NUM_RPDO;</item>
-			<item>&C_PDI_RPDO_BUF_SIZE;</item>
-			<item>&C_PDI_NUM_TPDO;</item>	
-			<item>&C_PDI_TPDO_BUF_SIZE;</item>
+			<item>&C_PDI_NUM_RPDO_USER;</item>
+			<item>&C_PDI_RPDO_BUF_SIZE_USER;</item>
+			<item>&C_PDI_NUM_TPDO_USER;</item>	
+			<item>&C_PDI_TPDO_BUF_SIZE_USER;</item>
 			<item>&C_PDI_GEN_ASYNC_BUF_0;</item>
 			<item>&C_PDI_ASYNC_BUF_0;</item>
 			<item>&C_PDI_GEN_ASYNC_BUF_1;</item>	

@@ -43,7 +43,6 @@ lib plbv46_slave_single_v1_01_a  all
 lib plbv46_master_burst_v1_01_a  all
 
 lib plb_powerlink_v1_00_a lib/addr_decoder vhdl
-lib plb_powerlink_v1_00_a lib/delay_pulse vhdl
 lib plb_powerlink_v1_00_a lib/edgedet vhdl
 lib plb_powerlink_v1_00_a lib/memMap vhdl
 lib plb_powerlink_v1_00_a lib/req_ack vhdl

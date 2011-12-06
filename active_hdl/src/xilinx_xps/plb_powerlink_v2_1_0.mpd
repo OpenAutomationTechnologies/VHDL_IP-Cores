@@ -87,13 +87,25 @@ PARAMETER C_TX_INT_PKT = FALSE, DT = BOOLEAN, VALUES = (FALSE = EXT, TRUE = BRAM
 PARAMETER C_RX_INT_PKT = FALSE, DT = BOOLEAN, VALUES = (FALSE = EXT, TRUE = BRAM), SYSLEVEL_UPDATE_VALUE_PROC = update_rx_packet_location
 
 PARAMETER C_USE_RMII = TRUE, DT = BOOLEAN, DESC = "Set Ethernet Port(s) Interface", VALUES = (FALSE = MII, TRUE = RMII)
-PARAMETER C_USE_2ND_PHY = TRUE, DT = BOOLEAN, DESC = "Generate OpenHUB for 2nd Ethernet Port"
+PARAMETER C_USE_2ND_PHY = TRUE, DT = BOOLEAN, DESC = "Generate OpenHUB for 2nd Ethernet Port"	 
+PARAMETER C_MAC_NUM_RPDO_USER = 3, DT = INTEGER,RANGE = (1:3), TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 0)
+PARAMETER C_MAC_NUM_TPDO_USER = 3, DT = INTEGER,RANGE = (1:3), TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 0) 
+PARAMETER C_MAC_PKT_SIZE = 1500, DT = INTEGER, SYSLEVEL_UPDATE_VALUE_PROC = calc_mac_packet_size
 
 # PDI
-PARAMETER C_PDI_NUM_RPDO = 3, DT = INTEGER,RANGE = (1:3), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
-PARAMETER C_PDI_RPDO_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
-PARAMETER C_PDI_NUM_TPDO = 1, DT = INTEGER,	RANGE = (1), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
-PARAMETER C_PDI_TPDO_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), SYSLEVEL_UPDATE_VALUE_PROC = calc_tpdo_buffer_size, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
+PARAMETER C_PDI_NUM_RPDO_USER = 3, DT = INTEGER,RANGE = (1:3), TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)
+PARAMETER C_PDI_RPDO_BUF_SIZE_USER = 100, DT = INTEGER, RANGE = (1:1500), TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)  
+PARAMETER C_PDI_NUM_TPDO_USER = 1, DT = INTEGER, TYPE = NON_HDL, RANGE = (1), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
+PARAMETER C_PDI_TPDO_BUF_SIZE_USER = 100, DT = INTEGER, RANGE = (1:1500), TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)  
+						
+#global pdi and mac
+PARAMETER C_NUM_RPDO = 3, DT = INTEGER,RANGE = (1:3), SYSLEVEL_UPDATE_VALUE_PROC = calc_rpdo_count
+PARAMETER C_NUM_TPDO = 3, DT = INTEGER,RANGE = (1:3), SYSLEVEL_UPDATE_VALUE_PROC = calc_tpdo_count
+PARAMETER C_RPDO_0_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), SYSLEVEL_UPDATE_VALUE_PROC = calc_rpdo_0_buffer_size
+PARAMETER C_RPDO_1_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), SYSLEVEL_UPDATE_VALUE_PROC = calc_rpdo_1_buffer_size
+PARAMETER C_RPDO_2_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), SYSLEVEL_UPDATE_VALUE_PROC = calc_rpdo_2_buffer_size
+PARAMETER C_TPDO_BUF_SIZE = 100, DT = INTEGER, RANGE = (1:1500), SYSLEVEL_UPDATE_VALUE_PROC = calc_tpdo_buffer_size	
+
 PARAMETER C_PDI_GEN_ASYNC_BUF_0 = TRUE, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
 PARAMETER C_PDI_ASYNC_BUF_0 = 50, DT = INTEGER,	RANGE = (1:1500), ISVALID = ((ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) && C_PDI_GEN_ASYNC_BUF_0 == TRUE)
 PARAMETER C_PDI_GEN_ASYNC_BUF_1 = TRUE, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
