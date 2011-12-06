@@ -131,31 +131,16 @@
 		<tip></tip>
 	</widget>
 	'>
-
-	<!ENTITY C_PDI_GEN_ASYNC_BUF_0 '
-	<widget id="C_PDI_GEN_ASYNC_BUF_0">
-		<key>C_PDI_GEN_ASYNC_BUF_0</key>
-		<label>Generate asynchronous buffer 0</label>
-		<tip></tip>
-	</widget>
-	'>	
-	<!ENTITY C_PDI_ASYNC_BUF_0 '
-	<widget id="C_PDI_ASYNC_BUF_0">
-		<key>C_PDI_ASYNC_BUF_0</key>
+	<!ENTITY C_PDI_ASYNC_BUF_0_SIZE_USER '
+	<widget id="C_PDI_ASYNC_BUF_0_SIZE_USER">
+		<key>C_PDI_ASYNC_BUF_0_SIZE_USER</key>
 		<label>Asynchronous buffer 0 size</label>
 		<tip></tip>
 	</widget>
 	'>	
-	<!ENTITY C_PDI_GEN_ASYNC_BUF_1 '
-	<widget id="C_PDI_GEN_ASYNC_BUF_1">
-		<key>C_PDI_GEN_ASYNC_BUF_1</key>
-		<label>Generate asynchronous buffer 1</label>
-		<tip></tip>
-	</widget>
-	'>
-	<!ENTITY C_PDI_ASYNC_BUF_1 '
-	<widget id="C_PDI_ASYNC_BUF_1">
-		<key>C_PDI_ASYNC_BUF_1</key>
+	<!ENTITY C_PDI_ASYNC_BUF_1_SIZE_USER '
+	<widget id="C_PDI_ASYNC_BUF_1_SIZE_USER">
+		<key>C_PDI_ASYNC_BUF_1_SIZE_USER</key>
 		<label>Asynchronous buffer 1 size</label>
 		<tip></tip>
 	</widget>
@@ -180,7 +165,14 @@
 		<label>Use low-jitter sync interrupt for AP synchronisation</label>
 		<tip></tip>
 	</widget>
-	'>		
+	'>
+	<!ENTITY C_PDI_GEN_EVENT '
+	<widget id="C_PDI_GEN_EVENT">
+		<key>C_PDI_GEN_EVENT</key>
+		<label>Handle events in hardware</label>
+		<tip>This uses additional resources but also speeds up state changes</tip>
+	</widget>
+	'>	
 	
 	<!-- Parallel interface -->
 	<!ENTITY C_PAP_LOW_ACT '
@@ -596,13 +588,13 @@
 			<item>&C_PDI_RPDO_BUF_SIZE_USER;</item>
 			<item>&C_PDI_NUM_TPDO_USER;</item>	
 			<item>&C_PDI_TPDO_BUF_SIZE_USER;</item>
-			<item>&C_PDI_GEN_ASYNC_BUF_0;</item>
-			<item>&C_PDI_ASYNC_BUF_0;</item>
-			<item>&C_PDI_GEN_ASYNC_BUF_1;</item>	
-			<item>&C_PDI_ASYNC_BUF_1;</item>
+			<item>&C_PDI_ASYNC_BUF_0_SIZE_USER;</item>	
+			<item>&C_PDI_ASYNC_BUF_1_SIZE_USER;</item>
 			<item>&C_PDI_GEN_LED;</item>
 			<item>&C_PDI_GEN_TIME_SYNC;</item>	
-			<item>&C_PDI_GEN_SECOND_TIMER;</item>					
+			<item>&C_PDI_GEN_SECOND_TIMER;</item>
+			<item>&C_PDI_GEN_EVENT;</item>
+					
 		</group>		
 		<group id="Parallel_IF">
 			<display>Parallel interface</display>

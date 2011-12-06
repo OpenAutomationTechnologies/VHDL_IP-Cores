@@ -36,7 +36,8 @@
 #-- Version History
 #------------------------------------------------------------------------------------------------------------------------
 #-- 2011-11-18	V0.01	zelenkaj	converted to first stable solution with MAC-layer only
-#-- 2011-11-01	V0.02	mairt	added procedures for the powerlink gui
+#-- 2011-11-01	V0.02	mairt	added procedures for the powerlink gui 
+#-- 2011-12-06	V0.03	mairt	added packet size calculation, better async buffer handling and bugfixes
 #------------------------------------------------------------------------------------------------------------------------
 
 #uses "xillib.tcl"
@@ -407,6 +408,58 @@ proc calc_tpdo_buffer_size { param_handle} {
 	
 	return $returnVal
 } 
+
+###################################################
+## Calc asynchronous buffers settings
+###################################################	
+# update async buffer 0
+proc gen_async_0_buffer { param_handle} {
+	set mhsinst      	[xget_hw_parent_handle $param_handle]
+	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_0_SIZE_USER"] 
+	
+	if { $async_buf_size == 0 } {
+		return false
+	} else {
+	 	return true
+	}
+}  
+
+proc calc_async_0_buffer_size { param_handle} {
+   	set mhsinst      	[xget_hw_parent_handle $param_handle]
+	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_0_SIZE_USER"]	
+	
+
+	if {$async_buf_size < 20} {
+	 	error "Set Asynchronous Buffer Nr. 0 Size to at least 20 byte!"
+	} else {
+		set async_buf_size [expr $async_buf_size + 4]
+	}
+	
+	return $async_buf_size
+}		
+
+#update async buffer 1
+proc gen_async_1_buffer { param_handle} {
+	set mhsinst      	[xget_hw_parent_handle $param_handle]
+	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"] 
+	
+	if { $async_buf_size == 0 } {
+		return false
+	} else {
+	 	return true
+	}
+}  
+
+proc calc_async_1_buffer_size { param_handle} {
+   	set mhsinst      	[xget_hw_parent_handle $param_handle]
+	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"]	
+	
+	if { $async_buf_size != 0 } {
+		set async_buf_size [expr $async_buf_size + 4]
+	} 
+	
+	return $async_buf_size
+}
 
 ###################################################
 ## Calc RPDO and TPDO count

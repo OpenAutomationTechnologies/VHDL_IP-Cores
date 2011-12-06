@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 109740
+ FREEID 109757
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -12968,52 +12968,52 @@ PAGE "POWERLINK IP-CORE"
    VARIABLES
    {
     #COMPONENT="powerlink"
-    #GENERIC0="useIntPacketBuf_g : BOOLEAN := C_MAC_PKT_EN"
-    #GENERIC1="genSmiIO : BOOLEAN := false"
-    #GENERIC10="iRpdo0BufSize_g : INTEGER := C_RPDO_0_BUF_SIZE"
-    #GENERIC11="iTpdoBufSize_g : INTEGER := C_TPDO_BUF_SIZE"
-    #GENERIC12="genEvent_g : BOOLEAN := false"
-    #GENERIC13="genInternalAp_g : BOOLEAN := C_GEN_PLB_BUS_IF"
-    #GENERIC14="genTimeSync_g : BOOLEAN := C_PDI_GEN_TIME_SYNC"
-    #GENERIC15="genLedGadget_g : BOOLEAN := C_PDI_GEN_LED"
-    #GENERIC16="genABuf2_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_1"
-    #GENERIC17="genABuf1_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_0"
-    #GENERIC18="iTpdos_g : INTEGER := C_NUM_TPDO"
-    #GENERIC19="iRpdos_g : INTEGER := C_NUM_RPDO"
-    #GENERIC2="gen_dma_observer_g : BOOLEAN := true"
-    #GENERIC20="papBigEnd_g : BOOLEAN := C_PAP_BIG_END"
-    #GENERIC21="genSimpleIO_g : BOOLEAN := C_GEN_SIMPLE_IO"
-    #GENERIC22="papLowAct_g : BOOLEAN := C_PAP_LOW_ACT"
-    #GENERIC23="papDataWidth_g : INTEGER := C_PAP_DATA_WIDTH"
-    #GENERIC24="iPdiRev_g : INTEGER := 21930"
-    #GENERIC25="iAsyBuf2Size_g : INTEGER := C_PDI_ASYNC_BUF_1"
-    #GENERIC26="useRmii_g : BOOLEAN := C_USE_RMII"
-    #GENERIC27="iBufSizeLOG2_g : INTEGER := C_MAC_PKT_SIZE_LOG2"
-    #GENERIC28="iBufSize_g : INTEGER := C_MAC_PKT_SIZE"
-    #GENERIC29="Simulate : BOOLEAN := false"
-    #GENERIC3="m_data_width_g : INTEGER := 32"
-    #GENERIC30="genSpiAp_g : BOOLEAN := C_GEN_SPI_IF"
-    #GENERIC31="genIoBuf_g : BOOLEAN := false"
-    #GENERIC32="pioValLen_g : INTEGER := C_PIO_VAL_LENGTH"
-    #GENERIC33="spiBigEnd_g : BOOLEAN := C_SPI_BIG_END"
-    #GENERIC34="spiCPHA_g : BOOLEAN := C_SPI_CPHA"
-    #GENERIC35="spiCPOL_g : BOOLEAN := C_SPI_CPOL"
-    #GENERIC36="genOnePdiClkDomain_g : BOOLEAN := false"
-    #GENERIC37="m_rx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
-    #GENERIC38="m_tx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
-    #GENERIC39="useHwAcc_g : BOOLEAN := false"
-    #GENERIC4="m_rx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
-    #GENERIC40="use2ndPhy_g : BOOLEAN := C_USE_2ND_PHY"
-    #GENERIC41="m_burstcount_const_g : BOOLEAN := true"
-    #GENERIC42="m_burstcount_width_g : INTEGER := C_M_BURSTCOUNT_WIDTH"
-    #GENERIC43="use2ndCmpTimer_g : BOOLEAN := C_PDI_GEN_SECOND_TIMER"
-    #GENERIC44="useRxIntPacketBuf_g : BOOLEAN := C_MAC_PKT_RX_EN"
-    #GENERIC45="endian_g : STRING := \"big\""
-    #GENERIC5="genPdi_g : BOOLEAN := C_GEN_PDI"
-    #GENERIC6="m_tx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
-    #GENERIC7="iAsyBuf1Size_g : INTEGER := C_PDI_ASYNC_BUF_0"
-    #GENERIC8="iRpdo2BufSize_g : INTEGER := C_RPDO_2_BUF_SIZE"
-    #GENERIC9="iRpdo1BufSize_g : INTEGER := C_RPDO_1_BUF_SIZE"
+    #GENERIC0="m_rx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
+    #GENERIC1="m_tx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE/4"
+    #GENERIC10="endian_g : STRING := \"big\""
+    #GENERIC11="useIntPacketBuf_g : BOOLEAN := C_MAC_PKT_EN"
+    #GENERIC12="genPdi_g : BOOLEAN := C_GEN_PDI"
+    #GENERIC13="gen_dma_observer_g : BOOLEAN := C_OBSERVER_ENABLE"
+    #GENERIC14="m_data_width_g : INTEGER := 32"
+    #GENERIC15="m_rx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
+    #GENERIC16="iAsyBuf2Size_g : INTEGER := C_PDI_ASYNC_BUF_1"
+    #GENERIC17="iAsyBuf1Size_g : INTEGER := C_PDI_ASYNC_BUF_0"
+    #GENERIC18="iRpdo2BufSize_g : INTEGER := C_RPDO_2_BUF_SIZE"
+    #GENERIC19="iRpdo1BufSize_g : INTEGER := C_RPDO_1_BUF_SIZE"
+    #GENERIC2="iPdiRev_g : INTEGER := 21930"
+    #GENERIC20="iRpdo0BufSize_g : INTEGER := C_RPDO_0_BUF_SIZE"
+    #GENERIC21="iTpdoBufSize_g : INTEGER := C_TPDO_BUF_SIZE"
+    #GENERIC22="genEvent_g : BOOLEAN := C_PDI_GEN_EVENT"
+    #GENERIC23="m_tx_fifo_size_g : INTEGER := C_M_FIFO_SIZE"
+    #GENERIC24="iRpdos_g : INTEGER := C_NUM_RPDO"
+    #GENERIC25="genSmiIO : BOOLEAN := false"
+    #GENERIC26="genInternalAp_g : BOOLEAN := C_GEN_PLB_BUS_IF"
+    #GENERIC27="genTimeSync_g : BOOLEAN := C_PDI_GEN_TIME_SYNC"
+    #GENERIC28="genLedGadget_g : BOOLEAN := C_PDI_GEN_LED"
+    #GENERIC29="genABuf2_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_1"
+    #GENERIC3="m_burstcount_const_g : BOOLEAN := true"
+    #GENERIC30="genABuf1_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_0"
+    #GENERIC31="iTpdos_g : INTEGER := C_NUM_TPDO"
+    #GENERIC32="genIoBuf_g : BOOLEAN := false"
+    #GENERIC33="pioValLen_g : INTEGER := C_PIO_VAL_LENGTH"
+    #GENERIC34="papLowAct_g : BOOLEAN := C_PAP_LOW_ACT"
+    #GENERIC35="papBigEnd_g : BOOLEAN := C_PAP_BIG_END"
+    #GENERIC36="spiBigEnd_g : BOOLEAN := C_SPI_BIG_END"
+    #GENERIC37="genSpiAp_g : BOOLEAN := C_GEN_SPI_IF"
+    #GENERIC38="papDataWidth_g : INTEGER := C_PAP_DATA_WIDTH"
+    #GENERIC39="spiCPOL_g : BOOLEAN := C_SPI_CPOL"
+    #GENERIC4="m_burstcount_width_g : INTEGER := C_M_BURSTCOUNT_WIDTH"
+    #GENERIC40="genSimpleIO_g : BOOLEAN := C_GEN_SIMPLE_IO"
+    #GENERIC41="spiCPHA_g : BOOLEAN := C_SPI_CPHA"
+    #GENERIC42="useRmii_g : BOOLEAN := C_USE_RMII"
+    #GENERIC43="iBufSizeLOG2_g : INTEGER := C_MAC_PKT_SIZE_LOG2"
+    #GENERIC44="iBufSize_g : INTEGER := C_MAC_PKT_SIZE"
+    #GENERIC45="Simulate : BOOLEAN := false"
+    #GENERIC5="useHwAcc_g : BOOLEAN := false"
+    #GENERIC6="use2ndPhy_g : BOOLEAN := C_USE_2ND_PHY"
+    #GENERIC7="use2ndCmpTimer_g : BOOLEAN := C_PDI_GEN_SECOND_TIMER"
+    #GENERIC8="useRxIntPacketBuf_g : BOOLEAN := C_MAC_PKT_RX_EN"
+    #GENERIC9="genOnePdiClkDomain_g : BOOLEAN := false"
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
@@ -15646,6 +15646,7 @@ PAGE "POWERLINK IP-CORE"
 "C_PDI_GEN_LED : boolean := false;\n"+
 "C_PDI_GEN_TIME_SYNC : boolean := true;\n"+
 "C_PDI_GEN_SECOND_TIMER : boolean := false;\n"+
+"C_PDI_GEN_EVENT : boolean := true;\n"+
 "--global pdi and mac\n"+
 "C_NUM_RPDO : integer := 3;\n"+
 "C_RPDO_0_BUF_SIZE : integer := 100;\n"+
@@ -15663,8 +15664,10 @@ PAGE "POWERLINK IP-CORE"
 "C_SPI_BIG_END : boolean := false;\n"+
 "-- simpleIO\n"+
 "C_PIO_VAL_LENGTH : integer := 50;\n"+
+"-- debug\n"+
+"C_OBSERVER_ENABLE : boolean := false;\n"+
 ""
-   RECT (200,200,1340,1340)
+   RECT (200,200,1340,1660)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -32788,7 +32791,7 @@ PAGE ""
 {
  PAGEHEADER
  {
-  PAGESIZE (3307,2338)
+  PAGESIZE (6000,3400)
   MARGINS (200,200,200,200)
   RECT (0,0,0,0)
   VARIABLES
@@ -32797,59 +32800,59 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311684073"
-   PAGENAME="header"
-   PAGENUMBER="1"
+   PAGENAME="POWERLINK IP-CORE"
+   PAGENUMBER="4"
    REVISION="1.0"
   }
  }
  
  BODY
  {
-  TEXT  109723, 0, 0
+  TEXT  109740, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "Created:"
-   RECT (2247,1904,2364,1957)
+   RECT (4940,2966,5057,3019)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109724, 0, 0
+  TEXT  109741, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
-   RECT (2421,1900,3091,1960)
+   RECT (5114,2962,5784,3022)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  109725, 0, 0
+  TEXT  109742, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
-   RECT (2245,1964,2316,2017)
+   RECT (4938,3026,5009,3079)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109726, 0, 0
+  TEXT  109743, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "$TITLE"
-   RECT (2418,1960,3088,2020)
+   RECT (5111,3022,5781,3082)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  109727, 0, 0
+  TEXT  109744, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -32857,59 +32860,59 @@ PAGE ""
 "B&R Strasse 1\n"+
 "5142 Eggelsberg\n"+
 "Austria"
-   RECT (2427,1758,3115,1892)
+   RECT (5120,2820,5808,2954)
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  109728, 0, 0
+  TEXT  109745, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
-   RECT (2245,2082,2324,2135)
+   RECT (4938,3144,5017,3197)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109729, 0, 0
+  TEXT  109746, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "$PAGENUMBER / $PAGECOUNT     $PAGENAME"
-   RECT (2417,2078,3087,2138)
+   RECT (5110,3140,5780,3200)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  109730, 0, 0
+  TEXT  109747, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
-   RECT (2243,2022,2371,2075)
+   RECT (4936,3084,5064,3137)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109731, 0, 0
+  TEXT  109748, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
-   RECT (2417,2032,3077,2067)
+   RECT (5110,3094,5770,3129)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  109732, 0, 0
+  GROUP  109749, 0, 0
   {
    PAGEALIGN 10
-   RECT (2227,1738,3108,2138)
+   RECT (4920,2800,5801,3200)
    FREEID 1
    LINE  594, 0, 0
    {
@@ -32918,10 +32921,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109733, 0, 0
+  GROUP  109750, 0, 0
   {
    PAGEALIGN 10
-   RECT (2227,1958,3108,1959)
+   RECT (4920,3020,5801,3021)
    FREEID 1
    LINE  578, 0, 0
    {
@@ -32930,10 +32933,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109734, 0, 0
+  GROUP  109751, 0, 0
   {
    PAGEALIGN 10
-   RECT (2227,1898,3108,1899)
+   RECT (4920,2960,5801,2961)
    FREEID 1
    LINE  577, 0, 0
    {
@@ -32942,10 +32945,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109735, 0, 0
+  GROUP  109752, 0, 0
   {
    PAGEALIGN 10
-   RECT (2227,2018,3108,2019)
+   RECT (4920,3080,5801,3081)
    FREEID 1
    LINE  583, 0, 0
    {
@@ -32954,10 +32957,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109736, 0, 0
+  GROUP  109753, 0, 0
   {
    PAGEALIGN 10
-   RECT (2227,2078,3108,2079)
+   RECT (4920,3140,5801,3141)
    FREEID 1
    LINE  582, 0, 0
    {
@@ -32966,10 +32969,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109737, 0, 0
+  GROUP  109754, 0, 0
   {
    PAGEALIGN 10
-   RECT (2407,1898,2408,2139)
+   RECT (5100,2960,5101,3201)
    FREEID 1
    LINE  579, 0, 0
    {
@@ -32977,18 +32980,18 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  109738, 0, 0
+  LINE  109755, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
-   POINTS ( (2407,1738), (2407,1898) )
+   POINTS ( (5100,2800), (5100,2960) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  109739, 0, 0
+  LINKBMPPICT  109756, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
-   RECT (2247,1758,2387,1838)
+   RECT (4940,2820,5080,2900)
   }
  }
  

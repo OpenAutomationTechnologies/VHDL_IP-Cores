@@ -39,7 +39,8 @@
 #-- 2011-11-25	V0.02	mairt		removed MAC_CMP to reduce resource utilization
 #-- 2011-11-28	V0.03	mairt		added bus interface for pdi pcp, pdi ap and simple io
 #-- 2011-12-02	V0.04	zelenkaj	Exchanged IOs with _I, _O and _T, added missing ISVALIDs
-#-- 2011-12-05	V0.05	zelenkaj	Changed ISVALID for PKT and DMA
+#-- 2011-12-05	V0.05	zelenkaj	Changed ISVALID for PKT and DMA	
+#-- 2011-12-06	V0.06	mairt		added packet size calculation and fixed some bugs
 #------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
@@ -89,7 +90,7 @@ PARAMETER C_RX_INT_PKT = FALSE, DT = BOOLEAN, VALUES = (FALSE = EXT, TRUE = BRAM
 PARAMETER C_USE_RMII = TRUE, DT = BOOLEAN, DESC = "Set Ethernet Port(s) Interface", VALUES = (FALSE = MII, TRUE = RMII)
 PARAMETER C_USE_2ND_PHY = TRUE, DT = BOOLEAN, DESC = "Generate OpenHUB for 2nd Ethernet Port"	 
 PARAMETER C_MAC_NUM_RPDO_USER = 3, DT = INTEGER,RANGE = (1:3), TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 0)
-PARAMETER C_MAC_NUM_TPDO_USER = 3, DT = INTEGER,RANGE = (1:3), TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 0) 
+PARAMETER C_MAC_NUM_TPDO_USER = 1, DT = INTEGER,RANGE = (1), TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 0) 
 PARAMETER C_MAC_PKT_SIZE_RX_USER = 1024, DT = INTEGER, TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 5 && C_PACKET_LOCATION < 2) 
 PARAMETER C_MAC_PKT_SIZE_TX_USER = 1024, DT = INTEGER, TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 5 && C_PACKET_LOCATION < 1) 
 
@@ -98,6 +99,18 @@ PARAMETER C_PDI_NUM_RPDO_USER = 3, DT = INTEGER,RANGE = (1:3), TYPE = NON_HDL, I
 PARAMETER C_PDI_RPDO_BUF_SIZE_USER = 100, DT = INTEGER, RANGE = (1:1500), TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)  
 PARAMETER C_PDI_NUM_TPDO_USER = 1, DT = INTEGER, TYPE = NON_HDL, RANGE = (1), ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
 PARAMETER C_PDI_TPDO_BUF_SIZE_USER = 100, DT = INTEGER, RANGE = (1:1500), TYPE = NON_HDL, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)  
+PARAMETER C_PDI_ASYNC_BUF_0_SIZE_USER = 50, DT = INTEGER, RANGE = (0:1500), TYPE = NON_HDL, ISVALID = ((ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) && C_PDI_GEN_ASYNC_BUF_0 == TRUE)
+PARAMETER C_PDI_ASYNC_BUF_1_SIZE_USER = 50, DT = INTEGER, RANGE = (0:1500), TYPE = NON_HDL, ISVALID = ((ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) && C_PDI_GEN_ASYNC_BUF_1 == TRUE)
+
+PARAMETER C_PDI_GEN_ASYNC_BUF_0 = TRUE, DT = BOOLEAN, SYSLEVEL_UPDATE_VALUE_PROC = gen_async_0_buffer 	 
+PARAMETER C_PDI_ASYNC_BUF_0_SIZE = 50, DT = INTEGER, SYSLEVEL_UPDATE_VALUE_PROC = calc_async_0_buffer_size
+PARAMETER C_PDI_GEN_ASYNC_BUF_1 = TRUE, DT = BOOLEAN, SYSLEVEL_UPDATE_VALUE_PROC = gen_async_1_buffer	 
+PARAMETER C_PDI_ASYNC_BUF_1_SIZE = 50, DT = INTEGER, SYSLEVEL_UPDATE_VALUE_PROC = calc_async_1_buffer_size
+	   
+PARAMETER C_PDI_GEN_LED = false, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)
+PARAMETER C_PDI_GEN_TIME_SYNC = true, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)
+PARAMETER C_PDI_GEN_SECOND_TIMER = false, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)
+PARAMETER C_PDI_GEN_EVENT = true, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) 
 						
 #global pdi and mac
 PARAMETER C_NUM_RPDO = 3, DT = INTEGER,RANGE = (1:3), SYSLEVEL_UPDATE_VALUE_PROC = calc_rpdo_count
@@ -111,14 +124,6 @@ PARAMETER C_MAC_PKT_SIZE_LOG2 = 1500, DT = INTEGER, SYSLEVEL_UPDATE_VALUE_PROC =
 
 #debug   	
 PARAMETER C_OBSERVER_ENABLE = FALSE, DT = BOOLEAN
-
-PARAMETER C_PDI_GEN_ASYNC_BUF_0 = TRUE, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
-PARAMETER C_PDI_ASYNC_BUF_0 = 50, DT = INTEGER,	RANGE = (1:1500), ISVALID = ((ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) && C_PDI_GEN_ASYNC_BUF_0 == TRUE)
-PARAMETER C_PDI_GEN_ASYNC_BUF_1 = TRUE, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)	 
-PARAMETER C_PDI_ASYNC_BUF_1 = 50, DT = INTEGER,	RANGE = (1:1500), ISVALID = ((ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4) && C_PDI_GEN_ASYNC_BUF_1 == TRUE)	   
-PARAMETER C_PDI_GEN_LED = false, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)
-PARAMETER C_PDI_GEN_TIME_SYNC = true, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)
-PARAMETER C_PDI_GEN_SECOND_TIMER = false, DT = BOOLEAN, ISVALID = (ipcore_mode_g == 1 || ipcore_mode_g == 3 || ipcore_mode_g == 4)
 
 # Parallel interface	
 PARAMETER C_PAP_LOW_ACT = FALSE, DT = BOOLEAN, VALUES = (FALSE = "High Active", TRUE = "Low Active"), ISVALID = (ipcore_mode_g == 1)
