@@ -49,7 +49,7 @@ proc generate {drv_handle} {
 ###################################################
 ## internal procedures
 ###################################################
-proc calc_rx_tx_buffer_size { tx_needed } {
+proc calc_rx_tx_buffer_size { tx_needed param_handle } {
  	set macPktLength	4
 	# tx buffer header (header + packet length)
 	set macTxHd			[expr  0 + $macPktLength]
@@ -72,7 +72,10 @@ proc calc_rx_tx_buffer_size { tx_needed } {
 	# max packet size (ethheader + mtu + crc + tx buffer header)
 	set maxPktBufSize	[expr $ethHd + $mtu + $crc + $macTxHd]
 	
-		#calc tx packet size
+	# get tpdo0 size
+	set tpdo0size [ calc_tpdo_buffer_size $param_handle ]
+	
+	#calc tx packet size
 	set IdRes 	[expr 176 				+ $crc + $macTxHd]
 	set StRes 	[expr 72 				+ $crc + $macTxHd]
 	set NmtReq 	[expr $ethHd + $mtu		+ $crc + $macTxHd]
@@ -113,9 +116,9 @@ proc calc_rx_tx_buffer_size { tx_needed } {
 	set rxBufSize [expr $macRxBuffers * $rxBufSize]
 	
 	if { $tx_needed == true} {
-	 	return txBufSize
+	 	return $txBufSize
 	} else {
-	    return rxBufSize
+	    return $rxBufSize
 	}
 }
 
@@ -240,8 +243,8 @@ proc calc_mac_packet_size { param_handle } {
 		set txBufSize   [xget_hw_parameter_value $mhsinst "C_MAC_PKT_SIZE_TX_USER"] 			
 	} else {  
 		# PDI or simple IO is used
-		set txBufSize [ calc_rx_tx_buffer_size true ]
-		set rxBufSize [ calc_rx_tx_buffer_size false ]
+		set txBufSize [ calc_rx_tx_buffer_size true $param_handle ]
+		set rxBufSize [ calc_rx_tx_buffer_size false $param_handle ]
 	}
 	
 	if { $pack_loc == 0 } {
@@ -272,8 +275,8 @@ proc calc_mac_packet_size_log2 { param_handle } {
 		set txBufSize   [xget_hw_parameter_value $mhsinst "C_MAC_PKT_SIZE_TX_USER"] 			
 	} else {  
 		# PDI or simple IO is used
-		set txBufSize [ calc_rx_tx_buffer_size true ]
-		set rxBufSize [ calc_rx_tx_buffer_size false ]
+		set txBufSize [ calc_rx_tx_buffer_size true $param_handle ]
+		set rxBufSize [ calc_rx_tx_buffer_size false $param_handle ]
 	}
 	
 	if { $pack_loc == 0 } {
