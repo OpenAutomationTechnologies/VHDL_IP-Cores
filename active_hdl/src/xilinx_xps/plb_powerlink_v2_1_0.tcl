@@ -428,12 +428,7 @@ proc calc_async_0_buffer_size { param_handle} {
    	set mhsinst      	[xget_hw_parent_handle $param_handle]
 	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_0_SIZE_USER"]	
 	
-
-	if {$async_buf_size < 20} {
-	 	error "Set Asynchronous Buffer Nr. 0 Size to at least 20 byte!"
-	} else {
-		set async_buf_size [expr $async_buf_size + 4]
-	}
+	set async_buf_size [expr $async_buf_size + 4]
 	
 	return $async_buf_size
 }		

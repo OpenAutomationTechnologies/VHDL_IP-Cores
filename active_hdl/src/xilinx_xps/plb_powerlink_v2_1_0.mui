@@ -135,14 +135,14 @@
 	<widget id="C_PDI_ASYNC_BUF_0_SIZE_USER">
 		<key>C_PDI_ASYNC_BUF_0_SIZE_USER</key>
 		<label>Asynchronous buffer 0 size</label>
-		<tip></tip>
+		<tip>This value needs to be higher than 20</tip>
 	</widget>
 	'>	
 	<!ENTITY C_PDI_ASYNC_BUF_1_SIZE_USER '
 	<widget id="C_PDI_ASYNC_BUF_1_SIZE_USER">
 		<key>C_PDI_ASYNC_BUF_1_SIZE_USER</key>
 		<label>Asynchronous buffer 1 size</label>
-		<tip></tip>
+		<tip>Setting this value to 0 disables the second asynchronous buffer</tip>
 	</widget>
 	'>	
 	<!ENTITY C_PDI_GEN_LED '
