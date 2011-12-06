@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 109499
+ FREEID 109516
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -15631,8 +15631,8 @@ PAGE "POWERLINK IP-CORE"
 "C_GEN_PLB_BUS_IF : boolean := false;\n"+
 "C_GEN_SIMPLE_IO : boolean := false;\n"+
 "-- openMAC\n"+
-"C_MAC_PKT_SIZE : integer := 1500;\n"+
-"C_MAC_PKT_SIZE_LOG2 : integer := integer(ceil(log2(real(C_MAC_PKT_SIZE))));\n"+
+"C_MAC_PKT_SIZE : integer := 1024;\n"+
+"C_MAC_PKT_SIZE_LOG2 : integer := 10;\n"+
 "C_USE_RMII : boolean := false;\n"+
 "C_TX_INT_PKT : boolean := false;\n"+
 "C_RX_INT_PKT : boolean := false;\n"+
@@ -32763,7 +32763,7 @@ PAGE ""
  
  BODY
  {
-  TEXT  109482, 0, 0
+  TEXT  109499, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -32774,7 +32774,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109483, 0, 0
+  TEXT  109500, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -32785,7 +32785,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  109484, 0, 0
+  TEXT  109501, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -32795,7 +32795,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109485, 0, 0
+  TEXT  109502, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -32807,7 +32807,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  109486, 0, 0
+  TEXT  109503, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -32821,7 +32821,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  109487, 0, 0
+  TEXT  109504, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -32831,7 +32831,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109488, 0, 0
+  TEXT  109505, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -32843,7 +32843,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  109489, 0, 0
+  TEXT  109506, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -32853,7 +32853,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109490, 0, 0
+  TEXT  109507, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -32864,7 +32864,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  109491, 0, 0
+  GROUP  109508, 0, 0
   {
    PAGEALIGN 10
    RECT (4920,2800,5801,3200)
@@ -32876,7 +32876,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109492, 0, 0
+  GROUP  109509, 0, 0
   {
    PAGEALIGN 10
    RECT (4920,3020,5801,3021)
@@ -32888,7 +32888,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109493, 0, 0
+  GROUP  109510, 0, 0
   {
    PAGEALIGN 10
    RECT (4920,2960,5801,2961)
@@ -32900,7 +32900,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109494, 0, 0
+  GROUP  109511, 0, 0
   {
    PAGEALIGN 10
    RECT (4920,3080,5801,3081)
@@ -32912,7 +32912,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109495, 0, 0
+  GROUP  109512, 0, 0
   {
    PAGEALIGN 10
    RECT (4920,3140,5801,3141)
@@ -32924,7 +32924,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109496, 0, 0
+  GROUP  109513, 0, 0
   {
    PAGEALIGN 10
    RECT (5100,2960,5101,3201)
@@ -32935,14 +32935,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  109497, 0, 0
+  LINE  109514, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (5100,2800), (5100,2960) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  109498, 0, 0
+  LINKBMPPICT  109515, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
