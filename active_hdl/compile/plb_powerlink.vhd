@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Mon Dec  5 14:36:21 2011
+-- Generated   : Tue Dec  6 09:20:06 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -86,15 +86,13 @@ entity plb_powerlink is
        C_GEN_PLB_BUS_IF : boolean := false;
        C_GEN_SIMPLE_IO : boolean := false;
        -- openMAC
+       C_MAC_PKT_SIZE : integer := 1024;
+       C_MAC_PKT_SIZE_LOG2 : integer := 10;
        C_USE_RMII : boolean := false;
        C_TX_INT_PKT : boolean := false;
        C_RX_INT_PKT : boolean := false;
        C_USE_2ND_PHY : boolean := true;
        --pdi
-       C_PDI_NUM_RPDO : integer := 3;
-       C_PDI_RPDO_BUF_SIZE : integer := 100;
-       C_PDI_NUM_TPDO : integer := 1;
-       C_PDI_TPDO_BUF_SIZE : integer := 100;
        C_PDI_GEN_ASYNC_BUF_0 : boolean := true;
        C_PDI_ASYNC_BUF_0 : integer := 50;
        C_PDI_GEN_ASYNC_BUF_1 : boolean := true;
@@ -102,6 +100,13 @@ entity plb_powerlink is
        C_PDI_GEN_LED : boolean := false;
        C_PDI_GEN_TIME_SYNC : boolean := true;
        C_PDI_GEN_SECOND_TIMER : boolean := false;
+       --global pdi and mac
+       C_NUM_RPDO : integer := 3;
+       C_RPDO_0_BUF_SIZE : integer := 100;
+       C_RPDO_1_BUF_SIZE : integer := 100;
+       C_RPDO_2_BUF_SIZE : integer := 100;
+       C_NUM_TPDO : integer := 1;
+       C_TPDO_BUF_SIZE : integer := 100;
        -- pap
        C_PAP_DATA_WIDTH : integer := 16;
        C_PAP_BIG_END : boolean := false;
@@ -948,8 +953,6 @@ constant C_MAC_CMP_HIGH : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_M
 -- openMAC PKT PLB Slave
 constant C_MAC_PKT_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_MAC_PKT_BASEADDR;
 constant C_MAC_PKT_HIGH : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_MAC_PKT_HIGHADDR;
-constant C_MAC_PKT_SIZE : integer := conv_integer(C_MAC_PKT_HIGHADDR - C_MAC_PKT_BASEADDR + 1);
-constant C_MAC_PKT_SIZE_LOG2 : integer := integer(ceil(log2(real(C_MAC_PKT_SIZE))));
 -- SimpleIO Slave
 constant C_SMP_PCP_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_SMP_PCP_BASEADDR;
 constant C_SMP_PCP_HIGH : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_SMP_PCP_HIGHADDR;
@@ -1346,12 +1349,12 @@ THE_POWERLINK_IP_CORE : powerlink
        iBufSizeLOG2_g => C_MAC_PKT_SIZE_LOG2,
        iBufSize_g => C_MAC_PKT_SIZE,
        iPdiRev_g => 21930,
-       iRpdo0BufSize_g => C_PDI_RPDO_BUF_SIZE,
-       iRpdo1BufSize_g => C_PDI_RPDO_BUF_SIZE,
-       iRpdo2BufSize_g => C_PDI_RPDO_BUF_SIZE,
-       iRpdos_g => C_PDI_NUM_RPDO,
-       iTpdoBufSize_g => C_PDI_TPDO_BUF_SIZE,
-       iTpdos_g => C_PDI_NUM_TPDO,
+       iRpdo0BufSize_g => C_RPDO_0_BUF_SIZE,
+       iRpdo1BufSize_g => C_RPDO_1_BUF_SIZE,
+       iRpdo2BufSize_g => C_RPDO_2_BUF_SIZE,
+       iRpdos_g => C_NUM_RPDO,
+       iTpdoBufSize_g => C_TPDO_BUF_SIZE,
+       iTpdos_g => C_NUM_TPDO,
        m_burstcount_const_g => true,
        m_burstcount_width_g => C_M_BURSTCOUNT_WIDTH,
        m_data_width_g => 32,
@@ -1658,7 +1661,7 @@ begin
     );
 end generate genMacDmaPlbBurst;
 
-genPlbMasterHandler : if C_DMA_EN = TRUE generate
+genThePlbMaster : if C_DMA_EN = TRUE generate
 begin
   THE_PLB_MASTER_HANDLER : plb_master_handler
     generic map (
@@ -1713,9 +1716,9 @@ begin
          m_write => m_write,
          m_writedata => m_writedata
     );
-end generate genPlbMasterHandler;
+end generate genThePlbMaster;
 
-genMacPktPlbSingleSlave : if C_PKT_BUF_EN generate
+genMacPktPLbSingleSlave : if C_PKT_BUF_EN generate
 begin
   MAC_PKT_PLB_SINGLE_SLAVE : plbv46_slave_single
     generic map (
@@ -1786,11 +1789,11 @@ begin
          Sl_wrComp => MAC_PKT_wrComp,
          Sl_wrDAck => MAC_PKT_wrDAck
     );
-end generate genMacPktPlbSingleSlave;
+end generate genMacPktPLbSingleSlave;
 
-genPcpPdi : if (C_GEN_PDI) generate
+genPdiPcp : if (C_GEN_PDI) generate
 begin
-  PCP_PDI_PLB_SINGLE_SLAVE : plbv46_slave_single
+  PDI_PCP_PLB_SINGLE_SLAVE : plbv46_slave_single
     generic map (
          C_ARD_ADDR_RANGE_ARRAY => (C_PDI_PCP_BASE,C_PDI_PCP_HIGH),
          C_ARD_NUM_CE_ARRAY => (0 => 1),
@@ -1859,9 +1862,9 @@ begin
          Sl_wrComp => PDI_PCP_wrComp,
          Sl_wrDAck => PDI_PCP_wrDAck
     );
-end generate genPcpPdi;
+end generate genPdiPcp;
 
-genPcpPdiSignals : if C_GEN_PDI generate
+genPcpPdiLink : if C_GEN_PDI generate
 begin
   --pdi_pcp assignments
 clkPcp <= Bus2PDI_PCP_Clk;
@@ -1881,11 +1884,11 @@ PDI_PCP2Bus_Data <= pcp_readdata;
 PDI_PCP2Bus_RdAck <= pcp_chipselect and pcp_read and not pcp_waitrequest;
 PDI_PCP2Bus_WrAck <= pcp_chipselect and pcp_write and not pcp_waitrequest;
 PDI_PCP2Bus_Error <= '0';
-end generate genPcpPdiSignals;
+end generate genPcpPdiLink;
 
-genApPdi : if (C_GEN_PLB_BUS_IF) generate
+genPdiAp : if (C_GEN_PLB_BUS_IF) generate
 begin
-  AP_PDI_PLB_SINGLE_SLAVE : plbv46_slave_single
+  PDI_AP_PLB_SINGLE_SLAVE : plbv46_slave_single
     generic map (
          C_ARD_ADDR_RANGE_ARRAY => (C_PDI_AP_BASE,C_PDI_AP_HIGH),
          C_ARD_NUM_CE_ARRAY => (0 => 1),
@@ -1954,9 +1957,9 @@ begin
          Sl_wrComp => PDI_AP_wrComp,
          Sl_wrDAck => PDI_AP_wrDAck
     );
-end generate genApPdi;
+end generate genPdiAp;
 
-genSimpleIoPlbSignals : if C_GEN_SIMPLE_IO generate
+genSimpleIoSignals : if C_GEN_SIMPLE_IO generate
 begin
   --SMP_PCP assignments
 clkPcp <= Bus2SMP_PCP_Clk;
@@ -1972,11 +1975,11 @@ SMP_PCP2Bus_Data <= smp_readdata;
 SMP_PCP2Bus_RdAck <= smp_chipselect and smp_read and not smp_waitrequest;
 SMP_PCP2Bus_WrAck <= smp_chipselect and smp_write and not smp_waitrequest;
 SMP_PCP2Bus_Error <= '0';
-end generate genSimpleIoPlbSignals;
+end generate genSimpleIoSignals;
 
-genSimpleIoPlb : if (C_GEN_SIMPLE_IO) generate
+genSmpIo : if (C_GEN_SIMPLE_IO) generate
 begin
-  SIMPLE_IO_PLB_SINGLE_SLAVE : plbv46_slave_single
+  SMP_IO_PLB_SINGLE_SLAVE : plbv46_slave_single
     generic map (
          C_ARD_ADDR_RANGE_ARRAY => (C_SMP_PCP_BASE,C_SMP_PCP_HIGH),
          C_ARD_NUM_CE_ARRAY => (0 => 1),
@@ -2045,6 +2048,6 @@ begin
          Sl_wrComp => SMP_PCP_wrComp,
          Sl_wrDAck => SMP_PCP_wrDAck
     );
-end generate genSimpleIoPlb;
+end generate genSmpIo;
 
 end struct;

@@ -150,23 +150,157 @@ proc update_rx_packet_location { param_handle} {
 		# RX is in external RAM
 		return false 
 	}
+} 
+
+###################################################
+## MAC Packet size calculation
+###################################################			 
+proc calc_mac_packet_size { param_handle } {
+	set returnVal 0
+
+	set mhsinst      [xget_hw_parent_handle $param_handle]	
+	
+	## TODO!!!
+
+	return $returnVal
 }
 
 ###################################################
 ## PDO Buffer size calculation
-###################################################
+###################################################			 
+# calc rpdo 0 buffer size
+proc calc_rpdo_0_buffer_size { param_handle} {
+	set returnVal 0
+
+	set mhsinst      [xget_hw_parent_handle $param_handle]		  
+    set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+    set buffer_size   [xget_hw_parameter_value $mhsinst "C_PDI_RPDO_BUF_SIZE_USER"]
+	
+	if {$ipcore_mode == 0} {
+		#DirectIO is used
+		set returnVal [ expr 4 + 16 ] # header + 4 bytes real data
+	} else {  
+		# PDI is used
+		set returnVal [ expr $buffer_size + 16 ] # add header
+	}
+		   
+	return $returnVal
+	
+} 	  
+
+proc calc_rpdo_1_buffer_size { param_handle} {
+	set returnVal 0
+
+	set mhsinst      		[xget_hw_parent_handle $param_handle]		  
+    set ipcore_mode   		[xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+	set buffer_count_mac  	[xget_hw_parameter_value $mhsinst "C_MAC_NUM_RPDO_USER"] 
+    set buffer_size   		[xget_hw_parameter_value $mhsinst "C_PDI_RPDO_BUF_SIZE_USER"]
+	
+	if {$ipcore_mode == 0} {
+		#DirectIO is used
+		if {buffer_count_mac < 2} {
+			set returnVal [ expr 0 ] # buffer deactivated
+		} else { 	
+			set returnVal [ expr 4 + 16 ] # header + 4 bytes real data
+		}
+	} else {	 
+		# PDI is used
+		set returnVal [ expr $buffer_size + 16 ] # add header
+	}
+		   
+	return $returnVal
+	
+} 	 
+
+proc calc_rpdo_2_buffer_size { param_handle} {
+	set returnVal 0
+
+	set mhsinst      		[xget_hw_parent_handle $param_handle]		  
+    set ipcore_mode   		[xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+	set buffer_count_mac  	[xget_hw_parameter_value $mhsinst "C_MAC_NUM_RPDO_USER"] 
+    set buffer_size   		[xget_hw_parameter_value $mhsinst "C_PDI_RPDO_BUF_SIZE_USER"]
+	
+	if {$ipcore_mode == 0} {
+		#DirectIO is used
+		if {buffer_count_mac < 3} {
+			set returnVal [ expr 0 ] # buffer deactivated
+		} else { 	
+			set returnVal [ expr 4 + 16 ] # header + 4 bytes real data
+		} 
+	} elseif {$ipcore_mode == 5} {
+		#openMAC only
+		set returnVal [ expr 0 ]					
+	} else {	 
+		# PDI is used
+		set returnVal [ expr $buffer_size + 16 ] # add header
+	}
+		   
+	return $returnVal
+	
+} 	
+
 # calc tpdo buffer size
 proc calc_tpdo_buffer_size { param_handle} {
 	set returnVal 0
 
-	set mhsinst      [xget_hw_parent_handle $param_handle]
+	set mhsinst      [xget_hw_parent_handle $param_handle]	 
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
     set param1val   [xget_hw_parameter_value $mhsinst "C_PDI_TPDO_BUF_SIZE"]
 	
-	set returnVal [ expr $param1val + 16 ]
-		   
-	return $returnVal
+	if {$ipcore_mode == 0} {
+		#DirectIO is used
+		set returnVal [ expr 4 ] # just 4 bytes real data  
+	} elseif {$ipcore_mode == 5} {
+		#openMAC only
+		set returnVal [ expr 0 ]			
+	} else {
+		set returnVal [ expr $param1val + 16 ]
+	}
 	
+	return $returnVal
 } 
 
+###################################################
+## Calc RPDO and TPDO count
+###################################################	
+proc calc_rpdo_count { param_handle} {
+	set returnVal 0
 
+	set mhsinst      	[xget_hw_parent_handle $param_handle]
+	set rpdo_count_mac	[xget_hw_parent_handle $C_MAC_NUM_RPDO_USER]
+	set rpdo_count_pdi	[xget_hw_parent_handle $C_PDI_NUM_RPDO_USER] 
+	
+	if {$ipcore_mode == 0} {
+		#DirectIO is used
+		set returnVal $rpdo_count_mac
+	} elseif {$ipcore_mode == 5} {
+		#openMAC only
+		set returnVal [ expr 0 ]		
+	} else {  
+		#pdi is used
+	    set returnVal $rpdo_count_pdi
+	}
+	
+	return $returnVal
+}
 
+proc calc_tpdo_count { param_handle} {
+	set returnVal 0
+
+	set mhsinst      [xget_hw_parent_handle $param_handle]
+   	set tpdo_count_mac	[xget_hw_parent_handle $C_MAC_NUM_TPDO_USER]
+	set tpdo_count_pdi	[xget_hw_parent_handle $C_PDI_NUM_TPDO_USER]
+	
+	if {$ipcore_mode == 0} {
+		#DirectIO is used
+		set returnVal $tpdo_count_mac					
+	} elseif {$ipcore_mode == 5} {
+		#openMAC only
+		set returnVal [ expr 0 ]					
+	} else {  
+		#pdi is used
+	    set returnVal $tpdo_count_pdi
+	}
+	
+	return $returnVal
+}
