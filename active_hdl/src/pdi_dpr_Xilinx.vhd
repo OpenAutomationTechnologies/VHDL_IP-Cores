@@ -65,6 +65,23 @@ ENTITY pdi_dpr IS
 END pdi_dpr;
 
 architecture struct of pdi_dpr is
+	constant cActivated : std_logic := '1';
 begin
+	
+	abuseMacDpr : entity work.dc_dpr_be
+	generic map (
+		WIDTH => data_a'length,
+		SIZE => NUM_WORDS,
+		ADDRWIDTH => LOG2_NUM_WORDS
+	)
+	port map (
+		clkA => clock_a,		clkB => clock_b,
+		enA => cActivated,	enB => cActivated,
+		addrA => address_a, 	addrB => address_b,
+		diA => data_a,			diB => data_b,
+		doA => q_a, 			doB => q_b,
+		weA => wren_a, 		weB => wren_b,
+		beA => byteena_a,		beB => byteena_b
+	);
 	
 end architecture struct;

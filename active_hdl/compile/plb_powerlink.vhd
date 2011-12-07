@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Tue Dec  6 09:20:06 2011
+-- Generated   : Wed Dec  7 11:23:39 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -56,6 +56,7 @@
 -- 2011-11-26 	V0.03	mairt    	added slave interface for simpleIO
 -- 2011-12-02	V0.04	zelenkaj	Exchanged IOs with _I, _O and _T
 -- 2011-12-06	V0.05	zelenkaj	Changed instance names
+-- 2011-12-07	V0.06	zelenkaj	Fixed address assignments for PDI PCP/AP
 --
 -------------------------------------------------------------------------------
 
@@ -100,6 +101,7 @@ entity plb_powerlink is
        C_PDI_GEN_LED : boolean := false;
        C_PDI_GEN_TIME_SYNC : boolean := true;
        C_PDI_GEN_SECOND_TIMER : boolean := false;
+       C_PDI_GEN_EVENT : boolean := true;
        --global pdi and mac
        C_NUM_RPDO : integer := 3;
        C_RPDO_0_BUF_SIZE : integer := 100;
@@ -117,6 +119,8 @@ entity plb_powerlink is
        C_SPI_BIG_END : boolean := false;
        -- simpleIO
        C_PIO_VAL_LENGTH : integer := 50;
+       -- debug
+       C_OBSERVER_ENABLE : boolean := false;
        -- PDI AP PLB Slave
        C_PDI_AP_BASEADDR : std_logic_vector := X"00000000";
        C_PDI_AP_HIGHADDR : std_logic_vector := X"000FFFFF";
@@ -1175,7 +1179,7 @@ ap_read <= Bus2PDI_AP_RNW;
 ap_write <= not Bus2PDI_AP_RNW;
 ap_chipselect <= Bus2PDI_AP_CS(0);
 ap_byteenable <= Bus2PDI_AP_BE;
-ap_address <= Bus2PDI_AP_Addr(12 downto 0);
+ap_address <= Bus2PDI_AP_Addr(14 downto 2);
 
 PDI_AP2Bus_Data <= ap_readdata;
 --	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
@@ -1333,7 +1337,7 @@ THE_POWERLINK_IP_CORE : powerlink
        endian_g => "big",
        genABuf1_g => C_PDI_GEN_ASYNC_BUF_0,
        genABuf2_g => C_PDI_GEN_ASYNC_BUF_1,
-       genEvent_g => false,
+       genEvent_g => C_PDI_GEN_EVENT,
        genInternalAp_g => C_GEN_PLB_BUS_IF,
        genIoBuf_g => false,
        genLedGadget_g => C_PDI_GEN_LED,
@@ -1343,7 +1347,7 @@ THE_POWERLINK_IP_CORE : powerlink
        genSmiIO => false,
        genSpiAp_g => C_GEN_SPI_IF,
        genTimeSync_g => C_PDI_GEN_TIME_SYNC,
-       gen_dma_observer_g => true,
+       gen_dma_observer_g => C_OBSERVER_ENABLE,
        iAsyBuf1Size_g => C_PDI_ASYNC_BUF_0,
        iAsyBuf2Size_g => C_PDI_ASYNC_BUF_1,
        iBufSizeLOG2_g => C_MAC_PKT_SIZE_LOG2,
@@ -1876,7 +1880,7 @@ pcp_read <= Bus2PDI_PCP_RNW;
 pcp_write <= not Bus2PDI_PCP_RNW;
 pcp_chipselect <= Bus2PDI_PCP_CS(0);
 pcp_byteenable <= Bus2PDI_PCP_BE;
-pcp_address <= Bus2PDI_PCP_Addr(12 downto 0);
+pcp_address <= Bus2PDI_PCP_Addr(14 downto 2);
 
 PDI_PCP2Bus_Data <= pcp_readdata;
 --	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
