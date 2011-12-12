@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  2011/11/29		zelenkaj	added DMA observer feature
 							removed old IP-core support
 							added missing Microblaze support
+ 2011/12/12		zelenkaj	changed packet location enumerator (for Nios II)
 ----------------------------------------------------------------------------*/
 
 
@@ -120,18 +121,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_PKT_LOC					POWERLINK_0_MAC_REG_PKTLOC
 	#define EDRV_PHY_NUM					POWERLINK_0_MAC_REG_PHYCNT
 	#define EDRV_DMA_OBSERVER				POWERLINK_0_MAC_REG_DMAOBSERV
-#if EDRV_PKT_LOC == 0
+#if EDRV_PKT_LOC == 0						//TX+RX in M9K
 	#define EDRV_MAX_RX_BUFFERS         	POWERLINK_0_MAC_REG_MACRXBUFFERS
 	#define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
 	#define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
-#elif EDRV_PKT_LOC == 1
-	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
-	#define EDRV_PKT_BASE           (void *)0 //not used
-	#define EDRV_PKT_SPAN                   0 //not used
-#elif EDRV_PKT_LOC == 2
+#elif EDRV_PKT_LOC == 1						//TX in M9K and RX in external memory
 	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
 	#define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
 	#define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
+#elif EDRV_PKT_LOC == 2						//TX+RX in external memory
+	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
+	#define EDRV_PKT_BASE           (void *)0 //not used
+	#define EDRV_PKT_SPAN                   0 //not used
 #endif
 #elif defined(__OPENMAC) //OPENMAC IP-core used
 	#error "Not supported! Please change to POWERLINK IP-core!"
