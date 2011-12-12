@@ -106,6 +106,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define EDRV_PHY_RST_PULSE_US		10000 //length of reset pulse (rst_n = 0)
 #define EDRV_PHY_RST_READY_US		 5000 //time after phy is ready to operate
 
+//--- packet location definitions ---
+#define EDRV_PKT_LOC_TX_RX_INT				0
+#define EDRV_PKT_LOC_TX_INT_RX_EXT			1
+#define EDRV_PKT_LOC_TX_RX_EXT				2
+
 //--- set the system's base addresses ---
 #ifdef __NIOS2__
 #ifdef __POWERLINK //POWERLINK IP-core used
@@ -121,15 +126,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_PKT_LOC					POWERLINK_0_MAC_REG_PKTLOC
 	#define EDRV_PHY_NUM					POWERLINK_0_MAC_REG_PHYCNT
 	#define EDRV_DMA_OBSERVER				POWERLINK_0_MAC_REG_DMAOBSERV
-#if EDRV_PKT_LOC == 0						//TX+RX in M9K
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT						//TX+RX in M9K
 	#define EDRV_MAX_RX_BUFFERS         	POWERLINK_0_MAC_REG_MACRXBUFFERS
 	#define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
 	#define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
-#elif EDRV_PKT_LOC == 1						//TX in M9K and RX in external memory
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT						//TX in M9K and RX in external memory
 	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
 	#define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
 	#define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
-#elif EDRV_PKT_LOC == 2						//TX+RX in external memory
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT						//TX+RX in external memory
 	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
 	#define EDRV_PKT_BASE           (void *)0 //not used
 	#define EDRV_PKT_SPAN                   0 //not used
@@ -158,15 +163,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_PHY_NUM					2
 	#define EDRV_DMA_OBSERVER				0 //observer circuit is NOT available
 	//#define EDRV_DMA_OBSERVER				1 //observer circuit is available
-#if EDRV_PKT_LOC == 0
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
 	#define EDRV_MAX_RX_BUFFERS         	6
 	#define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
 	#define EDRV_PKT_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_PKT_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR+1)
-#elif EDRV_PKT_LOC == 1
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
 	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
 	#define EDRV_PKT_BASE           (void *)0 //not used
 	#define EDRV_PKT_SPAN                   0 //not used
-#elif EDRV_PKT_LOC == 2
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
 	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
 	#define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
 	#define EDRV_PKT_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_PKT_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR+1)
@@ -265,7 +270,7 @@ typedef struct _tEdrvInstance
     //tx msg counter
     DWORD                   m_dwMsgFree;
     DWORD                   m_dwMsgSent;
-#if (EDRV_PKT_LOC == 0 || EDRV_PKT_LOC == 2)
+#if (EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT || EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT)
     //needed for buffer management not located in heap
 #if EDVR_PKT_LOC == 0
     void*                   m_pRxBufBase;
@@ -350,7 +355,7 @@ BYTE            abFilterMask[31],
 #endif
 
     memset(&EdrvInstance_l, 0, sizeof(EdrvInstance_l)); //reset driver struct
-#if (EDRV_PKT_LOC == 0 || EDRV_PKT_LOC == 2)
+#if (EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT || EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT)
     memset(EDRV_PKT_BASE, 0, EDRV_PKT_SPAN); //reset MAC-internal buffers
 #endif
 
@@ -388,7 +393,7 @@ BYTE            abFilterMask[31],
     EdrvInstance_l.m_EthConf.pPhyBase = EDRV_MII_BASE;
     EdrvInstance_l.m_EthConf.pRamBase = EDRV_RAM_BASE;
     EdrvInstance_l.m_EthConf.pRegBase = EDRV_MAC_BASE;
-#if EDRV_PKT_LOC == 0
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
     //set mac-internal buffer base
 #ifdef __NIOS2__
     EdrvInstance_l.m_EthConf.pBufBase = (void*) alt_remap_uncached(EDRV_PKT_BASE, EDRV_PKT_SPAN);
@@ -401,11 +406,11 @@ BYTE            abFilterMask[31],
 #endif
     EdrvInstance_l.m_EthConf.pktLoc = OMETH_PKT_LOC_MACINT;
     EdrvInstance_l.m_dwBufSpan = EDRV_PKT_SPAN;
-#elif EDRV_PKT_LOC == 1
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
     //use heap as packet buffer
     EdrvInstance_l.m_EthConf.pBufBase = 0;
     EdrvInstance_l.m_EthConf.pktLoc = OMETH_PKT_LOC_HEAP;
-#elif EDRV_PKT_LOC == 2
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
     //use heap as rx packet buffer
 #ifdef __NIOS2__
     EdrvInstance_l.m_pBufBase = (void*) alt_remap_uncached(EDRV_PKT_BASE, EDRV_PKT_SPAN);
@@ -499,11 +504,11 @@ BYTE            abFilterMask[31],
     }
 
     //moved following lines here, since omethHookCreate may change tx buffer base!
-#if EDRV_PKT_LOC == 0
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
     //get rx/tx buffer base
     EdrvInstance_l.m_pRxBufBase = omethGetRxBufBase(EdrvInstance_l.m_hOpenMac);
     EdrvInstance_l.m_pTxBufBase = omethGetTxBufBase(EdrvInstance_l.m_hOpenMac);
-#elif EDRV_PKT_LOC == 2
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
     //get tx buffer base
 #ifdef __NIOS2__
     EdrvInstance_l.m_pTxBufBase = (void*) alt_remap_uncached(EDRV_PKT_BASE, EDRV_PKT_SPAN);
@@ -673,7 +678,7 @@ ometh_packet_typ*   pPacket = NULL;
     PRINTF2("%s: allocate %i bytes\n", __func__, (int)(pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length)));
 #endif
 
-#if EDRV_PKT_LOC == 1
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
     // malloc aligns each allocated buffer so every type fits into this buffer.
     // this means 8 Byte alignment.
 #ifdef __NIOS2__
@@ -683,7 +688,7 @@ ometh_packet_typ*   pPacket = NULL;
 #else
 #error "Configuration unknown!"
 #endif
-#elif (EDRV_PKT_LOC == 0 || EDRV_PKT_LOC == 2)
+#elif (EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT || EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT)
     {
         static void *pNextBuffer = NULL;
 			//stores the next buffer to be allocated
@@ -791,14 +796,14 @@ ometh_packet_typ*   pPacket = NULL;
 
     // mark buffer as free, before actually freeing it
     pBuffer_p->m_pbBuffer = NULL;
-#if EDRV_PKT_LOC == 1
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
     //free tx buffer
 #ifdef __NIOS2__
     alt_uncached_free(pPacket);
 #elif defined(__MICROBLAZE__)
     free(pPacket);
 #endif
-#elif (EDRV_PKT_LOC == 0 || EDRV_PKT_LOC == 2)
+#elif (EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT || EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT)
     EdrvInstance_l.m_ubTxBufCnt--;
 #else
 #error "Configuration unknown"
