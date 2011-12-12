@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 							removed old IP-core support
 							added missing Microblaze support
  2011/12/12		zelenkaj	changed packet location enumerator (for Nios II)
+							changes in usleep
 ----------------------------------------------------------------------------*/
 
 
@@ -157,9 +158,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_CMP_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
 	#define EDRV_CMP_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_CMP_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR+1)
 	//TODO: the following defines shall be set automatically to that value defined in the GUI
-	//#define EDRV_PKT_LOC					0 //TX + RX in BRAM
-	//#define EDRV_PKT_LOC					1 //TX + RX in EXT (not yet verified!)
-	#define EDRV_PKT_LOC					2 //TX in BRAM, RX in EXT
+	//#define EDRV_PKT_LOC					EDRV_PKT_LOC_TX_RX_INT
+	#define EDRV_PKT_LOC					EDRV_PKT_LOC_TX_INT_RX_EXT
+	//#define EDRV_PKT_LOC					EDRV_PKT_LOC_TX_RX_EXT
 	#define EDRV_PHY_NUM					2
 	#define EDRV_DMA_OBSERVER				0 //observer circuit is NOT available
 	//#define EDRV_DMA_OBSERVER				1 //observer circuit is available
@@ -225,12 +226,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #elif defined(__MICROBLAZE__)
 void usleep(int time)
 {
-	int max = (time * 1000000U) / XPAR_MICROBLAZE_CORE_CLOCK_FREQ_HZ;
+	int max = time * (XPAR_MICROBLAZE_CORE_CLOCK_FREQ_HZ/1000000);
 	int i;
 
 	for(i=0; i<max; i++)
 	{
-		asm("NOP;");
+		asm("nop");
 	}
 }
 #endif
