@@ -91,6 +91,7 @@
 #-- 2011-11-28	V1.10	zelenkaj	added waitrequest signals to pdi pcp/ap
 #-- 2011-11-29	V1.11	zelenkaj	event feature is optional
 #-- 2011-11-30	V1.12	zelenkaj	Added generic for DMA observer
+#-- 2011-12-12	V1.13	zelenkaj	Changed packet location enumerator
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -1091,9 +1092,9 @@ proc my_validation_callback {} {
 	if {$ploc == "TX and RX into DPRAM"} {							#all packets stored in openMAC DPRAM
 		set_module_assignment embeddedsw.CMacro.PKTLOC				0
 	} elseif {$ploc == "TX into DPRAM and RX over Avalon Master"} {	#Rx packets stored in heap
-		set_module_assignment embeddedsw.CMacro.PKTLOC				2
-	} elseif {$ploc == "TX and RX over Avalon Master"} {			#all packets stored in heap
 		set_module_assignment embeddedsw.CMacro.PKTLOC				1
+	} elseif {$ploc == "TX and RX over Avalon Master"} {			#all packets stored in heap
+		set_module_assignment embeddedsw.CMacro.PKTLOC				2
 	} else {
 		send_message error "error 0x03"
 	}
