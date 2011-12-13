@@ -39,6 +39,8 @@
 -- 2010-10-11  	V0.02	zelenkaj	Bugfix: PCP can't be producer in any case => added generic
 -- 2010-10-25	V0.03	zelenkaj	Use one Address Adder per DPR port side (reduces LE usage)
 -- 2011-04-26	V0.04	zelenkaj	generic for clock domain selection
+-- 2011-12-13	V0.05	zelenkaj	Added constants for one hot code
+--									Reduced clkXing to two signals (one hot -> bin -> one hot)
 ------------------------------------------------------------------------------------------------------------------------
 --	This logic implements the virtual triple buffers, by selecting the appropriate address offset
 --	The output address offset has to be added to the input address.
@@ -89,11 +91,15 @@ ARCHITECTURE rtl OF tripleVBufLogic IS
 CONSTANT	iVirtualBufferBase0_c		:		INTEGER :=		0*iVirtualBufferSize_g + iVirtualBufferBase_g;
 CONSTANT	iVirtualBufferBase1_c		:		INTEGER :=		1*iVirtualBufferSize_g + iVirtualBufferBase_g;
 CONSTANT	iVirtualBufferBase2_c		:		INTEGER :=		2*iVirtualBufferSize_g + iVirtualBufferBase_g;
+---one hot code
+constant	cOneHotVirtualBuffer0		:		std_logic_vector(2 downto 0) := "001";
+constant	cOneHotVirtualBuffer1		:		std_logic_vector(2 downto 0) := "010";
+constant	cOneHotVirtualBuffer2		:		std_logic_vector(2 downto 0) := "100";
 ---triple buffer mechanism
 ----initial states
-CONSTANT	initialValid_c				:		STD_LOGIC_VECTOR(2 DOWNTO 0) :=	"001";
-CONSTANT	initialLocked_c				:		STD_LOGIC_VECTOR(2 DOWNTO 0) := "010";
-CONSTANT	initialCurrent_c			:		STD_LOGIC_VECTOR(2 DOWNTO 0) := "100";
+CONSTANT	initialValid_c				:		STD_LOGIC_VECTOR(2 DOWNTO 0) :=	cOneHotVirtualBuffer0;
+CONSTANT	initialLocked_c				:		STD_LOGIC_VECTOR(2 DOWNTO 0) := cOneHotVirtualBuffer1;
+CONSTANT	initialCurrent_c			:		STD_LOGIC_VECTOR(2 DOWNTO 0) := cOneHotVirtualBuffer2;
 --signals
 ---PCP and AP selected virtual buffer
 SIGNAL		pcpSelVBuf_s				:		STD_LOGIC_VECTOR(2 DOWNTO 0);				--selected virtual buffer by producer
@@ -117,9 +123,9 @@ BEGIN
 	BEGIN
 		
 		--select address offset
-		pcpAddrOffset <= 	CONV_STD_LOGIC_VECTOR(iVirtualBufferBase0_c, pcpAddrOffset'LENGTH) WHEN pcpSelVBuf_s = "001" ELSE
-							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase1_c, pcpAddrOffset'LENGTH) WHEN pcpSelVBuf_s = "010" ELSE
-							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase2_c, pcpAddrOffset'LENGTH) WHEN pcpSelVBuf_s = "100" ELSE
+		pcpAddrOffset <= 	CONV_STD_LOGIC_VECTOR(iVirtualBufferBase0_c, pcpAddrOffset'LENGTH) WHEN pcpSelVBuf_s = cOneHotVirtualBuffer0 ELSE
+							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase1_c, pcpAddrOffset'LENGTH) WHEN pcpSelVBuf_s = cOneHotVirtualBuffer1 ELSE
+							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase2_c, pcpAddrOffset'LENGTH) WHEN pcpSelVBuf_s = cOneHotVirtualBuffer2 ELSE
 							(OTHERS => '0');
 		pcpOutAddrOff <= pcpAddrOffset;
 		--calculate address for dpr, leading zero is a sign!
@@ -127,9 +133,9 @@ BEGIN
 		--pcpOutAddr <= pcpSum(pcpOutAddr'RANGE);
 		
 		--select address offset
-		apAddrOffset <= 	CONV_STD_LOGIC_VECTOR(iVirtualBufferBase0_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = "001" ELSE
-							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase1_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = "010" ELSE
-							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase2_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = "100" ELSE
+		apAddrOffset <= 	CONV_STD_LOGIC_VECTOR(iVirtualBufferBase0_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = cOneHotVirtualBuffer0 ELSE
+							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase1_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = cOneHotVirtualBuffer1 ELSE
+							CONV_STD_LOGIC_VECTOR(iVirtualBufferBase2_c, apAddrOffset'LENGTH) WHEN apSelVBuf_s = cOneHotVirtualBuffer2 ELSE
 							(OTHERS => '0');
 		apOutAddrOff <= apAddrOffset;
 		--calculate address for dpr, leading zero is a sign!
@@ -138,21 +144,41 @@ BEGIN
 		
 	END BLOCK theAddrCalcer;
 		
-	--conSelVBuf_s is in the AP clock domain, thus the lockedVBuf_s signal must be
-	-- synchronized from PCP clock- to AP clock domain!
-	vectorSync : FOR I in lockedVBuf_s'left DOWNTO 0 GENERATE
-		theLockedSync : ENTITY work.sync
-		generic map (
-			doSync_g => not genOnePdiClkDomain_g
-		)
-		PORT MAP
-		(
-			din => lockedVBuf_s(i),
-			dout => apSelVBuf_s(i),
-			clk => apClk,
-			rst => apReset
-		);
-	END GENERATE;
+	theLockSync : block
+		constant cBinLockWidth : integer := 2;
+		constant cBinLock0 : std_logic_vector(cBinLockWidth-1 downto 0) := "01";
+		constant cBinLock1 : std_logic_vector(cBinLockWidth-1 downto 0) := "11";
+		constant cBinLock2 : std_logic_vector(cBinLockWidth-1 downto 0) := "10";
+		
+		signal binLockedVBuf : std_logic_vector(cBinLockWidth-1 downto 0);
+		signal binApSelVBuf : std_logic_vector(cBinLockWidth-1 downto 0);
+	begin
+		--conSelVBuf_s is in the PCP clock domain, thus the lockedVBuf_s signal must be
+		-- synchronized from PCP clock- to AP clock domain!
+		--In addition the one hot approach is transformed to save one line
+		
+		binLockedVBuf <= 	cBinLock0 when lockedVBuf_s = cOneHotVirtualBuffer0 else
+							cBinLock1 when lockedVBuf_s = cOneHotVirtualBuffer1 else
+							cBinLock2;
+		
+		apSelVBuf_s <= 	cOneHotVirtualBuffer0 when binApSelVBuf = cBinLock0 else
+						cOneHotVirtualBuffer1 when binApSelVBuf = cBinLock1 else
+						cOneHotVirtualBuffer2;
+		
+		vectorSync : FOR i in cBinLockWidth-1 DOWNTO 0 GENERATE
+			theLockedSync : ENTITY work.sync
+			generic map (
+				doSync_g => not genOnePdiClkDomain_g
+			)
+			PORT MAP
+			(
+				din => binLockedVBuf(i),
+				dout => binApSelVBuf(i),
+				clk => apClk,
+				rst => apReset
+			);
+		END GENERATE;
+	end block;
 	
 	theTripleBufferLogic : BLOCK
 	--The PCP triggers with triggerA and sets buffers to valid.
