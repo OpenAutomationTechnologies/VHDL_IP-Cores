@@ -47,6 +47,7 @@
 --
 -- 2011-07-26  	V0.01	zelenkaj    First version
 -- 2011-11-29	V0.02	zelenkaj	omitted out reset
+-- 2011-12-12	V0.03	zelenkaj	reduced to one FF
 --
 -------------------------------------------------------------------------------
 
@@ -67,18 +68,18 @@ ENTITY edgeDet IS
 END ENTITY edgeDet;
 
 ARCHITECTURE rtl OF edgeDet IS
-SIGNAL sreg								: STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
+	signal RegDin : std_logic;
 BEGIN
 	
-	any <= sreg(1) xor sreg(0);
-	falling <= sreg(1) and not sreg(0);
-	rising <= not sreg(1) and sreg(0);
+	any <= RegDin xor din;
+	falling <= RegDin and not din;
+	rising <= not RegDin and din;
 	
-	shiftReg : PROCESS(clk, rst)
-	BEGIN
-		IF clk = '1' AND clk'EVENT THEN
-			sreg <= sreg(0) & din;
-		END IF;
-	END PROCESS;
+	process(clk)
+	begin
+		if rising_edge(clk) then
+			RegDin <= din after 10 ns;
+		end if;
+	end process;
 	
 END ARCHITECTURE rtl;
