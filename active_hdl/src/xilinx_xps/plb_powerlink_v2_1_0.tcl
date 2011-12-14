@@ -38,18 +38,106 @@
 #-- 2011-11-18	V0.01	zelenkaj	converted to first stable solution with MAC-layer only
 #-- 2011-11-01	V0.02	mairt	added procedures for the powerlink gui 
 #-- 2011-12-06	V0.03	mairt	added packet size calculation, better async buffer handling and bugfixes
+#-- 2011-12-14	V0.04	mairt	enhancement of the driver generate procedure
 #------------------------------------------------------------------------------------------------------------------------
 
 #uses "xillib.tcl"
 
+###################################################
+## driver generate statement
+###################################################
 proc generate {drv_handle} {
 	puts "POWERLINK IP-Core found!"
-	xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_TX_INT_PKT" "C_RX_INT_PKT"
-}  	
+	
+	set periph [xget_periphs $drv_handle] 
+	set second_phy [xget_param_value $periph "C_USE_2ND_PHY"] 
+	set dma_observer [xget_param_value $periph "C_OBSERVER_ENABLE"]
+	
+	# calc new phy count value
+	if { $second_phy } {
+		  set C_PHY_COUNT {C_PHY_COUNT 2}
+	} else {
+		  set C_PHY_COUNT {C_PHY_COUNT 1}
+	} 
+	
+	# calc new dma observer value
+	if { $dma_observer } {
+		  set C_OBSERVER_ENABLE {C_OBSERVER_ENABLE 1}
+	} else {
+		  set C_OBSERVER_ENABLE {C_OBSERVER_ENABLE 0}
+	} 
+
+	my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE
+}   	
 
 ###################################################
 ## internal procedures
 ###################################################
+proc my_xdefine_include_file {drv_handle file_name drv_string args} {
+    # Open include file
+    set file_handle [xopen_include_file $file_name]
+
+    # Get all peripherals connected to this driver
+    set periphs [xget_periphs $drv_handle] 
+
+    # Handle special cases
+    set arg "NUM_INSTANCES"
+    set posn [lsearch -exact $args $arg]
+    if {$posn > -1} {
+	puts $file_handle "/* Definitions for driver [string toupper [xget_sw_name $drv_handle]] */"
+	# Define NUM_INSTANCES
+	puts $file_handle "#define [xget_dname $drv_string $arg] [llength $periphs]"
+	set args [lreplace $args $posn $posn]
+    }
+    # Check if it is a driver parameter
+
+    lappend newargs 
+    foreach arg $args {
+	set value [xget_value $drv_handle "PARAMETER" $arg]
+	if {[llength $value] == 0} {
+	    lappend newargs $arg
+	} else {
+	    puts $file_handle "#define [xget_dname $drv_string $arg] [xget_value $drv_handle "PARAMETER" $arg]"
+	}
+    }
+    set args $newargs
+
+    # Print all parameters for all peripherals
+    set device_id 0
+    foreach periph $periphs {
+	puts $file_handle ""
+	puts $file_handle "/* Definitions for peripheral [string toupper [xget_hw_name $periph]] */"
+	foreach arg $args {
+	    if {[string compare -nocase "DEVICE_ID" $arg] == 0} {
+			set value $device_id
+			incr device_id
+	    } else {
+			set value [xget_param_value $periph $arg]
+	    }
+	    if {[llength $value] == 0} {
+			set value 0
+	    }
+		 
+		 ##################################
+		 #make use of lists possible
+		 if { [llength $arg ] == 2 } {
+			puts $file_handle "#define [xget_name $periph [ lindex $arg 0 ]] [ lindex $arg 1 ]"
+		 } else {
+		 ##################################
+			set value [xformat_addr_string $value $arg]
+			if {[string compare -nocase "HW_VER" $arg] == 0} {
+				puts $file_handle "#define [xget_name $periph $arg] \"$value\""
+			} else {
+				puts $file_handle "#define [xget_name $periph $arg] $value"
+			}
+		 }
+	}
+	puts $file_handle ""
+    }		
+    puts $file_handle "\n/******************************************************************/\n"
+    close $file_handle
+}
+
 proc calc_rx_tx_buffer_size { tx_needed param_handle } {
  	set macPktLength	4
 	# tx buffer header (header + packet length)
