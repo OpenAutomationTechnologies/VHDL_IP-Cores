@@ -92,6 +92,8 @@
 #-- 2011-11-29	V1.11	zelenkaj	event feature is optional
 #-- 2011-11-30	V1.12	zelenkaj	Added generic for DMA observer
 #-- 2011-12-12	V1.13	zelenkaj	Changed packet location enumerator
+#-- 2011-12-14	V1.14	zelenkaj	Changed documentation path/filename
+#-- 2011-12-15	V1.15	zelenkaj	Changed openMAC only RX buffer configuration
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -109,7 +111,7 @@ set_module_property INSTANTIATE_IN_SYSTEM_MODULE true
 set_module_property EDITABLE FALSE
 set_module_property ANALYZE_HDL TRUE
 set_module_property ICON_PATH img/br.png
-add_documentation_link "POWERLINK IP-Core Documentation" "doc/SDS_POWERLINK-IP-Core.pdf"
+add_documentation_link "POWERLINK IP-Core Documentation" "doc/POWERLINK-IP-Core_Altera.pdf"
 
 #files
 add_file src/powerlink.vhd {SYNTHESIS SIMULATION}
@@ -141,7 +143,6 @@ add_file src/spi.vhd {SYNTHESIS SIMULATION}
 add_file src/spi_sreg.vhd {SYNTHESIS SIMULATION}
 add_file src/pdi_spi.vhd {SYNTHESIS SIMULATION}
 add_file src/lib/addr_decoder.vhd {SYNTHESIS SIMULATION}
-add_file src/lib/delay_pulse.vhd {SYNTHESIS SIMULATION}
 add_file src/lib/edgedet.vhd {SYNTHESIS SIMULATION}
 add_file src/lib/req_ack.vhd {SYNTHESIS SIMULATION}
 add_file src/lib/sync.vhd {SYNTHESIS SIMULATION}
@@ -293,10 +294,10 @@ set_parameter_property macTxBuf UNITS bytes
 set_parameter_property macTxBuf DISPLAY_NAME "openMAC TX Buffer Size"
 set_parameter_property macTxBuf DESCRIPTION "If \"openMAC only\" is selected, the MAC buffer size has to be set manually."
 
-add_parameter macRxBuf INTEGER 1514
-set_parameter_property macRxBuf UNITS bytes
-set_parameter_property macRxBuf DISPLAY_NAME "openMAC RX Buffer Size"
-set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the MAC buffer size has to be set manually."
+add_parameter macRxBuf INTEGER 16
+set_parameter_property macRxBuf ALLOWED_RANGES 1:16
+set_parameter_property macRxBuf DISPLAY_NAME "openMAC Number RX Buffers (MTU = 1500 byte)"
+set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the number of MAC buffers has to be set manually (MTU = 1500 byte)."
 
 add_parameter mac2cmpTimer BOOLEAN FALSE
 set_parameter_property mac2cmpTimer VISIBLE true
@@ -918,12 +919,16 @@ proc my_validation_callback {} {
 	
 	if {$configPowerlink == "openMAC only"} {
 		#overwrite done calulations
+		# for tx
 		set txBufSize $macTxBuf
-		set rxBufSize $macRxBuf
+		# for rx using MTU and number of buffers...
+		set rxBufSize [expr $macRxBuf * ($ethHd + $mtu + $crc + $macRxHd)]
+		
+		# forward number of RX buffers
+		set macRxBuffers $macRxBuf
 		
 		#set unsupported to zeros or allowed range
 		set macTxBuffers 0
-		set macRxBuffers 0
 		set rpdos 0
 		set tpdos 0
 		set rpdo0size 0
