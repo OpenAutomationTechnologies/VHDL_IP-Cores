@@ -57,7 +57,6 @@ proc generate {drv_handle} {
 	set second_phy [xget_param_value $periph "C_USE_2ND_PHY"] 
 	set dma_observer [xget_param_value $periph "C_OBSERVER_ENABLE"]
 	
-	
 	# calc new phy count value
 	if { $second_phy } {
 		  set C_PHY_COUNT {C_PHY_COUNT 2}
@@ -75,23 +74,23 @@ proc generate {drv_handle} {
 	if { $ip_core_mode == 0} {
 		# Direct IO		  
 		puts "POWERLINK IP-Core in Direct IO mode!"
-		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE"
+		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
 	} elseif { $ip_core_mode == 1} {
 		# PDI with pap		  
 		puts "POWERLINK IP-Core in PDI mode with parallel interface!"
-		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE"
+		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
 	} elseif { $ip_core_mode == 3} {
 		# PDI with spi		  
 		puts "POWERLINK IP-Core in PDI mode with SPI interface!"
-		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE"		
+		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"		
 	} elseif { $ip_core_mode == 4} {
 		# PDI with plb interface		  
 		puts "POWERLINK IP-Core in PDI mode with PLB interface!" 
-		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE"
+		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
 	} elseif { $ip_core_mode == 5} {
 		# PDI with pap		  
 		puts "POWERLINK IP-Core in openMAC only mode!"
-		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE"
+		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
 	} else {
 	 	error "Invalid Powerlink IP-Core mode $ip_core_mode!" "" "mdd_error"
 	}
@@ -181,17 +180,7 @@ proc calc_rx_buffer_size { param_handle } {
 	# crc size by ieee
 	set crc				4
 	
-	set rpdo_count [ calc_rpdo_count $param_handle ] 
-	
-	if { $rpdo_count == 1 } {
-		set macRxBuffers 4 
-	} elseif { $rpdo_count == 2 } {
-		set macRxBuffers 5 
-	} elseif { $rpdo_count == 3 } {
-		set macRxBuffers 6 	
-	} else {
-		error "Number of Rpdos invalid!"
-	}
+	set macRxBuffers [ calc_mac_rx_buffers $param_handle ] 
 
 	#calculate rx buffer size out of packets per cycle
 	set rxBufSize [expr $ethHd + $mtu + $crc + $macRxHd]
@@ -528,6 +517,28 @@ proc calc_tpdo_buffer_size { param_handle} {
 		return [ expr $param1val + 16 ]
 	}
 } 
+
+# calc the number of mac rx buffers for the driver
+proc calc_mac_rx_buffers { param_handle } {	
+	puts "hello!"
+   	set rpdo_count [ calc_rpdo_count $param_handle ] 
+	puts $rpdo_count
+	if { $rpdo_count == 1 } {
+		set macRxBuffers 4 
+	} elseif { $rpdo_count == 2 } {
+		set macRxBuffers 5 
+	} elseif { $rpdo_count == 3 } {
+		set macRxBuffers 6
+	} elseif { $rpdo_count == 0 } {		
+		# openMAC only has no RPDO definition and therefore we choose max RPDOs for the safe side
+		set macRxBuffers 16
+	} else {
+		error "Number of Rpdos invalid!"
+	}				
+	puts $macRxBuffers
+	
+	return $macRxBuffers 
+}
 
 ###################################################
 ## Calc asynchronous buffers settings
