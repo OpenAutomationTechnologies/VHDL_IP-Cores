@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 109923
+ FREEID 109940
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -8761,6 +8761,7 @@ PAGE "header"
 "-- 2011-12-02\tV0.04\tzelenkaj\tExchanged IOs with _I, _O and _T\n"+
 "-- 2011-12-06\tV0.05\tzelenkaj\tChanged instance names\n"+
 "-- 2011-12-07\tV0.06\tzelenkaj\tFixed address assignments for PDI PCP/AP\n"+
+"-- 2011-12-16\tV0.07\tmairt\t\tadded TX/RX burst size feature\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -32824,15 +32825,15 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311684073"
-   PAGENAME="MAC_DMA_PLB"
-   PAGENUMBER="2"
+   PAGENAME="header"
+   PAGENUMBER="1"
    REVISION="1.0"
   }
  }
  
  BODY
  {
-  TEXT  109906, 0, 0
+  TEXT  109923, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -32843,7 +32844,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109907, 0, 0
+  TEXT  109924, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -32854,7 +32855,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  109908, 0, 0
+  TEXT  109925, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -32864,7 +32865,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109909, 0, 0
+  TEXT  109926, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -32876,7 +32877,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  109910, 0, 0
+  TEXT  109927, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -32890,7 +32891,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  109911, 0, 0
+  TEXT  109928, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -32900,7 +32901,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109912, 0, 0
+  TEXT  109929, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -32912,7 +32913,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  109913, 0, 0
+  TEXT  109930, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -32922,7 +32923,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  109914, 0, 0
+  TEXT  109931, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -32933,7 +32934,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  109915, 0, 0
+  GROUP  109932, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -32945,7 +32946,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109916, 0, 0
+  GROUP  109933, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -32957,7 +32958,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109917, 0, 0
+  GROUP  109934, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -32969,7 +32970,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109918, 0, 0
+  GROUP  109935, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -32981,7 +32982,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109919, 0, 0
+  GROUP  109936, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -32993,7 +32994,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  109920, 0, 0
+  GROUP  109937, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -33004,14 +33005,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  109921, 0, 0
+  LINE  109938, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  109922, 0, 0
+  LINKBMPPICT  109939, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"

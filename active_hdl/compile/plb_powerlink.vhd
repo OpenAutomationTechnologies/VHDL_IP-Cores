@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Wed Dec  7 11:23:39 2011
+-- Generated   : Fri Dec 16 15:53:09 2011
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -57,6 +57,7 @@
 -- 2011-12-02	V0.04	zelenkaj	Exchanged IOs with _I, _O and _T
 -- 2011-12-06	V0.05	zelenkaj	Changed instance names
 -- 2011-12-07	V0.06	zelenkaj	Fixed address assignments for PDI PCP/AP
+-- 2011-12-16	V0.07	mairt		added TX/RX burst size feature
 --
 -------------------------------------------------------------------------------
 
@@ -89,6 +90,7 @@ entity plb_powerlink is
        -- openMAC
        C_MAC_PKT_SIZE : integer := 1024;
        C_MAC_PKT_SIZE_LOG2 : integer := 10;
+       C_MAC_RX_BUFFERS : integer := 16;
        C_USE_RMII : boolean := false;
        C_TX_INT_PKT : boolean := false;
        C_RX_INT_PKT : boolean := false;
@@ -111,12 +113,12 @@ entity plb_powerlink is
        C_TPDO_BUF_SIZE : integer := 100;
        -- pap
        C_PAP_DATA_WIDTH : integer := 16;
-       C_PAP_BIG_END : boolean := false;
+       --C_PAP_BIG_END : boolean := false;
        C_PAP_LOW_ACT : boolean := false;
        -- spi
        C_SPI_CPOL : boolean := false;
        C_SPI_CPHA : boolean := false;
-       C_SPI_BIG_END : boolean := false;
+       --C_SPI_BIG_END : boolean := false;
        -- simpleIO
        C_PIO_VAL_LENGTH : integer := 50;
        -- debug
@@ -169,8 +171,10 @@ entity plb_powerlink is
        C_MAC_DMA_PLB_AWIDTH : INTEGER := 32;
        C_MAC_DMA_PLB_DWIDTH : INTEGER := 32;
        C_MAC_DMA_PLB_NATIVE_DWIDTH : INTEGER := 32;
-       C_MAC_DMA_BURST_SIZE : INTEGER := 8; --in bytes
-       C_MAC_DMA_FIFO_SIZE : INTEGER := 32; --in bytes
+       C_MAC_DMA_BURST_SIZE_RX : INTEGER := 8; --in bytes
+       C_MAC_DMA_BURST_SIZE_TX : INTEGER := 8; --in bytes
+       C_MAC_DMA_FIFO_SIZE_RX : INTEGER := 32; --in bytes
+       C_MAC_DMA_FIFO_SIZE_TX : INTEGER := 32; --in bytes
        -- openMAC REG PLB Slave
        C_MAC_REG_BASEADDR : std_logic_vector := X"00000000";
        C_MAC_REG_HIGHADDR : std_logic_vector := X"0000FFFF";
@@ -513,6 +517,17 @@ entity plb_powerlink is
 end plb_powerlink;
 
 architecture struct of plb_powerlink is
+
+---- Architecture declarations -----
+function get_max( a, b : integer)  return integer is
+begin
+	if a < b then
+		return b;
+	else
+		return a;
+	end if;
+end get_max;
+
 
 ---- Component declarations -----
 
@@ -945,7 +960,6 @@ component plbv46_slave_single
 end component;
 
 ---- Architecture declarations -----
---
 constant C_FAMILY : string := "spartan6";
 constant C_ADDR_PAD_ZERO : std_logic_vector(31 downto 0) := (others => '0');
 -- openMAC REG PLB Slave
@@ -971,8 +985,9 @@ constant C_MAC_PKT_EN : boolean := C_TX_INT_PKT or C_RX_INT_PKT;
 constant C_MAC_PKT_RX_EN : boolean := C_RX_INT_PKT;
 constant C_DMA_EN : boolean := not C_TX_INT_PKT or not C_RX_INT_PKT;
 constant C_PKT_BUF_EN : boolean := C_MAC_PKT_EN;
-constant C_M_BURSTCOUNT_WIDTH : integer := integer(ceil(log2(real(C_MAC_DMA_BURST_SIZE/4)))) + 1; --in dwords
-constant C_M_FIFO_SIZE : integer := C_MAC_DMA_FIFO_SIZE/4; --in dwords
+constant C_M_BURSTCOUNT_WIDTH : integer := integer(ceil(log2(real(get_max(C_MAC_DMA_BURST_SIZE_RX,C_MAC_DMA_BURST_SIZE_TX)/4)))) + 1; --in dwords
+constant C_M_FIFO_SIZE_RX : integer := C_MAC_DMA_FIFO_SIZE_RX/4; --in dwords
+constant C_M_FIFO_SIZE_TX : integer := C_MAC_DMA_FIFO_SIZE_TX/4; --in dwords
 
 
 ----     Constants     -----
@@ -1362,15 +1377,15 @@ THE_POWERLINK_IP_CORE : powerlink
        m_burstcount_const_g => true,
        m_burstcount_width_g => C_M_BURSTCOUNT_WIDTH,
        m_data_width_g => 32,
-       m_rx_burst_size_g => C_MAC_DMA_BURST_SIZE/4,
-       m_rx_fifo_size_g => C_M_FIFO_SIZE,
-       m_tx_burst_size_g => C_MAC_DMA_BURST_SIZE/4,
-       m_tx_fifo_size_g => C_M_FIFO_SIZE,
-       papBigEnd_g => C_PAP_BIG_END,
+       m_rx_burst_size_g => C_MAC_DMA_BURST_SIZE_RX/4,
+       m_rx_fifo_size_g => C_M_FIFO_SIZE_RX,
+       m_tx_burst_size_g => C_MAC_DMA_BURST_SIZE_TX/4,
+       m_tx_fifo_size_g => C_M_FIFO_SIZE_TX,
+       papBigEnd_g => false,
        papDataWidth_g => C_PAP_DATA_WIDTH,
        papLowAct_g => C_PAP_LOW_ACT,
        pioValLen_g => C_PIO_VAL_LENGTH,
-       spiBigEnd_g => C_SPI_BIG_END,
+       spiBigEnd_g => false,
        spiCPHA_g => C_SPI_CPHA,
        spiCPOL_g => C_SPI_CPOL,
        use2ndCmpTimer_g => C_PDI_GEN_SECOND_TIMER,
