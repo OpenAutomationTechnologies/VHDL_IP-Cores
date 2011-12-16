@@ -63,6 +63,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 							added missing Microblaze support
  2011/12/12		zelenkaj	changed packet location enumerator (for Nios II)
 							changes in usleep
+ 2011/12/15		zelenkaj	added data cache support for TX packets (Microblaze)
+							changed DMA error handling (MAC is stopped)
 ----------------------------------------------------------------------------*/
 
 
@@ -834,14 +836,14 @@ tEplKernel EdrvUpdateTxMsgBuffer     (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 
-#if EDRV_DMA_OBSERVER != 0
-    if( EdrvInstance_l.m_fDmaError == TRUE )
-    {
-    	//provoke error to kill the node
-		Ret = kEplEdrvInvalidParam;
-		goto Exit;
-    }
-#endif
+//#if EDRV_DMA_OBSERVER != 0
+//    if( EdrvInstance_l.m_fDmaError == TRUE )
+//    {
+//    	//provoke error to kill the node
+//		Ret = kEplEdrvInvalidParam;
+//		goto Exit;
+//    }
+//#endif
 
     if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_FILTERS)
     {
@@ -852,6 +854,14 @@ ometh_packet_typ*   pPacket = NULL;
     pPacket = GET_TYPE_BASE(ometh_packet_typ, data, pBuffer_p->m_pbBuffer);
 
     pPacket->length = pBuffer_p->m_uiTxMsgLen;
+
+#if XPAR_MICROBLAZE_USE_DCACHE && XPAR_MICROBLAZE_DCACHE_USE_WRITEBACK
+	/*
+	 * before handing over the packet buffer to openMAC
+	 * flush the packet's memory range due to write-back policy
+	 */
+    microblaze_flush_dcache_range((DWORD)pPacket, pPacket->length);
+#endif
 
 	// Update autoresponse buffer
     EdrvInstance_l.m_apTxBuffer[pBuffer_p->m_BufferNumber.m_dwVal] = pBuffer_p;
@@ -889,14 +899,14 @@ tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 unsigned long       ulTxLength;
 
-#if EDRV_DMA_OBSERVER != 0
-	if( EdrvInstance_l.m_fDmaError == TRUE )
-	{
-		//provoke error to kill the node
-		Ret = kEplEdrvNoFreeBufEntry;
-		goto Exit;
-	}
-#endif
+//#if EDRV_DMA_OBSERVER != 0
+//	if( EdrvInstance_l.m_fDmaError == TRUE )
+//	{
+//		//provoke error to kill the node
+//		Ret = kEplEdrvNoFreeBufEntry;
+//		goto Exit;
+//	}
+//#endif
 
 #ifndef EDRV_TTTX
     if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
@@ -1299,6 +1309,9 @@ static void EdrvIrqHandler (void* pArg_p, DWORD dwInt_p)
 	if( EDRV_RD16(EDRV_DOB_BASE, 0) != 0 )
 	{
 		EdrvInstance_l.m_fDmaError = TRUE;
+		BENCHMARK_MOD_01_TOGGLE(7);
+
+		omethStop(pArg_p); //since openMAC was naughty, stop it!
 	}
 #endif
 
@@ -1409,7 +1422,7 @@ tEplTgtTimeStamp    TimeStamp;
     TimeStamp.m_dwTimeStamp = omethGetTimestamp(pPacket);
     rxBuffer.m_pTgtTimeStamp = &TimeStamp;
 
-#if XPAR_MICROBLAZE_0_USE_DCACHE
+#if XPAR_MICROBLAZE_USE_DCACHE
 	/*
 	 * before handing over the received packet to the stack
 	 * flush the packet's memory range
