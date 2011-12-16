@@ -301,17 +301,28 @@
 	</widget>
 	'>	
 	<!-- MAC DMA -->
-	<!ENTITY C_MAC_DMA_BURST_SIZE '
-	<widget id="C_MAC_DMA_BURST_SIZE">
-		<key>C_MAC_DMA_BURST_SIZE</key>
-		<tip></tip>
+	<!ENTITY C_MAC_DMA_BURST_SIZE_RX '
+	<widget id="C_MAC_DMA_BURST_SIZE_RX">
+		<key>C_MAC_DMA_BURST_SIZE_RX</key>
+		<label>MAC DMA RX Burst Size in Byte</label>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_DMA_BURST_SIZE_TX '
+	<widget id="C_MAC_DMA_BURST_SIZE_TX">
+		<key>C_MAC_DMA_BURST_SIZE_TX</key>
+		<label>MAC DMA TX Burst Size in Byte</label>
 	</widget>
 	'>		
-	
-	<!ENTITY C_MAC_DMA_FIFO_SIZE '
-	<widget id="C_MAC_DMA_FIFO_SIZE">
-		<key>C_MAC_DMA_FIFO_SIZE</key>
-		<tip></tip>
+	<!ENTITY C_MAC_DMA_FIFO_SIZE_RX '
+	<widget id="C_MAC_DMA_FIFO_SIZE_RX">
+		<key>C_MAC_DMA_FIFO_SIZE_RX</key>
+		<label>MAC DMA RX FIFO Size in Byte</label>
+	</widget>
+	'>
+	<!ENTITY C_MAC_DMA_FIFO_SIZE_TX '
+	<widget id="C_MAC_DMA_FIFO_SIZE_TX">
+		<key>C_MAC_DMA_FIFO_SIZE_TX</key>
+		<label>MAC DMA TX FIFO Size in Byte</label>
 	</widget>
 	'>	
 	<!ENTITY C_MAC_DMA_PLB_NATIVE_DWIDTH '
@@ -633,8 +644,10 @@
 		</group>
 		<group id="MAC_DMA">
 			<display>MAC DMA</display>
-			<item>&C_MAC_DMA_BURST_SIZE;</item>
-			<item>&C_MAC_DMA_FIFO_SIZE;</item>
+			<item>&C_MAC_DMA_BURST_SIZE_RX;</item>
+			<item>&C_MAC_DMA_FIFO_SIZE_RX;</item> 
+			<item>&C_MAC_DMA_BURST_SIZE_TX;</item>
+			<item>&C_MAC_DMA_FIFO_SIZE_TX;</item>
 			<item>&C_MAC_DMA_PLB_NATIVE_DWIDTH;</item> 
 			<item>&C_MAC_DMA_PLB_AWIDTH;</item>
 			<item>&C_MAC_DMA_PLB_DWIDTH;</item>

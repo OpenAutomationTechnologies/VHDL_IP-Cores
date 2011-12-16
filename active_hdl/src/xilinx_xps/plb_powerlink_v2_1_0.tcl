@@ -54,6 +54,7 @@ proc generate {drv_handle} {
 	
 	#internal vars
 	set ip_core_mode [xget_param_value $periph "C_IP_CORE_MODE"]
+	set pack_lock [xget_param_value $periph "C_PACKET_LOCATION"]
 	set second_phy [xget_param_value $periph "C_USE_2ND_PHY"] 
 	set dma_observer [xget_param_value $periph "C_OBSERVER_ENABLE"]
 	
@@ -74,23 +75,53 @@ proc generate {drv_handle} {
 	if { $ip_core_mode == 0} {
 		# Direct IO		  
 		puts "POWERLINK IP-Core in Direct IO mode!"
-		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		if { $pack_lock == 2 } {
+			# all packets are external
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		} else {
+			# there are internal packets									  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+		}
 	} elseif { $ip_core_mode == 1} {
 		# PDI with pap		  
 		puts "POWERLINK IP-Core in PDI mode with parallel interface!"
-		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		if { $pack_lock == 2 } {
+			# all packets are external
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		} else {
+			# there are internal packets									  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+		}
 	} elseif { $ip_core_mode == 3} {
 		# PDI with spi		  
 		puts "POWERLINK IP-Core in PDI mode with SPI interface!"
-		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"		
+		if { $pack_lock == 2 } {
+			# all packets are external
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		} else {
+			# there are internal packets									  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+		}
 	} elseif { $ip_core_mode == 4} {
 		# PDI with plb interface		  
 		puts "POWERLINK IP-Core in PDI mode with PLB interface!" 
-		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		if { $pack_lock == 2 } {
+			# all packets are external
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		} else {
+			# there are internal packets									  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+		}
 	} elseif { $ip_core_mode == 5} {
 		# PDI with pap		  
 		puts "POWERLINK IP-Core in openMAC only mode!"
-		my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		if { $pack_lock == 2 } {
+			# all packets are external
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		} else {
+			# there are internal packets									  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+		}
 	} else {
 	 	error "Invalid Powerlink IP-Core mode $ip_core_mode!" "" "mdd_error"
 	}
@@ -520,9 +551,8 @@ proc calc_tpdo_buffer_size { param_handle} {
 
 # calc the number of mac rx buffers for the driver
 proc calc_mac_rx_buffers { param_handle } {	
-	puts "hello!"
    	set rpdo_count [ calc_rpdo_count $param_handle ] 
-	puts $rpdo_count
+
 	if { $rpdo_count == 1 } {
 		set macRxBuffers 4 
 	} elseif { $rpdo_count == 2 } {
@@ -535,7 +565,6 @@ proc calc_mac_rx_buffers { param_handle } {
 	} else {
 		error "Number of Rpdos invalid!"
 	}				
-	puts $macRxBuffers
 	
 	return $macRxBuffers 
 }
@@ -546,7 +575,12 @@ proc calc_mac_rx_buffers { param_handle } {
 # update async buffer 0
 proc gen_async_0_buffer { param_handle} {
 	set mhsinst      	[xget_hw_parent_handle $param_handle]
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 	
 	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_0_SIZE_USER"] 
+	
+	if { $ipcore_mode == 0 || $ipcore_mode == 5 } {
+		return false							   
+	}	
 	
 	if { $async_buf_size == 0 } {
 		return false
@@ -557,8 +591,12 @@ proc gen_async_0_buffer { param_handle} {
 
 proc calc_async_0_buffer_size { param_handle} {
    	set mhsinst      	[xget_hw_parent_handle $param_handle]
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_0_SIZE_USER"]	
 	
+	if { $ipcore_mode == 0 || $ipcore_mode == 5 } {
+		return 0							   
+	}
 	
 	set async_buf_size [expr $async_buf_size + 4]
 	
@@ -568,7 +606,12 @@ proc calc_async_0_buffer_size { param_handle} {
 #update async buffer 1
 proc gen_async_1_buffer { param_handle} {
 	set mhsinst      	[xget_hw_parent_handle $param_handle]
-	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"] 
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 	
+	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"] 	
+	
+	if { $ipcore_mode == 0 || $ipcore_mode == 5 } {
+		return false							   
+	}
 	
 	if { $async_buf_size == 0 } {
 		return false
@@ -579,7 +622,12 @@ proc gen_async_1_buffer { param_handle} {
 
 proc calc_async_1_buffer_size { param_handle} {
    	set mhsinst      	[xget_hw_parent_handle $param_handle]
-	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"]	
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
+	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"]
+	
+	if { $ipcore_mode == 0 || $ipcore_mode == 5 } {
+		return 0							   
+	}
 	
 	if { $async_buf_size != 0 } {
 		set async_buf_size [expr $async_buf_size + 4]
