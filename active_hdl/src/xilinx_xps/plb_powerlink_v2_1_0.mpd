@@ -41,6 +41,7 @@
 #-- 2011-12-02	V0.04	zelenkaj	Exchanged IOs with _I, _O and _T, added missing ISVALIDs
 #-- 2011-12-05	V0.05	zelenkaj	Changed ISVALID for PKT and DMA	
 #-- 2011-12-06	V0.06	mairt		added packet size calculation and fixed some bugs
+#-- 2011-12-16	V0.07	mairt		added ability to set TX/RX burst size separately
 #------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
@@ -49,7 +50,6 @@ BEGIN plb_powerlink
 OPTION IPTYPE = PERIPHERAL
 OPTION IMP_NETLIST = TRUE
 OPTION HDL = VHDL
-OPTION IP_GROUP = MICROBLAZE:PPC:USER
 OPTION DESC = PLB_POWERLINK
 OPTION LONG_DESC = Powerlink IP-Core with PLB bus interface
 OPTION IP_GROUP = 'Industrial Ethernet:MICROBLAZE:PPC'
