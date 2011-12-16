@@ -38,26 +38,194 @@
 #-- 2011-11-18	V0.01	zelenkaj	converted to first stable solution with MAC-layer only
 #-- 2011-11-01	V0.02	mairt	added procedures for the powerlink gui 
 #-- 2011-12-06	V0.03	mairt	added packet size calculation, better async buffer handling and bugfixes
+#-- 2011-12-14	V0.04	mairt	enhancement of the driver generate procedure
 #------------------------------------------------------------------------------------------------------------------------
 
 #uses "xillib.tcl"
 
+###################################################
+## driver generate statement
+###################################################
 proc generate {drv_handle} {
+	puts "###################################"
 	puts "POWERLINK IP-Core found!"
-	xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_TX_INT_PKT" "C_RX_INT_PKT"
-}  	
+	
+	set periph [xget_periphs $drv_handle]  
+	
+	#internal vars
+	set ip_core_mode [xget_param_value $periph "C_IP_CORE_MODE"]
+	set pack_lock [xget_param_value $periph "C_PACKET_LOCATION"]
+	set second_phy [xget_param_value $periph "C_USE_2ND_PHY"] 
+	set dma_observer [xget_param_value $periph "C_OBSERVER_ENABLE"]
+	
+	# calc new phy count value
+	if { $second_phy } {
+		  set C_PHY_COUNT {C_PHY_COUNT 2}
+	} else {
+		  set C_PHY_COUNT {C_PHY_COUNT 1}
+	} 
+	
+	# calc new dma observer value
+	if { $dma_observer} {
+		  set C_OBSERVER_ENABLE {C_OBSERVER_ENABLE 1}
+	} else {
+		  set C_OBSERVER_ENABLE {C_OBSERVER_ENABLE 0}
+	} 
+	
+	if { $ip_core_mode == 0} {
+		# Direct IO		  
+		puts "POWERLINK IP-Core in Direct IO mode!"
+		if { $pack_lock == 2 } {
+			# all packets are external
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		} else {
+			# there are internal packets									  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+		}
+	} elseif { $ip_core_mode == 1} {
+		# PDI with pap		  
+		puts "POWERLINK IP-Core in PDI mode with parallel interface!"
+		if { $pack_lock == 2 } {
+			# all packets are external
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		} else {
+			# there are internal packets									  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+		}
+	} elseif { $ip_core_mode == 3} {
+		# PDI with spi		  
+		puts "POWERLINK IP-Core in PDI mode with SPI interface!"
+		if { $pack_lock == 2 } {
+			# all packets are external
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		} else {
+			# there are internal packets									  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+		}
+	} elseif { $ip_core_mode == 4} {
+		# PDI with plb interface		  
+		puts "POWERLINK IP-Core in PDI mode with PLB interface!" 
+		if { $pack_lock == 2 } {
+			# all packets are external
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		} else {
+			# there are internal packets									  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+		}
+	} elseif { $ip_core_mode == 5} {
+		# PDI with pap		  
+		puts "POWERLINK IP-Core in openMAC only mode!"
+		if { $pack_lock == 2 } {
+			# all packets are external
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+		} else {
+			# there are internal packets									  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+		}
+	} else {
+	 	error "Invalid Powerlink IP-Core mode $ip_core_mode!" "" "mdd_error"
+	}
+	
+	puts "###################################"
+}   	
 
 ###################################################
 ## internal procedures
 ###################################################
-proc calc_rx_tx_buffer_size { tx_needed param_handle } {
+proc my_xdefine_include_file {drv_handle file_name drv_string args} {
+    # Open include file
+    set file_handle [xopen_include_file $file_name]
+
+    # Get all peripherals connected to this driver
+    set periphs [xget_periphs $drv_handle] 
+
+    # Handle special cases
+    set arg "NUM_INSTANCES"
+    set posn [lsearch -exact $args $arg]
+    if {$posn > -1} {
+	puts $file_handle "/* Definitions for driver [string toupper [xget_sw_name $drv_handle]] */"
+	# Define NUM_INSTANCES
+	puts $file_handle "#define [xget_dname $drv_string $arg] [llength $periphs]"
+	set args [lreplace $args $posn $posn]
+    }
+    # Check if it is a driver parameter
+
+    lappend newargs 
+    foreach arg $args {
+	set value [xget_value $drv_handle "PARAMETER" $arg]
+	if {[llength $value] == 0} {
+	    lappend newargs $arg
+	} else {
+	    puts $file_handle "#define [xget_dname $drv_string $arg] [xget_value $drv_handle "PARAMETER" $arg]"
+	}
+    }
+    set args $newargs
+
+    # Print all parameters for all peripherals
+    set device_id 0
+    foreach periph $periphs {
+	puts $file_handle ""
+	puts $file_handle "/* Definitions for peripheral [string toupper [xget_hw_name $periph]] */"
+	foreach arg $args {
+	    if {[string compare -nocase "DEVICE_ID" $arg] == 0} {
+			set value $device_id
+			incr device_id
+	    } else {
+			set value [xget_param_value $periph $arg]
+	    }
+	    if {[llength $value] == 0} {
+			set value 0
+	    }
+		 
+		 ##################################
+		 #make use of lists possible
+		 if { [llength $arg ] == 2 } {
+			puts $file_handle "#define [xget_name $periph [ lindex $arg 0 ]] [ lindex $arg 1 ]"
+		 } else {
+		 ##################################
+			set value [xformat_addr_string $value $arg]
+			if {[string compare -nocase "HW_VER" $arg] == 0} {
+				puts $file_handle "#define [xget_name $periph $arg] \"$value\""
+			} else {
+				puts $file_handle "#define [xget_name $periph $arg] $value"
+			}
+		 }
+	}
+	puts $file_handle ""
+    }		
+    puts $file_handle "\n/******************************************************************/\n"
+    close $file_handle
+}
+ 
+# calc RX buffer size
+proc calc_rx_buffer_size { param_handle } {
  	set macPktLength	4
-	# tx buffer header (header + packet length)
-	set macTxHd			[expr  0 + $macPktLength]
 	# rx buffer header (header + packet length)
 	set macRxHd 		[expr 26 + $macPktLength]
 	# max rx buffers
-	set macRxBuffers 	16
+	set macRxBuffers 	16	
+	# mtu by ieee
+	set mtu 			1500
+	# eth header
+	set ethHd			14
+	# crc size by ieee
+	set crc				4
+	
+	set macRxBuffers [ calc_mac_rx_buffers $param_handle ] 
+
+	#calculate rx buffer size out of packets per cycle
+	set rxBufSize [expr $ethHd + $mtu + $crc + $macRxHd]
+	set rxBufSize [expr ($rxBufSize + 3) & ~3]
+	set rxBufSize [expr $macRxBuffers * $rxBufSize]
+	
+	return $rxBufSize
+}
+
+# calc TX buffer size
+proc calc_tx_buffer_size { param_handle } {	
+ 	set macPktLength	4
+	# tx buffer header (header + packet length)
+	set macTxHd			[expr  0 + $macPktLength]
 	# max tx buffers
 	set macTxBuffers	16
 	# mtu by ieee
@@ -71,8 +239,8 @@ proc calc_rx_tx_buffer_size { tx_needed param_handle } {
 	# min packet size (ethheader + mindata + crc + tx buffer header)
 	set minPktBufSize	[expr $ethHd + $minDatSize + $crc + $macTxHd]
 	# max packet size (ethheader + mtu + crc + tx buffer header)
-	set maxPktBufSize	[expr $ethHd + $mtu + $crc + $macTxHd]
-	
+	set maxPktBufSize	[expr $ethHd + $mtu + $crc + $macTxHd]	
+
 	# get tpdo0 size
 	set tpdo0size [ calc_tpdo_buffer_size $param_handle ]
 	
@@ -93,7 +261,7 @@ proc calc_rx_tx_buffer_size { tx_needed param_handle } {
 	#the following error is catched by the allowed range of pdo size
 	if {$PRes > $maxPktBufSize} {
 		error "TPDO Size is too large. Allowed Range 1...1490 bytes!"
-	}
+	}	
 	
 	#align all tx buffers
 	set IdRes 	[expr ($IdRes + 3) & ~3]
@@ -110,17 +278,8 @@ proc calc_rx_tx_buffer_size { tx_needed param_handle } {
 	#openPOWERLINK allocates TX buffers twice (ping-pong)
 	set txBufSize [expr $txBufSize * 2]
 	set macTxBuffers [expr $macTxBuffers * 2]
-	
-	#calculate rx buffer size out of packets per cycle
-	set rxBufSize [expr $ethHd + $mtu + $crc + $macRxHd]
-	set rxBufSize [expr ($rxBufSize + 3) & ~3]
-	set rxBufSize [expr $macRxBuffers * $rxBufSize]
-	
-	if { $tx_needed == true} {
-	 	return $txBufSize
-	} else {
-	    return $rxBufSize
-	}
+	 
+	return $txBufSize 
 }
 
 ###################################################
@@ -130,7 +289,7 @@ proc calc_rx_tx_buffer_size { tx_needed param_handle } {
 proc get_pdi_enable { param_handle }	{
 
   	set mhsinst      [xget_hw_parent_handle $param_handle]
-    set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+    set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	
 	if {$ipcore_mode > 0 && $ipcore_mode < 5} {
 	   return true
@@ -143,7 +302,7 @@ proc get_pdi_enable { param_handle }	{
 proc get_par_if_enable { param_handle }	{
 
   	set mhsinst      [xget_hw_parent_handle $param_handle]
-    set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+    set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	
 	if {$ipcore_mode == 1} {
 	   return true
@@ -156,7 +315,7 @@ proc get_par_if_enable { param_handle }	{
 proc get_spi_if_enable { param_handle }	{
 
   	set mhsinst      [xget_hw_parent_handle $param_handle]
-    set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+    set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	
 	if {$ipcore_mode == 3} {
 	   return true
@@ -169,7 +328,7 @@ proc get_spi_if_enable { param_handle }	{
 proc get_plb_bus_enable { param_handle }	{
 
   	set mhsinst      [xget_hw_parent_handle $param_handle]
-    set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+    set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	
 	if {$ipcore_mode == 4} {
 	   return true
@@ -183,7 +342,7 @@ proc get_plb_bus_enable { param_handle }	{
 proc get_simple_io_enable { param_handle }	{
 
   	set mhsinst      [xget_hw_parent_handle $param_handle]
-    set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+    set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	
 	if {$ipcore_mode == 0} {
 	   return true
@@ -235,7 +394,7 @@ proc update_rx_packet_location { param_handle} {
 proc calc_mac_packet_size { param_handle } {
 
 	set mhsinst      [xget_hw_parent_handle $param_handle]	
-	set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	set pack_loc   [xget_hw_parameter_value $mhsinst "C_PACKET_LOCATION"] 	
 	
 	if {$ipcore_mode == 5} {
@@ -244,8 +403,8 @@ proc calc_mac_packet_size { param_handle } {
 		set txBufSize   [xget_hw_parameter_value $mhsinst "C_MAC_PKT_SIZE_TX_USER"] 			
 	} else {  
 		# PDI or simple IO is used
-		set txBufSize [ calc_rx_tx_buffer_size true $param_handle ]
-		set rxBufSize [ calc_rx_tx_buffer_size false $param_handle ]
+		set txBufSize [ calc_tx_buffer_size $param_handle ]
+		set rxBufSize [ calc_rx_buffer_size $param_handle]
 	}
 	
 	if { $pack_loc == 0 } {
@@ -267,7 +426,7 @@ proc calc_mac_packet_size { param_handle } {
 
 proc calc_mac_packet_size_log2 { param_handle } {
 	set mhsinst      [xget_hw_parent_handle $param_handle]	
-	set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	set pack_loc   [xget_hw_parameter_value $mhsinst "C_PACKET_LOCATION"] 
 	
 	if {$ipcore_mode == 5} {
@@ -276,8 +435,8 @@ proc calc_mac_packet_size_log2 { param_handle } {
 		set txBufSize   [xget_hw_parameter_value $mhsinst "C_MAC_PKT_SIZE_TX_USER"] 			
 	} else {  
 		# PDI or simple IO is used
-		set txBufSize [ calc_rx_tx_buffer_size true $param_handle ]
-		set rxBufSize [ calc_rx_tx_buffer_size false $param_handle ]
+		set txBufSize [ calc_tx_buffer_size $param_handle ]
+		set rxBufSize [ calc_rx_buffer_size $param_handle ]
 	}
 	
 	if { $pack_loc == 0 } {
@@ -304,110 +463,111 @@ proc calc_mac_packet_size_log2 { param_handle } {
 ###################################################			 
 # calc rpdo 0 buffer size
 proc calc_rpdo_0_buffer_size { param_handle} {
-	set returnVal 0
-
 	set mhsinst      [xget_hw_parent_handle $param_handle]		  
-   set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
-   set buffer_size   [xget_hw_parameter_value $mhsinst "C_PDI_RPDO_BUF_SIZE_USER"]
+    set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
+    set buffer_size   [xget_hw_parameter_value $mhsinst "C_PDI_RPDO_BUF_SIZE_USER"]
 	
 	if {$ipcore_mode == 0} {
 		#DirectIO is used
 		# header + 4 bytes real data 
-		set returnVal [ expr 4 + 16 ] 
+		return [ expr 4 + 16 ] 
 	} elseif {$ipcore_mode == 5} {
 		#openMAC only
-		set returnVal [ expr 0 ]		
+		return [ expr 0 ]		
 	} else {  
 		# PDI is used
 		# add header
-		set returnVal [ expr $buffer_size + 16 ]
+		return [ expr $buffer_size + 16 ]
 	}
-		   
-	return $returnVal
-	
 } 	  
 
 proc calc_rpdo_1_buffer_size { param_handle} {
-	set returnVal 0
-
 	set mhsinst      		[xget_hw_parent_handle $param_handle]		  
-   set ipcore_mode   		[xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+    set ipcore_mode   		[xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	set buffer_count_mac  	[xget_hw_parameter_value $mhsinst "C_MAC_NUM_RPDO_USER"] 
-   set buffer_size   		[xget_hw_parameter_value $mhsinst "C_PDI_RPDO_BUF_SIZE_USER"]
+    set buffer_size   		[xget_hw_parameter_value $mhsinst "C_PDI_RPDO_BUF_SIZE_USER"]
 	
 	if {$ipcore_mode == 0} {
 		#DirectIO is used
 		if {$buffer_count_mac < 2} {
 			# buffer deactivated
-			set returnVal [ expr 0 ] 
+			return [ expr 0 ] 
 		} else { 
 			# header + 4 bytes real data
-			set returnVal [ expr 4 + 16 ] 
+			return [ expr 4 + 16 ] 
 		}
 	} elseif {$ipcore_mode == 5} {
 		#openMAC only
-		set returnVal [ expr 0 ]		
+		return [ expr 0 ]		
 	} else {	 
 		# PDI is used
 		# add header
-		set returnVal [ expr $buffer_size + 16 ] 
+		return [ expr $buffer_size + 16 ] 
 	}
-		   
-	return $returnVal
-	
 } 	 
 
 proc calc_rpdo_2_buffer_size { param_handle} {
-	set returnVal 0
-
 	set mhsinst [xget_hw_parent_handle $param_handle]		  
-   set ipcore_mode [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+    set ipcore_mode [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	set buffer_count_mac [xget_hw_parameter_value $mhsinst "C_MAC_NUM_RPDO_USER"] 
-   set buffer_size [xget_hw_parameter_value $mhsinst "C_PDI_RPDO_BUF_SIZE_USER"]
+    set buffer_size [xget_hw_parameter_value $mhsinst "C_PDI_RPDO_BUF_SIZE_USER"]
 	
 	if {$ipcore_mode == 0} {
 		#DirectIO is used
 		if {$buffer_count_mac < 3} {
 		   # buffer deactivated
-			set returnVal [ expr 0 ] 
+			return [ expr 0 ] 
 		} else { 	
 			# header + 4 bytes real data
-			set returnVal [ expr 4 + 16 ] 
+			return [ expr 4 + 16 ] 
 		} 
 	} elseif {$ipcore_mode == 5} {
 		#openMAC only
-		set returnVal [ expr 0 ]					
+		return [ expr 0 ]					
 	} else {	 
 		# PDI is used
 		# add header
-		set returnVal [ expr $buffer_size + 16 ]
+		return [ expr $buffer_size + 16 ]
 	}
-		   
-	return $returnVal
-	
 } 	
 
 # calc tpdo buffer size
 proc calc_tpdo_buffer_size { param_handle} {
-	set returnVal 0
-
 	set mhsinst      [xget_hw_parent_handle $param_handle]	 
-	set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"] 
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
     set param1val   [xget_hw_parameter_value $mhsinst "C_PDI_TPDO_BUF_SIZE_USER"]
 	
 	if {$ipcore_mode == 0} {
 		#DirectIO is used
 		# just 4 bytes real data 
-		set returnVal [ expr 4 ]  
+		return [ expr 4 ]  
 	} elseif {$ipcore_mode == 5} {
 		#openMAC only
-		set returnVal [ expr 0 ]			
+		return [ expr 0 ]			
 	} else {
-		set returnVal [ expr $param1val + 16 ]
+		return [ expr $param1val + 16 ]
 	}
-	
-	return $returnVal
 } 
+
+# calc the number of mac rx buffers for the driver
+proc calc_mac_rx_buffers { param_handle } {	
+   	set rpdo_count [ calc_rpdo_count $param_handle ] 
+
+	if { $rpdo_count == 1 } {
+		set macRxBuffers 4 
+	} elseif { $rpdo_count == 2 } {
+		set macRxBuffers 5 
+	} elseif { $rpdo_count == 3 } {
+		set macRxBuffers 6
+	} elseif { $rpdo_count == 0 } {		
+		# openMAC only has no RPDO definition and therefore we choose max RPDOs for the safe side
+		set macRxBuffers 16
+	} else {
+		error "Number of Rpdos invalid!"
+	}				
+	
+	return $macRxBuffers 
+}
 
 ###################################################
 ## Calc asynchronous buffers settings
@@ -415,7 +575,12 @@ proc calc_tpdo_buffer_size { param_handle} {
 # update async buffer 0
 proc gen_async_0_buffer { param_handle} {
 	set mhsinst      	[xget_hw_parent_handle $param_handle]
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 	
 	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_0_SIZE_USER"] 
+	
+	if { $ipcore_mode == 0 || $ipcore_mode == 5 } {
+		return false							   
+	}	
 	
 	if { $async_buf_size == 0 } {
 		return false
@@ -426,7 +591,12 @@ proc gen_async_0_buffer { param_handle} {
 
 proc calc_async_0_buffer_size { param_handle} {
    	set mhsinst      	[xget_hw_parent_handle $param_handle]
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_0_SIZE_USER"]	
+	
+	if { $ipcore_mode == 0 || $ipcore_mode == 5 } {
+		return 0							   
+	}
 	
 	set async_buf_size [expr $async_buf_size + 4]
 	
@@ -436,7 +606,12 @@ proc calc_async_0_buffer_size { param_handle} {
 #update async buffer 1
 proc gen_async_1_buffer { param_handle} {
 	set mhsinst      	[xget_hw_parent_handle $param_handle]
-	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"] 
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 	
+	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"] 	
+	
+	if { $ipcore_mode == 0 || $ipcore_mode == 5 } {
+		return false							   
+	}
 	
 	if { $async_buf_size == 0 } {
 		return false
@@ -447,7 +622,12 @@ proc gen_async_1_buffer { param_handle} {
 
 proc calc_async_1_buffer_size { param_handle} {
    	set mhsinst      	[xget_hw_parent_handle $param_handle]
-	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"]	
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
+	set async_buf_size	[xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"]
+	
+	if { $ipcore_mode == 0 || $ipcore_mode == 5 } {
+		return 0							   
+	}
 	
 	if { $async_buf_size != 0 } {
 		set async_buf_size [expr $async_buf_size + 4]
@@ -460,45 +640,55 @@ proc calc_async_1_buffer_size { param_handle} {
 ## Calc RPDO and TPDO count
 ###################################################	
 proc calc_rpdo_count { param_handle} {
-	set returnVal 0
-
 	set mhsinst      	[xget_hw_parent_handle $param_handle]
-	set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"]	
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]	
 	set rpdo_count_mac	[xget_hw_parameter_value $mhsinst "C_MAC_NUM_RPDO_USER"]
 	set rpdo_count_pdi	[xget_hw_parameter_value $mhsinst "C_PDI_NUM_RPDO_USER"] 
 	
 	if {$ipcore_mode == 0} {
 		#DirectIO is used
-		set returnVal $rpdo_count_mac
+		return $rpdo_count_mac
 	} elseif {$ipcore_mode == 5} {
 		#openMAC only
-		set returnVal [ expr 0 ]		
+		return [ expr 0 ]		
 	} else {  
 		#pdi is used
-	    set returnVal $rpdo_count_pdi
+	    return $rpdo_count_pdi
 	}
-	
-	return $returnVal
 }
 
 proc calc_tpdo_count { param_handle} {
 	set returnVal 0
 
 	set mhsinst      [xget_hw_parent_handle $param_handle]
-	set ipcore_mode   [xget_hw_parameter_value $mhsinst "ipcore_mode_g"]	
-   set tpdo_count_mac	[xget_hw_parameter_value $mhsinst "C_MAC_NUM_TPDO_USER"]
+	set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]	
+    set tpdo_count_mac	[xget_hw_parameter_value $mhsinst "C_MAC_NUM_TPDO_USER"]
 	set tpdo_count_pdi	[xget_hw_parameter_value $mhsinst "C_PDI_NUM_TPDO_USER"]
 	
 	if {$ipcore_mode == 0} {
 		#DirectIO is used
-		set returnVal $tpdo_count_mac					
+		return $tpdo_count_mac					
 	} elseif {$ipcore_mode == 5} {
 		#openMAC only
-		set returnVal [ expr 0 ]					
+		return [ expr 0 ]					
 	} else {  
 		#pdi is used
-	    set returnVal $tpdo_count_pdi
+	    return $tpdo_count_pdi
 	}
+}
+
+###################################################
+## calc dma observer state
+###################################################	
+proc calc_dma_observer_state { param_handle } {
+  	set mhsinst      [xget_hw_parent_handle $param_handle] 
+	set pack_lock   [xget_hw_parameter_value $mhsinst "C_PACKET_LOCATION"] 
+	set observer_state   [xget_hw_parameter_value $mhsinst "C_OBSERVER_ENABLE_USER"] 
 	
-	return $returnVal
+	if { $pack_lock == 0 } {
+		# disable if RX and TX are internal
+		return false
+	} else { 
+		return $observer_state
+	}
 }

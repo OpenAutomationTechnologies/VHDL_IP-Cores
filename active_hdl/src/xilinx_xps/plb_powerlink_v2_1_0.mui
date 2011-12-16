@@ -46,9 +46,9 @@
 <!DOCTYPE doc SYSTEM "$XILINX_EDK\hw\XilinxProcessorIPLib\pcores\ipdialog.dtd" [
 	<!-- -->
 	<!-- General -->
-	<!ENTITY ipcore_mode_g '
-	<widget id="ipcore_mode_g">
-		<key>ipcore_mode_g</key>
+	<!ENTITY C_IP_CORE_MODE '
+	<widget id="C_IP_CORE_MODE">
+		<key>C_IP_CORE_MODE</key>
 		<label>Mode of the Powerlink IP-Core</label>
 		<tip></tip>
 	</widget>
@@ -73,7 +73,7 @@
 	<widget id="C_USE_RMII">
 		<key>C_USE_RMII</key>
 		<label>Set Ethernet Port(s) Interface</label>
-		<tip>RMII interface is recommended because it reduces the area usage of the powerlink IP Core</tip>
+		<tip><![CDATA[RMII interface is recommended because it reduces the area usage of the powerlink IP Core]]></tip>
 	</widget>
 	'>	
 	<!ENTITY C_MAC_NUM_RPDO_USER '
@@ -114,7 +114,7 @@
 	<widget id="C_PDI_RPDO_BUF_SIZE_USER">
 		<key>C_PDI_RPDO_BUF_SIZE_USER</key>
 		<label>RPDO buffer size</label>
-		<tip></tip>
+		<tip><![CDATA[16 bytes of header is automatically added to this buffer]]></tip>
 	</widget>
 	'>	
 	<!ENTITY C_PDI_NUM_TPDO_USER '
@@ -128,35 +128,35 @@
 	<widget id="C_PDI_TPDO_BUF_SIZE_USER">
 		<key>C_PDI_TPDO_BUF_SIZE_USER</key>
 		<label>TPDO buffer size</label>
-		<tip></tip>
+		<tip><![CDATA[16 bytes of header is automatically added to this buffer]]></tip>
 	</widget>
 	'>
 	<!ENTITY C_PDI_ASYNC_BUF_0_SIZE_USER '
 	<widget id="C_PDI_ASYNC_BUF_0_SIZE_USER">
 		<key>C_PDI_ASYNC_BUF_0_SIZE_USER</key>
 		<label>Asynchronous buffer 0 size</label>
-		<tip>This value needs to be higher than 20</tip>
+		<tip><![CDATA[This value needs to be higher than 20 bytes because this buffer is always needed. 4 bytes of header get added automatically.]]></tip>
 	</widget>
 	'>	
 	<!ENTITY C_PDI_ASYNC_BUF_1_SIZE_USER '
 	<widget id="C_PDI_ASYNC_BUF_1_SIZE_USER">
 		<key>C_PDI_ASYNC_BUF_1_SIZE_USER</key>
 		<label>Asynchronous buffer 1 size</label>
-		<tip>Setting this value to 0 disables the second asynchronous buffer</tip>
+		<tip><![CDATA[Setting this value to 0 disables the second asynchronous buffer. 4 bytes of header get added automatically.]]></tip>
 	</widget>
 	'>	
 	<!ENTITY C_PDI_GEN_LED '
 	<widget id="C_PDI_GEN_LED">
 		<key>C_PDI_GEN_LED</key>
 		<label>Enable LED outputs</label>
-		<tip></tip>
+		<tip><![CDATA[This enables LED control from the AP processor. (It uses additional FPGA resources)]]></tip>
 	</widget>
 	'>	
 	<!ENTITY C_PDI_GEN_TIME_SYNC '
 	<widget id="C_PDI_GEN_TIME_SYNC">
 		<key>C_PDI_GEN_TIME_SYNC</key>
 		<label>Generate timebase on AP</label>
-		<tip></tip>
+		<tip><![CDATA[If this is set to true the global timebase is also accessable on the AP processor]]></tip>
 	</widget>
 	'>
 	<!ENTITY C_PDI_GEN_SECOND_TIMER '
@@ -170,7 +170,7 @@
 	<widget id="C_PDI_GEN_EVENT">
 		<key>C_PDI_GEN_EVENT</key>
 		<label>Handle events in hardware</label>
-		<tip>This uses additional resources but also speeds up state changes</tip>
+		<tip><![CDATA[This uses additional resources but also speeds up state changes]]></tip>
 	</widget>
 	'>	
 	
@@ -192,16 +192,16 @@
 	<!ENTITY C_PAP_BIG_END '
 	<widget id="C_PAP_BIG_END">
 		<key>C_PAP_BIG_END</key>
-		<label>Parallel Interface Big Endian</label>
-		<tip></tip>
+		<label>Parallel interface endianness</label>
+		<tip><![CDATA[Sets the endianness of the AP. Conversions are done pure in software]]></tip>
 	</widget>
 	'>	
 	<!-- SPI interface -->
 	<!ENTITY C_SPI_BIG_END '
 	<widget id="C_SPI_BIG_END">
 		<key>C_SPI_BIG_END</key>
-		<label>SPI Interface Big Endian</label>
-		<tip></tip>
+		<label>SPI interface endianness</label>
+		<tip><![CDATA[Sets the endianness of the AP. Conversions are done pure in software]]></tip>
 	</widget>
 	'>
 	<!ENTITY C_SPI_CPHA '
@@ -301,17 +301,28 @@
 	</widget>
 	'>	
 	<!-- MAC DMA -->
-	<!ENTITY C_MAC_DMA_BURST_SIZE '
-	<widget id="C_MAC_DMA_BURST_SIZE">
-		<key>C_MAC_DMA_BURST_SIZE</key>
-		<tip></tip>
+	<!ENTITY C_MAC_DMA_BURST_SIZE_RX '
+	<widget id="C_MAC_DMA_BURST_SIZE_RX">
+		<key>C_MAC_DMA_BURST_SIZE_RX</key>
+		<label>MAC DMA RX Burst Size in Byte</label>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_DMA_BURST_SIZE_TX '
+	<widget id="C_MAC_DMA_BURST_SIZE_TX">
+		<key>C_MAC_DMA_BURST_SIZE_TX</key>
+		<label>MAC DMA TX Burst Size in Byte</label>
 	</widget>
 	'>		
-	
-	<!ENTITY C_MAC_DMA_FIFO_SIZE '
-	<widget id="C_MAC_DMA_FIFO_SIZE">
-		<key>C_MAC_DMA_FIFO_SIZE</key>
-		<tip></tip>
+	<!ENTITY C_MAC_DMA_FIFO_SIZE_RX '
+	<widget id="C_MAC_DMA_FIFO_SIZE_RX">
+		<key>C_MAC_DMA_FIFO_SIZE_RX</key>
+		<label>MAC DMA RX FIFO Size in Byte</label>
+	</widget>
+	'>
+	<!ENTITY C_MAC_DMA_FIFO_SIZE_TX '
+	<widget id="C_MAC_DMA_FIFO_SIZE_TX">
+		<key>C_MAC_DMA_FIFO_SIZE_TX</key>
+		<label>MAC DMA TX FIFO Size in Byte</label>
 	</widget>
 	'>	
 	<!ENTITY C_MAC_DMA_PLB_NATIVE_DWIDTH '
@@ -555,11 +566,11 @@
 	</widget>
 	'>			 
  	<!-- DEBUG -->
-	<!ENTITY C_OBSERVER_ENABLE '
-	<widget id="C_OBSERVER_ENABLE">
-		<key>C_OBSERVER_ENABLE</key>		
+	<!ENTITY C_OBSERVER_ENABLE_USER '
+	<widget id="C_OBSERVER_ENABLE_USER">
+		<key>C_OBSERVER_ENABLE_USER</key>		
 		<label>Enable MAC DMA observer</label>
-		<tip>The MAC DMA observer signals if a write to the external memory failed and therefore inconsisdent data is transfered throughout the network</tip>
+		<tip><![CDATA[The MAC DMA observer signals if a write to the external memory failed and therefore inconsisdent data is transfered throughout the network]]></tip>
 	</widget>
 	'>
 	
@@ -570,7 +581,7 @@
 		<display>User</display>
 		<group id="General">
 			<display>General</display>
-			<item>&ipcore_mode_g;</item>			
+			<item>&C_IP_CORE_MODE;</item>			
 		</group>
 		<group id="openMAC">
 			<display>openMAC</display>
@@ -633,8 +644,10 @@
 		</group>
 		<group id="MAC_DMA">
 			<display>MAC DMA</display>
-			<item>&C_MAC_DMA_BURST_SIZE;</item>
-			<item>&C_MAC_DMA_FIFO_SIZE;</item>
+			<item>&C_MAC_DMA_BURST_SIZE_RX;</item>
+			<item>&C_MAC_DMA_FIFO_SIZE_RX;</item> 
+			<item>&C_MAC_DMA_BURST_SIZE_TX;</item>
+			<item>&C_MAC_DMA_FIFO_SIZE_TX;</item>
 			<item>&C_MAC_DMA_PLB_NATIVE_DWIDTH;</item> 
 			<item>&C_MAC_DMA_PLB_AWIDTH;</item>
 			<item>&C_MAC_DMA_PLB_DWIDTH;</item>
@@ -689,16 +702,16 @@
 			<item>&C_SMP_PCP_PLB_NATIVE_DWIDTH;</item>
 			<item>&C_SMP_PCP_PLB_SUPPORT_BURSTS;</item>
 		</group>		
-		<!--<group id="Hidden">
+		<group id="Hidden">
 			<display>Hidden</display>
 			<item>&C_FAMILY;</item>
-		</group>-->
+		</group>
 	</view>
 	<view id="Misc">
 		<display>Misc</display>
 		<group id="Debug">
 			<display>Debug</display>
-			<item>&C_OBSERVER_ENABLE;</item>			
+			<item>&C_OBSERVER_ENABLE_USER;</item>			
 		</group>
    	</view>	
 </doc>

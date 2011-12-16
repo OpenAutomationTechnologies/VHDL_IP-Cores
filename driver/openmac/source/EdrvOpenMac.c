@@ -159,17 +159,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
 	#define EDRV_CMP_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
 	#define EDRV_CMP_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_CMP_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR+1)
-	//TODO: the following defines shall be set automatically to that value defined in the GUI
-	//#define EDRV_PKT_LOC					EDRV_PKT_LOC_TX_RX_INT
-	#define EDRV_PKT_LOC					EDRV_PKT_LOC_TX_INT_RX_EXT
-	//#define EDRV_PKT_LOC					EDRV_PKT_LOC_TX_RX_EXT
-	#define EDRV_PHY_NUM					2
-	#define EDRV_DMA_OBSERVER				0 //observer circuit is NOT available
-	//#define EDRV_DMA_OBSERVER				1 //observer circuit is available
+	#define EDRV_PKT_LOC					XPAR_PLB_POWERLINK_0_PACKET_LOCATION
+	#define EDRV_PHY_NUM					XPAR_PLB_POWERLINK_0_PHY_COUNT
+	#define EDRV_DMA_OBSERVER				XPAR_PLB_POWERLINK_0_OBSERVER_ENABLE
 #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
-	#define EDRV_MAX_RX_BUFFERS         	6
+	#define EDRV_MAX_RX_BUFFERS         	XPAR_PLB_POWERLINK_0_MAC_RX_BUFFERS
 	#define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
-	#define EDRV_PKT_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_PKT_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR+1)
+	#define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
 	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
 	#define EDRV_PKT_BASE           (void *)0 //not used
@@ -177,7 +173,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
 	#define EDRV_MAX_RX_BUFFERS         	16 //packets are stored in heap, set depending on your needs
 	#define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
-	#define EDRV_PKT_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_PKT_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR+1)
+	#define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
 #else
 	#error "Configuration is unknown!"
 #endif
