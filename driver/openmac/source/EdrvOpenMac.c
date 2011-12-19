@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 							changes in usleep
  2011/12/15		zelenkaj	added data cache support for TX packets (Microblaze)
 							changed DMA error handling (MAC is stopped)
+ 2011/12/19		zelenkaj	added initialization of openMAC RAM
 ----------------------------------------------------------------------------*/
 
 
@@ -354,6 +355,9 @@ BYTE            abFilterMask[31],
 #endif
 
     memset(&EdrvInstance_l, 0, sizeof(EdrvInstance_l)); //reset driver struct
+	
+	memset(EDRV_MAC_BASE, 0, EDRV_MAC_SPAN); //reset openMAC register and RAM
+
 #if (EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT || EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT)
     memset(EDRV_PKT_BASE, 0, EDRV_PKT_SPAN); //reset MAC-internal buffers
 #endif
