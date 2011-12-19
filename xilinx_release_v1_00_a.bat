@@ -18,7 +18,9 @@ copy active_hdl\src\xilinx_xps\*.mdd			release\xilinx_xps\plb_powerlink_v1_00_a\
 copy active_hdl\src\xilinx_xps\*.pao			release\xilinx_xps\plb_powerlink_v1_00_a\data
 copy active_hdl\src\xilinx_xps\*.mui			release\xilinx_xps\plb_powerlink_v1_00_a\data
 copy active_hdl\src\xilinx_xps\*.tcl			release\xilinx_xps\plb_powerlink_v1_00_a\data
-copy documentation\*.pdf				release\xilinx_xps\plb_powerlink_v1_00_a\doc
+copy documentation\*_Generic.pdf				release\xilinx_xps\plb_powerlink_v1_00_a\doc
+copy documentation\*_Xilinx.pdf				release\xilinx_xps\plb_powerlink_v1_00_a\doc
+copy documentation\OpenMAC.pdf				release\xilinx_xps\plb_powerlink_v1_00_a\doc
 
 del release\xilinx_xps\plb_powerlink_v1_00_a\hdl\vhdl\*_TB.vhd
 del release\xilinx_xps\plb_powerlink_v1_00_a\hdl\vhdl\*_Altera.vhd
