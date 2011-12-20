@@ -66,6 +66,7 @@
 -- 2011-11-21	V0.32	zelenkaj	added time synchronization feature
 -- 2011-11-28	V0.33	zelenkaj	added waitrequest signals
 -- 2011-11-29	V0.34	zelenkaj	event support is optional
+-- 2011-12-20	V0.35	zelenkaj	changed 2xbuf switch source to AP
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -521,8 +522,8 @@ begin
 			ledCtrlIn 					=> pcp_ledSet_s,
 			ledCtrlOut 					=> pcp_ledSet_s,
 			---time synchronization
-			doubleBufSel_out			=> pcp_timeSyncDBufSel,
-			doubleBufSel_in				=> '0', --pcp is not interested
+			doubleBufSel_out			=> open, --PCP is the sink
+			doubleBufSel_in				=> pcp_timeSyncDBufSel,
 			timeSyncIrq					=> '0', --pcp is not interested
 			--dpr interface (from PCP/AP to DPR)
 			dprAddrOff					=> dprCntStReg_s.pcp.addrOff,
@@ -561,10 +562,10 @@ begin
 			doSync_g => not genOnePdiClkDomain_g
 		)
 		port map (
-			din => pcp_timeSyncDBufSel,
-			dout => ap_timeSyncDBufSel,
-			clk => ap_clk,
-			rst => ap_reset
+			dout => pcp_timeSyncDBufSel,
+			din => ap_timeSyncDBufSel,
+			clk => pcp_clk,
+			rst => pcp_reset
 		);
 	
 	theCntrlStatReg4Ap : entity work.pdiControlStatusReg
@@ -629,8 +630,8 @@ begin
 			ledCtrlIn 					=> ap_ledSet_s,
 			ledCtrlOut 					=> ap_ledSet_s,
 			---time synchronization
-			doubleBufSel_out			=> open,
-			doubleBufSel_in				=> ap_timeSyncDBufSel,
+			doubleBufSel_out			=> ap_timeSyncDBufSel,
+			doubleBufSel_in				=> '0', --AP is the source
 			timeSyncIrq					=> ap_irq_s,
 			--dpr interface (from PCP/AP to DPR)
 			dprAddrOff					=> dprCntStReg_s.ap.addrOff,

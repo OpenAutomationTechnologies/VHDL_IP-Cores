@@ -39,6 +39,7 @@
 -- 2011-11-21	V0.02	zelenkaj	added time synchronization feature
 --									added 12 bytes to DPR as reserved
 -- 2011-11-29	V0.03	zelenkaj	led and event is optional
+-- 2011-12-20	V0.04	zelenkaj	changed 2xbuf switch source to ap irq
 ------------------------------------------------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
@@ -105,8 +106,8 @@ entity pdiControlStatusReg is
 			ledCtrlIn 					: in	std_logic_vector(15 downto 0);
 			ledCtrlOut 					: out	std_logic_vector(15 downto 0);
 			---time synchronization
-			doubleBufSel_out			: out	std_logic; --Pcp only
-			doubleBufSel_in				: in	std_logic := '0'; --Ap only
+			doubleBufSel_out			: out	std_logic; --Ap only
+			doubleBufSel_in				: in	std_logic := '0'; --Pcp only
 			timeSyncIrq					: in	std_logic; --SYNC IRQ to Ap (Ap only)
 			--dpr interface (from PCP/AP to DPR)
 			dprAddrOff					: out	std_logic_vector(iDprAddrWidth_g downto 0);
@@ -135,6 +136,7 @@ signal rpdo_change_tog_l				: 		std_logic_vector(2 downto 0); --change buffer fr
 signal tpdo_change_tog_l				: 		std_logic; --change buffer from hw acc
 
 --time synchronization
+signal timeSyncIrq_rising				: 		std_logic;
 ---select signals
 signal sel_time_after_sync				:		std_logic;
 signal sel_double_buffer				:		std_logic;
@@ -180,22 +182,21 @@ begin
 	---or them up...
 	sel_time_sync_regs <= sel_relative_time_l or sel_relative_time_h or sel_nettime_nsec or sel_nettime_sec;
 	
+	--we need a rising edge to do magic
+	apSyncIrqEdgeDet : entity work.edgedet
+		port map (
+			din => timeSyncIrq,
+			rising => timeSyncIrq_rising,
+			falling => open,
+			any => open,
+			clk => clk,
+			rst => rst
+		);
+	
 	genDoubleBufPcp : if bIsPcp generate
 	begin
-		--switch double buffer
-		process(clk, rst)
-		begin
-			if rst = '1' then
-				sel_double_buffer <= '0';
-			elsif clk = '1' and clk'event then
-				if sel = '1' and wr = '1' and sel_nettime_sec = '1' then --after nettime seconds is set...
-					sel_double_buffer <= not sel_double_buffer; -- ...toggle
-				end if;
-			end if;
-		end process;
-		
-		--output the inverted to the AP
-		doubleBufSel_out <= not sel_double_buffer;
+		--take the other buffer (Ap has already inverted, see lines below!)
+		sel_double_buffer <= doubleBufSel_in;
 		
 		--Pcp has no timer
 		time_after_sync_cnt_out <= (others => '0');
@@ -204,12 +205,25 @@ begin
 	
 	genDoubleBufAp : if not bIsPcp generate
 	begin
-		--take the other buffer (Pcp has already inverted, see lines above!)
-		sel_double_buffer <= doubleBufSel_in;
+		
+		--output the inverted to the PCP
+		doubleBufSel_out <= not sel_double_buffer;
+		
+		--switch the double buffer with the sync irq, rising edge of course
+		process(clk, rst)
+		begin
+			if rst = '1' then
+				sel_double_buffer <= '0';
+			elsif rising_edge(clk) then
+				if timeSyncIrq_rising = '1' then --rising edge
+					sel_double_buffer <= not sel_double_buffer;
+				end if;
+			end if;
+		end process;
+		
 	end generate;
 	
 	genTimeAfterSyncCnt : if not bIsPcp and genTimeSync_g generate
-		signal timeSyncIrq_l : std_logic;
 		constant ZEROS : std_logic_vector(time_after_sync_cnt'range) := (others => '0');
 		constant ONES : std_logic_vector(time_after_sync_cnt'range) := (others => '1');
 	begin
@@ -218,10 +232,8 @@ begin
 		begin
 			if rst = '1' then
 				time_after_sync_cnt <= (others => '0');
-				timeSyncIrq_l <= '0';
 			elsif clk = '1' and clk'event then
 				time_after_sync_cnt <= time_after_sync_cnt_next;
-				timeSyncIrq_l <= timeSyncIrq;
 				
 				--there are some kind of interfaces that read only the half of a word...
 				-- so store the half that is not read
@@ -232,7 +244,7 @@ begin
 			end if;
 		end process;
 		
-		time_after_sync_cnt_next <= ZEROS when timeSyncIrq = '1' and timeSyncIrq_l = '0' else
+		time_after_sync_cnt_next <= ZEROS when timeSyncIrq_rising = '1' else --rising edge
 			time_after_sync_cnt when time_after_sync_cnt = ONES else --saturate
 			time_after_sync_cnt + 1; --count for your life!
 		
