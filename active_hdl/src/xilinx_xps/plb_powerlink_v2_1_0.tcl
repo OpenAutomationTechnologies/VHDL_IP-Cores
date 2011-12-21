@@ -355,11 +355,6 @@ proc iplevel_drc_proc { ipinst_handle } {
 	set mac_irq_conn [xget_hw_value $mac_irq_handle]
 	set tcp_irq_conn [xget_hw_value $tcp_irq_handle]
 	
-	puts "hi"
-	puts $mac_irq_conn
-	puts $tcp_irq_conn
-	puts "bye"
-	
 	if { $tcp_irq_conn == "" || $mac_irq_conn == ""} {
 		error "Please connect tcp_irq and mac_irq interrupt to the xps_intc of your system. The tcp_irq interrupt needs the highest priority in the system."
 		set error_happend 1;
@@ -389,6 +384,22 @@ proc drc_mac_pkt_high_addr { param_handle } {
 	if { $mac_pkt_high >= 0x3FFFFFFF } {
 		error "C_MAC_PKT_HIGHADDR needs the two MSBs set to zero and it's value should therefore be less then 0x3FFFFFFF!"
 		return 1
+	} elseif { $mac_pkt_high == 0xFFFFFFFF } {
+		error "C_MAC_PKT_HIGHADDR needs to be unequal 0xFFFFFFFF!"
+		return 1	
+	} else {
+		return 0;
+	}
+	
+}
+
+proc drc_mac_pkt_base_addr { param_handle } {
+	set mac_pkt_base [ xget_hw_value $param_handle ]
+
+	# check if the two msb's of the high addr is zero
+	if { $mac_pkt_base == 0x00000000 } {
+		error "C_MAC_PKT_BASEADDR needs to be unequal 0x00000000!"
+		return 1	
 	} else {
 		return 0;
 	}
