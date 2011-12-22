@@ -83,7 +83,7 @@ Ram: COMPONENT altsyncram
 			wren_a    => WeA,		wren_b    => WeB,
 			clocken0  => EnA,		clocken1  => EnB,
 			byteena_a => BeA,		byteena_b => BeB,
-			address_a => AddrA,		address_b => AddrB,					
+			address_a => AddrA,		address_b => AddrB,
 			data_a    => DiA,		data_b    => DiB, 
 			q_a       => DoA,		q_b       => DoB
 			);
@@ -120,7 +120,7 @@ architecture struct of Dpr_16_32 is
 begin
 
 Ram: COMPONENT altsyncram
-		GENERIC MAP ( OPERATION_MODE => "DUAL_PORT", INIT_FILE => "openMAC_DPR/dpr_32_16_openMAC.hex",
+		GENERIC MAP ( OPERATION_MODE => "DUAL_PORT", INIT_FILE => "openMAC_DPR/dpr_16_32_openMAC.hex",
 					  WIDTH_A => 16, WIDTHAD_A => 8, NUMWORDS_A => 256, WIDTH_BYTEENA_A => 2,
 					  WIDTH_B => 32, WIDTHAD_B => 7, NUMWORDS_B => 128
 					 )
