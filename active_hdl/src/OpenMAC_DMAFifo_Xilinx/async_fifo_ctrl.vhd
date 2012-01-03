@@ -39,6 +39,7 @@
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------
 -- 2011-09-22	V0.01		mairt		first version
+-- 2012-01-02   V0.02       zelenkaj    bugfix sync error
 ------------------------------------------------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -143,16 +144,16 @@ begin
 			  
    sync_w_ptr: synchronizer_g
       generic map(N=>ADDR_WIDTH+1)
-      port map(clk=>clkw, 
-			  reset=>resetw,
+      port map(clk=>clkr, 
+			  reset=>resetr,
 			  in_async=>w_ptr_out, 
 			  out_sync=>w_ptr_in
 	  		);
 	  
    sync_r_ptr: synchronizer_g
       generic map(N=>ADDR_WIDTH+1)
-      port map(clk=>clkr, 
-			  reset=>resetr,
+      port map(clk=>clkw, 
+			  reset=>resetw,
 			  in_async=>r_ptr_out, 
 			  out_sync =>r_ptr_in
 	  		); 

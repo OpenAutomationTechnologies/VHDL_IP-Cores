@@ -48,6 +48,7 @@
 -- 2011-08-03  	V0.01	zelenkaj    First version
 -- 2011-11-08	V0.02	zelenkaj	Added transfer qualifiers
 -- 2011-11-30	V0.03	zelenkaj	Removed unnecessary ports
+-- 2011-12-23   V0.04   zelenkaj    Fix write hanging
 --
 -------------------------------------------------------------------------------
 
@@ -331,6 +332,12 @@ begin
 									m_burstcount_latch <= conv_std_logic_vector(conv_integer(rx_rd_usedw), m_burstcount_latch'length);
 									m_address_latch <= rx_cnt;
 								end if;
+                                
+                                --workaround: fifo is not empty but word level is zero => set to one
+                                if conv_integer(rx_rd_usedw) = 0 then
+                                    m_burstcount_s <= conv_std_logic_vector(1, m_burstcount_s'length);
+                                    m_burstcount_latch <= conv_std_logic_vector(1, m_burstcount_latch'length);
+                                end if;
 							else
 								--start the maximum burst write transfer
 								m_burstcount_s <= conv_std_logic_vector(rx_burst_size_c, m_burstcount_s'length);

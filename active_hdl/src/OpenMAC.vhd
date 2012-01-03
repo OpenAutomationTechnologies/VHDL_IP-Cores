@@ -50,6 +50,7 @@
 --									Added Dma qualifiers (Rd/Wr done)
 -- 2011-12-02	V0.45	zelenkaj	Added Dma Request Overflow
 -- 2011-12-05	V0.46	zelenkaj	Minor change of constants (logic level)
+-- 2011-12-23   V0.47   zelenkaj    Improvement of Dma Request Overflow determination
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -423,11 +424,16 @@ BEGIN
 	Dma_Rd_Done <= Tx_Done;
 	
 	Tx_Done <= '1' when Dsm = sStat or Dsm = sColl else '0';
-	
-	--Tx_Dsm_Next is used instead of Dsm
-	-- this generates a one-cycle-pulse, since sAdrH state is exit after one cycle
-	Tx_Dma_Req_Overflow <= '1' when Tx_Dsm_Next = sAdrL or (F_Val = '1' and H_Byte = '0') else '0';
-	
+    
+    --Read request overflows...
+    -- * before preamble ends
+    -- * during transfer before every 8th cycle (halfx) or 4th cycle (fullx)
+    -- * after exiting crc state (data feteched by dma is not used since crc is calc in hw)
+    Tx_Dma_Req_Overflow <=  '1' when Dibl_Cnt = "01" and Sm_Tx = R_Pre and Tx_Timer(7) = '1' else
+                            '1' when Dibl_Cnt = "10" and Sm_Tx = R_Txd and H_Byte = '0' else
+                            '1' when Dibl_Cnt = "10" and Sm_Tx = R_Crc and Tx_Timer(7) = '1' else
+                            '0';
+        
 	Ram_Wr    <= '1' WHEN	s_nWr = '0' AND Sel_Ram = '1' AND s_Adr(10) = '1'	ELSE '0';
 	Ram_Be(1) <= '1' WHEN	s_nWr = '1' OR s_nBE(1) = '0'						ELSE '0';
 	Ram_Be(0) <= '1' WHEN	s_nWr = '1' OR s_nBE(0) = '0'						ELSE '0';
@@ -939,13 +945,18 @@ bRxDesc:	BLOCK
 	SIGNAL	Rx_Idle, RxInt			 				: std_logic;
 	SIGNAL	Hub_Rx_L								: std_logic_vector( 1 DOWNTO 0);
 	SIGNAL	Rx_Dma_Out								: std_logic;
+    signal  Rx_Done                                 : std_logic;
 
 BEGIN
 	
-	Dma_Wr_Done <= '1' when Dsm /= sIdle and Rx_Dsm_Next = sIdle else '0';
+    Rx_Done <= '1' when Dsm /= sIdle and Rx_Dsm_Next = sIdle else '0';
+    
+    Dma_Wr_Done <= Rx_Done;
 	
-	Rx_Dma_Req_Overflow <= '1' when (Dsm = sOdd and Rx_Ovr = '0') or 
-				(Dsm = sData and Rx_Ovr = '0' and F_Val = '1' and Rx_Count(0) = '1') else '0';
+	Rx_Dma_Req_Overflow <=  '1' when Dsm = sOdd and Rx_Ovr = '0' else
+                            '1' when Dsm = sData and Rx_Ovr = '0' and F_Val = '1' and Rx_Count(0) = '1' and RX_Count > 1 else
+                            '1' when Rx_Done = '1' else
+                            '0';
 	
 	WrDescStat <= '1' WHEN Dsm = sStat	ELSE '0';	
 
