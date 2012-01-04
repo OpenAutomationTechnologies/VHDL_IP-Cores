@@ -37,6 +37,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- 2010-06-28  	V0.01	zelenkaj	First version
 -- 2010-08-16	V0.02	zelenkaj	changed header
+-- 2012-01-03   V0.03   zelenkaj    added initialization file
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -86,6 +87,7 @@ ARCHITECTURE SYN OF pdi_dpr IS
 		clock_enable_output_a		: STRING;
 		clock_enable_output_b		: STRING;
 		indata_reg_b		: STRING;
+        init_file : STRING;
 		intended_device_family		: STRING;
 		lpm_type		: STRING;
 		numwords_a		: NATURAL;
@@ -136,7 +138,8 @@ BEGIN
 		clock_enable_output_a => "BYPASS",
 		clock_enable_output_b => "BYPASS",
 		indata_reg_b => "CLOCK1",
-		intended_device_family => "Cyclone III",
+        init_file => "hex/pdi_dpr.hex",
+		intended_device_family => "Cyclone IV",
 		lpm_type => "altsyncram",
 		numwords_a => NUM_WORDS,
 		numwords_b => NUM_WORDS,

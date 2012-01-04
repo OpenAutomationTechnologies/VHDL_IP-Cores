@@ -1,13 +1,12 @@
 @echo off
 mkdir release\altera_sopc\POWERLINK\src
 mkdir release\altera_sopc\POWERLINK\src\lib 
-mkdir release\altera_sopc\POWERLINK\src\openMAC_DPR
-mkdir release\altera_sopc\POWERLINK\src\openMAC_DMAmaster
 mkdir release\altera_sopc\POWERLINK\sdc
 mkdir release\altera_sopc\POWERLINK\doc
+mkdir release\altera_sopc\hex
 
+copy active_hdl\src\hex\*.hex						release\altera_sopc\hex
 copy active_hdl\src\*.vhd							release\altera_sopc\POWERLINK\src
-copy active_hdl\src\hex\*_openMAC.hex				release\altera_sopc\POWERLINK\src\openMAC_DPR
 copy active_hdl\src\lib\*.vhd						release\altera_sopc\POWERLINK\src\lib
 copy active_hdl\src\openMAC_DMAmaster\*.vhd			release\altera_sopc\POWERLINK\src\openMAC_DMAmaster
 copy active_hdl\compile\*.vhd						release\altera_sopc\POWERLINK\src
