@@ -94,6 +94,7 @@
 #-- 2011-12-12	V1.13	zelenkaj	Changed packet location enumerator
 #-- 2011-12-14	V1.14	zelenkaj	Changed documentation path/filename
 #-- 2011-12-15	V1.15	zelenkaj	Changed openMAC only RX buffer configuration
+#-- 2012-01-04	V1.16	zelenkaj	Added feature to create mif files for openMAC DPR and PDI DPR
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -1126,6 +1127,77 @@ proc my_validation_callback {} {
 	} else {
 		set_module_assignment embeddedsw.CMacro.HWACC				0
 	}
+	
+	#####################################################################
+	# create mif files for dpr (openMAC and PDI)
+	
+	set pdiDprMifName 		"../mif/pdi_dpr.mif"
+	set macDpr1616MifName 	"../mif/dpr_16_16.mif"
+	set macDpr1632MifName 	"../mif/dpr_16_32.mif"
+	
+	if {$configPowerlink == "openMAC only" || $configPowerlink == "Direct I/O CN"} {
+		# no pdi present, therefore delete pdi dpr mif
+		if {[file isdirectory [file dirname $pdiDprMifName]]} {
+			file delete $pdiDprMifName
+		}
+	} else {
+		# for the pdi dpr the size has to be calculated
+		# taken from pdi.vhd constant intCntStReg_c
+		set pdiDprCntStReg [expr 4 * 22]
+		
+		# align buffers before calculate dpr size
+		set tpdo0size [expr ($tpdo0size + 3) & ~3]
+		set rpdo0size [expr ($rpdo0size + 3) & ~3]
+		set rpdo1size [expr ($rpdo1size + 3) & ~3]
+		set rpdo2size [expr ($rpdo2size + 3) & ~3]
+		set asyncBuf1Size [expr ($asyncBuf1Size + 3) & ~3]
+		set asyncBuf2Size [expr ($asyncBuf2Size + 3) & ~3]
+		
+		set pdiDprSize [expr $pdiDprCntStReg + 3* $tpdo0size + 3* $rpdo0size + 3* $rpdo1size + 3* $rpdo2size + 2* $asyncBuf1Size + 2* $asyncBuf2Size]
+		set pdiDprSize [expr $pdiDprSize / 4]
+		set pdiDprHigh [expr $pdiDprSize - 1]
+		
+		# create pdi dpr mif
+		set pdiDprMifData "WIDTH = 32;\nDEPTH = $pdiDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = UNS;\n\nCONTENT BEGIN\n\t\[ 0 .. $pdiDprHigh \] : 0;\nEND;\n"
+		
+		if {![file isdirectory [file dirname $pdiDprMifName]]} {
+			file mkdir $pdiDprMifName
+		}
+		
+		set pdiDprMifId [open $pdiDprMifName "w"]
+		puts -nonewline $pdiDprMifId $pdiDprMifData
+		close $pdiDprMifId
+	}
+	
+	# create openMAC 16/16 dpr mif
+	set macDprSize 256
+	set macDprHigh [expr $macDprSize - 1]
+	set macDprMifData "WIDTH = 16;\nDEPTH = $macDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = UNS;\n\nCONTENT BEGIN\n\t\[ 0 .. $macDprHigh \] : 0;\nEND;\n"
+	set macDprMifName $macDpr1616MifName
+	
+	if {![file isdirectory [file dirname $macDprMifName]]} {
+		file mkdir $macDprMifName
+	}
+	
+	set macDprMifId [open $macDprMifName "w"]
+	puts -nonewline $macDprMifId $macDprMifData
+	close $macDprMifId
+	
+	# create openMAC 16/32 dpr mif
+	set macDprSize 256
+	set macDprHigh [expr $macDprSize - 1]
+	set macDprMifData "WIDTH = 16;\nDEPTH = $macDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = UNS;\n\nCONTENT BEGIN\n\t\[ 0 .. $macDprHigh \] : 0;\nEND;\n"
+	set macDprMifName $macDpr1632MifName
+	
+	if {![file isdirectory [file dirname $macDprMifName]]} {
+		file mkdir $macDprMifName
+	}
+	
+	set macDprMifId [open $macDprMifName "w"]
+	puts -nonewline $macDprMifId $macDprMifData
+	close $macDprMifId
+	#####################################################################
+	
 }
 
 #display

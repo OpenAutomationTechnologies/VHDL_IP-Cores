@@ -39,6 +39,7 @@
 --	2010-05-03	V0.02		added packet buffer dpr
 --  2011-12-22	V0.03		added initialization files
 --							removed dpr_8_8
+--  2012-01-04  V0.04       replaced initialization files with mif
 ------------------------------------------------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
@@ -74,7 +75,7 @@ architecture struct of Dpr_16_16 is
 begin
 
 Ram: COMPONENT altsyncram
-		GENERIC MAP ( OPERATION_MODE => "BIDIR_DUAL_PORT", INIT_FILE => "openMAC_DPR/dpr_16_16_openMAC.hex",
+		GENERIC MAP ( OPERATION_MODE => "BIDIR_DUAL_PORT", INIT_FILE => "mif/dpr_16_16.mif",
 					  WIDTH_A => 16, WIDTHAD_A => 8, NUMWORDS_A => 256, WIDTH_BYTEENA_A => 2,
 					  WIDTH_B => 16, WIDTHAD_B => 8, NUMWORDS_B => 256, WIDTH_BYTEENA_B => 2
 					 )
@@ -120,7 +121,7 @@ architecture struct of Dpr_16_32 is
 begin
 
 Ram: COMPONENT altsyncram
-		GENERIC MAP ( OPERATION_MODE => "DUAL_PORT", INIT_FILE => "openMAC_DPR/dpr_16_32_openMAC.hex",
+		GENERIC MAP ( OPERATION_MODE => "DUAL_PORT", INIT_FILE => "mif/dpr_16_32.mif",
 					  WIDTH_A => 16, WIDTHAD_A => 8, NUMWORDS_A => 256, WIDTH_BYTEENA_A => 2,
 					  WIDTH_B => 32, WIDTHAD_B => 7, NUMWORDS_B => 128
 					 )
