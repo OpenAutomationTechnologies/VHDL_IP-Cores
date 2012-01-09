@@ -95,6 +95,7 @@
 #-- 2011-12-14	V1.14	zelenkaj	Changed documentation path/filename
 #-- 2011-12-15	V1.15	zelenkaj	Changed openMAC only RX buffer configuration
 #-- 2012-01-04	V1.16	zelenkaj	Added feature to create mif files for openMAC DPR and PDI DPR
+#-- 2012-01-09  V1.17   zelenkaj    Added ap_syncIrq for external AP
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -1508,8 +1509,8 @@ add_interface_port PDI_AP_IRQ ap_irq irq Output 1
 ##AP external IRQ
 add_interface AP_EX_IRQ conduit end
 set_interface_property AP_EX_IRQ ENABLED false
-add_interface_port AP_EX_IRQ ap_irq export Output 1
-add_interface_port AP_EX_IRQ ap_irq_n export Output 1
+add_interface_port AP_EX_IRQ ap_syncIrq export Output 1
+add_interface_port AP_EX_IRQ ap_syncIrq_n export Output 1
 add_interface_port AP_EX_IRQ ap_asyncIrq export Output 1
 add_interface_port AP_EX_IRQ ap_asyncIrq_n export Output 1
 
@@ -1749,12 +1750,12 @@ if {$ClkRate50meg == 50000000} {
 			if {[get_parameter_value configApParOutSigs] == "Low Active"} {
 				#low active output signals (ap_irq_n and pap_ack_n) are used
 				set_port_property pap_ack termination true
-				set_port_property ap_irq termination true
+				set_port_property ap_syncIrq termination true
 				set_port_property ap_asyncIrq termination true
 			} else {
 				#high active output signals (ap_irq and pap_ack) are used
 				set_port_property pap_ack_n termination true
-				set_port_property ap_irq_n termination true
+				set_port_property ap_syncIrq_n termination true
 				set_port_property ap_asyncIrq_n termination true
 			}
 			if {[get_parameter_value configApParSigs] == "Low Active"} {
@@ -1781,11 +1782,11 @@ if {$ClkRate50meg == 50000000} {
 			
 			if {[get_parameter_value configApSpi_IRQ] == "Low Active"} {
 				#low active output signal (irq_n) is used
-				set_port_property ap_irq termination true
+				set_port_property ap_syncIrq termination true
 				set_port_property ap_asyncIrq termination true
 			} else {
 				#high active output signal (irq) is used
-				set_port_property ap_irq_n termination true
+				set_port_property ap_syncIrq_n termination true
 				set_port_property ap_asyncIrq_n termination true
 			}
 		}

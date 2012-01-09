@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Fri Dec 16 15:53:09 2011
+-- Generated   : Mon Jan  9 13:12:41 2012
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -429,8 +429,8 @@ entity plb_powerlink is
        SMP_PCP_wrDAck : out std_logic;
        ap_asyncIrq : out std_logic;
        ap_asyncIrq_n : out std_logic;
-       ap_irq : out std_logic;
-       ap_irq_n : out std_logic;
+       ap_syncIrq : out std_logic;
+       ap_syncIrq_n : out std_logic;
        led_error : out std_logic;
        led_status : out std_logic;
        mac_irq : out std_logic;
@@ -750,6 +750,8 @@ component powerlink
        ap_irq : out std_logic := '0';
        ap_irq_n : out std_logic := '1';
        ap_readdata : out std_logic_vector(31 downto 0) := (others => '0');
+       ap_syncIrq : out std_logic := '0';
+       ap_syncIrq_n : out std_logic := '1';
        ap_waitrequest : out std_logic;
        led_error : out std_logic := '0';
        led_gpo : out std_logic_vector(7 downto 0) := (others => '0');
@@ -1443,10 +1445,10 @@ THE_POWERLINK_IP_CORE : powerlink
        ap_asyncIrq_n => ap_asyncIrq_n,
        ap_byteenable => ap_byteenable,
        ap_chipselect => ap_chipselect,
-       ap_irq => ap_irq,
-       ap_irq_n => ap_irq_n,
        ap_read => ap_read,
        ap_readdata => ap_readdata,
+       ap_syncIrq => ap_syncIrq,
+       ap_syncIrq_n => ap_syncIrq_n,
        ap_waitrequest => ap_waitrequest,
        ap_write => ap_write,
        ap_writedata => ap_writedata,

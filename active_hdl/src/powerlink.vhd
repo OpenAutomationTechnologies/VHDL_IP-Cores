@@ -73,6 +73,7 @@
 -- 2011-11-29	V1.06	zelenkaj	event is optional
 -- 2011-11-30	V1.07	zelenkaj	Added generic for DMA observer
 -- 2011-12-02	V1.08	zelenkaj	Added I, O and T instead of IO ports
+-- 2012-01-09   V1.09   zelenkaj    Added ap_syncIrq for external AP
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -203,6 +204,8 @@ entity powerlink is
 	--- AP PORTS
 		ap_irq						: out	std_logic := '0';
 		ap_irq_n					: out	std_logic := '1';
+        ap_syncIrq                  : out   std_logic := '0';
+        ap_syncIrq_n                : out   std_logic := '1';
 		ap_asyncIrq					: out	std_logic := '0';
 		ap_asyncIrq_n				: out	std_logic := '1';
 	---- AVALON
@@ -456,8 +459,8 @@ begin
 			pap_be_s <= pap_be;
 		end generate;
 		
-		ap_irq <= ap_irq_s;
-		ap_irq_n <= not ap_irq_s;
+		ap_syncIrq <= ap_irq_s;
+		ap_syncIrq_n <= not ap_irq_s;
 		
 		ap_asyncIrq <= ap_asyncIrq_s;
 		ap_asyncIrq_n <= not ap_asyncIrq_s;
@@ -562,8 +565,8 @@ begin
 --AP is extern connected via SPI
 	genPdiSpi : if genPdi_g and genSpiAp_g generate
 		
-		ap_irq <= ap_irq_s;
-		ap_irq_n <= not ap_irq_s;
+		ap_syncIrq <= ap_irq_s;
+		ap_syncIrq_n <= not ap_irq_s;
 		
 		ap_asyncIrq <= ap_asyncIrq_s;
 		ap_asyncIrq_n <= not ap_asyncIrq_s;

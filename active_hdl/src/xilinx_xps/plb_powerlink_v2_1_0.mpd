@@ -43,6 +43,7 @@
 #-- 2011-12-06	V0.06	mairt		added packet size calculation and fixed some bugs
 #-- 2011-12-16	V0.07	mairt		added ability to set TX/RX burst size separately
 #-- 2012-01-09	V0.08	mairt		added DRC procedures
+#--						zelenkaj	renamed AP sync IRQ
 #------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
@@ -256,8 +257,8 @@ PORT phy1_TxEn = "", DIR = OUT, ISVALID = (C_USE_RMII && C_USE_2ND_PHY), IO_IF =
 ### Interrupts
 PORT mac_irq = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_HIGH
 PORT tcp_irq = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_HIGH
-PORT ap_irq = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_HIGH, ISVALID = (C_IP_CORE_MODE > 0 && C_IP_CORE_MODE < 5)
-PORT ap_irq_n = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_LOW, ISVALID = (C_IP_CORE_MODE > 0 && C_IP_CORE_MODE < 5)
+PORT ap_syncIrq = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_HIGH, ISVALID = (C_IP_CORE_MODE > 0 && C_IP_CORE_MODE < 5)
+PORT ap_syncIrq_n = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_LOW, ISVALID = (C_IP_CORE_MODE > 0 && C_IP_CORE_MODE < 5)
 PORT ap_asyncIrq = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_HIGH, ISVALID = (C_IP_CORE_MODE > 0 && C_IP_CORE_MODE < 5)
 PORT ap_asyncIrq_n = "", DIR = OUT, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_LOW, ISVALID = (C_IP_CORE_MODE > 0 && C_IP_CORE_MODE < 5)
 

@@ -267,8 +267,8 @@ architecture TB_ARCHITECTURE of plb_powerlink_tb is
 		MAC_REG_wrDAck : out STD_LOGIC;
 		ap_asyncIrq : out STD_LOGIC;
 		ap_asyncIrq_n : out STD_LOGIC;
-		ap_irq : out STD_LOGIC;
-		ap_irq_n : out STD_LOGIC;
+		ap_syncirq : out STD_LOGIC;
+		ap_syncirq_n : out STD_LOGIC;
 		led_error : out STD_LOGIC;
 		led_status : out STD_LOGIC;
 		mac_irq : out STD_LOGIC;
@@ -503,8 +503,8 @@ architecture TB_ARCHITECTURE of plb_powerlink_tb is
 	signal MAC_REG_wrDAck : STD_LOGIC;
 	signal ap_asyncIrq : STD_LOGIC;
 	signal ap_asyncIrq_n : STD_LOGIC;
-	signal ap_irq : STD_LOGIC;
-	signal ap_irq_n : STD_LOGIC;
+	signal ap_syncirq : STD_LOGIC;
+	signal ap_syncirq_n : STD_LOGIC;
 	signal led_error : STD_LOGIC;
 	signal led_status : STD_LOGIC;
 	signal mac_irq : STD_LOGIC;
@@ -796,8 +796,8 @@ begin
 			MAC_REG_wrDAck => MAC_REG_wrDAck,
 			ap_asyncIrq => ap_asyncIrq,
 			ap_asyncIrq_n => ap_asyncIrq_n,
-			ap_irq => ap_irq,
-			ap_irq_n => ap_irq_n,
+			ap_syncirq => ap_syncirq,
+			ap_syncirq_n => ap_syncirq_n,
 			led_error => led_error,
 			led_status => led_status,
 			mac_irq => mac_irq,
