@@ -39,6 +39,7 @@
 #-- 2011-11-01	V0.02	mairt	added procedures for the powerlink gui 
 #-- 2011-12-06	V0.03	mairt	added packet size calculation, better async buffer handling and bugfixes
 #-- 2011-12-14	V0.04	mairt	enhancement of the driver generate procedure
+#-- 2012-01-09	V0.05	mairt	added DRC procedures
 #------------------------------------------------------------------------------------------------------------------------
 
 #uses "xillib.tcl"
@@ -77,40 +78,40 @@ proc generate {drv_handle} {
 		puts "POWERLINK IP-Core in Direct IO mode!"
 		if { $pack_lock == 2 } {
 			# all packets are external
-			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_SMP_PCP_BASEADDR" "C_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
 		} else {
 			# there are internal packets									  
-			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_SMP_PCP_BASEADDR" "C_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
 		}
 	} elseif { $ip_core_mode == 1} {
 		# PDI with pap		  
 		puts "POWERLINK IP-Core in PDI mode with parallel interface!"
 		if { $pack_lock == 2 } {
 			# all packets are external
-			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
 		} else {
 			# there are internal packets									  
-			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
 		}
 	} elseif { $ip_core_mode == 3} {
 		# PDI with spi		  
 		puts "POWERLINK IP-Core in PDI mode with SPI interface!"
 		if { $pack_lock == 2 } {
 			# all packets are external
-			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
 		} else {
 			# there are internal packets									  
-			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
 		}
 	} elseif { $ip_core_mode == 4} {
 		# PDI with plb interface		  
 		puts "POWERLINK IP-Core in PDI mode with PLB interface!" 
 		if { $pack_lock == 2 } {
 			# all packets are external
-			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
 		} else {
 			# there are internal packets									  
-			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
+			my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"						  
 		}
 	} elseif { $ip_core_mode == 5} {
 		# PDI with pap		  
@@ -279,7 +280,131 @@ proc calc_tx_buffer_size { param_handle } {
 	set txBufSize [expr $txBufSize * 2]
 	set macTxBuffers [expr $macTxBuffers * 2]
 	 
-	return $txBufSize 
+	return $txBufSize;
+}
+
+###################################################
+## System level drc procedure
+###################################################
+proc syslevel_drc_proc { ipinst_handle } {
+	
+	return 0;
+}
+
+proc iplevel_drc_proc { ipinst_handle } {
+	set error_happend 0
+	set pack_loc [ xget_hw_parameter_value $ipinst_handle "C_PACKET_LOCATION" ]
+	set ip_core_mode [ xget_hw_parameter_value $ipinst_handle "C_IP_CORE_MODE" ]
+
+	# check if mac reg bus interface is connected to a 50Mhz clock
+	set splb_mac_reg_handle [xget_hw_busif_handle $ipinst_handle "MAC_REG"]
+	set splb_mac_reg_conn [xget_hw_value $splb_mac_reg_handle]
+	
+	if { $splb_mac_reg_conn == "" } {
+		error "The bus interface MAC_REG is not connected! Please connect it to a PLB bus with a 50 Mhz clock source."
+		set error_happend 1;
+	} 
+	
+	# check if mac pkt is connected when pkt's are internal
+	set splb_mac_pkt_handle [xget_hw_busif_handle $ipinst_handle "MAC_PKT"]
+	set splb_mac_pkt_conn [xget_hw_value $splb_mac_pkt_handle]
+	
+	if { $pack_loc < 2 && $splb_mac_pkt_conn == "" } {
+		error "The bus interface MAC_PKT is not connected! Please connect it to the PLB bus where also the PCP bus master is present."
+		set error_happend 1;
+	} 
+	
+	# check if mac dma is connected to the memory controller
+	set splb_mac_dma_handle [xget_hw_busif_handle $ipinst_handle "MAC_DMA"]
+	set splb_mac_dma_conn [xget_hw_value $splb_mac_dma_handle]
+	
+	if { $pack_loc != 0 && $splb_mac_dma_conn == "" } {
+		error "The MAC_DMA master bus interface is not connected! Please connect it to the PLB bus where the heap of the powerlink stack is located."
+		set error_happend 1;
+	}
+	
+	# check if pdi pcp is connected to the pcp microblaze bus master
+	set splb_pdi_pcp_handle [xget_hw_busif_handle $ipinst_handle "PDI_PCP"]
+	set splb_pdi_pcp_conn [xget_hw_value $splb_pdi_pcp_handle]
+	
+	if { ( $ip_core_mode != 0 && $ip_core_mode != 5 ) && $splb_pdi_pcp_conn == "" } {
+		error "The PDI_PCP bus interface is not connected! Please connect it to the PLB bus where also the PCP bus master is present."
+		set error_happend 1;
+	}	
+	
+	# check if pdi ap is connected to the ap microblaze bus master
+	set splb_pdi_ap_handle [xget_hw_busif_handle $ipinst_handle "PDI_AP"]
+	set splb_pdi_ap_conn [xget_hw_value $splb_pdi_ap_handle]
+	
+	if { $ip_core_mode == 4  && $splb_pdi_ap_conn == "" } {
+		error "The PDI_AP bus interface is not connected! Please connect it to the PLB bus where also the AP bus master is present."
+		set error_happend 1;
+	}	
+	
+	# check if smp pcp is connected to the microblaze bus master
+	set splb_smp_pcp_handle [xget_hw_busif_handle $ipinst_handle "SMP_PCP"]
+	set splb_smp_pcp_conn [xget_hw_value $splb_smp_pcp_handle]
+	
+	if { $ip_core_mode == 0  && $splb_smp_pcp_conn == "" } {
+		error "The SMP_PCP bus interface is not connected! Please connect it to the PLB bus where also the PCP bus master is present."
+		set error_happend 1;
+	}
+
+	# check if interrupts are connected
+	set mac_irq_handle [xget_hw_port_handle $ipinst_handle "mac_irq"]
+	set tcp_irq_handle [xget_hw_port_handle $ipinst_handle "tcp_irq"]
+	set mac_irq_conn [xget_hw_value $mac_irq_handle]
+	set tcp_irq_conn [xget_hw_value $tcp_irq_handle]
+	
+	if { $tcp_irq_conn == "" || $mac_irq_conn == ""} {
+		error "Please connect tcp_irq and mac_irq interrupt to the xps_intc of your system. The tcp_irq interrupt needs the highest priority in the system."
+		set error_happend 1;
+	}
+	
+	# check if clk100 is connected when rmii is used
+	set myport_handle [xget_hw_port_handle $ipinst_handle "clk100"]
+	set myport_conn [xget_hw_value $myport_handle]
+	set use_rmii [ xget_hw_parameter_value $ipinst_handle "C_USE_RMII" ]
+	
+	if { $use_rmii && $myport_conn == ""} {
+		error "When RMII is used, please connect the clk100 port to a 100Mhz clock of the clock generator!"
+		set error_happend 1;
+	}
+	
+	return error_happend;
+
+}
+
+###################################################
+## Parameter DRC procedures
+###################################################
+proc drc_mac_pkt_high_addr { param_handle } {
+	set mac_pkt_high [ xget_hw_value $param_handle ]
+
+	# check if the two msb's of the high addr is zero
+	if { $mac_pkt_high >= 0x3FFFFFFF } {
+		error "C_MAC_PKT_HIGHADDR needs the two MSBs set to zero and it's value should therefore be less then 0x3FFFFFFF!"
+		return 1
+	} elseif { $mac_pkt_high == 0xFFFFFFFF } {
+		error "C_MAC_PKT_HIGHADDR needs to be unequal 0xFFFFFFFF!"
+		return 1	
+	} else {
+		return 0;
+	}
+	
+}
+
+proc drc_mac_pkt_base_addr { param_handle } {
+	set mac_pkt_base [ xget_hw_value $param_handle ]
+
+	# check if the two msb's of the high addr is zero
+	if { $mac_pkt_base == 0x00000000 } {
+		error "C_MAC_PKT_BASEADDR needs to be unequal 0x00000000!"
+		return 1	
+	} else {
+		return 0;
+	}
+	
 }
 
 ###################################################
@@ -289,7 +414,7 @@ proc calc_tx_buffer_size { param_handle } {
 proc get_pdi_enable { param_handle }	{
 
   	set mhsinst      [xget_hw_parent_handle $param_handle]
-    set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
+   set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"] 
 	
 	if {$ipcore_mode > 0 && $ipcore_mode < 5} {
 	   return true
@@ -378,7 +503,7 @@ proc update_rx_packet_location { param_handle} {
 
 	if {$packet_location == 0} {
 		# RX is in DPRAM
-	   	return true
+	   return true
 	} elseif  {$packet_location == 1} {
 		# RX is in external RAM
 		return false
