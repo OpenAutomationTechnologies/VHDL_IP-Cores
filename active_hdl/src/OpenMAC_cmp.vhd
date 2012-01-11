@@ -45,7 +45,8 @@
 --
 -------------------------------------------------------------------------------
 --
--- 2011-07-26  	V0.01	zelenkaj    First version
+-- 2011-07-26  	V0.01	zelenkaj    First version						 				  
+-- 2012-01-11	V0.02	mairt		moved registers to seperate cmp int and tog int
 --
 -------------------------------------------------------------------------------
 
@@ -109,13 +110,14 @@ begin
 						irq_s <= '0';
 					when "01" =>
 						cmp_enable <= din(0);
-						if gen2ndCmpTimer_g = TRUE then
-							tog_enable <= din(4);
-						end if;
 					when "10" =>
 						if gen2ndCmpTimer_g = TRUE then
 							tog_value <= din;
-						end if;
+						end if;	   
+					when "11" =>
+						if gen2ndCmpTimer_g = TRUE then
+							tog_enable <= din(0);
+						end if;						
 					when others =>
 						--go and get a coffee...
 				end case;
@@ -126,9 +128,9 @@ begin
 	
 	dout <= 
 		mac_time 																when addr = "00" else
-		x"000000" & "00" & "00" & "00" & irq_s & cmp_enable 					when addr = "01" and gen2ndCmpTimer_g = FALSE else
-		x"000000" & "00" & toggle_s & tog_enable & "00" & irq_s & cmp_enable 	when addr = "01" and gen2ndCmpTimer_g = TRUE else
-		tog_value 																when addr = "10" and gen2ndCmpTimer_g = TRUE else
+		x"000000" & "00" & "00" & "00" & irq_s & cmp_enable 					when addr = "01" else
+		tog_value 																when addr = "10" and gen2ndCmpTimer_g = TRUE else	  
+		x"000000" & "00" & "00" & "00" & toggle_s & tog_enable					when addr = "11" and gen2ndCmpTimer_g = TRUE else			
 		mac_time; --otherwise give me the current time...
 	
 end rtl;
