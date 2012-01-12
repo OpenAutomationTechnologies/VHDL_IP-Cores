@@ -97,6 +97,7 @@
 #-- 2012-01-04	V1.16	zelenkaj	Added feature to create mif files for openMAC DPR and PDI DPR
 #-- 2012-01-09  V1.17   zelenkaj    Added ap_syncIrq for external AP
 #-- 2012-01-11	V1.18	zelenkaj	Async Irq is omitted if event hw support is disabled
+#-- 2012-01-12	V1.19	zelenkaj	Added macro to system.h in case of low-jitter SYNC
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -1033,9 +1034,17 @@ proc my_validation_callback {} {
 	# otherwise not (e.g. openMAC only, DirectIO or no selected)
 	set_parameter_value use2ndCmpTimer_g FALSE
 	if {$configPowerlink == "CN with Processor Interface"} {
-		if {$useLowJitterSync} {
+		if {$mac2cmpTimer} {
 			set_parameter_value use2ndCmpTimer_g true
+			#forward the cmp timer number to system.h = 2 timers!
+			set_module_assignment embeddedsw.CMacro.CMPTIMERCNT		2
+		} else {
+			#forward the cmp timer number to system.h = 1 timer
+			set_module_assignment embeddedsw.CMacro.CMPTIMERCNT		1
 		}
+	} else {
+		#forward the cmp timer number to system.h = 1 timer
+		set_module_assignment embeddedsw.CMacro.CMPTIMERCNT			1
 	}
 	
 	#forward parameters to system.h
