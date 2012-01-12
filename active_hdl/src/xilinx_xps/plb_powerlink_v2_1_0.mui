@@ -218,11 +218,11 @@
 		<tip></tip>
 	</widget>
 	'>	
-	<!-- Simple IO -->
+	<!-- Direct IO -->
 	<!ENTITY C_PIO_VAL_LENGTH '
 	<widget id="C_PIO_VAL_LENGTH">
 		<key>C_PIO_VAL_LENGTH</key>
-		<label>Simple IO value length</label>
+		<label>Direct IO value length</label>
 		<tip></tip>
 	</widget>
 	'>		
@@ -587,9 +587,7 @@
 			<display>openMAC</display>
 			<item>&C_PACKET_LOCATION;</item>
 			<item>&C_USE_RMII;</item>
-			<item>&C_USE_2ND_PHY;</item>
-			<item>&C_MAC_NUM_RPDO_USER;</item>
-			<item>&C_MAC_NUM_TPDO_USER;</item>	
+			<item>&C_USE_2ND_PHY;</item>	
 			<item>&C_MAC_PKT_SIZE_RX_USER;</item>	
 			<item>&C_MAC_PKT_SIZE_TX_USER;</item>	
 		</group>		
@@ -620,7 +618,9 @@
 			<item>&C_SPI_CPOL;</item>
 		</group>
 		<group id="SIMPLE_IO">
-			<display>Simple IO</display>
+			<display>Direct IO</display>  
+			<item>&C_MAC_NUM_RPDO_USER;</item>
+			<item>&C_MAC_NUM_TPDO_USER;</item>
 			<item>&C_PIO_VAL_LENGTH;</item>
 		</group>
 	</view>	  
