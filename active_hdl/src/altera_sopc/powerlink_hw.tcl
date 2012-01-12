@@ -384,7 +384,7 @@ set_parameter_property genEvent_g DESCRIPTION "The POWERLINK Slave provides hard
 set_parameter_property genEvent_g VISIBLE false
 
 add_parameter genTimeSync_g BOOLEAN true
-set_parameter_property genTimeSync_g DISPLAY_NAME "Enable Timer for Time Synchronization"
+set_parameter_property genTimeSync_g DISPLAY_NAME "Enable Timer for Time Synchronization (This is the time after sync field in PDI)"
 set_parameter_property genTimeSync_g DESCRIPTION "The POWERLINK Slave provides a 16 bit timer, which is provided for application synchronization."
 set_parameter_property genTimeSync_g HDL_PARAMETER true
 set_parameter_property genTimeSync_g VISIBLE true
@@ -1034,7 +1034,7 @@ proc my_validation_callback {} {
 	# otherwise not (e.g. openMAC only, DirectIO or no selected)
 	set_parameter_value use2ndCmpTimer_g FALSE
 	if {$configPowerlink == "CN with Processor Interface"} {
-		if {$mac2cmpTimer} {
+		if {$useLowJitterSync} {
 			set_parameter_value use2ndCmpTimer_g true
 			#forward the cmp timer number to system.h = 2 timers!
 			set_module_assignment embeddedsw.CMacro.CMPTIMERCNT		2
@@ -1063,9 +1063,9 @@ proc my_validation_callback {} {
 	}
 	
 	if {[get_parameter_value genTimeSync_g]} {
-		set_module_assignment embeddedsw.CMacro.TIMESYNC			TRUE
+		set_module_assignment embeddedsw.CMacro.TIME_AFTER_SYNC_ENABLE		TRUE
 	} else {
-		set_module_assignment embeddedsw.CMacro.TIMESYNC			FALSE
+		set_module_assignment embeddedsw.CMacro.TIME_AFTER_SYNC_ENABLE			FALSE
 	}
 	
 	if {[get_parameter_value genEvent_g]} {
