@@ -96,6 +96,7 @@
 #-- 2011-12-15	V1.15	zelenkaj	Changed openMAC only RX buffer configuration
 #-- 2012-01-04	V1.16	zelenkaj	Added feature to create mif files for openMAC DPR and PDI DPR
 #-- 2012-01-09  V1.17   zelenkaj    Added ap_syncIrq for external AP
+#-- 2012-01-11	V1.18	zelenkaj	Async Irq is omitted if event hw support is disabled
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -1758,6 +1759,15 @@ if {$ClkRate50meg == 50000000} {
 				set_port_property ap_syncIrq_n termination true
 				set_port_property ap_asyncIrq_n termination true
 			}
+			
+			#if event support disabled terminate async irq
+			if {[get_parameter_value genEvent_g]} {
+			
+			} else {
+				set_port_property ap_asyncIrq termination true
+				set_port_property ap_asyncIrq_n termination true
+			}
+			
 			if {[get_parameter_value configApParSigs] == "Low Active"} {
 				#low active input signals (pap_cs_n, pap_rd_n, pap_wr_n and pap_be_n) are used
 				set_port_property pap_cs termination true
@@ -1787,6 +1797,14 @@ if {$ClkRate50meg == 50000000} {
 			} else {
 				#high active output signal (irq) is used
 				set_port_property ap_syncIrq_n termination true
+				set_port_property ap_asyncIrq_n termination true
+			}
+			
+			#if event support disabled terminate async irq
+			if {[get_parameter_value genEvent_g]} {
+			
+			} else {
+				set_port_property ap_asyncIrq termination true
 				set_port_property ap_asyncIrq_n termination true
 			}
 		}
