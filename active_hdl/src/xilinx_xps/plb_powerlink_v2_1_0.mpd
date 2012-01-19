@@ -44,6 +44,7 @@
 #-- 2011-12-16	V0.07	mairt		added ability to set TX/RX burst size separately
 #-- 2012-01-09	V0.08	mairt		added DRC procedures
 #--						zelenkaj	renamed AP sync IRQ
+#-- 2012-01-19	V0.09	zelenkaj	added 50 MHz clock input
 #------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
@@ -211,6 +212,7 @@ PARAMETER C_SMP_PCP_PLB_SUPPORT_BURSTS = 0, DT = INTEGER, BUS = SMP_PCP, ASSIGNM
 ## Ports
 #PORT test_port = "", DIR = O, VEC = [255:0]
 ### Clk
+PORT clk50 = "", DIR = I, SIGIS = CLK
 PORT clk100 = "", DIR = I, SIGIS = CLK, ISVALID = (C_USE_RMII)
 ### PHY0
 PORT phy0_SMIDat = "", DIR = INOUT, THREE_STATE = TRUE, IO_IF = PHY0, IO_IS = smi_dio
