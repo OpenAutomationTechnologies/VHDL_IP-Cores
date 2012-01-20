@@ -40,6 +40,7 @@
 #-- 2011-12-06	V0.03	mairt	added packet size calculation, better async buffer handling and bugfixes
 #-- 2011-12-14	V0.04	mairt	enhancement of the driver generate procedure
 #-- 2012-01-09	V0.05	mairt	added DRC procedures
+#-- 2012-01-20	V0.05	mairt	mac reg clock frequency is now check with a DRC
 #------------------------------------------------------------------------------------------------------------------------
 
 #uses "xillib.tcl"
@@ -405,6 +406,20 @@ proc drc_mac_pkt_base_addr { param_handle } {
 		return 0;
 	}
 	
+} 
+
+# check the mac reg clock frequency
+proc drc_check_mac_reg_clk_freq { param_handle } {
+	set mac_reg_clk_freq [ xget_hw_value $param_handle ]  
+
+	puts $mac_reg_clk_freq
+								   
+	if { $mac_reg_clk_freq != 50000000 && $mac_reg_clk_freq != 100000000 } {
+		error "C_MAC_REG_Clk_FREQ_HZ has to be 50Mhz or 100Mhz and currently is $mac_reg_clk_freq Hz! Please connect the MAC_REG bus interface to the right clock source."				 
+		return 1;				 
+	} else {
+	 	return 0;
+	}
 }
 
 ###################################################
@@ -815,5 +830,22 @@ proc calc_dma_observer_state { param_handle } {
 		return false
 	} else { 
 		return $observer_state
+	}
+}	  
+
+###################################################
+## calc mac reg bus to core clock ratio
+###################################################	
+proc calc_bus2core_clk_ratio { param_handle } {
+	set mhsinst      	[xget_hw_parent_handle $param_handle] 
+	set clk_frequency   [xget_hw_parameter_value $mhsinst "C_MAC_REG_Clk_FREQ_HZ"] 
+	
+	if { $clk_frequency == 50000000 } {
+		return 1;
+	} elseif { $clk_frequency == 100000000 } {
+		return 2;	
+	} else {
+	 	error "C_MAC_REG_BUS2CORE_CLK_RATIO clock ratio can't be calculated! Please check the frequency of C_MAC_REG_Clk_FREQ_HZ!"
+		return 0;
 	}
 }
