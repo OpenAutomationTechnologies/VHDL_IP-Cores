@@ -388,7 +388,19 @@
 		<tip></tip>
 	</widget>
 	'>	
-	
+	<!ENTITY C_MAC_REG_Clk_FREQ_HZ '
+	<widget id="C_MAC_REG_Clk_FREQ_HZ">
+		<key>C_MAC_REG_Clk_FREQ_HZ</key>
+		<tip></tip>
+	</widget>
+	'>	
+	<!ENTITY C_MAC_REG_BUS2CORE_CLK_RATIO '
+	<widget id="C_MAC_REG_BUS2CORE_CLK_RATIO">
+		<key>C_MAC_REG_BUS2CORE_CLK_RATIO</key>
+		<tip></tip>
+	</widget>
+	'>	 
+
 	<!-- MAC PKG PLB -->
 		<!ENTITY C_MAC_PKT_PLB_DWIDTH '
 	<widget id="C_MAC_PKT_PLB_DWIDTH">
@@ -660,7 +672,9 @@
 			<item>&C_MAC_REG_PLB_MID_WIDTH;</item>
 			<item>&C_MAC_REG_PLB_P2P;</item>
 			<item>&C_MAC_REG_PLB_NATIVE_DWIDTH;</item>
-			<item>&C_MAC_REG_PLB_SUPPORT_BURSTS;</item>
+			<item>&C_MAC_REG_PLB_SUPPORT_BURSTS;</item>	 
+			<item>&C_MAC_REG_Clk_FREQ_HZ;</item>		  
+			<item>&C_MAC_REG_BUS2CORE_CLK_RATIO;</item>	
 		</group>
 		<group id="MAC_PKG_PLB">
 			<display>MAC PKT PLB</display>

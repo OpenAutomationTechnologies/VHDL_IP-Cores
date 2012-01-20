@@ -44,6 +44,8 @@
 #-- 2011-12-16	V0.07	mairt		added ability to set TX/RX burst size separately
 #-- 2012-01-09	V0.08	mairt		added DRC procedures
 #--						zelenkaj	renamed AP sync IRQ
+#-- 2012-01-19	V0.09	zelenkaj	added 50 MHz clock input and bus2core clk ratio	 
+#-- 2012-01-20	V0.10	mairt		mac reg clock frequency is now check with a DRC
 #------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
@@ -161,6 +163,8 @@ PARAMETER C_MAC_CMP_BASEADDR = 0xffffffff, DT = std_logic_vector, BUS = MAC_REG,
 PARAMETER C_MAC_CMP_HIGHADDR = 0x00000000, DT = std_logic_vector, BUS = MAC_REG, ADDRESS = HIGH, PAIR = C_MAC_CMP_BASEADDR, ASSIGNMENT = REQUIRE
 PARAMETER C_MAC_REG_PLB_DWIDTH = 32, DT = INTEGER, BUS = MAC_REG, ASSIGNMENT = CONSTANT
 PARAMETER C_MAC_REG_PLB_AWIDTH = 32, DT = INTEGER, BUS = MAC_REG, ASSIGNMENT = CONSTANT
+PARAMETER C_MAC_REG_Clk_FREQ_HZ = 50000000, DT = INTEGER, TYPE = NON_HDL, ASSIGNMENT = UPDATE, IPLEVEL_DRC_PROC = drc_check_mac_reg_clk_freq
+PARAMETER C_MAC_REG_BUS2CORE_CLK_RATIO = 1, DT = INTEGER, RANGE = (1,2), SYSLEVEL_UPDATE_VALUE_PROC = calc_bus2core_clk_ratio
 PARAMETER C_MAC_REG_PLB_NUM_MASTERS = 1, DT = INTEGER, BUS = MAC_REG, ASSIGNMENT = CONSTANT
 PARAMETER C_MAC_REG_PLB_MID_WIDTH = 1, DT = INTEGER, BUS = MAC_REG, ASSIGNMENT = CONSTANT
 PARAMETER C_MAC_REG_PLB_P2P = 0, DT = INTEGER, BUS = MAC_REG, ASSIGNMENT = CONSTANT
@@ -211,6 +215,7 @@ PARAMETER C_SMP_PCP_PLB_SUPPORT_BURSTS = 0, DT = INTEGER, BUS = SMP_PCP, ASSIGNM
 ## Ports
 #PORT test_port = "", DIR = O, VEC = [255:0]
 ### Clk
+PORT clk50 = "", DIR = I, SIGIS = CLK
 PORT clk100 = "", DIR = I, SIGIS = CLK, ISVALID = (C_USE_RMII)
 ### PHY0
 PORT phy0_SMIDat = "", DIR = INOUT, THREE_STATE = TRUE, IO_IF = PHY0, IO_IS = smi_dio

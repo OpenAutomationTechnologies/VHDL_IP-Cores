@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Mon Jan  9 13:12:41 2012
+-- Generated   : Fri Jan 20 09:39:07 2012
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -58,6 +58,7 @@
 -- 2011-12-06	V0.05	zelenkaj	Changed instance names
 -- 2011-12-07	V0.06	zelenkaj	Fixed address assignments for PDI PCP/AP
 -- 2011-12-16	V0.07	mairt		added TX/RX burst size feature
+-- 2012-01-19	V0.08	zelenkaj	Added bus to core clock ration feature
 --
 -------------------------------------------------------------------------------
 
@@ -180,6 +181,7 @@ entity plb_powerlink is
        C_MAC_REG_HIGHADDR : std_logic_vector := X"0000FFFF";
        C_MAC_CMP_BASEADDR : std_logic_vector := X"00000000";
        C_MAC_CMP_HIGHADDR : std_logic_vector := X"0000FFFF";
+       C_MAC_REG_BUS2CORE_CLK_RATIO : integer := 2;
        C_MAC_REG_NUM_MASTERS : INTEGER := 1;
        C_MAC_REG_PLB_AWIDTH : INTEGER := 32;
        C_MAC_REG_PLB_DWIDTH : INTEGER := 32;
@@ -274,6 +276,7 @@ entity plb_powerlink is
        SMP_PCP_wrPendReq : in std_logic;
        SMP_PCP_wrPrim : in std_logic;
        clk100 : in std_logic;
+       clk50 : in std_logic;
        pap_cs : in std_logic;
        pap_cs_n : in std_logic;
        pap_rd : in std_logic;
@@ -1029,7 +1032,6 @@ signal Bus2PDI_PCP_RNW : std_logic;
 signal Bus2SMP_PCP_Clk : std_logic;
 signal Bus2SMP_PCP_Reset : std_logic;
 signal Bus2SMP_PCP_RNW : std_logic;
-signal clk50 : std_logic;
 signal clkAp : std_logic;
 signal clkPcp : std_logic;
 signal GND : std_logic;
@@ -1266,7 +1268,7 @@ MAC_REG_16to32 : openMAC_16to32conv
        bus_select => Bus2MAC_REG_CS(1),
        bus_write => Bus2MAC_REG_RNW_n,
        bus_writedata => Bus2MAC_REG_Data( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
-       clk => Bus2MAC_REG_Clk,
+       clk => clk50,
        rst => rst,
        s_address => mac_address( C_MAC_REG_PLB_AWIDTH-1 downto 0 ),
        s_byteenable => mac_byteenable,
@@ -1282,7 +1284,7 @@ MAC_REG_PLB_SINGLE_SLAVE : plbv46_slave_single
   generic map (
        C_ARD_ADDR_RANGE_ARRAY => (C_MAC_REG_BASE,C_MAC_REG_HIGH,C_MAC_CMP_BASE,C_MAC_CMP_HIGH),
        C_ARD_NUM_CE_ARRAY => (1, 1),
-       C_BUS2CORE_CLK_RATIO => 1,
+       C_BUS2CORE_CLK_RATIO => C_MAC_REG_BUS2CORE_CLK_RATIO,
        C_FAMILY => C_FAMILY,
        C_INCLUDE_DPHASE_TIMER => 0,
        C_SIPIF_DWIDTH => C_MAC_REG_PLB_DWIDTH,
@@ -1583,8 +1585,6 @@ THE_POWERLINK_IP_CORE : powerlink
        tcp_write => tcp_write,
        tcp_writedata => tcp_writedata
   );
-
-clk50 <= Bus2MAC_REG_Clk;
 
 rst <= Bus2MAC_REG_Reset or Bus2MAC_CMP_Reset or MAC_DMA_RST or Bus2MAC_PKT_Reset;
 
