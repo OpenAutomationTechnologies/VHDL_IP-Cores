@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 --
 -- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Thu Jan 19 16:05:36 2012
+-- Generated   : Fri Jan 20 09:39:07 2012
 -- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
 -- By          : Bde2Vhdl ver. 2.6
 --
@@ -181,6 +181,7 @@ entity plb_powerlink is
        C_MAC_REG_HIGHADDR : std_logic_vector := X"0000FFFF";
        C_MAC_CMP_BASEADDR : std_logic_vector := X"00000000";
        C_MAC_CMP_HIGHADDR : std_logic_vector := X"0000FFFF";
+       C_MAC_REG_BUS2CORE_CLK_RATIO : integer := 2;
        C_MAC_REG_NUM_MASTERS : INTEGER := 1;
        C_MAC_REG_PLB_AWIDTH : INTEGER := 32;
        C_MAC_REG_PLB_DWIDTH : INTEGER := 32;
@@ -1283,7 +1284,7 @@ MAC_REG_PLB_SINGLE_SLAVE : plbv46_slave_single
   generic map (
        C_ARD_ADDR_RANGE_ARRAY => (C_MAC_REG_BASE,C_MAC_REG_HIGH,C_MAC_CMP_BASE,C_MAC_CMP_HIGH),
        C_ARD_NUM_CE_ARRAY => (1, 1),
-       C_BUS2CORE_CLK_RATIO => 2,
+       C_BUS2CORE_CLK_RATIO => C_MAC_REG_BUS2CORE_CLK_RATIO,
        C_FAMILY => C_FAMILY,
        C_INCLUDE_DPHASE_TIMER => 0,
        C_SIPIF_DWIDTH => C_MAC_REG_PLB_DWIDTH,
