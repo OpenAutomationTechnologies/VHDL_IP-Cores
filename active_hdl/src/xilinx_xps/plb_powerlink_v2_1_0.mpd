@@ -46,6 +46,7 @@
 #--						zelenkaj	renamed AP sync IRQ
 #-- 2012-01-19	V0.09	zelenkaj	added 50 MHz clock input and bus2core clk ratio	 
 #-- 2012-01-20	V0.10	mairt		mac reg clock frequency is now check with a DRC
+#-- 2012-01-23	V0.11	zelenkaj	added LED ports
 #------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
@@ -63,9 +64,10 @@ OPTION ARCH_SUPPORT_MAP = (others=DEVELOPMENT)
 
 IO_INTERFACE IO_IF = PHY0, IO_TYPE = XIL_Ethernet_V1
 IO_INTERFACE IO_IF = PHY1, IO_TYPE = XIL_Ethernet_V1
-IO_INTERFACE IO_IF = PORTIO, IO_TYPE = XIL_GPIO_V1 #, ISVALID = (C_IP_CORE_MODE == 0)
-IO_INTERFACE IO_IF = PAP, IO_TYPE = XIL_GPIO_V1 #, ISVALID = (C_IP_CORE_MODE == 1 || C_IP_CORE_MODE == 2)
-IO_INTERFACE IO_IF = SPI, IO_TYPE = XIL_GPIO_V1 #, ISVALID = (C_IP_CORE_MODE == 3)
+IO_INTERFACE IO_IF = PORTIO, IO_TYPE = XIL_GPIO_V1
+IO_INTERFACE IO_IF = PAP, IO_TYPE = XIL_GPIO_V1
+IO_INTERFACE IO_IF = SPI, IO_TYPE = XIL_GPIO_V1
+IO_INTERFACE IO_IF = LED, IO_TYPE = XIL_GPIO_V1
 
 ## Bus Interfaces
 ### openMAC DMA (optional)
@@ -296,6 +298,14 @@ PORT pap_be_n = "", DIR = IN, IO_IF = PAP, VEC = [(C_PAP_DATA_WIDTH/8)-1:0], ISV
 PORT pap_ack = "", DIR = OUT, IO_IF = PAP, ISVALID = (C_IP_CORE_MODE == 1 && C_PAP_LOW_ACT == FALSE)
 PORT pap_ack_n = "", DIR = OUT, IO_IF = PAP, ISVALID = (C_IP_CORE_MODE == 1 && C_PAP_LOW_ACT == TRUE)
 PORT pap_gpio = "", DIR = INOUT, IO_IF = PAP, VEC = [1:0], THREE_STATE = TRUE, ENABLE = MULTI, ISVALID = (C_IP_CORE_MODE == 1)
+
+### LED
+PORT led_error = "", DIR = OUT, IO_IF = LED, ISVALID = (C_IP_CORE_MODE == 1 || C_IP_CORE_MODE == 3 || C_IP_CORE_MODE == 4)
+PORT led_status = "", DIR = OUT, IO_IF = LED, ISVALID = (C_IP_CORE_MODE == 1 || C_IP_CORE_MODE == 3 || C_IP_CORE_MODE == 4)
+PORT led_gpo = "", DIR = OUT, VEC = [7:0], IO_IF = LED, ISVALID = (C_IP_CORE_MODE == 1 || C_IP_CORE_MODE == 3 || C_IP_CORE_MODE == 4)
+PORT led_opt = "", DIR = OUT, VEC = [1:0], IO_IF = LED, ISVALID = (C_IP_CORE_MODE == 1 || C_IP_CORE_MODE == 3 || C_IP_CORE_MODE == 4)
+PORT led_phyAct = "", DIR = OUT, VEC = [1:0], IO_IF = LED, ISVALID = (C_IP_CORE_MODE == 1 || C_IP_CORE_MODE == 3 || C_IP_CORE_MODE == 4)
+PORT led_phyLink = "", DIR = OUT, VEC = [1:0], IO_IF = LED, ISVALID = (C_IP_CORE_MODE == 1 || C_IP_CORE_MODE == 3 || C_IP_CORE_MODE == 4)
 
 ### openMAC DMA
 PORT MAC_DMA_Clk = "", DIR = I, SIGIS = CLK, BUS = MAC_DMA
