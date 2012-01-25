@@ -98,6 +98,7 @@
 #-- 2012-01-09  V1.17   zelenkaj    Added ap_syncIrq for external AP
 #-- 2012-01-11	V1.18	zelenkaj	Async Irq is omitted if event hw support is disabled
 #-- 2012-01-12	V1.19	zelenkaj	Added macro to system.h in case of low-jitter SYNC
+#-- 2012-01-25	V1.20	zelenkaj	Added special initialization to pdi_dpr.mif
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -1169,7 +1170,7 @@ proc my_validation_callback {} {
 		set pdiDprHigh [expr $pdiDprSize - 1]
 		
 		# create pdi dpr mif
-		set pdiDprMifData "WIDTH = 32;\nDEPTH = $pdiDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = UNS;\n\nCONTENT BEGIN\n\t\[ 0 .. $pdiDprHigh \] : 0;\nEND;\n"
+		set pdiDprMifData "WIDTH = 32;\n\DEPTH = $pdiDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = HEX;\n\nCONTENT BEGIN\n\t\[ 0 .. 3 \] : 0;\n\t4 : 00EEFFFF;\n\t\[ 5 .. $pdiDprHigh \] : 0;\nEND;\n"
 		
 		if {![file isdirectory [file dirname $pdiDprMifName]]} {
 			file mkdir $pdiDprMifName
@@ -1183,7 +1184,7 @@ proc my_validation_callback {} {
 	# create openMAC 16/16 dpr mif
 	set macDprSize 256
 	set macDprHigh [expr $macDprSize - 1]
-	set macDprMifData "WIDTH = 16;\nDEPTH = $macDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = UNS;\n\nCONTENT BEGIN\n\t\[ 0 .. $macDprHigh \] : 0;\nEND;\n"
+	set macDprMifData "WIDTH = 16;\nDEPTH = $macDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = HEX;\n\nCONTENT BEGIN\n\t\[ 0 .. $macDprHigh \] : 0;\nEND;\n"
 	set macDprMifName $macDpr1616MifName
 	
 	if {![file isdirectory [file dirname $macDprMifName]]} {
@@ -1197,7 +1198,7 @@ proc my_validation_callback {} {
 	# create openMAC 16/32 dpr mif
 	set macDprSize 256
 	set macDprHigh [expr $macDprSize - 1]
-	set macDprMifData "WIDTH = 16;\nDEPTH = $macDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = UNS;\n\nCONTENT BEGIN\n\t\[ 0 .. $macDprHigh \] : 0;\nEND;\n"
+	set macDprMifData "WIDTH = 16;\nDEPTH = $macDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = HEX;\n\nCONTENT BEGIN\n\t\[ 0 .. $macDprHigh \] : 0;\nEND;\n"
 	set macDprMifName $macDpr1632MifName
 	
 	if {![file isdirectory [file dirname $macDprMifName]]} {
