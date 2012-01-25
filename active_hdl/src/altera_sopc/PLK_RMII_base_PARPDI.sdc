@@ -1,7 +1,7 @@
 # SDC file for POWERLINK Slave reference design with
 # - RMII phys (DP83640)
 # - SRAM (10 ns - IS61WV51216BLL)
-# - Nios II (PCP) with 90 MHz
+# - Nios II (PCP) with 100 MHz
 # - PDI for parallel async interface (8/16bit)
 
 # ----------------------------------------------------------------------------------
@@ -62,9 +62,9 @@ set_false_path -from [get_ports RESET_n] -to [get_registers *]
 
 # ----------------------------------------------------------------------------------
 # sram (IS61WV51216BLL-10TLI)
-## SRAM is driven by 90 MHz fsm.
-## Note: The SOPC inserts 2 write and 2 read cycles, thus, the SRAM "sees" 45 MHz!
-set sram_clk		45.0
+## SRAM is driven by 100 MHz fsm.
+## Note: The SOPC inserts 2 write and 2 read cycles, thus, the SRAM "sees" 50 MHz!
+set sram_clk		50.0
 set sram_tper		[expr 1000.0 / $sram_clk]
 ## delay Address Access Time (tAA) = 10.0 ns
 set sram_ddel		10.0
