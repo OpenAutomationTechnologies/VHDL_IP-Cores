@@ -200,7 +200,7 @@ set_input_delay -clock WRITE_EDGE_virt -min $pdi_thd [get_ports {PDI_DATA[*]}] -
 ## create virtual clock
 #create_clock -name WRITE_EDGE_NEG_virt -period 60.0 -waveform {0.0 40.0}
 ## set clock group
-#set_clock_groups -asynchronous -group {WRITE_EDGE WRITE_EDGE_NEG_virt}
+#set_clock_groups -asynchronous -group {WRITE_EDGE_NEG WRITE_EDGE_NEG_virt}
 ## and setup/hold requirement
 #set_input_delay -clock WRITE_EDGE_NEG_virt -max [expr $pdi_tperwr - $pdi_tsd] [get_ports {PDI_DATA[*]}]
 #set_input_delay -clock WRITE_EDGE_NEG_virt -min $pdi_thd [get_ports {PDI_DATA[*]}]
