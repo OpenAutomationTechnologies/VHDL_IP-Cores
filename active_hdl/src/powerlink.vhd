@@ -75,6 +75,7 @@
 -- 2011-12-02	V1.08	zelenkaj	Added I, O and T instead of IO ports
 -- 2012-01-09   V1.09   zelenkaj    Added ap_syncIrq for external AP
 -- 2012-01-26   V1.10   zelenkaj    Added generic for SMI generation and one SMI ports
+--                                  Omit hwacc options, since we are fast enough!
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -100,7 +101,6 @@ entity powerlink is
 		useRxIntPacketBuf_g			:		boolean								:= true; --rx buffer located in internal packet buffer
 		use2ndCmpTimer_g			:		boolean 							:= true; --use second cmp timer (used in PDI)
 		use2ndPhy_g					:		boolean 							:= true; --use second phy (introduces openHUB)
-		useHwAcc_g					: 		boolean								:= false;
 		m_burstcount_width_g		:		integer								:= 4;
 		m_burstcount_const_g		:		boolean								:= true; --hold burst value during transfer
 		m_tx_burst_size_g			:		integer								:= 16; --0 < x =< 2**m_burstcount_width_g

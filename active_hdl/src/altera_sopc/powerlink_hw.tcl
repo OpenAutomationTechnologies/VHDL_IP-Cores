@@ -100,7 +100,9 @@
 #-- 2012-01-12	V1.19	zelenkaj	Added macro to system.h in case of low-jitter SYNC
 #-- 2012-01-25	V1.20	zelenkaj	Added special initialization to pdi_dpr.mif
 #-- 2012-01-26	V1.21	zelenkaj    Added generic for SMI generation and one SMI ports
-#-                                  Renamed label for SYNC IRQ feature
+#--                                 Renamed label for SYNC IRQ feature
+#--                                 Added "expert mode" for the advanced users
+#--                                 Omit hwacc options, since we are fast enough!
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -167,6 +169,10 @@ set_parameter_property iPdiRev_g VISIBLE false
 set_parameter_property iPdiRev_g DERIVED TRUE
 
 #parameters
+add_parameter expertMode BOOLEAN false
+set_parameter_property expertMode DISPLAY_NAME "Enable Expert Mode"
+set_parameter_property expertMode DESCRIPTION "The \"Expert Mode\" activates settings of the IP-Core for advanced users."
+
 add_parameter clkRateEth INTEGER 0
 set_parameter_property clkRateEth SYSTEM_INFO {CLOCK_RATE clkEth}
 set_parameter_property clkRateEth VISIBLE false
@@ -335,15 +341,6 @@ add_parameter enDmaObserver BOOLEAN false
 set_parameter_property enDmaObserver DISPLAY_NAME "Enable packet DMA transfer monitor circuit"
 set_parameter_property enDmaObserver DESCRIPTION "The DMA monitor verifies the error-free Ethernet packet data transfer to/from the memory."
 
-add_parameter enHwAcc BOOLEAN FALSE
-set_parameter_property enHwAcc VISIBLE false
-####################################
-#enable hw acc on your own risk!
-set_parameter_property enHwAcc ENABLED false
-####################################
-set_parameter_property enHwAcc DISPLAY_NAME "Enable HW ACC"
-set_parameter_property enHwAcc DESCRIPTION "The additional Hardware Acceleration (HWACC) enables a fast link between the openMAC DMA and the PDI. The TPDOs and RPDOs are copied automatically by the HW ACC without intervention of the PCP. This reduces copy jobs for the PCP!"
-
 #parameters for PDI HDL
 add_parameter genOnePdiClkDomain_g BOOLEAN false
 set_parameter_property genOnePdiClkDomain_g HDL_PARAMETER true
@@ -485,11 +482,6 @@ set_parameter_property gNumSmi HDL_PARAMETER true
 set_parameter_property gNumSmi VISIBLE false
 set_parameter_property gNumSmi DERIVED true
 
-add_parameter useHwAcc_g BOOLEAN true
-set_parameter_property useHwAcc_g HDL_PARAMETER true
-set_parameter_property useHwAcc_g VISIBLE false
-set_parameter_property useHwAcc_g DERIVED true
-
 add_parameter gen_dma_observer_g BOOLEAN false
 set_parameter_property gen_dma_observer_g HDL_PARAMETER true
 set_parameter_property gen_dma_observer_g VISIBLE false
@@ -595,6 +587,8 @@ proc my_validation_callback {} {
 	set mii							[get_parameter_value phyIF]
 	set ploc						[get_parameter_value packetLoc]
 	set enDmaObserver 				[get_parameter_value enDmaObserver]
+    
+    set expert                      [get_parameter_value expertMode]
 	
 	if {$mii == "RMII"} {
 		set_parameter_value useRmii_g true
@@ -618,8 +612,14 @@ proc my_validation_callback {} {
 		send_message error "error 0x01"
 	}
 	
-	set macTxBurstSize [get_parameter_value macTxBurstSize]
-	set macRxBurstSize [get_parameter_value macRxBurstSize]
+	if {$expert} {
+        set macTxBurstSize [get_parameter_value macTxBurstSize]
+    	set macRxBurstSize [get_parameter_value macRxBurstSize]
+    } else {
+        #no expert mode set them to one per default
+        set macTxBurstSize 1
+        set macRxBurstSize 1
+    }
 	
 	#burst size setting allowed?!
 	if {$ploc == "TX and RX into DPRAM"} {
@@ -635,13 +635,22 @@ proc my_validation_callback {} {
 		
 		if {$ploc == "TX into DPRAM and RX over Avalon Master"} {
 			set_parameter_property macTxBurstSize VISIBLE false
-			set_parameter_property macRxBurstSize VISIBLE true
-			
+            if {$expert} {
+			    set_parameter_property macRxBurstSize VISIBLE true
+			} else {
+                set_parameter_property macRxBurstSize VISIBLE false
+            }
+            
 			#no tx bursts...
 			set macTxBurstSize 0
 		} elseif {$ploc == "TX and RX over Avalon Master"} {
-			set_parameter_property macTxBurstSize VISIBLE true
-			set_parameter_property macRxBurstSize VISIBLE true
+            if {$expert} {
+    			set_parameter_property macTxBurstSize VISIBLE true
+    			set_parameter_property macRxBurstSize VISIBLE true
+            } else {
+                set_parameter_property macTxBurstSize VISIBLE false
+    			set_parameter_property macRxBurstSize VISIBLE false
+            }
 		} else {
 			#oje :(
 			send_message error "error 0x01a"
@@ -762,7 +771,6 @@ proc my_validation_callback {} {
 	set_parameter_property macTxBuf VISIBLE false
 	set_parameter_property macRxBuf VISIBLE false
 	set_parameter_property hwSupportSyncIrq VISIBLE false
-	set_parameter_property enHwAcc VISIBLE false
 	set_parameter_property enDmaObserver VISIBLE false
 	
 	set_parameter_property mac2phys VISIBLE true
@@ -825,29 +833,6 @@ proc my_validation_callback {} {
 		
 		#set the led gadget enable generic
 		set_parameter_value genLedGadget_g $ledGadgetEn
-		
-		#find out if we should use hardware acceleration!?
-		set_parameter_value useHwAcc_g false
-		if {[get_parameter_value enHwAcc]} {
-			set_parameter_value useHwAcc_g true
-		}
-		
-		if {[get_parameter_value packetLoc] == "TX and RX into DPRAM"} {
-			#no hw acc allowed
-			set_parameter_value useHwAcc_g false
-		} elseif {[get_parameter_value packetLoc] == "TX into DPRAM and RX over Avalon Master"} {
-			#no hw acc allowed
-			set_parameter_value useHwAcc_g false
-		} elseif {[get_parameter_value packetLoc] == "TX and RX over Avalon Master"} {
-			#hw acc allowed!
-			set_parameter_property enHwAcc VISIBLE true
-		} else {
-			send_message error "error 0xdeadbeef"
-		}
-		
-		#####
-		set_parameter_value useHwAcc_g false
-		#####
 		
 		set genPdi true
 		
@@ -961,13 +946,25 @@ proc my_validation_callback {} {
 		set enDmaObserver false
 	} elseif {$ploc == "TX into DPRAM and RX over Avalon Master" } {
 		set macBufSize $txBufSize
-		set_parameter_property enDmaObserver VISIBLE true
+        if {$expert} {
+            #expert may enable it manually
+		    set_parameter_property enDmaObserver VISIBLE true
+        } else {
+            #no expert is not visible but set to true
+            set enDmaObserver true
+        }
 		#no rx buffers are stored in dpram => set to zero
 		set rxBufSize 0
 		set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
 		set macRxBuffers 16
 	} elseif {$ploc == "TX and RX over Avalon Master"} {
-		set_parameter_property enDmaObserver VISIBLE true
+        if {$expert} {
+            #expert may enable it manually
+		    set_parameter_property enDmaObserver VISIBLE true
+        } else {
+            #no expert is not visible but set to true
+            set enDmaObserver true
+        }
 		#any value to avoid errors in SOPC
 		set macBufSize 0
 		#no rx and tx buffers are stored in dpram => set to zero
@@ -1161,12 +1158,6 @@ proc my_validation_callback {} {
 	set_module_assignment embeddedsw.CMacro.PDITPDOS				$tpdos
 	set_module_assignment embeddedsw.CMacro.FPGAREV					[get_parameter_value iPdiRev_g]
 	
-	if {[get_parameter_value useHwAcc_g]} {
-		set_module_assignment embeddedsw.CMacro.HWACC				1
-	} else {
-		set_module_assignment embeddedsw.CMacro.HWACC				0
-	}
-	
 	#####################################################################
 	# create mif files for dpr (openMAC and PDI)
 	
@@ -1241,6 +1232,7 @@ proc my_validation_callback {} {
 
 #display
 add_display_item "Block Diagram" id0 icon img/block_diagram.png
+add_display_item "General Settings" expertMode PARAMETER
 add_display_item "General Settings" configPowerlink PARAMETER
 add_display_item "Process Data Interface Settings" configApInterface PARAMETER
 add_display_item "Process Data Interface Settings" configApParallelInterface PARAMETER
@@ -1268,7 +1260,6 @@ add_display_item "openMAC" packetLoc  PARAMETER
 add_display_item "openMAC" enDmaObserver PARAMETER
 add_display_item "openMAC" macTxBurstSize  PARAMETER
 add_display_item "openMAC" macRxBurstSize  PARAMETER
-add_display_item "openMAC" enHwAcc  PARAMETER
 add_display_item "openMAC" macTxBuf  PARAMETER
 add_display_item "openMAC" macRxBuf  PARAMETER
 
