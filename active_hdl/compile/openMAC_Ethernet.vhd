@@ -1,18 +1,8 @@
 -------------------------------------------------------------------------------
---
--- Title       : openMAC_Ethernet
--- Design      : POWERLINK
---
+-- Entity : openMAC_Ethernet
 -------------------------------------------------------------------------------
 --
--- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_Ethernet.vhd
--- Generated   : Mon Dec  5 07:44:08 2011
--- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_Ethernet.bde
--- By          : Bde2Vhdl ver. 2.6
---
--------------------------------------------------------------------------------
---
---    (c) B&R, 2011
+--    (c) B&R, 2012
 --
 --    Redistribution and use in source and binary forms, with or without
 --    modification, are permitted provided that the following conditions
@@ -52,18 +42,19 @@
 --
 -------------------------------------------------------------------------------
 --
--- 2011-07-26	V0.01	zelenkaj	First version
--- 2011-10-11	V0.02	zelenkaj	ack for pkt was clocked by clk50
--- 2011-10-13	V0.03	zelenkaj	changed names of instances
--- 2011-11-07	V0.04	zelenkaj	added big/little endian consideration
---					minor changes in SMI core generation
--- 2011-11-28	V0.05	zelenkaj	Added DMA observer
--- 2011-11-29	V0.06	zelenkaj	waitrequest for mac_reg is gen. once
---					tx_off / rx_off is derived in openMAC
--- 2011-11-30	V0.07	zelenkaj	Added generic for DMA observer
---					Fixed generic assignments for DMA master
--- 2011-12-02	V0.08	zelenkaj	Added Dma Req Overflow
--- 2011-12-05	V0.09	zelenkaj	Reduced Dma Req overflow vector
+-- 2011-07-26   V0.01    zelenkaj    First version
+-- 2011-10-11   V0.02    zelenkaj    ack for pkt was clocked by clk50
+-- 2011-10-13   V0.03    zelenkaj    changed names of instances
+-- 2011-11-07   V0.04    zelenkaj    added big/little endian consideration
+--                                   minor changes in SMI core generation
+-- 2011-11-28   V0.05    zelenkaj    Added DMA observer
+-- 2011-11-29   V0.06    zelenkaj    waitrequest for mac_reg is gen. once
+--                                   tx_off / rx_off is derived in openMAC
+-- 2011-11-30   V0.07    zelenkaj    Added generic for DMA observer
+--                                   Fixed generic assignments for DMA master
+-- 2011-12-02   V0.08    zelenkaj    Added Dma Req Overflow
+-- 2011-12-05   V0.09    zelenkaj    Reduced Dma Req overflow vector
+-- 2012-01-26   V0.10    zelenkaj    Revised SMI to use one SMI with two phys
 --
 -------------------------------------------------------------------------------
 
@@ -75,6 +66,7 @@ use ieee.std_logic_unsigned.all;
 entity openmac_ethernet is
   generic(
        genSmiIO : boolean := true;
+       gNumSmi : integer := 2;
        gen2ndCmpTimer_g : boolean := false;
        simulate : boolean := false;
        dma_highadr_g : integer := 31;
@@ -115,6 +107,7 @@ entity openmac_ethernet is
        phyMii1_rx_dv : in std_logic;
        phyMii1_rx_err : in std_logic;
        phyMii1_tx_clk : in std_logic;
+       phy_smi_dio_I : in std_logic;
        pkt_chipselect : in std_logic;
        pkt_clk : in std_logic;
        pkt_read : in std_logic;
@@ -157,6 +150,10 @@ entity openmac_ethernet is
        phy1_tx_en : out std_logic;
        phyMii0_tx_en : out std_logic;
        phyMii1_tx_en : out std_logic;
+       phy_rst_n : out std_logic;
+       phy_smi_clk : out std_logic;
+       phy_smi_dio_O : out std_logic;
+       phy_smi_dio_T : out std_logic;
        pkt_waitrequest : out std_logic;
        s_irq : out std_logic;
        s_waitrequest : out std_logic;
@@ -176,7 +173,8 @@ entity openmac_ethernet is
        s_readdata : out std_logic_vector(15 downto 0);
        t_readdata : out std_logic_vector(31 downto 0);
        phy0_smi_dio : inout std_logic := '1';
-       phy1_smi_dio : inout std_logic := '1'
+       phy1_smi_dio : inout std_logic := '1';
+       phy_smi_dio : inout std_logic := '1'
   );
 end openmac_ethernet;
 
@@ -471,7 +469,6 @@ signal phy0_tx_en_s : std_logic;
 signal phy1_rx_dv_s : std_logic;
 signal phy1_rx_err_s : std_logic;
 signal phy1_tx_en_s : std_logic;
-signal phy_rst_n : std_logic;
 signal pkt_read_ack : std_logic;
 signal pkt_write_ack : std_logic;
 signal read_a : std_logic;
@@ -481,6 +478,7 @@ signal smi_di_s : std_logic;
 signal smi_doe_s : std_logic;
 signal smi_doe_s_n : std_logic;
 signal smi_do_s : std_logic;
+signal smi_rst_n : std_logic;
 signal smi_sel : std_logic;
 signal smi_write : std_logic;
 signal smi_write_n : std_logic;
@@ -635,7 +633,7 @@ THE_PHY_MGMT : OpenMAC_MII
        Rst => rst,
        Sel => smi_sel,
        nBe => smi_be_n,
-       nResetOut => phy_rst_n,
+       nResetOut => smi_rst_n,
        nWr => smi_write_n
   );
 
@@ -647,6 +645,8 @@ mac_write_n <= not(mac_write);
 
 mac_be_n(1) <= not(mac_be(1));
 mac_be_n(0) <= not(mac_be(0));
+
+smi_doe_s <= not(smi_doe_s_n);
 
 smi_write_n <= not(smi_write);
 
@@ -672,14 +672,6 @@ dma_ack <= dma_ack_write or dma_ack_read;
 s_rd <= s_read and s_chipselect;
 
 dma_req_read <= dma_rw and dma_req;
-
-phy0_smi_clk <= smi_clk;
-
-phy0_rst_n <= phy_rst_n;
-
-phy1_smi_clk <= smi_clk;
-
-phy1_rst_n <= phy_rst_n;
 
 t_waitrequest <= not(cmp_wr_ack or cmp_rd_ack);
 
@@ -821,10 +813,6 @@ dma_be(0) <= VCC;
     -- Output\buffer terminals
 	mac_rx_irq <= mac_rx_irq_s;
 	mac_tx_irq <= mac_tx_irq_s;
-	phy0_smi_dio_O <= smi_do_s;
-	phy0_smi_dio_T <= smi_doe_s_n;
-	phy1_smi_dio_O <= smi_do_s;
-	phy1_smi_dio_T <= smi_doe_s_n;
 	t_tog <= toggle;
 
 
@@ -1198,28 +1186,60 @@ begin
     );
 end generate genDmaMaster;
 
-genSmiBuffers : if genSmiIO generate
+genOneSmi : if gNumSmi = 1 or not genHub_g generate
 begin
-  phy0_smi_dio <= smi_do_s when smi_doe_s='1' else 'Z';
-  
-  smi_doe_s <= not(smi_doe_s_n);
-  
-  phy1_smi_dio <= smi_do_s when smi_doe_s='1' else 'Z';
-  
-  smi_di_s <= phy0_smi_dio and phy1_smi_dio;
-end generate genSmiBuffers;
-
-dontGenSmiBuf : if not genSmiIO generate
-begin
-  genAndForPhys : if genHub_g generate
+  genOneTriStateBuf : if genSmiIO generate
   begin
+    smi_di_s <= phy_smi_dio;
+    
+    phy_smi_dio <= smi_do_s when smi_doe_s='1' else 'Z';
+  end generate genOneTriStateBuf;
+
+  dontGenOneTriStateBuf : if not genSmiIO generate
+  begin
+    smi_di_s <= phy_smi_dio_I;
+    
+    phy_smi_dio_O <= smi_do_s;
+    
+    phy_smi_dio_T <= smi_doe_s_n;
+  end generate dontGenOneTriStateBuf;
+
+  phy_rst_n <= smi_rst_n;
+  
+  phy_smi_clk <= smi_clk;
+end generate genOneSmi;
+
+genTwoSmi : if gNumSmi = 2 and genHub_g generate
+begin
+  genTwoTriStateBuf : if genSmiIO generate
+  begin
+    phy0_smi_dio <= smi_do_s when smi_doe_s='1' else 'Z';
+    
+    phy1_smi_dio <= smi_do_s when smi_doe_s='1' else 'Z';
+    
+    smi_di_s <= phy0_smi_dio and phy1_smi_dio;
+  end generate genTwoTriStateBuf;
+
+  dontGenTwoTriStateBuf : if not genSmiIO generate
+  begin
+    phy1_smi_dio_T <= smi_doe_s_n;
+    
     smi_di_s <= phy0_smi_dio_I and phy1_smi_dio_I;
-  end generate genAndForPhys;
+    
+    phy0_smi_dio_T <= smi_doe_s_n;
+    
+    phy1_smi_dio_O <= smi_do_s;
+    
+    phy0_smi_dio_O <= smi_do_s;
+  end generate dontGenTwoTriStateBuf;
 
-  genOnePhyOnly : if not genHub_g generate
-  begin
-    smi_di_s <= phy0_smi_dio_I;
-  end generate genOnePhyOnly;
-end generate dontGenSmiBuf;
+  phy0_smi_clk <= smi_clk;
+  
+  phy0_rst_n <= smi_rst_n;
+  
+  phy1_smi_clk <= smi_clk;
+  
+  phy1_rst_n <= smi_rst_n;
+end generate genTwoSmi;
 
 end rtl;

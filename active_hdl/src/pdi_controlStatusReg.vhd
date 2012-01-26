@@ -40,6 +40,7 @@
 --									added 12 bytes to DPR as reserved
 -- 2011-11-29	V0.03	zelenkaj	led and event is optional
 -- 2011-12-20	V0.04	zelenkaj	changed 2xbuf switch source to ap irq
+-- 2012-01-26   V0.05   zelenkaj    en-/disable double buffer with genTimeSync_g
 ------------------------------------------------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
@@ -172,85 +173,88 @@ begin
 								 conv_integer(addr) <  iBaseDpr_g + iSpanDpr_g - c_num_dbuf_dpr)
 						else	'0';
 	
-	--time sync select content
-	sel_time_after_sync <= '1' when conv_integer(addr)*4 = c_addr_time_after_sync else '0';
-	sel_relative_time_l <= '1' when conv_integer(addr)*4 = c_addr_relative_time_l else '0';
-	sel_relative_time_h <= '1' when conv_integer(addr)*4 = c_addr_relative_time_h else '0';
-	sel_nettime_nsec <= '1' when conv_integer(addr)*4 = c_addr_nettime_nsec else '0';
-	sel_nettime_sec <= '1' when conv_integer(addr)*4 = c_addr_nettime_sec else '0';
+	--time sync select content if the double buffer has to be generated (genTimeSync_g)
+	sel_time_after_sync <= '1' when conv_integer(addr)*4 = c_addr_time_after_sync and genTimeSync_g else '0';
+	sel_relative_time_l <= '1' when conv_integer(addr)*4 = c_addr_relative_time_l and genTimeSync_g else '0';
+	sel_relative_time_h <= '1' when conv_integer(addr)*4 = c_addr_relative_time_h and genTimeSync_g else '0';
+	sel_nettime_nsec <= '1' when conv_integer(addr)*4 = c_addr_nettime_nsec and genTimeSync_g else '0';
+	sel_nettime_sec <= '1' when conv_integer(addr)*4 = c_addr_nettime_sec and genTimeSync_g else '0';
 	
 	---or them up...
 	sel_time_sync_regs <= sel_relative_time_l or sel_relative_time_h or sel_nettime_nsec or sel_nettime_sec;
 	
-	--we need a rising edge to do magic
-	apSyncIrqEdgeDet : entity work.edgedet
-		port map (
-			din => timeSyncIrq,
-			rising => timeSyncIrq_rising,
-			falling => open,
-			any => open,
-			clk => clk,
-			rst => rst
-		);
-	
-	genDoubleBufPcp : if bIsPcp generate
-	begin
-		--take the other buffer (Ap has already inverted, see lines below!)
-		sel_double_buffer <= doubleBufSel_in;
-		
-		--Pcp has no timer
-		time_after_sync_cnt_out <= (others => '0');
-		
-	end generate;
-	
-	genDoubleBufAp : if not bIsPcp generate
-	begin
-		
-		--output the inverted to the PCP
-		doubleBufSel_out <= not sel_double_buffer;
-		
-		--switch the double buffer with the sync irq, rising edge of course
-		process(clk, rst)
-		begin
-			if rst = '1' then
-				sel_double_buffer <= '0';
-			elsif rising_edge(clk) then
-				if timeSyncIrq_rising = '1' then --rising edge
-					sel_double_buffer <= not sel_double_buffer;
-				end if;
-			end if;
-		end process;
-		
-	end generate;
-	
-	genTimeAfterSyncCnt : if not bIsPcp and genTimeSync_g generate
-		constant ZEROS : std_logic_vector(time_after_sync_cnt'range) := (others => '0');
-		constant ONES : std_logic_vector(time_after_sync_cnt'range) := (others => '1');
-	begin
-		--TIME_AFTER_SYNC counter
-		process(clk, rst)
-		begin
-			if rst = '1' then
-				time_after_sync_cnt <= (others => '0');
-			elsif clk = '1' and clk'event then
-				time_after_sync_cnt <= time_after_sync_cnt_next;
-				
-				--there are some kind of interfaces that read only the half of a word...
-				-- so store the half that is not read
-				-- and forward it to the Ap at the next read
-				if sel = '1' and sel_time_after_sync = '1' and be = "0001" then
-					time_after_sync_cnt_latch <= time_after_sync_cnt(c_time_after_sync_cnt_size-1 downto c_time_after_sync_cnt_size/2);
-				end if;
-			end if;
-		end process;
-		
-		time_after_sync_cnt_next <= ZEROS when timeSyncIrq_rising = '1' else --rising edge
-			time_after_sync_cnt when time_after_sync_cnt = ONES else --saturate
-			time_after_sync_cnt + 1; --count for your life!
-		
-		time_after_sync_cnt_out <= time_after_sync_cnt when be(3 downto 2) = "11" or be(1 downto 0) = "11" else
-			time_after_sync_cnt_latch & time_after_sync_cnt(time_after_sync_cnt_latch'range);
-	end generate;
+    genTimeSync : if genTimeSync_g generate
+    begin
+    	--we need a rising edge to do magic
+    	apSyncIrqEdgeDet : entity work.edgedet
+    		port map (
+    			din => timeSyncIrq,
+    			rising => timeSyncIrq_rising,
+    			falling => open,
+    			any => open,
+    			clk => clk,
+    			rst => rst
+    		);
+    	
+    	genDoubleBufPcp : if bIsPcp generate
+    	begin
+    		--take the other buffer (Ap has already inverted, see lines below!)
+    		sel_double_buffer <= doubleBufSel_in;
+    		
+    		--Pcp has no timer
+    		time_after_sync_cnt_out <= (others => '0');
+    		
+    	end generate;
+    	
+    	genDoubleBufAp : if not bIsPcp generate
+    	begin
+    		
+    		--output the inverted to the PCP
+    		doubleBufSel_out <= not sel_double_buffer;
+    		
+    		--switch the double buffer with the sync irq, rising edge of course
+    		process(clk, rst)
+    		begin
+    			if rst = '1' then
+    				sel_double_buffer <= '0';
+    			elsif rising_edge(clk) then
+    				if timeSyncIrq_rising = '1' then --rising edge
+    					sel_double_buffer <= not sel_double_buffer;
+    				end if;
+    			end if;
+    		end process;
+    		
+    	end generate;
+    	
+    	genTimeAfterSyncCnt : if not bIsPcp generate
+    		constant ZEROS : std_logic_vector(time_after_sync_cnt'range) := (others => '0');
+    		constant ONES : std_logic_vector(time_after_sync_cnt'range) := (others => '1');
+    	begin
+    		--TIME_AFTER_SYNC counter
+    		process(clk, rst)
+    		begin
+    			if rst = '1' then
+    				time_after_sync_cnt <= (others => '0');
+    			elsif clk = '1' and clk'event then
+    				time_after_sync_cnt <= time_after_sync_cnt_next;
+    				
+    				--there are some kind of interfaces that read only the half of a word...
+    				-- so store the half that is not read
+    				-- and forward it to the Ap at the next read
+    				if sel = '1' and sel_time_after_sync = '1' and be = "0001" then
+    					time_after_sync_cnt_latch <= time_after_sync_cnt(c_time_after_sync_cnt_size-1 downto c_time_after_sync_cnt_size/2);
+    				end if;
+    			end if;
+    		end process;
+    		
+    		time_after_sync_cnt_next <= ZEROS when timeSyncIrq_rising = '1' else --rising edge
+    			time_after_sync_cnt when time_after_sync_cnt = ONES else --saturate
+    			time_after_sync_cnt + 1; --count for your life!
+    		
+    		time_after_sync_cnt_out <= time_after_sync_cnt when be(3 downto 2) = "11" or be(1 downto 0) = "11" else
+    			time_after_sync_cnt_latch & time_after_sync_cnt(time_after_sync_cnt_latch'range);
+    	end generate;
+    end generate;
 	
 	--assign content depending on selDpr
 	dprDin		<=	din;
@@ -260,7 +264,7 @@ begin
 	dout		<=	dprDout	when	selDpr = '1'	else
 					nonDprDout;
 	
-	dprAddrOff	<=	addrRes + 4 when sel_double_buffer = '1' and sel_time_sync_regs = '1' else --select 2nd double buffer
+	dprAddrOff	<=	addrRes + 4 when sel_double_buffer = '1' and sel_time_sync_regs = '1' and genTimeSync_g else --select 2nd double buffer
 					addrRes; --select 1st double buffer or other content
 	
 	--address conversion

@@ -99,6 +99,8 @@
 #-- 2012-01-11	V1.18	zelenkaj	Async Irq is omitted if event hw support is disabled
 #-- 2012-01-12	V1.19	zelenkaj	Added macro to system.h in case of low-jitter SYNC
 #-- 2012-01-25	V1.20	zelenkaj	Added special initialization to pdi_dpr.mif
+#-- 2012-01-26	V1.21	zelenkaj    Added generic for SMI generation and one SMI ports
+#-                                  Renamed label for SYNC IRQ feature
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -304,15 +306,20 @@ set_parameter_property macRxBuf ALLOWED_RANGES 1:16
 set_parameter_property macRxBuf DISPLAY_NAME "openMAC Number RX Buffers (MTU = 1500 byte)"
 set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the number of MAC buffers has to be set manually (MTU = 1500 byte)."
 
-add_parameter mac2cmpTimer BOOLEAN FALSE
-set_parameter_property mac2cmpTimer VISIBLE true
-set_parameter_property mac2cmpTimer DISPLAY_NAME "Use low-jitter SYNC Interrupt for AP synchronization"
-set_parameter_property mac2cmpTimer DESCRIPTION "The Application Processor (AP) is synchronized to the POWERLINK cycles. In order to reduce FPGA-resource consumption you can disable the low-jitter SYNC interrupt if your application does not require low-jitter synchronization."
+add_parameter hwSupportSyncIrq BOOLEAN FALSE
+set_parameter_property hwSupportSyncIrq VISIBLE true
+set_parameter_property hwSupportSyncIrq DISPLAY_NAME "Use low-jitter SYNC IRQ with SoC timestamps for AP synchronization"
+set_parameter_property hwSupportSyncIrq DESCRIPTION "The Application Processor (AP) is synchronized to the POWERLINK cycles. In order to reduce FPGA-resource consumption you can disable the low-jitter SYNC interrupt if your application does not require low-jitter synchronization."
 
 add_parameter mac2phys BOOLEAN TRUE
 set_parameter_property mac2phys VISIBLE true
 set_parameter_property mac2phys DISPLAY_NAME "Enable second Ethernet Phy Interface"
 set_parameter_property mac2phys DESCRIPTION "The POWERLINK Slave allows a second Ethernet interface for flexible network topologies by using the FPGA-internal openHUB IP-core. Enable the option if you want to connect a second phy to the FPGA."
+
+add_parameter macGen2ndSmi BOOLEAN TRUE
+set_parameter_property macGen2ndSmi VISIBLE true
+set_parameter_property macGen2ndSmi DISPLAY_NAME "Enable second Phy Serial Management Interface (SMI)"
+set_parameter_property macGen2ndSmi DESCRIPTION "The POWERLINK Slave allows a second Serial Management Interface, which is used for the Ethernet Phy configuration. If the two available Phys share one SMI, disable this setting!"
 
 add_parameter macTxBurstSize INTEGER 4
 set_parameter_property macTxBurstSize ALLOWED_RANGES {1 4 8 16}
@@ -329,7 +336,7 @@ set_parameter_property enDmaObserver DISPLAY_NAME "Enable packet DMA transfer mo
 set_parameter_property enDmaObserver DESCRIPTION "The DMA monitor verifies the error-free Ethernet packet data transfer to/from the memory."
 
 add_parameter enHwAcc BOOLEAN FALSE
-set_parameter_property enHwAcc VISIBLE true
+set_parameter_property enHwAcc VISIBLE false
 ####################################
 #enable hw acc on your own risk!
 set_parameter_property enHwAcc ENABLED false
@@ -385,10 +392,9 @@ set_parameter_property genEvent_g DESCRIPTION "The POWERLINK Slave provides hard
 set_parameter_property genEvent_g VISIBLE false
 
 add_parameter genTimeSync_g BOOLEAN true
-set_parameter_property genTimeSync_g DISPLAY_NAME "Enable Timer for Time Synchronization (This is the time after sync field in PDI)"
-set_parameter_property genTimeSync_g DESCRIPTION "The POWERLINK Slave provides a 16 bit timer, which is provided for application synchronization."
 set_parameter_property genTimeSync_g HDL_PARAMETER true
-set_parameter_property genTimeSync_g VISIBLE true
+set_parameter_property genTimeSync_g VISIBLE false
+set_parameter_property genTimeSync_g DERIVED TRUE
 
 add_parameter iRpdos_g INTEGER 1
 set_parameter_property iRpdos_g HDL_PARAMETER true
@@ -472,6 +478,12 @@ add_parameter use2ndPhy_g BOOLEAN true
 set_parameter_property use2ndPhy_g HDL_PARAMETER true
 set_parameter_property use2ndPhy_g VISIBLE false
 set_parameter_property use2ndPhy_g DERIVED true
+
+add_parameter gNumSmi INTEGER 1
+set_parameter_property gNumSmi ALLOWED_RANGES {1 2}
+set_parameter_property gNumSmi HDL_PARAMETER true
+set_parameter_property gNumSmi VISIBLE false
+set_parameter_property gNumSmi DERIVED true
 
 add_parameter useHwAcc_g BOOLEAN true
 set_parameter_property useHwAcc_g HDL_PARAMETER true
@@ -578,7 +590,7 @@ proc my_validation_callback {} {
 	
 	set macTxBuf					[get_parameter_value macTxBuf]
 	set macRxBuf					[get_parameter_value macRxBuf]
-	set useLowJitterSync			[get_parameter_value mac2cmpTimer]
+	set useLowJitterSync			[get_parameter_value hwSupportSyncIrq]
 	
 	set mii							[get_parameter_value phyIF]
 	set ploc						[get_parameter_value packetLoc]
@@ -740,7 +752,6 @@ proc my_validation_callback {} {
 	set_parameter_property configApSpi_CPHA VISIBLE false
 	set_parameter_property configApSpi_IRQ VISIBLE false
 	set_parameter_property genLedGadget VISIBLE false
-	set_parameter_property genTimeSync_g VISIBLE false
 	set_parameter_property genEvent_g VISIBLE false
 	set_parameter_property asyncBuf1Size VISIBLE false
 	set_parameter_property asyncBuf2Size VISIBLE false
@@ -750,11 +761,12 @@ proc my_validation_callback {} {
 	set_parameter_property validSet VISIBLE false
 	set_parameter_property macTxBuf VISIBLE false
 	set_parameter_property macRxBuf VISIBLE false
-	set_parameter_property mac2cmpTimer VISIBLE false
+	set_parameter_property hwSupportSyncIrq VISIBLE false
 	set_parameter_property enHwAcc VISIBLE false
 	set_parameter_property enDmaObserver VISIBLE false
 	
 	set_parameter_property mac2phys VISIBLE true
+    set_parameter_property macGen2ndSmi VISIBLE false
 	
 	set_parameter_property rpdoNum VISIBLE true
 	set_parameter_property tpdoNum VISIBLE true
@@ -806,11 +818,10 @@ proc my_validation_callback {} {
 		set_parameter_property asyncBuf1Size VISIBLE true
 		set_parameter_property asyncBuf2Size VISIBLE true
 		set_parameter_property genLedGadget VISIBLE true
-		set_parameter_property genTimeSync_g VISIBLE true
 		set_parameter_property genEvent_g VISIBLE true
 		#AP can be big or little endian - allow choice
 		set_parameter_property configApEndian VISIBLE true
-		set_parameter_property mac2cmpTimer VISIBLE true
+		set_parameter_property hwSupportSyncIrq VISIBLE true
 		
 		#set the led gadget enable generic
 		set_parameter_value genLedGadget_g $ledGadgetEn
@@ -1026,17 +1037,33 @@ proc my_validation_callback {} {
 	#generate 2 phy port
 	set_parameter_value use2ndPhy_g false
 	set_module_assignment embeddedsw.CMacro.PHYCNT 1
+    #default
+    set_parameter_value gNumSmi 1
 	if {[get_parameter_value mac2phys]} {
 		set_parameter_value use2ndPhy_g true
 		set_module_assignment embeddedsw.CMacro.PHYCNT 2
-	}
+        #two phys are used
+        set_parameter_property macGen2ndSmi VISIBLE true
+        if {[get_parameter_value macGen2ndSmi]} {
+            #generate 2nd SMI
+            set_parameter_value gNumSmi 2
+        } else {
+            #generate one SMI
+            set_parameter_value gNumSmi 1
+        }
+	} else {
+        #one phy is used
+        set_parameter_property macGen2ndSmi VISIBLE false
+    }
 	
 	#generate 2nd timer cmp if pdi and if set in sopc
 	# otherwise not (e.g. openMAC only, DirectIO or no selected)
 	set_parameter_value use2ndCmpTimer_g FALSE
+    set_parameter_value genTimeSync_g FALSE
 	if {$configPowerlink == "CN with Processor Interface"} {
 		if {$useLowJitterSync} {
 			set_parameter_value use2ndCmpTimer_g true
+            set_parameter_value genTimeSync_g true
 			#forward the cmp timer number to system.h = 2 timers!
 			set_module_assignment embeddedsw.CMacro.CMPTIMERCNT		2
 		} else {
@@ -1063,10 +1090,10 @@ proc my_validation_callback {} {
 		set_module_assignment embeddedsw.CMacro.DMAOBSERV			FALSE
 	}
 	
-	if {[get_parameter_value genTimeSync_g]} {
-		set_module_assignment embeddedsw.CMacro.TIME_AFTER_SYNC_ENABLE		TRUE
+	if {[get_parameter_value hwSupportSyncIrq]} {
+		set_module_assignment embeddedsw.CMacro.TIMESYNCHW		    TRUE
 	} else {
-		set_module_assignment embeddedsw.CMacro.TIME_AFTER_SYNC_ENABLE			FALSE
+		set_module_assignment embeddedsw.CMacro.TIMESYNCHW			FALSE
 	}
 	
 	if {[get_parameter_value genEvent_g]} {
@@ -1225,8 +1252,7 @@ add_display_item "Process Data Interface Settings" configApSpi_CPOL PARAMETER
 add_display_item "Process Data Interface Settings" configApSpi_CPHA PARAMETER
 add_display_item "Process Data Interface Settings" validSet PARAMETER
 add_display_item "Process Data Interface Settings" validAssertDuration PARAMETER
-add_display_item "Process Data Interface Settings" mac2cmpTimer PARAMETER
-add_display_item "Process Data Interface Settings" genTimeSync_g PARAMETER
+add_display_item "Process Data Interface Settings" hwSupportSyncIrq PARAMETER
 add_display_item "Process Data Interface Settings" genLedGadget PARAMETER
 add_display_item "Process Data Interface Settings" genEvent_g PARAMETER
 add_display_item "Receive Process Data" rpdoNum PARAMETER
@@ -1237,6 +1263,7 @@ add_display_item "Asynchronous Buffer" asyncBuf1Size  PARAMETER
 add_display_item "Asynchronous Buffer" asyncBuf2Size  PARAMETER
 add_display_item "openMAC" phyIF  PARAMETER
 add_display_item "openMAC" mac2phys PARAMETER
+add_display_item "openMAC" macGen2ndSmi PARAMETER
 add_display_item "openMAC" packetLoc  PARAMETER
 add_display_item "openMAC" enDmaObserver PARAMETER
 add_display_item "openMAC" macTxBurstSize  PARAMETER
@@ -1350,13 +1377,19 @@ set_interface_property MAC_IRQ ASSOCIATED_CLOCK clk50meg
 set_interface_property MAC_IRQ ENABLED true
 add_interface_port MAC_IRQ mac_irq irq Output 1
 
+##Export Phy Management shared
+add_interface PHYM conduit end
+set_interface_property PHYM ENABLED true
+add_interface_port PHYM phy_SMIClk export Output 1
+add_interface_port PHYM phy_SMIDat export Bidir 1
+add_interface_port PHYM phy_Rst_n export Output 1
+
 ##Export Phy Management 0
 add_interface PHYM0 conduit end
 set_interface_property PHYM0 ENABLED true
 add_interface_port PHYM0 phy0_SMIClk export Output 1
 add_interface_port PHYM0 phy0_SMIDat export Bidir 1
 add_interface_port PHYM0 phy0_Rst_n export Output 1
-add_interface_port PHYM0 phy0_link export Input 1
 
 ##Export Phy Management 1
 add_interface PHYM1 conduit end
@@ -1364,7 +1397,12 @@ set_interface_property PHYM1 ENABLED true
 add_interface_port PHYM1 phy1_SMIClk export Output 1
 add_interface_port PHYM1 phy1_SMIDat export Bidir 1
 add_interface_port PHYM1 phy1_Rst_n export Output 1
-add_interface_port PHYM1 phy1_link export Input 1
+
+##Export Phy Links
+add_interface PHYL conduit end
+set_interface_property PHYL ENABLED true
+add_interface_port PHYL phy0_link export Input 1
+add_interface_port PHYL phy1_link export Input 1
 
 ##Export Rmii Phy 0
 add_interface RMII0 conduit end
@@ -1703,12 +1741,27 @@ if {$ClkRate50meg == 50000000} {
 		#do nothing here, it is already set correctly above ;)
 		#only not terminate the phy link input
 		set_port_property phy1_link termination false
+        #do we need 2nd SMI!?
+        if {[get_parameter_value macGen2ndSmi]} {
+            #yes we do, enable PHYM0 and PHYM1
+            # and disable PHYM
+            set_interface_property PHYM0 ENABLED true
+            set_interface_property PHYM1 ENABLED true
+            set_interface_property PHYM ENABLED false
+        } else {
+            #no, terminate 2nd SMI
+            set_interface_property PHYM0 ENABLED false
+            set_interface_property PHYM1 ENABLED false
+            set_interface_property PHYM ENABLED true
+        }
 	} else {
 		#no, leave me one phy only!
+        set_interface_property PHYM ENABLED true
 		set_interface_property RMII1 ENABLED false
 		set_interface_property MII1 ENABLED false
-		#phy management can be omitted too...
-		set_interface_property PHYM1 ENABLED false
+		#phy management (0 + 1) can be omitted too...
+        set_interface_property PHYM0 ENABLED false
+        set_interface_property PHYM1 ENABLED false
 		set_port_property phy1_link termination true
 	}
 	

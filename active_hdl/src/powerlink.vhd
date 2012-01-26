@@ -74,6 +74,7 @@
 -- 2011-11-30	V1.07	zelenkaj	Added generic for DMA observer
 -- 2011-12-02	V1.08	zelenkaj	Added I, O and T instead of IO ports
 -- 2012-01-09   V1.09   zelenkaj    Added ap_syncIrq for external AP
+-- 2012-01-26   V1.10   zelenkaj    Added generic for SMI generation and one SMI ports
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
@@ -109,6 +110,7 @@ entity powerlink is
 		m_data_width_g				:		integer								:= 16;
 		gen_dma_observer_g			:		boolean								:= true;
 		genSmiIO 					: 		boolean 							:= true; --drive SMI IO if true
+        gNumSmi                     :       integer range 1 to 2                := 2; --number of SMI used
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
 		iTpdos_g					:		integer 							:= 1;
@@ -259,12 +261,15 @@ entity powerlink is
 		pio_portio_T				: out	std_logic_vector(31 downto 0);
 		pio_operational				: out	std_logic := '0';
 	-- EXTERNAL
-	--- RMII PORTS
-		phy0_RxDat                 	: in    std_logic_vector(1 downto 0);
-		phy0_RxDv                  	: in    std_logic;
-		phy0_RxErr					: in 	std_logic;
-		phy0_TxDat                 	: out   std_logic_vector(1 downto 0) := (others => '0');
-		phy0_TxEn                  	: out   std_logic := '0';
+    --- PHY MANAGEMENT
+    ---- shared (valid if gNumSmi = 1)
+		phy_SMIClk					: out	std_logic := '0';
+		phy_SMIDat					: inout	std_logic 							:= '1';
+		phy_SMIDat_I				: in 	std_logic := '1';
+		phy_SMIDat_O				: out	std_logic;
+		phy_SMIDat_T				: out	std_logic;
+		phy_Rst_n					: out	std_logic 							:= '1';
+    ---- PHY0 (valid if gNumSmi = 2)
 		phy0_SMIClk					: out	std_logic := '0';
 		phy0_SMIDat					: inout	std_logic 							:= '1';
 		phy0_SMIDat_I				: in 	std_logic := '1';
@@ -272,11 +277,7 @@ entity powerlink is
 		phy0_SMIDat_T				: out	std_logic;
 		phy0_Rst_n					: out	std_logic 							:= '1';
 		phy0_link					: in	std_logic							:= '0';
-		phy1_RxDat                 	: in    std_logic_vector(1 downto 0) := (others => '0');
-		phy1_RxDv                  	: in    std_logic;
-		phy1_RxErr					: in	std_logic;
-		phy1_TxDat                 	: out   std_logic_vector(1 downto 0) := (others => '0');
-		phy1_TxEn                  	: out   std_logic := '0';
+    ---- PHY1 (valid if gNumSmi = 2)
 		phy1_SMIClk					: out	std_logic := '0';
 		phy1_SMIDat					: inout	std_logic 							:= '1';
 		phy1_SMIDat_I				: in 	std_logic := '1';
@@ -284,6 +285,17 @@ entity powerlink is
 		phy1_SMIDat_T				: out	std_logic;
 		phy1_Rst_n					: out	std_logic 							:= '1';
 		phy1_link					: in	std_logic							:= '0';
+	--- RMII PORTS
+		phy0_RxDat                 	: in    std_logic_vector(1 downto 0);
+		phy0_RxDv                  	: in    std_logic;
+		phy0_RxErr					: in 	std_logic;
+		phy0_TxDat                 	: out   std_logic_vector(1 downto 0) := (others => '0');
+		phy0_TxEn                  	: out   std_logic := '0';
+		phy1_RxDat                 	: in    std_logic_vector(1 downto 0) := (others => '0');
+		phy1_RxDv                  	: in    std_logic;
+		phy1_RxErr					: in	std_logic;
+		phy1_TxDat                 	: out   std_logic_vector(1 downto 0) := (others => '0');
+		phy1_TxEn                  	: out   std_logic := '0';
 	--- MII PORTS
 		phyMii0_RxClk				: in	std_logic;
 		phyMii0_RxDat               : in    std_logic_vector(3 downto 0) := (others => '0');
@@ -735,6 +747,7 @@ begin
 			m_tx_burst_size_g => m_tx_burst_size_g,
 			m_rx_burst_size_g => m_rx_burst_size_g,
 			genSmiIO => genSmiIO,
+            gNumSmi => gNumSmi,
 			genPhyActLed_g => genLedGadget_g,
 			gen_dma_observer_g => gen_dma_observer_g
 		)
@@ -800,8 +813,15 @@ begin
 			phyMii1_tx_clk => phyMii1_TxClk,
 			phyMii1_tx_dat => phyMii1_TxDat,
 			phyMii1_tx_en => phyMii1_TxEn,
+            
+            phy_rst_n => phy_Rst_n,
+            phy_smi_clk => phy_SMIClk,
+            phy_smi_dio_I => phy_SMIDat_I,
+            phy_smi_dio_O => phy_SMIDat_O,
+            phy_smi_dio_T => phy_SMIDat_T,
+            phy_smi_dio => phy_SMIDat,
 			
-			pkt_address => mbf_address,
+            pkt_address => mbf_address,
 			pkt_byteenable => mbf_byteenable,
 			pkt_chipselect => mbf_chipselect,
 			pkt_read => mbf_read,

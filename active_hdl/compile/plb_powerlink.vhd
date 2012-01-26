@@ -1,18 +1,8 @@
 -------------------------------------------------------------------------------
---
--- Title       : plb_powerlink
--- Design      : POWERLINK
---
+-- Entity : plb_powerlink
 -------------------------------------------------------------------------------
 --
--- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\plb_powerlink.vhd
--- Generated   : Fri Jan 20 09:39:07 2012
--- From        : C:\git\VHDL_IP-Cores\active_hdl\src\plb_powerlink.bde
--- By          : Bde2Vhdl ver. 2.6
---
--------------------------------------------------------------------------------
---
---    (c) B&R, 2011
+--    (c) B&R, 2012
 --
 --    Redistribution and use in source and binary forms, with or without
 --    modification, are permitted provided that the following conditions
@@ -51,14 +41,15 @@
 --
 -------------------------------------------------------------------------------
 --
--- 2011-09-13  	V0.01	zelenkaj	First version
--- 2011-11-24 	V0.02	mairt    	added slave interface for pdi pcp and pdi ap
--- 2011-11-26 	V0.03	mairt    	added slave interface for simpleIO
--- 2011-12-02	V0.04	zelenkaj	Exchanged IOs with _I, _O and _T
--- 2011-12-06	V0.05	zelenkaj	Changed instance names
--- 2011-12-07	V0.06	zelenkaj	Fixed address assignments for PDI PCP/AP
--- 2011-12-16	V0.07	mairt		added TX/RX burst size feature
--- 2012-01-19	V0.08	zelenkaj	Added bus to core clock ration feature
+-- 2011-09-13   V0.01   zelenkaj    First version
+-- 2011-11-24   V0.02   mairt       added slave interface for pdi pcp and pdi ap
+-- 2011-11-26   V0.03   mairt       added slave interface for simpleIO
+-- 2011-12-02   V0.04   zelenkaj    Exchanged IOs with _I, _O and _T
+-- 2011-12-06   V0.05   zelenkaj    Changed instance names
+-- 2011-12-07   V0.06   zelenkaj    Fixed address assignments for PDI PCP/AP
+-- 2011-12-16   V0.07   mairt       added TX/RX burst size feature
+-- 2012-01-19   V0.08   zelenkaj    Added bus to core clock ration feature
+-- 2012-01-26   V0.09   zelenkaj    Added number of SMI generic feature
 --
 -------------------------------------------------------------------------------
 
@@ -96,6 +87,7 @@ entity plb_powerlink is
        C_TX_INT_PKT : boolean := false;
        C_RX_INT_PKT : boolean := false;
        C_USE_2ND_PHY : boolean := true;
+       C_NUM_SMI : integer range 1 to 2 := 2;
        --pdi
        C_PDI_GEN_ASYNC_BUF_0 : boolean := true;
        C_PDI_ASYNC_BUF_0 : integer := 50;
@@ -299,6 +291,7 @@ entity plb_powerlink is
        phyMii1_RxDv : in std_logic;
        phyMii1_RxEr : in std_logic;
        phyMii1_TxClk : in std_logic;
+       phy_SMIDat_I : in std_logic;
        spi_clk : in std_logic;
        spi_mosi : in std_logic;
        spi_sel_n : in std_logic;
@@ -454,6 +447,10 @@ entity plb_powerlink is
        phyMii0_TxEr : out std_logic;
        phyMii1_TxEn : out std_logic;
        phyMii1_TxEr : out std_logic;
+       phy_Rst_n : out std_logic;
+       phy_SMIClk : out std_logic;
+       phy_SMIDat_O : out std_logic;
+       phy_SMIDat_T : out std_logic;
        pio_operational : out std_logic;
        spi_miso : out std_logic;
        tcp_irq : out std_logic;
@@ -618,6 +615,7 @@ component powerlink
   generic(
        Simulate : boolean := false;
        endian_g : string := "little";
+       gNumSmi : integer range 1 to 2 := 2;
        genABuf1_g : boolean := true;
        genABuf2_g : boolean := true;
        genEvent_g : boolean := false;
@@ -727,6 +725,7 @@ component powerlink
        phyMii1_RxDv : in std_logic;
        phyMii1_RxEr : in std_logic;
        phyMii1_TxClk : in std_logic;
+       phy_SMIDat_I : in std_logic := '1';
        pio_pconfig : in std_logic_vector(3 downto 0);
        pio_portInLatch : in std_logic_vector(3 downto 0);
        pio_portio_I : in std_logic_vector(31 downto 0) := (others => '0');
@@ -800,6 +799,10 @@ component powerlink
        phyMii1_TxDat : out std_logic_vector(3 downto 0) := (others => '0');
        phyMii1_TxEn : out std_logic := '0';
        phyMii1_TxEr : out std_logic := '0';
+       phy_Rst_n : out std_logic := '1';
+       phy_SMIClk : out std_logic := '0';
+       phy_SMIDat_O : out std_logic;
+       phy_SMIDat_T : out std_logic;
        pio_operational : out std_logic := '0';
        pio_portOutValid : out std_logic_vector(3 downto 0) := (others => '0');
        pio_portio_O : out std_logic_vector(31 downto 0);
@@ -814,6 +817,7 @@ component powerlink
        pap_gpio : inout std_logic_vector(1 downto 0) := (others => '0');
        phy0_SMIDat : inout std_logic := '1';
        phy1_SMIDat : inout std_logic := '1';
+       phy_SMIDat : inout std_logic := '1';
        pio_portio : inout std_logic_vector(31 downto 0) := (others => '0')
   );
 end component;
@@ -1354,6 +1358,7 @@ THE_POWERLINK_IP_CORE : powerlink
   generic map (
        Simulate => false,
        endian_g => "big",
+       gNumSmi => C_NUM_SMI,
        genABuf1_g => C_PDI_GEN_ASYNC_BUF_0,
        genABuf2_g => C_PDI_GEN_ASYNC_BUF_1,
        genEvent_g => C_PDI_GEN_EVENT,
@@ -1553,6 +1558,11 @@ THE_POWERLINK_IP_CORE : powerlink
        phyMii1_TxDat => phyMii1_TxDat,
        phyMii1_TxEn => phyMii1_TxEn,
        phyMii1_TxEr => phyMii1_TxEr,
+       phy_Rst_n => phy_Rst_n,
+       phy_SMIClk => phy_SMIClk,
+       phy_SMIDat_I => phy_SMIDat_I,
+       phy_SMIDat_O => phy_SMIDat_O,
+       phy_SMIDat_T => phy_SMIDat_T,
        pio_operational => pio_operational,
        pio_pconfig => pio_pconfig,
        pio_portInLatch => pio_portInLatch,
