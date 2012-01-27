@@ -10320,7 +10320,6 @@ PAGE "SLAVEINTERFACE"
 "mac_addr <= \n"+
 "\ts_address(9 downto 1) & s_address(0) when mac_selfilter = '1' and endian_g = \"little\" else\n"+
 "\ts_address(9 downto 1) & not s_address(0) when endian_g = \"little\" else\n"+
-"--\ts_address(9 downto 1) & not s_address(0) when mac_selfilter = '1' and endian_g = \"big\" else\n"+
 "\ts_address(9 downto 1) & s_address(0); -- when endian_g = \"big\" else\n"+
 "\n"+
 "mac_be <= \n"+
@@ -17744,8 +17743,8 @@ PAGE ""
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311687673"
    DESCRIPTION="bla",BOTH
-   PAGENAME="MAC"
-   PAGENUMBER="1"
+   PAGENAME="SLAVEINTERFACE"
+   PAGENUMBER="4"
   }
  }
  

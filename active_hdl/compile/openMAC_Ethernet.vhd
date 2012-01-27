@@ -537,7 +537,6 @@ begin
 mac_addr <= 
 	s_address(9 downto 1) & s_address(0) when mac_selfilter = '1' and endian_g = "little" else
 	s_address(9 downto 1) & not s_address(0) when endian_g = "little" else
---	s_address(9 downto 1) & not s_address(0) when mac_selfilter = '1' and endian_g = "big" else
 	s_address(9 downto 1) & s_address(0); -- when endian_g = "big" else
 
 mac_be <= 

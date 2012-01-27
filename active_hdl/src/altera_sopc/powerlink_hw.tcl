@@ -103,6 +103,7 @@
 #--                                 Renamed label for SYNC IRQ feature
 #--                                 Added "expert mode" for the advanced users
 #--                                 Omit hwacc options, since we are fast enough!
+#--                                 Minor delete of system.h parameter
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -1061,15 +1062,9 @@ proc my_validation_callback {} {
 		if {$useLowJitterSync} {
 			set_parameter_value use2ndCmpTimer_g true
             set_parameter_value genTimeSync_g true
-			#forward the cmp timer number to system.h = 2 timers!
-			set_module_assignment embeddedsw.CMacro.CMPTIMERCNT		2
 		} else {
-			#forward the cmp timer number to system.h = 1 timer
-			set_module_assignment embeddedsw.CMacro.CMPTIMERCNT		1
 		}
 	} else {
-		#forward the cmp timer number to system.h = 1 timer
-		set_module_assignment embeddedsw.CMacro.CMPTIMERCNT			1
 	}
 	
 	#forward parameters to system.h
