@@ -50,7 +50,8 @@
 -- 2011-12-16   V0.07   mairt       added TX/RX burst size feature
 -- 2012-01-19   V0.08   zelenkaj    Added bus to core clock ration feature
 -- 2012-01-26   V0.09   zelenkaj    Added number of SMI generic feature
--- 2012-01-16	V0.08	zelenkaj	Replace plb_* with ipif_master_handler
+-- 2012-01-16	V0.10	zelenkaj	Replace plb_* with ipif_master_handler
+-- 2012-01-27   V0.20   zelenkaj    Incremented PdiRev
 --
 -------------------------------------------------------------------------------
 
@@ -1358,7 +1359,7 @@ THE_POWERLINK_IP_CORE : powerlink
        iAsyBuf2Size_g => C_PDI_ASYNC_BUF_1,
        iBufSizeLOG2_g => C_MAC_PKT_SIZE_LOG2,
        iBufSize_g => C_MAC_PKT_SIZE,
-       iPdiRev_g => 21930,
+       iPdiRev_g => 2,
        iRpdo0BufSize_g => C_RPDO_0_BUF_SIZE,
        iRpdo1BufSize_g => C_RPDO_1_BUF_SIZE,
        iRpdo2BufSize_g => C_RPDO_2_BUF_SIZE,

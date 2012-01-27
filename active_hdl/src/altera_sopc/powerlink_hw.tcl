@@ -104,6 +104,7 @@
 #--                                 Added "expert mode" for the advanced users
 #--                                 Omit hwacc options, since we are fast enough!
 #--                                 Minor delete of system.h parameter
+#-- 2012-01-27  V1.30   zelenkaj    Incremented PdiRev
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -1138,7 +1139,7 @@ proc my_validation_callback {} {
 	
 	#####################################
 	# here set the PDI revision number  #
-	set_parameter_value iPdiRev_g 1
+	set_parameter_value iPdiRev_g 2
 	#####################################
 	
 	# here you can change manually to use only one PDI Clk domain
