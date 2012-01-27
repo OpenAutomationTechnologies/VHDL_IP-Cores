@@ -50,6 +50,7 @@
 -- 2011-12-16   V0.07   mairt       added TX/RX burst size feature
 -- 2012-01-19   V0.08   zelenkaj    Added bus to core clock ration feature
 -- 2012-01-26   V0.09   zelenkaj    Added number of SMI generic feature
+-- 2012-01-16	V0.08	zelenkaj	Replace plb_* with ipif_master_handler
 --
 -------------------------------------------------------------------------------
 
@@ -531,6 +532,60 @@ end get_max;
 
 ---- Component declarations -----
 
+component ipif_master_handler
+  generic(
+       C_MAC_DMA_IPIF_AWIDTH : integer := 32;
+       C_MAC_DMA_IPIF_NATIVE_DWIDTH : integer := 32;
+       dma_highadr_g : integer := 31;
+       gen_rx_fifo_g : boolean := true;
+       gen_tx_fifo_g : boolean := true;
+       m_burstcount_width_g : integer := 4
+  );
+  port (
+       Bus2MAC_DMA_MstRd_d : in std_logic_vector(C_MAC_DMA_IPIF_NATIVE_DWIDTH-1 downto 0);
+       Bus2MAC_DMA_MstRd_eof_n : in std_logic := '1';
+       Bus2MAC_DMA_MstRd_rem : in std_logic_vector(C_MAC_DMA_IPIF_NATIVE_DWIDTH/8-1 downto 0);
+       Bus2MAC_DMA_MstRd_sof_n : in std_logic := '1';
+       Bus2MAC_DMA_MstRd_src_dsc_n : in std_logic := '1';
+       Bus2MAC_DMA_MstRd_src_rdy_n : in std_logic := '1';
+       Bus2MAC_DMA_MstWr_dst_dsc_n : in std_logic := '1';
+       Bus2MAC_DMA_MstWr_dst_rdy_n : in std_logic := '1';
+       Bus2MAC_DMA_Mst_CmdAck : in std_logic := '0';
+       Bus2MAC_DMA_Mst_Cmd_Timeout : in std_logic := '0';
+       Bus2MAC_DMA_Mst_Cmplt : in std_logic := '0';
+       Bus2MAC_DMA_Mst_Error : in std_logic := '0';
+       Bus2MAC_DMA_Mst_Rearbitrate : in std_logic := '0';
+       MAC_DMA_CLK : in std_logic;
+       MAC_DMA_Rst : in std_logic;
+       m_address : in std_logic_vector(dma_highadr_g downto 0);
+       m_burstcount : in std_logic_vector(m_burstcount_width_g-1 downto 0);
+       m_burstcounter : in std_logic_vector(m_burstcount_width_g-1 downto 0);
+       m_byteenable : in std_logic_vector(3 downto 0);
+       m_read : in std_logic := '0';
+       m_write : in std_logic := '0';
+       m_writedata : in std_logic_vector(31 downto 0);
+       MAC_DMA2Bus_MstRd_Req : out std_logic := '0';
+       MAC_DMA2Bus_MstRd_dst_dsc_n : out std_logic := '1';
+       MAC_DMA2Bus_MstRd_dst_rdy_n : out std_logic := '1';
+       MAC_DMA2Bus_MstWr_Req : out std_logic := '0';
+       MAC_DMA2Bus_MstWr_d : out std_logic_vector(C_MAC_DMA_IPIF_NATIVE_DWIDTH-1 downto 0);
+       MAC_DMA2Bus_MstWr_eof_n : out std_logic := '1';
+       MAC_DMA2Bus_MstWr_rem : out std_logic_vector(C_MAC_DMA_IPIF_NATIVE_DWIDTH/8-1 downto 0);
+       MAC_DMA2Bus_MstWr_sof_n : out std_logic := '1';
+       MAC_DMA2Bus_MstWr_src_dsc_n : out std_logic := '1';
+       MAC_DMA2Bus_MstWr_src_rdy_n : out std_logic := '1';
+       MAC_DMA2Bus_Mst_Addr : out std_logic_vector(C_MAC_DMA_IPIF_AWIDTH-1 downto 0);
+       MAC_DMA2Bus_Mst_BE : out std_logic_vector(C_MAC_DMA_IPIF_NATIVE_DWIDTH/8-1 downto 0);
+       MAC_DMA2Bus_Mst_Length : out std_logic_vector(11 downto 0);
+       MAC_DMA2Bus_Mst_Lock : out std_logic := '0';
+       MAC_DMA2Bus_Mst_Reset : out std_logic := '0';
+       MAC_DMA2Bus_Mst_Type : out std_logic := '0';
+       m_clk : out std_logic;
+       m_readdata : out std_logic_vector(31 downto 0);
+       m_readdatavalid : out std_logic := '0';
+       m_waitrequest : out std_logic := '1'
+  );
+end component;
 component openMAC_16to32conv
   generic(
        bus_address_width : integer := 10
@@ -555,60 +610,6 @@ component openMAC_16to32conv
        s_read : out std_logic;
        s_write : out std_logic;
        s_writedata : out std_logic_vector(15 downto 0)
-  );
-end component;
-component plb_master_handler
-  generic(
-       C_MAC_DMA_PLB_AWIDTH : integer := 32;
-       C_MAC_DMA_PLB_NATIVE_DWIDTH : integer := 32;
-       dma_highadr_g : integer := 31;
-       gen_rx_fifo_g : boolean := true;
-       gen_tx_fifo_g : boolean := true;
-       m_burstcount_width_g : integer := 4
-  );
-  port (
-       Bus2MAC_DMA_MstRd_d : in std_logic_vector(C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0);
-       Bus2MAC_DMA_MstRd_eof_n : in std_logic := '1';
-       Bus2MAC_DMA_MstRd_rem : in std_logic_vector(C_MAC_DMA_PLB_NATIVE_DWIDTH/8-1 downto 0);
-       Bus2MAC_DMA_MstRd_sof_n : in std_logic := '1';
-       Bus2MAC_DMA_MstRd_src_dsc_n : in std_logic := '1';
-       Bus2MAC_DMA_MstRd_src_rdy_n : in std_logic := '1';
-       Bus2MAC_DMA_MstWr_dst_dsc_n : in std_logic := '1';
-       Bus2MAC_DMA_MstWr_dst_rdy_n : in std_logic := '1';
-       Bus2MAC_DMA_Mst_CmdAck : in std_logic := '0';
-       Bus2MAC_DMA_Mst_Cmd_Timeout : in std_logic := '0';
-       Bus2MAC_DMA_Mst_Cmplt : in std_logic := '0';
-       Bus2MAC_DMA_Mst_Error : in std_logic := '0';
-       Bus2MAC_DMA_Mst_Rearbitrate : in std_logic := '0';
-       MAC_DMA_CLK : in std_logic;
-       MAC_DMA_Rst : in std_logic;
-       m_address : in std_logic_vector(dma_highadr_g downto 0);
-       m_burstcount : in std_logic_vector(m_burstcount_width_g-1 downto 0);
-       m_burstcounter : in std_logic_vector(m_burstcount_width_g-1 downto 0);
-       m_byteenable : in std_logic_vector(3 downto 0);
-       m_read : in std_logic := '0';
-       m_write : in std_logic := '0';
-       m_writedata : in std_logic_vector(31 downto 0);
-       MAC_DMA2Bus_MstRd_Req : out std_logic := '0';
-       MAC_DMA2Bus_MstRd_dst_dsc_n : out std_logic := '1';
-       MAC_DMA2Bus_MstRd_dst_rdy_n : out std_logic := '1';
-       MAC_DMA2Bus_MstWr_Req : out std_logic := '0';
-       MAC_DMA2Bus_MstWr_d : out std_logic_vector(C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0);
-       MAC_DMA2Bus_MstWr_eof_n : out std_logic := '1';
-       MAC_DMA2Bus_MstWr_rem : out std_logic_vector(C_MAC_DMA_PLB_NATIVE_DWIDTH/8-1 downto 0);
-       MAC_DMA2Bus_MstWr_sof_n : out std_logic := '1';
-       MAC_DMA2Bus_MstWr_src_dsc_n : out std_logic := '1';
-       MAC_DMA2Bus_MstWr_src_rdy_n : out std_logic := '1';
-       MAC_DMA2Bus_Mst_Addr : out std_logic_vector(C_MAC_DMA_PLB_AWIDTH-1 downto 0);
-       MAC_DMA2Bus_Mst_BE : out std_logic_vector(C_MAC_DMA_PLB_NATIVE_DWIDTH/8-1 downto 0);
-       MAC_DMA2Bus_Mst_Length : out std_logic_vector(11 downto 0);
-       MAC_DMA2Bus_Mst_Lock : out std_logic := '0';
-       MAC_DMA2Bus_Mst_Reset : out std_logic := '0';
-       MAC_DMA2Bus_Mst_Type : out std_logic := '0';
-       m_clk : out std_logic;
-       m_readdata : out std_logic_vector(31 downto 0);
-       m_readdatavalid : out std_logic := '0';
-       m_waitrequest : out std_logic := '1'
   );
 end component;
 component powerlink
@@ -656,7 +657,6 @@ component powerlink
        spiCPOL_g : boolean := false;
        use2ndCmpTimer_g : boolean := true;
        use2ndPhy_g : boolean := true;
-       useHwAcc_g : boolean := false;
        useIntPacketBuf_g : boolean := true;
        useRmii_g : boolean := true;
        useRxIntPacketBuf_g : boolean := true
@@ -1192,24 +1192,6 @@ with Bus2MAC_REG_CS select
 						MAC_CMP2Bus_Error 					when "01",
 						'0'										when others;
 Bus2MAC_REG_BE_s <= Bus2MAC_REG_BE;
---ap_pcp assignments
-clkAp <= Bus2PDI_AP_Clk;
-rstAp <= Bus2PDI_AP_Reset;
-ap_writedata <= Bus2PDI_AP_Data;
---	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
---	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
-ap_read <= Bus2PDI_AP_RNW;
-ap_write <= not Bus2PDI_AP_RNW;
-ap_chipselect <= Bus2PDI_AP_CS(0);
-ap_byteenable <= Bus2PDI_AP_BE;
-ap_address <= Bus2PDI_AP_Addr(14 downto 2);
-
-PDI_AP2Bus_Data <= ap_readdata;
---	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
---	mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);
-PDI_AP2Bus_RdAck <= ap_chipselect and ap_read and not ap_waitrequest;
-PDI_AP2Bus_WrAck <= ap_chipselect and ap_write and not ap_waitrequest;
-PDI_AP2Bus_Error <= '0';
 --mac_cmp assignments
 ---cmp_clk <= Bus2MAC_CMP_Clk;
 tcp_writedata <= Bus2MAC_REG_Data;
@@ -1399,7 +1381,6 @@ THE_POWERLINK_IP_CORE : powerlink
        spiCPOL_g => C_SPI_CPOL,
        use2ndCmpTimer_g => C_PDI_GEN_SECOND_TIMER,
        use2ndPhy_g => C_USE_2ND_PHY,
-       useHwAcc_g => false,
        useIntPacketBuf_g => C_MAC_PKT_EN,
        useRmii_g => C_USE_RMII,
        useRxIntPacketBuf_g => C_MAC_PKT_RX_EN
@@ -1694,13 +1675,11 @@ end generate genMacDmaPlbBurst;
 
 genThePlbMaster : if C_DMA_EN = TRUE generate
 begin
-  THE_PLB_MASTER_HANDLER : plb_master_handler
+  THE_IPIF_MASTER_HANDLER : ipif_master_handler
     generic map (
-         C_MAC_DMA_PLB_AWIDTH => C_MAC_DMA_PLB_AWIDTH,
-         C_MAC_DMA_PLB_NATIVE_DWIDTH => C_MAC_DMA_PLB_NATIVE_DWIDTH,
          dma_highadr_g => m_address'high,
-         gen_rx_fifo_g => not C_TX_INT_PKT,
-         gen_tx_fifo_g => not C_RX_INT_PKT,
+         gen_rx_fifo_g => not C_RX_INT_PKT,
+         gen_tx_fifo_g => not C_TX_INT_PKT,
          m_burstcount_width_g => C_M_BURSTCOUNT_WIDTH
     )  
     port map(
@@ -1989,6 +1968,28 @@ begin
          Sl_wrDAck => PDI_AP_wrDAck
     );
 end generate genPdiAp;
+
+genApPdiLink : if C_GEN_PDI generate
+begin
+  --ap_pcp assignments
+clkAp <= Bus2PDI_AP_Clk;
+rstAp <= Bus2PDI_AP_Reset;
+ap_writedata <= Bus2PDI_AP_Data;
+--	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
+--	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
+ap_read <= Bus2PDI_AP_RNW;
+ap_write <= not Bus2PDI_AP_RNW;
+ap_chipselect <= Bus2PDI_AP_CS(0);
+ap_byteenable <= Bus2PDI_AP_BE;
+ap_address <= Bus2PDI_AP_Addr(14 downto 2);
+
+PDI_AP2Bus_Data <= ap_readdata;
+--	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
+--	mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);
+PDI_AP2Bus_RdAck <= ap_chipselect and ap_read and not ap_waitrequest;
+PDI_AP2Bus_WrAck <= ap_chipselect and ap_write and not ap_waitrequest;
+PDI_AP2Bus_Error <= '0';
+end generate genApPdiLink;
 
 genSimpleIoSignals : if C_GEN_SIMPLE_IO generate
 begin

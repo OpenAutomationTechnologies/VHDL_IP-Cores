@@ -36,6 +36,7 @@
 #-- Version History
 #------------------------------------------------------------------------------------------------------------------------
 #-- 2011-11-16	V0.01	zelenkaj	converted to first stable solution
+#-- 2012-01-16	V0.02	zelenkaj	replace plb_* with ipif_master_handler
 #------------------------------------------------------------------------------------------------------------------------
 
 lib proc_common_v3_00_a  all 
@@ -54,7 +55,7 @@ lib plb_powerlink_v1_00_a OpenMAC_DMAFifo_Xilinx/fifo_write vhdl
 lib plb_powerlink_v1_00_a OpenMAC_DMAFifo_Xilinx/n_synchronizer vhdl
 lib plb_powerlink_v1_00_a openMAC_DMAmaster/dma_handler vhdl
 lib plb_powerlink_v1_00_a openMAC_DMAmaster/master_handler vhdl
-lib plb_powerlink_v1_00_a openMAC_DMAmaster/plb_master_handler vhdl
+lib plb_powerlink_v1_00_a openMAC_DMAmaster/ipif_master_handler vhdl
 lib plb_powerlink_v1_00_a OpenFILTER vhdl
 lib plb_powerlink_v1_00_a OpenHUB vhdl
 lib plb_powerlink_v1_00_a openMAC_16to32conv vhdl

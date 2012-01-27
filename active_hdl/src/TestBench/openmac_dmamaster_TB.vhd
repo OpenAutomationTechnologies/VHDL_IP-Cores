@@ -428,12 +428,12 @@ begin
 	--	signal MAC_DMA2Bus_MstWr_src_rdy_n : std_logic := '1';
 	--	signal MAC_DMA2Bus_MstWr_src_dsc_n : std_logic := '1';
 	
-	PLB : entity work.plb_master_handler
+	PLB : entity work.ipif_master_handler
 		generic map(
 			gen_rx_fifo_g => gen_rx_fifo_g,
 			gen_tx_fifo_g => gen_tx_fifo_g,
-			C_MAC_DMA_PLB_NATIVE_DWIDTH => 32,
-			C_MAC_DMA_PLB_AWIDTH => 32,
+			C_MAC_DMA_IPIF_NATIVE_DWIDTH => 32,
+			C_MAC_DMA_IPIF_AWIDTH => 32,
 			m_burstcount_width_g => m_burstcount_width_g
 		)
 		port map(
