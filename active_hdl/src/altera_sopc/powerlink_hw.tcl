@@ -105,6 +105,8 @@
 #--                                 Omit hwacc options, since we are fast enough!
 #--                                 Minor delete of system.h parameter
 #-- 2012-01-27  V1.30   zelenkaj    Incremented PdiRev
+#-- 2012-01-31  V1.31   zelenkaj    moved hw event support into "exper mode"
+#--                                 fixed expert mode for dma observer
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -265,6 +267,10 @@ add_parameter genLedGadget BOOLEAN true
 set_parameter_property genLedGadget DISPLAY_NAME "Enable LED outputs"
 set_parameter_property genLedGadget DESCRIPTION "The POWERLINK Slave provides an optional LED output port."
 
+add_parameter genEvent BOOLEAN true
+set_parameter_property genEvent DISPLAY_NAME "Enable Event Hardware Support"
+set_parameter_property genEvent DESCRIPTION "The POWERLINK Slave provides hardware resources for immediate event handling."
+
 add_parameter asyncBuf1Size INTEGER 1514
 set_parameter_property asyncBuf1Size ALLOWED_RANGES 20:2044
 set_parameter_property asyncBuf1Size UNITS bytes
@@ -386,9 +392,8 @@ set_parameter_property genLedGadget_g DERIVED TRUE
 
 add_parameter genEvent_g BOOLEAN true
 set_parameter_property genEvent_g HDL_PARAMETER true
-set_parameter_property genEvent_g DISPLAY_NAME "Enable Event Hardware Support"
-set_parameter_property genEvent_g DESCRIPTION "The POWERLINK Slave provides hardware resources for immediate event handling."
 set_parameter_property genEvent_g VISIBLE false
+set_parameter_property genEvent_g DERIVED TRUE
 
 add_parameter genTimeSync_g BOOLEAN true
 set_parameter_property genTimeSync_g HDL_PARAMETER true
@@ -589,6 +594,7 @@ proc my_validation_callback {} {
 	set mii							[get_parameter_value phyIF]
 	set ploc						[get_parameter_value packetLoc]
 	set enDmaObserver 				[get_parameter_value enDmaObserver]
+    set genEvent                    [get_parameter_value genEvent]
     
     set expert                      [get_parameter_value expertMode]
 	
@@ -763,7 +769,7 @@ proc my_validation_callback {} {
 	set_parameter_property configApSpi_CPHA VISIBLE false
 	set_parameter_property configApSpi_IRQ VISIBLE false
 	set_parameter_property genLedGadget VISIBLE false
-	set_parameter_property genEvent_g VISIBLE false
+	set_parameter_property genEvent VISIBLE false
 	set_parameter_property asyncBuf1Size VISIBLE false
 	set_parameter_property asyncBuf2Size VISIBLE false
 	set_parameter_property rpdo0size VISIBLE false
@@ -828,7 +834,19 @@ proc my_validation_callback {} {
 		set_parameter_property asyncBuf1Size VISIBLE true
 		set_parameter_property asyncBuf2Size VISIBLE true
 		set_parameter_property genLedGadget VISIBLE true
-		set_parameter_property genEvent_g VISIBLE true
+        if {$expert} {
+            #in case of expert mode event hw support can be set
+		    set_parameter_property genEvent VISIBLE true
+            set_parameter_value genEvent_g $genEvent
+            if {$genEvent} {
+            } else {
+                send_message warning "Event Hardware Support is mandatory for CN API library!"
+            }
+        } else {
+            #no expert mode => TRUE!
+            set_parameter_property genEvent VISIBLE false
+            set_parameter_value genEvent_g true
+        }
 		#AP can be big or little endian - allow choice
 		set_parameter_property configApEndian VISIBLE true
 		set_parameter_property hwSupportSyncIrq VISIBLE true
@@ -1000,7 +1018,7 @@ proc my_validation_callback {} {
 	set_parameter_value iBufSize_g			$macBufSize
 	set_parameter_value iBufSizeLOG2_g		$log2MacBufSize
 	
-	set_parameter_value gen_dma_observer_g	[get_parameter_value enDmaObserver]
+	set_parameter_value gen_dma_observer_g	$enDmaObserver
 	
 	if {[get_parameter_value configApParallelInterface] == "8bit"} {
 		set_parameter_value papDataWidth_g	8
@@ -1077,7 +1095,7 @@ proc my_validation_callback {} {
 		set_module_assignment embeddedsw.CMacro.LEDGADGET			FALSE
 	}
 	
-	if {[get_parameter_value enDmaObserver]} {
+	if {$enDmaObserver} {
 		set_module_assignment embeddedsw.CMacro.DMAOBSERV			TRUE
 	} else {
 		set_module_assignment embeddedsw.CMacro.DMAOBSERV			FALSE
@@ -1242,7 +1260,7 @@ add_display_item "Process Data Interface Settings" validSet PARAMETER
 add_display_item "Process Data Interface Settings" validAssertDuration PARAMETER
 add_display_item "Process Data Interface Settings" hwSupportSyncIrq PARAMETER
 add_display_item "Process Data Interface Settings" genLedGadget PARAMETER
-add_display_item "Process Data Interface Settings" genEvent_g PARAMETER
+add_display_item "Process Data Interface Settings" genEvent PARAMETER
 add_display_item "Receive Process Data" rpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdoNum PARAMETER
 add_display_item "Transmit Process Data" tpdo0size PARAMETER
