@@ -40,7 +40,8 @@
 #-- 2011-12-06	V0.03	mairt	added packet size calculation, better async buffer handling and bugfixes
 #-- 2011-12-14	V0.04	mairt	enhancement of the driver generate procedure
 #-- 2012-01-09	V0.05	mairt	added DRC procedures
-#-- 2012-01-20	V0.05	mairt	mac reg clock frequency is now check with a DRC
+#-- 2012-01-20	V0.05	mairt	mac reg clock frequency is now check with a DRC	 
+#-- 2012-02-01	V0.06	mairt	openmac only mode RX buffer number is now a user entry
 #------------------------------------------------------------------------------------------------------------------------
 
 #uses "xillib.tcl"
@@ -539,13 +540,13 @@ proc calc_mac_packet_size { param_handle } {
 	
 	if {$ipcore_mode == 5} {
 		#openMAC only
-		set rxBufSize   [xget_hw_parameter_value $mhsinst "C_MAC_PKT_SIZE_RX_USER"] 	
 		set txBufSize   [xget_hw_parameter_value $mhsinst "C_MAC_PKT_SIZE_TX_USER"] 			
 	} else {  
 		# PDI or simple IO is used
 		set txBufSize [ calc_tx_buffer_size $param_handle ]
-		set rxBufSize [ calc_rx_buffer_size $param_handle]
-	}
+	} 
+	
+	set rxBufSize   [ calc_rx_buffer_size $param_handle] 
 	
 	if { $pack_loc == 0 } {
 		#TX and RX into DPRAM
@@ -571,13 +572,13 @@ proc calc_mac_packet_size_log2 { param_handle } {
 	
 	if {$ipcore_mode == 5} {
 		#openMAC only
-		set rxBufSize   [xget_hw_parameter_value $mhsinst "C_MAC_PKT_SIZE_RX_USER"] 	
 		set txBufSize   [xget_hw_parameter_value $mhsinst "C_MAC_PKT_SIZE_TX_USER"] 			
 	} else {  
 		# PDI or simple IO is used
 		set txBufSize [ calc_tx_buffer_size $param_handle ]
-		set rxBufSize [ calc_rx_buffer_size $param_handle ]
-	}
+	} 
+	
+	set rxBufSize   [ calc_rx_buffer_size $param_handle] 
 	
 	if { $pack_loc == 0 } {
 		#TX and RX into DPRAM
@@ -691,7 +692,9 @@ proc calc_tpdo_buffer_size { param_handle} {
 
 # calc the number of mac rx buffers for the driver
 proc calc_mac_rx_buffers { param_handle } {	
-   	set rpdo_count [ calc_rpdo_count $param_handle ] 
+   	set rpdo_count [ calc_rpdo_count $param_handle ]
+	
+	set mhsinst      [xget_hw_parent_handle $param_handle]
 
 	if { $rpdo_count == 1 } {
 		set macRxBuffers 4 
@@ -700,8 +703,8 @@ proc calc_mac_rx_buffers { param_handle } {
 	} elseif { $rpdo_count == 3 } {
 		set macRxBuffers 6
 	} elseif { $rpdo_count == 0 } {		
-		# openMAC only has no RPDO definition and therefore we choose max RPDOs for the safe side
-		set macRxBuffers 16
+		# openMAC only has no RPDO definition and therefore the user has to give us the info
+		set macRxBuffers [ xget_hw_parameter_value $mhsinst "C_MAC_NUM_RX_BUFFER_USER" ]
 	} else {
 		error "Number of Rpdos invalid!"
 	}				
