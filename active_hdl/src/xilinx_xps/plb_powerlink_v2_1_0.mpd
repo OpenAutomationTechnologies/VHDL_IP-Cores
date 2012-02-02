@@ -48,6 +48,7 @@
 #-- 2012-01-20  V0.10   mairt       mac reg clock frequency is now check with a DRC
 #-- 2012-01-23  V0.11   zelenkaj    added LED ports
 #-- 2012-01-26  V0.10   zelenkaj    Added number of SMI generic feature
+#-- 2012-02-01  V0.11   zelenkaj    Added RMII clk out
 #------------------------------------------------------------------------------------------------------------------------
 
 BEGIN plb_powerlink
@@ -241,6 +242,7 @@ PORT phyMii0_TxDat = "", DIR = OUT, VEC = [3:0], ISVALID = (!C_USE_RMII), IO_IF 
 PORT phyMii0_TxEn = "", DIR = OUT, ISVALID = (!C_USE_RMII), IO_IF = PHY0, IO_IS = mii_txen
 PORT phyMii0_TxEr = "", DIR = OUT, ISVALID = (!C_USE_RMII), IO_IF = PHY0, IO_IS = mii_txer
 #### RMII
+PORT phy0_clk = "", DIR = OUT, SIGIS = Clk, ISVALID = (C_USE_RMII), IO_IF = PHY0, IO_IS = rmii_clk
 PORT phy0_RxDat = "", DIR = IN, VEC = [1:0], ISVALID = (C_USE_RMII), IO_IF = PHY0, IO_IS = rmii_rxdat
 PORT phy0_RxDv = "", DIR = IN, ISVALID = (C_USE_RMII), IO_IF = PHY0, IO_IS = rmii_rxdv
 PORT phy0_RxErr = "", DIR = IN, ISVALID = (C_USE_RMII), IO_IF = PHY0, IO_IS = rmii_rxer
@@ -262,6 +264,7 @@ PORT phyMii1_TxDat = "", DIR = OUT, VEC = [3:0], ISVALID = (!C_USE_RMII && C_USE
 PORT phyMii1_TxEn = "", DIR = OUT, ISVALID = (!C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = mii_txen
 PORT phyMii1_TxEr = "", DIR = OUT, ISVALID = (!C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = mii_txer
 #### RMII
+PORT phy1_clk = "", DIR = OUT, SIGIS = Clk, ISVALID = (C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = rmii_clk
 PORT phy1_RxDat = "", DIR = IN, VEC = [1:0], ISVALID = (C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = rmii_rxdat
 PORT phy1_RxDv = "", DIR = IN, ISVALID = (C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = rmii_rxdv
 PORT phy1_RxErr = "", DIR = IN, ISVALID = (C_USE_RMII && C_USE_2ND_PHY), IO_IF = PHY1, IO_IS = rmii_rxer
@@ -300,8 +303,8 @@ PORT pap_wr = "", DIR = IN, IO_IF = PAP, ISVALID = (C_IP_CORE_MODE == 1 && C_PAP
 PORT pap_wr_n = "", DIR = IN, IO_IF = PAP, ISVALID = (C_IP_CORE_MODE == 1 && C_PAP_LOW_ACT == TRUE)
 PORT pap_addr = "", DIR = IN, IO_IF = PAP, VEC = [15:0], ISVALID = C_IP_CORE_MODE == 1
 PORT pap_data = "", DIR = INOUT, IO_IF = PAP, VEC = [C_PAP_DATA_WIDTH-1:0], THREE_STATE = TRUE, ISVALID = (C_IP_CORE_MODE == 1)
-PORT pap_be = "", DIR = IN, IO_IF = PAP, VEC = [(C_PAP_DATA_WIDTH/8)-1:0], ISVALID = (C_IP_CORE_MODE == 1 && C_PAP_LOW_ACT == FALSE)
-PORT pap_be_n = "", DIR = IN, IO_IF = PAP, VEC = [(C_PAP_DATA_WIDTH/8)-1:0], ISVALID = (C_IP_CORE_MODE == 1 && C_PAP_LOW_ACT == TRUE)
+PORT pap_be = "", DIR = IN, IO_IF = PAP, VEC = [(C_PAP_DATA_WIDTH/8)-1:0], ISVALID = (C_IP_CORE_MODE == 1 && C_PAP_LOW_ACT == FALSE && C_PAP_DATA_WIDTH > 8)
+PORT pap_be_n = "", DIR = IN, IO_IF = PAP, VEC = [(C_PAP_DATA_WIDTH/8)-1:0], ISVALID = (C_IP_CORE_MODE == 1 && C_PAP_LOW_ACT == TRUE && C_PAP_DATA_WIDTH > 8)
 PORT pap_ack = "", DIR = OUT, IO_IF = PAP, ISVALID = (C_IP_CORE_MODE == 1 && C_PAP_LOW_ACT == FALSE)
 PORT pap_ack_n = "", DIR = OUT, IO_IF = PAP, ISVALID = (C_IP_CORE_MODE == 1 && C_PAP_LOW_ACT == TRUE)
 PORT pap_gpio = "", DIR = INOUT, IO_IF = PAP, VEC = [1:0], THREE_STATE = TRUE, ENABLE = MULTI, ISVALID = (C_IP_CORE_MODE == 1)

@@ -52,6 +52,7 @@
 -- 2012-01-26   V0.09   zelenkaj    Added number of SMI generic feature
 -- 2012-01-16	V0.10	zelenkaj	Replace plb_* with ipif_master_handler
 -- 2012-01-27   V0.20   zelenkaj    Incremented PdiRev
+-- 2012-02-01   V0.21   zelenkaj    Added attributes and RMII clk out
 --
 -------------------------------------------------------------------------------
 
@@ -440,11 +441,13 @@ entity plb_powerlink is
        phy0_SMIDat_O : out std_logic;
        phy0_SMIDat_T : out std_logic;
        phy0_TxEn : out std_logic;
+       phy0_clk : out std_logic;
        phy1_Rst_n : out std_logic;
        phy1_SMIClk : out std_logic;
        phy1_SMIDat_O : out std_logic;
        phy1_SMIDat_T : out std_logic;
        phy1_TxEn : out std_logic;
+       phy1_clk : out std_logic;
        phyMii0_TxEn : out std_logic;
        phyMii0_TxEr : out std_logic;
        phyMii1_TxEn : out std_logic;
@@ -516,6 +519,44 @@ entity plb_powerlink is
        pio_portio_T : out std_logic_vector(31 downto 0);
        test_port : out std_logic_vector(255 downto 0) := (others => '0')
   );
+-- Entity declarations --
+-- Click here to add additional declarations --
+attribute SIGIS : string;
+
+
+-- Entity attributes --
+attribute SIGIS of MAC_DMA_Clk : signal is "Clk";
+
+attribute SIGIS of MAC_DMA_Rst : signal is "Rst";
+
+attribute SIGIS of MAC_PKT_Clk : signal is "Clk";
+
+attribute SIGIS of MAC_PKT_Rst : signal is "Rst";
+
+attribute SIGIS of MAC_REG_Clk : signal is "Clk";
+
+attribute SIGIS of MAC_REG_Rst : signal is "Rst";
+
+attribute SIGIS of PDI_AP_Clk : signal is "Clk";
+
+attribute SIGIS of PDI_AP_Rst : signal is "Rst";
+
+attribute SIGIS of PDI_PCP_Clk : signal is "Clk";
+
+attribute SIGIS of PDI_PCP_Rst : signal is "Rst";
+
+attribute SIGIS of SMP_PCP_Clk : signal is "Clk";
+
+attribute SIGIS of SMP_PCP_Rst : signal is "Rst";
+
+attribute SIGIS of clk100 : signal is "Clk";
+
+attribute SIGIS of clk50 : signal is "Clk";
+
+attribute SIGIS of phy0_clk : signal is "Clk";
+
+attribute SIGIS of phy1_clk : signal is "Clk";
+
 end plb_powerlink;
 
 architecture struct of plb_powerlink is
@@ -1578,9 +1619,13 @@ THE_POWERLINK_IP_CORE : powerlink
        tcp_writedata => tcp_writedata
   );
 
+phy0_clk <= clk50;
+
 rst <= Bus2MAC_REG_Reset or Bus2MAC_CMP_Reset or MAC_DMA_RST or Bus2MAC_PKT_Reset;
 
 Bus2MAC_REG_RNW_n <= not(Bus2MAC_REG_RNW);
+
+phy1_clk <= clk50;
 
 
 ---- Power , ground assignment ----

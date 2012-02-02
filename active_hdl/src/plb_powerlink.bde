@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 113958
+ FREEID 114163
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -8900,6 +8900,7 @@ PAGE "header"
 "-- 2012-01-26   V0.09   zelenkaj    Added number of SMI generic feature\n"+
 "-- 2012-01-16\tV0.10\tzelenkaj\tReplace plb_* with ipif_master_handler\n"+
 "-- 2012-01-27   V0.20   zelenkaj    Incremented PdiRev\n"+
+"-- 2012-02-01   V0.21   zelenkaj    Added attributes and RMII clk out\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -8977,6 +8978,20 @@ PAGE "header"
 "\tend if;\n"+
 "end get_max;"
    RECT (2060,1160,2800,1480)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   CORNER 10
+  }
+  ENTITYDECLARATION  114044, 0, 0
+  {
+   LABEL "Entity Declarations"
+   TEXT 
+"-- Click here to add additional declarations --\n"+
+"attribute SIGIS : string;"
+   RECT (2040,240,3060,640)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -9070,6 +9085,7 @@ PAGE "MAC_DMA_PLB"
     #LIBRARY="#terminals"
     #REFERENCE="MAC_DMA_Clk"
     #SYMBOL="Input"
+    %SIGIS="\"Clk\""
    }
    COORD (1080,540)
    VERTEXES ( (2,11752) )
@@ -9110,6 +9126,7 @@ PAGE "MAC_DMA_PLB"
     #LIBRARY="#terminals"
     #REFERENCE="MAC_DMA_Rst"
     #SYMBOL="Input"
+    %SIGIS="\"Rst\""
    }
    COORD (1080,580)
    VERTEXES ( (2,11756) )
@@ -11316,6 +11333,7 @@ PAGE "MAC_REG_PLB"
     #REFERENCE="MAC_REG_Clk"
     #SYMBOL="Input"
     #VHDL_TYPE="STD_LOGIC"
+    %SIGIS="\"Clk\""
    }
    COORD (1140,820)
    VERTEXES ( (2,94722) )
@@ -11501,6 +11519,7 @@ PAGE "MAC_REG_PLB"
     #REFERENCE="MAC_REG_Rst"
     #SYMBOL="Input"
     #VHDL_TYPE="STD_LOGIC"
+    %SIGIS="\"Rst\""
    }
    COORD (1140,860)
    VERTEXES ( (2,94724) )
@@ -15710,6 +15729,7 @@ PAGE "POWERLINK IP-CORE"
    VARIABLES
    {
     #NAME="MAC_DMA_RST"
+    %SIGIS="\"Rst\""
    }
   }
   TEXT  39091, 0, 0
@@ -15741,6 +15761,7 @@ PAGE "POWERLINK IP-CORE"
     #LIBRARY="#terminals"
     #REFERENCE="clk100"
     #SYMBOL="Input"
+    %SIGIS="\"Clk\""
    }
    COORD (2340,540)
    ORIENTATION 5
@@ -18922,6 +18943,7 @@ PAGE "POWERLINK IP-CORE"
     #LIBRARY="#terminals"
     #REFERENCE="clk50"
     #SYMBOL="Input"
+    %SIGIS="\"Clk\""
    }
    COORD (2420,540)
    ORIENTATION 5
@@ -19205,6 +19227,160 @@ PAGE "POWERLINK IP-CORE"
   {
    NET 112392
    VTX 113921, 113922
+  }
+  INSTANCE  114079, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="phy0_clk"
+    #SYMBOL="Output"
+    %SIGIS="\"Clk\""
+   }
+   COORD (4580,360)
+   VERTEXES ( (2,114091) )
+  }
+  TEXT  114080, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (4632,343,4747,378)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 114079
+  }
+  INSTANCE  114084, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Output"
+    #LIBRARY="#terminals"
+    #REFERENCE="phy1_clk"
+    #SYMBOL="Output"
+    %SIGIS="\"Clk\""
+   }
+   COORD (4580,420)
+   VERTEXES ( (2,114102) )
+  }
+  TEXT  114085, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (4632,403,4747,438)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 114084
+  }
+  INSTANCE  114086, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="buf"
+    #LIBRARY="#builtin"
+    #REFERENCE="U1"
+    #SYMBOL="buf"
+   }
+   COORD (4400,340)
+   VERTEXES ( (4,114092), (2,114110) )
+  }
+  NET WIRE  114087, 0, 0
+  VTX  114091, 0, 0
+  {
+   COORD (4580,360)
+  }
+  VTX  114092, 0, 0
+  {
+   COORD (4520,360)
+  }
+  WIRE  114093, 0, 0
+  {
+   NET 114087
+   VTX 114091, 114092
+  }
+  INSTANCE  114094, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="buf"
+    #LIBRARY="#builtin"
+    #REFERENCE="U3"
+    #SYMBOL="buf"
+   }
+   COORD (4400,400)
+   VERTEXES ( (4,114103), (2,114115) )
+  }
+  NET WIRE  114095, 0, 0
+  VTX  114102, 0, 0
+  {
+   COORD (4580,420)
+  }
+  VTX  114103, 0, 0
+  {
+   COORD (4520,420)
+  }
+  WIRE  114104, 0, 0
+  {
+   NET 114095
+   VTX 114102, 114103
+  }
+  VTX  114110, 0, 0
+  {
+   COORD (4400,360)
+  }
+  VTX  114111, 0, 0
+  {
+   COORD (4180,360)
+  }
+  VTX  114115, 0, 0
+  {
+   COORD (4400,420)
+  }
+  VTX  114116, 0, 0
+  {
+   COORD (4340,360)
+  }
+  VTX  114118, 0, 0
+  {
+   COORD (4340,420)
+  }
+  WIRE  114119, 0, 0
+  {
+   NET 114124
+   VTX 114115, 114118
+  }
+  WIRE  114120, 0, 0
+  {
+   NET 114124
+   VTX 114118, 114116
+  }
+  WIRE  114121, 0, 0
+  {
+   NET 114124
+   VTX 114110, 114116
+  }
+  WIRE  114122, 0, 0
+  {
+   NET 114124
+   VTX 114116, 114111
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  114124, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="clk50"
+    %SIGIS="\"Clk\""
+   }
+  }
+  TEXT  114125, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (4231,330,4289,359)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 114122
   }
  }
  
@@ -19832,6 +20008,7 @@ PAGE "MAC_DMA"
    VARIABLES
    {
     #NAME="MAC_DMA_CLK"
+    %SIGIS="\"Clk\""
    }
   }
   NET BUS  79117, 0, 0
@@ -20122,6 +20299,7 @@ PAGE "MAC_DMA"
    VARIABLES
    {
     #NAME="MAC_DMA_Rst"
+    %SIGIS="\"Rst\""
    }
   }
   TEXT  80977, 0, 0
@@ -21610,6 +21788,7 @@ PAGE "MAC_REG"
    VARIABLES
    {
     #NAME="clk50"
+    %SIGIS="\"Clk\""
    }
   }
   TEXT  111088, 0, 0
@@ -22478,6 +22657,7 @@ PAGE "MAC_PKT_PLB"
     #LIBRARY="#terminals"
     #REFERENCE="MAC_PKT_Clk"
     #SYMBOL="Input"
+    %SIGIS="\"Clk\""
    }
    COORD (1120,800)
    VERTEXES ( (2,37948) )
@@ -22518,6 +22698,7 @@ PAGE "MAC_PKT_PLB"
     #LIBRARY="#terminals"
     #REFERENCE="MAC_PKT_Rst"
     #SYMBOL="Input"
+    %SIGIS="\"Rst\""
    }
    COORD (1120,840)
    VERTEXES ( (2,37950) )
@@ -25181,6 +25362,7 @@ PAGE "PDI_PCP_PLB"
     #LIBRARY="#terminals"
     #REFERENCE="PDI_PCP_Clk"
     #SYMBOL="Input"
+    %SIGIS="\"Clk\""
    }
    COORD (1020,680)
    VERTEXES ( (2,95822) )
@@ -25201,6 +25383,7 @@ PAGE "PDI_PCP_PLB"
     #LIBRARY="#terminals"
     #REFERENCE="PDI_PCP_Rst"
     #SYMBOL="Input"
+    %SIGIS="\"Rst\""
    }
    COORD (1020,720)
    VERTEXES ( (2,95824) )
@@ -27927,6 +28110,7 @@ PAGE "AP_PDI_PLB"
     #LIBRARY="#terminals"
     #REFERENCE="PDI_AP_Clk"
     #SYMBOL="Input"
+    %SIGIS="\"Clk\""
    }
    COORD (1100,700)
    VERTEXES ( (2,97217) )
@@ -27947,6 +28131,7 @@ PAGE "AP_PDI_PLB"
     #LIBRARY="#terminals"
     #REFERENCE="PDI_AP_Rst"
     #SYMBOL="Input"
+    %SIGIS="\"Rst\""
    }
    COORD (1100,740)
    VERTEXES ( (2,97219) )
@@ -31396,6 +31581,7 @@ PAGE "SMP_PCP_PLB"
     #LIBRARY="#terminals"
     #REFERENCE="SMP_PCP_Clk"
     #SYMBOL="Input"
+    %SIGIS="\"Clk\""
    }
    COORD (1140,800)
    VERTEXES ( (2,99056) )
@@ -31416,6 +31602,7 @@ PAGE "SMP_PCP_PLB"
     #LIBRARY="#terminals"
     #REFERENCE="SMP_PCP_Rst"
     #SYMBOL="Input"
+    %SIGIS="\"Rst\""
    }
    COORD (1140,840)
    VERTEXES ( (2,99058) )
@@ -33308,7 +33495,7 @@ PAGE ""
  
  BODY
  {
-  TEXT  113941, 0, 0
+  TEXT  114146, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -33319,7 +33506,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  113942, 0, 0
+  TEXT  114147, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -33330,7 +33517,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  113943, 0, 0
+  TEXT  114148, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -33340,7 +33527,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  113944, 0, 0
+  TEXT  114149, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -33352,7 +33539,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  113945, 0, 0
+  TEXT  114150, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -33366,7 +33553,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  113946, 0, 0
+  TEXT  114151, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -33376,7 +33563,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  113947, 0, 0
+  TEXT  114152, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -33388,7 +33575,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  113948, 0, 0
+  TEXT  114153, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -33398,7 +33585,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  113949, 0, 0
+  TEXT  114154, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -33409,7 +33596,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  113950, 0, 0
+  GROUP  114155, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -33421,7 +33608,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  113951, 0, 0
+  GROUP  114156, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -33433,7 +33620,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  113952, 0, 0
+  GROUP  114157, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -33445,7 +33632,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  113953, 0, 0
+  GROUP  114158, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -33457,7 +33644,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  113954, 0, 0
+  GROUP  114159, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -33469,7 +33656,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  113955, 0, 0
+  GROUP  114160, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -33480,14 +33667,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  113956, 0, 0
+  LINE  114161, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  113957, 0, 0
+  LINKBMPPICT  114162, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
