@@ -21,7 +21,7 @@ copy images\*.png							release\altera_sopc\POWERLINK\img
 
 del release\altera_sopc\POWERLINK\src\*_TB.vhd
 del release\altera_sopc\POWERLINK\src\*_Xilinx.vhd
-del release\altera_sopc\POWERLINK\src\openMAC_DMAmaster\plb_master_handler.vhd
+del release\altera_sopc\POWERLINK\src\openMAC_DMAmaster\ipif_master_handler.vhd
 del release\altera_sopc\POWERLINK\src\plb_powerlink.vhd
 
 @echo on
