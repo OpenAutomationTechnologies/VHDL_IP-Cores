@@ -66,6 +66,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  2011/12/15		zelenkaj	added data cache support for TX packets (Microblaze)
 							changed DMA error handling (MAC is stopped)
  2011/12/19		zelenkaj	added initialization of openMAC RAM
+ 2012/02/01     zelenkaj    changed defines for INTC
+                            delete usleep (is located in target module)
 ----------------------------------------------------------------------------*/
 
 
@@ -149,10 +151,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#error "Configuration is unknown!"
 #endif
 #elif defined(__MICROBLAZE__)
-	#define EDRV_INTC_BASE					XPAR_XPS_INTC_0_BASEADDR
+	#define EDRV_INTC_BASE					XPAR_PCP_INTC_BASEADDR
 	#define EDRV_MAC_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_REG_BASEADDR
 	#define EDRV_MAC_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_REG_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_REG_BASEADDR+1)
-	#define EDRV_MAC_IRQ                    XPAR_XPS_INTC_0_PLB_POWERLINK_0_MAC_IRQ_INTR
+	#define EDRV_MAC_IRQ                    XPAR_PCP_INTC_PLB_POWERLINK_0_MAC_IRQ_INTR
 	#define EDRV_MAC_IRQ_MASK				XPAR_PLB_POWERLINK_0_MAC_IRQ_MASK
 	#define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
 	#define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
@@ -223,16 +225,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef __NIOS2__
 #include <unistd.h>
 #elif defined(__MICROBLAZE__)
-void usleep(int time)
-{
-	int max = time * (XPAR_MICROBLAZE_CORE_CLOCK_FREQ_HZ/1000000);
-	int i;
-
-	for(i=0; i<max; i++)
-	{
-		asm("nop");
-	}
-}
+#include "xilinx_usleep.h"
 #endif
 #define EDRV_USLEEP(time)			usleep(time)
 

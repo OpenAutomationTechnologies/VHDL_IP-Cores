@@ -67,6 +67,7 @@
  2011/10/25     zelenkaj    added Microblaze support
  2012/01/19     mairt       added toggle int support
  2012/01/19     mairt       renamed "toggle int" to "compare pdi interrupt"
+ 2012/02/01     zelenkaj    changed defines for INTC
 
 ****************************************************************************/
 
@@ -130,9 +131,9 @@
 #error "Configuration unknown!"
 #endif
 #elif defined(__MICROBLAZE__)
-#define EPL_TIMER_INTC_BASE		XPAR_XPS_INTC_0_BASEADDR
+#define EPL_TIMER_INTC_BASE		XPAR_PCP_INTC_BASEADDR
 #define EPL_TIMER_SYNC_BASE		XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
-#define EPL_TIMER_SYNC_IRQ		XPAR_XPS_INTC_0_PLB_POWERLINK_0_TCP_IRQ_INTR
+#define EPL_TIMER_SYNC_IRQ		XPAR_PCP_INTC_PLB_POWERLINK_0_TCP_IRQ_INTR
 #define EPL_TIMER_SYNC_IRQ_MASK	XPAR_PLB_POWERLINK_0_TCP_IRQ_MASK
 #else
 #error "Configuration unknown!"
