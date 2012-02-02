@@ -1,9 +1,11 @@
 @echo off
 mkdir release\altera_sopc\POWERLINK\src
 mkdir release\altera_sopc\POWERLINK\src\lib 
+mkdir release\altera_sopc\POWERLINK\src\openMAC_DMAmaster
 mkdir release\altera_sopc\POWERLINK\sdc
 mkdir release\altera_sopc\POWERLINK\doc
 mkdir release\altera_sopc\mif
+mkdir release\altera_sopc\POWERLINK\img
 
 copy active_hdl\src\mif\*.mif						release\altera_sopc\mif
 copy active_hdl\src\*.vhd							release\altera_sopc\POWERLINK\src
@@ -15,6 +17,7 @@ copy active_hdl\src\altera_sopc\*.sdc				release\altera_sopc\POWERLINK\sdc
 copy documentation\*_Generic.pdf					release\altera_sopc\POWERLINK\doc
 copy documentation\*_Altera.pdf						release\altera_sopc\POWERLINK\doc
 copy documentation\OpenMAC.pdf						release\altera_sopc\POWERLINK\doc
+copy images\*.png							release\altera_sopc\POWERLINK\img
 
 del release\altera_sopc\POWERLINK\src\*_TB.vhd
 del release\altera_sopc\POWERLINK\src\*_Xilinx.vhd
