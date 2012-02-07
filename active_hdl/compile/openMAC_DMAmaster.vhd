@@ -1,18 +1,8 @@
 -------------------------------------------------------------------------------
---
--- Title       : openMAC_DMAmaster
--- Design      : POWERLINK
---
+-- Entity : openMAC_DMAmaster
 -------------------------------------------------------------------------------
 --
--- File        : C:\git\VHDL_IP-Cores\active_hdl\compile\openMAC_DMAmaster.vhd
--- Generated   : Mon Dec  5 07:44:35 2011
--- From        : C:\git\VHDL_IP-Cores\active_hdl\src\openMAC_DMAmaster.bde
--- By          : Bde2Vhdl ver. 2.6
---
--------------------------------------------------------------------------------
---
---    (c) B&R, 2011
+--    (c) B&R, 2012
 --
 --    Redistribution and use in source and binary forms, with or without
 --    modification, are permitted provided that the following conditions
