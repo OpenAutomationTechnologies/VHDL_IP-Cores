@@ -2,6 +2,10 @@
 
   (c) SYSTEC electronic GmbH, D-07973 Greiz, August-Bebel-Str. 29
       www.systec-electronic.com
+  (c) Bernecker + Rainer Industrie-Elektronik Ges.m.b.H.
+      A-5142 Eggelsberg, B&R Strasse 1
+      www.br-automation.com
+
 
   Project:      openPOWERLINK
 
@@ -49,23 +53,16 @@
            any other provision of this License.
 
   -------------------------------------------------------------------------
+                $RCSfile$
 
-                $RCSfile: TimerHighResk_OpenMac.c,v $
+                $Author$
 
-                $Author: Michael.Ulbricht $
+                $Revision$  $Date$
 
-                $Revision: 1.1 $  $Date: 2010/03/23 12:22:30 $
-
-                $State: Exp $
+                $State$
 
                 Build Environment:
-                    GNU
-
-  -------------------------------------------------------------------------
-
-  Revision History:
-
- 2011/06/15		zelenkaj	added CPU UTIL support
+                    GCC V3.4
 
 ****************************************************************************/
 
@@ -462,7 +459,7 @@ static void EplTimerHighReskInterruptHandler (void* pArg_p, alt_u32 dwInt_p)
     BENCHMARK_MOD_24_SET(4);
 
 #ifdef CPU_UTIL
-	isrcall_cpuutil();
+    isrcall_cpuutil();
 #endif
 
     EplTimerHighReskSetCompareValue(0);
@@ -474,7 +471,7 @@ static void EplTimerHighReskInterruptHandler (void* pArg_p, alt_u32 dwInt_p)
     }
 
     BENCHMARK_MOD_24_RESET(4);
-    
+
     return;
 
 }

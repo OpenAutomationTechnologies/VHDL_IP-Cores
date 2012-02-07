@@ -2,6 +2,10 @@
 
   (c) SYSTEC electronic GmbH, D-07973 Greiz, August-Bebel-Str. 29
       www.systec-electronic.com
+  (c) Bernecker + Rainer Industrie-Elektronik Ges.m.b.H.
+      A-5142 Eggelsberg, B&R Strasse 1
+      www.br-automation.com
+
 
   Project:      openPOWERLINK
 
@@ -48,24 +52,16 @@
            any other provision of this License.
 
   -------------------------------------------------------------------------
+                $RCSfile$
 
-                $RCSfile: EplTgtTimeStamp_OpenMac.c,v $
+                $Author$
 
-                $Author: Michael.Ulbricht $
+                $Revision$  $Date$
 
-                $Revision: 1.1 $  $Date: 2010/03/23 12:13:59 $
-
-                $State: Exp $
+                $State$
 
                 Build Environment:
                     GCC V3.4
-
-  -------------------------------------------------------------------------
-
-  Revision History:
-
-  2010-03-23 m.u.:   start of the implementation
-
 
 ****************************************************************************/
 

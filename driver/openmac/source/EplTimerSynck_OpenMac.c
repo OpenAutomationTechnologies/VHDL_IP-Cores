@@ -2,6 +2,10 @@
 
   (c) SYSTEC electronic GmbH, D-07973 Greiz, August-Bebel-Str. 29
       www.systec-electronic.com
+  (c) Bernecker + Rainer Industrie-Elektronik Ges.m.b.H.
+      A-5142 Eggelsberg, B&R Strasse 1
+      www.br-automation.com
+
 
   Project:      openPOWERLINK
 
@@ -48,26 +52,16 @@
            any other provision of this License.
 
   -------------------------------------------------------------------------
+                $RCSfile$
 
-                $RCSfile: EplTimerSynck_OpenMac.c,v $
+                $Author$
 
-                $Author: Michael.Ulbricht $
+                $Revision$  $Date$
 
-                $Revision: 1.8 $  $Date: 2010/06/30 09:58:08 $
-
-                $State: Exp $
+                $State$
 
                 Build Environment:
-                    GNU
-
-  -------------------------------------------------------------------------
-
-  Revision History:
-
- 2011/10/25     zelenkaj    added Microblaze support
- 2012/01/19     mairt       added toggle int support
- 2012/01/19     mairt       renamed "toggle int" to "compare pdi interrupt"
- 2012/02/01     zelenkaj    changed defines for INTC
+                    GCC V3.4
 
 ****************************************************************************/
 
@@ -91,11 +85,11 @@
 #endif
 
 #ifdef __NIOS2__
-#define TSYN_RD32(base, offset)			IORD_32DIRECT(base, offset)
-#define TSYN_WR32(base, offset, write)	IOWR_32DIRECT(base, offset, write)
+#define TSYN_RD32(base, offset)            IORD_32DIRECT(base, offset)
+#define TSYN_WR32(base, offset, write)    IOWR_32DIRECT(base, offset, write)
 #elif defined(__MICROBLAZE__)
-#define TSYN_RD32(base, offset)			Xil_In32((base+offset))
-#define TSYN_WR32(base, offset, write)	Xil_Out32((base+offset), write)
+#define TSYN_RD32(base, offset)            Xil_In32((base+offset))
+#define TSYN_WR32(base, offset, write)    Xil_Out32((base+offset), write)
 #else
 #error "Configuration unknown!"
 #endif
@@ -131,10 +125,10 @@
 #error "Configuration unknown!"
 #endif
 #elif defined(__MICROBLAZE__)
-#define EPL_TIMER_INTC_BASE		XPAR_PCP_INTC_BASEADDR
-#define EPL_TIMER_SYNC_BASE		XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
-#define EPL_TIMER_SYNC_IRQ		XPAR_PCP_INTC_PLB_POWERLINK_0_TCP_IRQ_INTR
-#define EPL_TIMER_SYNC_IRQ_MASK	XPAR_PLB_POWERLINK_0_TCP_IRQ_MASK
+#define EPL_TIMER_INTC_BASE        XPAR_PCP_INTC_BASEADDR
+#define EPL_TIMER_SYNC_BASE        XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
+#define EPL_TIMER_SYNC_IRQ        XPAR_PCP_INTC_PLB_POWERLINK_0_TCP_IRQ_INTR
+#define EPL_TIMER_SYNC_IRQ_MASK    XPAR_PLB_POWERLINK_0_TCP_IRQ_MASK
 #else
 #error "Configuration unknown!"
 #endif
@@ -246,13 +240,18 @@ static void  EplTimerSynckCtrlUpdateLossOfSyncTolerance (void);
 static DWORD EplTimerSynckCtrlGetNextAbsoluteTime   (unsigned int uiTimerHdl_p, DWORD dwCurrentTime_p);
 
 static inline void  EplTimerSynckDrvCompareInterruptEnable  (void);
-static inline void  EplTimerSynckDrvCompareTogPdiInterruptEnable  (void);
+
 static inline void  EplTimerSynckDrvCompareInterruptDisable (void);
-static inline void  EplTimerSynckDrvCompareTogPdiInterruptDisable  (void);
+
 static inline void  EplTimerSynckDrvSetCompareValue         (DWORD dwVal);
-static inline void  EplTimerSynckDrvSetCompareTogPdiValue         (DWORD dwVal);
+
 static inline DWORD EplTimerSynckDrvGetTimeValue            (void);
 
+#ifdef EPL_TIMER_USE_COMPARE_PDI_INT
+static inline void  EplTimerSynckDrvCompareTogPdiInterruptEnable  (void);
+static inline void  EplTimerSynckDrvCompareTogPdiInterruptDisable  (void);
+static inline void  EplTimerSynckDrvSetCompareTogPdiValue         (DWORD dwVal);
+#endif //EPL_TIMER_USE_COMPARE_PDI_INT
 
 static void EplTimerSynckDrvInterruptHandler (void* pArg_p, DWORD dwInt_p);
 
@@ -309,11 +308,11 @@ tEplKernel      Ret = kEplSuccessful;
     }
 #elif defined(__MICROBLAZE__)
     {
-    	DWORD curIntEn = TSYN_RD32(EPL_TIMER_INTC_BASE, XIN_IER_OFFSET);
+        DWORD curIntEn = TSYN_RD32(EPL_TIMER_INTC_BASE, XIN_IER_OFFSET);
 
-		XIntc_RegisterHandler(EPL_TIMER_INTC_BASE, EPL_TIMER_SYNC_IRQ,
-				(XInterruptHandler)EplTimerSynckDrvInterruptHandler, (void*)NULL);
-		XIntc_EnableIntr(EPL_TIMER_INTC_BASE, EPL_TIMER_SYNC_IRQ_MASK | curIntEn);
+        XIntc_RegisterHandler(EPL_TIMER_INTC_BASE, EPL_TIMER_SYNC_IRQ,
+                (XInterruptHandler)EplTimerSynckDrvInterruptHandler, (void*)NULL);
+        XIntc_EnableIntr(EPL_TIMER_INTC_BASE, EPL_TIMER_SYNC_IRQ_MASK | curIntEn);
     }
 #else
 #error"Configuration unknown!"
@@ -355,7 +354,7 @@ tEplKernel      Ret = kEplSuccessful;
     alt_irq_register(EPL_TIMER_SYNC_IRQ, NULL, NULL);
 #elif defined(__MICROBLAZE__)
     XIntc_RegisterHandler(EPL_TIMER_INTC_BASE, EPL_TIMER_SYNC_IRQ,
-    		(XInterruptHandler)NULL, (void*)NULL);
+            (XInterruptHandler)NULL, (void*)NULL);
 #else
 #error "Configuration unknown!"
 #endif
@@ -1103,7 +1102,7 @@ static inline void EplTimerSynckDrvCompareTogPdiInterruptEnable (void)
 
 static inline void EplTimerSynckDrvSetCompareValue (DWORD dwVal)
 {
-	TSYN_WR32( EPL_TIMER_SYNC_BASE, TIMERCMP_REG_OFF_CMP_VAL, dwVal );
+    TSYN_WR32( EPL_TIMER_SYNC_BASE, TIMERCMP_REG_OFF_CMP_VAL, dwVal );
 }
 
 #ifdef EPL_TIMER_USE_COMPARE_PDI_INT

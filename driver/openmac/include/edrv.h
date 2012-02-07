@@ -2,6 +2,9 @@
 
   (c) SYSTEC electronic GmbH, D-07973 Greiz, August-Bebel-Str. 29
       www.systec-electronic.com
+  (c) Bernecker + Rainer Industrie-Elektronik Ges.m.b.H.
+      A-5142 Eggelsberg, B&R Strasse 1
+      www.br-automation.com
 
   Project:      openPOWERLINK
 
@@ -49,23 +52,17 @@
 
   -------------------------------------------------------------------------
 
-                $RCSfile: edrv.h,v $
+                $RCSfile$
 
-                $Author: Michael.Ulbricht $
+                $Author$
 
-                $Revision: 1.25 $  $Date: 2010/08/04 13:15:08 $
+                $Revision$  $Date$
 
-                $State: Exp $
+                $State$
 
                 Build Environment:
-                Dev C++ and GNU-Compiler for m68k
+                    GCC V3.4
 
-  -------------------------------------------------------------------------
-
-  Revision History:
-
-  2005/08/01 m.b.:   start of implementation
-  2011/06/01 zelenkaj:	added absolute time to TX buffer
 
 ****************************************************************************/
 
@@ -82,11 +79,11 @@
 #define MAX_ETH_DATA_SIZE       1500
 #define MIN_ETH_DATA_SIZE         46
 
-#define ETH_HDR_OFFSET 	 0      // Ethernet header at the top of the frame
-#define ETH_HDR_SIZE	14      // size of Ethernet header
-#define MIN_ETH_SIZE     (MIN_ETH_DATA_SIZE + ETH_HDR_SIZE)    // without CRC
+#define ETH_HDR_OFFSET      0      // Ethernet header at the top of the frame
+#define ETH_HDR_SIZE        14      // size of Ethernet header
+#define MIN_ETH_SIZE        (MIN_ETH_DATA_SIZE + ETH_HDR_SIZE)    // without CRC
 
-#define ETH_CRC_SIZE	 4      // size of Ethernet CRC, i.e. FCS
+#define ETH_CRC_SIZE        4      // size of Ethernet CRC, i.e. FCS
 
 
 #define EDRV_FILTER_CHANGE_VALUE                0x01  // filter value changed
@@ -153,7 +150,7 @@ struct _tEdrvTxBuffer
 {
     unsigned int    m_uiTxMsgLen;           // IN: length of message to be send (set for each transmit call)
     DWORD           m_dwTimeOffsetNs;       // IN: delay to a previous frame after which this frame will be transmitted
-	DWORD           m_dwTimeOffsetAbsTk;    // IN: absolute time when frame will be transmitted (in MAC ticks)
+    DWORD           m_dwTimeOffsetAbsTk;    // IN: absolute time when frame will be transmitted (in MAC ticks)
     tEdrvTxHandler  m_pfnTxHandler;         // IN: special Tx callback function
     // ----------------------
     union
@@ -259,7 +256,7 @@ tEplKernel EdrvSendTxMsg            (tEdrvTxBuffer* pBuffer_p);
 tEplKernel EdrvTxMsgReady           (tEdrvTxBuffer* pBuffer_p);
 tEplKernel EdrvTxMsgStart           (tEdrvTxBuffer* pBuffer_p);
 
-tEplKernel EdrvReleaseRxBuffer      (tEdrvRxBuffer* pBuffer_p); 
+tEplKernel EdrvReleaseRxBuffer      (tEdrvRxBuffer* pBuffer_p);
 
 tEplKernel EdrvChangeFilter(tEdrvFilter*    pFilter_p,
                             unsigned int    uiCount_p,
