@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------------------------------------------------
 #-- POWERLINK XPS PLB Component (Peripheral Analyze Order - PAO)
 #--
-#-- 	  Copyright (C) 2011 B&R
+#--       Copyright (C) 2011 B&R
 #--
 #--    Redistribution and use in source and binary forms, with or without
 #--    modification, are permitted provided that the following conditions
@@ -35,12 +35,12 @@
 #------------------------------------------------------------------------------------------------------------------------
 #-- Version History
 #------------------------------------------------------------------------------------------------------------------------
-#-- 2011-11-16	V0.01	zelenkaj	converted to first stable solution
-#-- 2012-01-16	V0.02	zelenkaj	replace plb_* with ipif_master_handler
+#-- 2011-11-16    V0.01    zelenkaj    converted to first stable solution
+#-- 2012-01-16    V0.02    zelenkaj    replace plb_* with ipif_master_handler
 #------------------------------------------------------------------------------------------------------------------------
 
-lib proc_common_v3_00_a  all 
-lib plbv46_slave_single_v1_01_a  all 
+lib proc_common_v3_00_a  all
+lib plbv46_slave_single_v1_01_a  all
 lib plbv46_master_burst_v1_01_a  all
 
 lib plb_powerlink_v1_00_a lib/addr_decoder vhdl

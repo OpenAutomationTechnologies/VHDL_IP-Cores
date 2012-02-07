@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------------------------------------------------
 #-- POWERLINK XPS PLB Component (Microprocessor Driver Definition - MDD)
 #--
-#-- 	  Copyright (C) 2011 B&R
+#--       Copyright (C) 2011 B&R
 #--
 #--    Redistribution and use in source and binary forms, with or without
 #--    modification, are permitted provided that the following conditions
@@ -35,13 +35,13 @@
 #------------------------------------------------------------------------------------------------------------------------
 #-- Version History
 #------------------------------------------------------------------------------------------------------------------------
-#-- 2011-11-18	V0.01	zelenkaj	converted to first stable solution with MAC-layer only
+#-- 2011-11-18    V0.01    zelenkaj    converted to first stable solution with MAC-layer only
 #------------------------------------------------------------------------------------------------------------------------
 
 OPTION psf_version = 2.1;
 
 BEGIN driver powerlink
 
-	OPTION supported_peripherals = (plb_powerlink);
+    OPTION supported_peripherals = (plb_powerlink);
 
 END driver
