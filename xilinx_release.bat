@@ -11,6 +11,7 @@ mkdir release\xilinx_xps\ip_core_repo\powerlink\pcores\plb_powerlink_v1_00_a\doc
 copy active_hdl\src\openMAC\src\*.vhd							release\xilinx_xps\ip_core_repo\powerlink\pcores\plb_powerlink_v1_00_a\hdl\vhdl
 copy active_hdl\src\openMAC\src\openMAC_DMAmaster\*.vhd			release\xilinx_xps\ip_core_repo\powerlink\pcores\plb_powerlink_v1_00_a\hdl\vhdl\openMAC_DMAmaster
 copy active_hdl\src\openMAC\src\openMAC_DMAFifo_Xilinx\*.vhd	release\xilinx_xps\ip_core_repo\powerlink\pcores\plb_powerlink_v1_00_a\hdl\vhdl\openMAC_DMAFifo_Xilinx
+copy active_hdl\src\POWERLINK\src\*.vhd							release\xilinx_xps\ip_core_repo\powerlink\pcores\plb_powerlink_v1_00_a\hdl\vhdl
 copy active_hdl\src\PDI\src\*.vhd							    release\xilinx_xps\ip_core_repo\powerlink\pcores\plb_powerlink_v1_00_a\hdl\vhdl
 copy active_hdl\src\SPI\src\*.vhd							    release\xilinx_xps\ip_core_repo\powerlink\pcores\plb_powerlink_v1_00_a\hdl\vhdl
 copy active_hdl\src\lib\src\*.vhd						        release\xilinx_xps\ip_core_repo\powerlink\pcores\plb_powerlink_v1_00_a\hdl\vhdl\lib
@@ -41,6 +42,7 @@ mkdir release\xilinx_xps\ip_core_repo\powerlink\pcores\axi_powerlink_v1_00_a\doc
 copy active_hdl\src\openMAC\src\*.vhd							release\xilinx_xps\ip_core_repo\powerlink\pcores\axi_powerlink_v1_00_a\hdl\vhdl
 copy active_hdl\src\openMAC\src\openMAC_DMAmaster\*.vhd			release\xilinx_xps\ip_core_repo\powerlink\pcores\axi_powerlink_v1_00_a\hdl\vhdl\openMAC_DMAmaster
 copy active_hdl\src\openMAC\src\openMAC_DMAFifo_Xilinx\*.vhd	release\xilinx_xps\ip_core_repo\powerlink\pcores\axi_powerlink_v1_00_a\hdl\vhdl\openMAC_DMAFifo_Xilinx
+copy active_hdl\src\POWERLINK\src\*.vhd							release\xilinx_xps\ip_core_repo\powerlink\pcores\axi_powerlink_v1_00_a\hdl\vhdl
 copy active_hdl\src\PDI\src\*.vhd							    release\xilinx_xps\ip_core_repo\powerlink\pcores\axi_powerlink_v1_00_a\hdl\vhdl
 copy active_hdl\src\SPI\src\*.vhd							    release\xilinx_xps\ip_core_repo\powerlink\pcores\axi_powerlink_v1_00_a\hdl\vhdl
 copy active_hdl\src\lib\src\*.vhd						        release\xilinx_xps\ip_core_repo\powerlink\pcores\axi_powerlink_v1_00_a\hdl\vhdl\lib
