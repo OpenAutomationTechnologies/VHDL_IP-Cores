@@ -1,5 +1,7 @@
 @echo off
 
+del release\drv /S /Q
+
 mkdir release\drv\openmac\source
 mkdir release\drv\openmac\include
 mkdir release\drv\spi\source
