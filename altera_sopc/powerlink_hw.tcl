@@ -107,6 +107,8 @@
 #-- 2012-01-27  V1.30   zelenkaj    Incremented PdiRev
 #-- 2012-01-31  V1.31   zelenkaj    moved hw event support into "exper mode"
 #--                                 fixed expert mode for dma observer
+#-- 2012-02-21  V1.32   zelenkaj    Changed IP-Core group
+#--                                 Added mif files and removed generation (to support ip-core repo)
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -115,7 +117,7 @@ set_module_property DESCRIPTION "POWERLINK IP-core"
 set_module_property NAME powerlink
 set_module_property VERSION 2.0
 set_module_property INTERNAL false
-set_module_property GROUP POWERLINK
+set_module_property GROUP "Interface Protocols/Ethernet"
 set_module_property AUTHOR "Michael Hogger and Joerg Zelenka"
 set_module_property DISPLAY_NAME "POWERLINK"
 set_module_property TOP_LEVEL_HDL_FILE powerlink.vhd
@@ -161,6 +163,9 @@ add_file src/lib/req_ack.vhd {SYNTHESIS SIMULATION}
 add_file src/lib/sync.vhd {SYNTHESIS SIMULATION}
 add_file src/lib/slow2fastSync.vhd {SYNTHESIS SIMULATION}
 add_file src/lib/memMap.vhd {SYNTHESIS SIMULATION}
+add_file mif/dpr_16_16.mif {SYNTHESIS SIMULATION}
+add_file mif/dpr_16_32.mif {SYNTHESIS SIMULATION}
+add_file mif/pdi_dpr.mif {SYNTHESIS SIMULATION}
 
 #callbacks
 set_module_property VALIDATION_CALLBACK my_validation_callback
@@ -1171,76 +1176,6 @@ proc my_validation_callback {} {
 	set_module_assignment embeddedsw.CMacro.PDIRPDOS				$rpdos
 	set_module_assignment embeddedsw.CMacro.PDITPDOS				$tpdos
 	set_module_assignment embeddedsw.CMacro.FPGAREV					[get_parameter_value iPdiRev_g]
-	
-	#####################################################################
-	# create mif files for dpr (openMAC and PDI)
-	
-	set pdiDprMifName 		"../mif/pdi_dpr.mif"
-	set macDpr1616MifName 	"../mif/dpr_16_16.mif"
-	set macDpr1632MifName 	"../mif/dpr_16_32.mif"
-	
-	if {$configPowerlink == "openMAC only" || $configPowerlink == "Direct I/O CN"} {
-		# no pdi present, therefore delete pdi dpr mif
-		if {[file isdirectory [file dirname $pdiDprMifName]]} {
-			file delete $pdiDprMifName
-		}
-	} else {
-		# for the pdi dpr the size has to be calculated
-		# taken from pdi.vhd constant intCntStReg_c
-		set pdiDprCntStReg [expr 4 * 22]
-		
-		# align buffers before calculate dpr size
-		set tpdo0size [expr ($tpdo0size + 3) & ~3]
-		set rpdo0size [expr ($rpdo0size + 3) & ~3]
-		set rpdo1size [expr ($rpdo1size + 3) & ~3]
-		set rpdo2size [expr ($rpdo2size + 3) & ~3]
-		set asyncBuf1Size [expr ($asyncBuf1Size + 3) & ~3]
-		set asyncBuf2Size [expr ($asyncBuf2Size + 3) & ~3]
-		
-		set pdiDprSize [expr $pdiDprCntStReg + 3* $tpdo0size + 3* $rpdo0size + 3* $rpdo1size + 3* $rpdo2size + 2* $asyncBuf1Size + 2* $asyncBuf2Size]
-		set pdiDprSize [expr $pdiDprSize / 4]
-		set pdiDprHigh [expr $pdiDprSize - 1]
-		
-		# create pdi dpr mif
-		set pdiDprMifData "WIDTH = 32;\n\DEPTH = $pdiDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = HEX;\n\nCONTENT BEGIN\n\t\[ 0 .. 3 \] : 0;\n\t4 : 00EEFFFF;\n\t\[ 5 .. $pdiDprHigh \] : 0;\nEND;\n"
-		
-		if {![file isdirectory [file dirname $pdiDprMifName]]} {
-			file mkdir $pdiDprMifName
-		}
-		
-		set pdiDprMifId [open $pdiDprMifName "w"]
-		puts -nonewline $pdiDprMifId $pdiDprMifData
-		close $pdiDprMifId
-	}
-	
-	# create openMAC 16/16 dpr mif
-	set macDprSize 256
-	set macDprHigh [expr $macDprSize - 1]
-	set macDprMifData "WIDTH = 16;\nDEPTH = $macDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = HEX;\n\nCONTENT BEGIN\n\t\[ 0 .. $macDprHigh \] : 0;\nEND;\n"
-	set macDprMifName $macDpr1616MifName
-	
-	if {![file isdirectory [file dirname $macDprMifName]]} {
-		file mkdir $macDprMifName
-	}
-	
-	set macDprMifId [open $macDprMifName "w"]
-	puts -nonewline $macDprMifId $macDprMifData
-	close $macDprMifId
-	
-	# create openMAC 16/32 dpr mif
-	set macDprSize 256
-	set macDprHigh [expr $macDprSize - 1]
-	set macDprMifData "WIDTH = 16;\nDEPTH = $macDprSize;\nADDRESS_RADIX = UNS;\nDATA_RADIX = HEX;\n\nCONTENT BEGIN\n\t\[ 0 .. $macDprHigh \] : 0;\nEND;\n"
-	set macDprMifName $macDpr1632MifName
-	
-	if {![file isdirectory [file dirname $macDprMifName]]} {
-		file mkdir $macDprMifName
-	}
-	
-	set macDprMifId [open $macDprMifName "w"]
-	puts -nonewline $macDprMifId $macDprMifData
-	close $macDprMifId
-	#####################################################################
 	
 }
 

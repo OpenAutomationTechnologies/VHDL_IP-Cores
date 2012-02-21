@@ -38,6 +38,7 @@
 -- 2010-06-28  	V0.01	zelenkaj	First version
 -- 2010-08-16	V0.02	zelenkaj	changed header
 -- 2012-01-03   V0.03   zelenkaj    added initialization file (mif)
+-- 2012-02-21   V0.05   zelenkaj    replaced initialization files to support ip-core repos
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -138,7 +139,7 @@ BEGIN
 		clock_enable_output_a => "BYPASS",
 		clock_enable_output_b => "BYPASS",
 		indata_reg_b => "CLOCK1",
-        init_file => "mif/pdi_dpr.mif",
+        init_file => "../mif/pdi_dpr.mif",
 		intended_device_family => "Cyclone IV",
 		lpm_type => "altsyncram",
 		numwords_a => NUM_WORDS,
