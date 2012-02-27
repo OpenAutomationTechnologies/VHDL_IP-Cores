@@ -51,6 +51,7 @@
 -- 2011-12-02	V0.45	zelenkaj	Added Dma Request Overflow
 -- 2011-12-05	V0.46	zelenkaj	Minor change of constants (logic level)
 -- 2011-12-23   V0.47   zelenkaj    Improvement of Dma Request Overflow determination
+-- 2012-02-23   V0.48   zelenkaj    Bug Fix: Dma Req Overflow generation faulty in case of hot plugging
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -102,11 +103,13 @@ ARCHITECTURE struct OF OpenMAC IS
 	SIGNAL	Zeit						: std_logic_vector(31 DOWNTO 0);	
 	SIGNAL	Tx_Dma_Req,  Rx_Dma_Req		: std_logic;
 	SIGNAL	Tx_Dma_Ack,  Rx_Dma_Ack		: std_logic;
-	SIGNAL	Tx_Dma_Req_Overflow			: std_logic;
-	SIGNAL	Rx_Dma_Req_Overflow			: std_logic;
 	SIGNAL	Tx_Ram_Dat,  Rx_Ram_Dat		: std_logic_vector(15 DOWNTO 0);
 	SIGNAL	Tx_Reg,		 Rx_Reg			: std_logic_vector(15 DOWNTO 0);
 	SIGNAL	Dma_Tx_Addr, Dma_Rx_Addr	: std_logic_vector(Dma_Addr'RANGE);	
+    SIGNAL  Dma_Req_s, Dma_Rw_s         : std_logic;
+    SIGNAL  halfDuplex                  : std_logic; -- cActivated ... MAC in half-duplex mode
+    SIGNAL  Tx_Active                   : std_logic; -- cActivated ... TX = Data or CRC
+    SIGNAL  Tx_Dma_Very1stOverflow      : std_logic; -- cActivated ... very first TX DMA overflow
 	SIGNAL	Tx_Col						: std_logic;
 	SIGNAL	Sel_Tx_Ram, Sel_Tx_Reg		: std_logic;
 	SIGNAL	Tx_LatchH, Tx_LatchL		: std_logic_vector( 7 DOWNTO 0);
@@ -119,15 +122,46 @@ BEGIN
 				Rx_Reg;
 
 	Mac_Zeit <= Zeit;
-	
-	Dma_Req_Overflow <= Tx_Dma_Req_Overflow or Rx_Dma_Req_Overflow;
+    
+b_DmaObserver : block
+    signal dmaObserverCounter, dmaObserverCounterNext : std_logic_vector(2 downto 0);
+    constant cDmaObserverCounterHalf : std_logic_vector(dmaObserverCounter'range) := "111"; --every 8th cycle
+    constant cDmaObserverCounterFull : std_logic_vector(dmaObserverCounter'range) := "011"; --every 4th cycle
+begin
+    
+    process(Clk, Rst)
+    begin
+        if Rst = '1' then
+            dmaObserverCounter <= (others => cInactivated);
+        elsif rising_edge(Clk) then
+            dmaObserverCounter <= dmaObserverCounterNext;
+        end if;
+    end process;
+    
+    Dma_Req_Overflow <= --very first TX Dma transfer
+                        Dma_Req_s when Tx_Dma_Very1stOverflow = cActivated and Tx_Active = cInactivated else
+                        --RX Dma transfers and TX Dma transfers without the very first
+                        Dma_Req_s when dmaObserverCounter = cDmaObserverCounterHalf and halfDuplex = cActivated else
+                        Dma_Req_s when dmaObserverCounter = cDmaObserverCounterFull and halfDuplex = cInactivated else
+                        cInactivated;
+    
+    dmaObserverCounterNext <= --increment counter if DMA Read req (TX) during data and crc
+                              dmaObserverCounter + 1 when Dma_Req_s = cActivated and Dma_Rw_s = cActivated 
+                                                                                 and Tx_Active = cActivated else
+                              --increment counter if DMA Write req (RX)
+                              dmaObserverCounter + 1 when Dma_Req_s = cActivated and Dma_Rw_s = cInactivated else
+                              (others => cInactivated); --reset DmaObserverCounter if no Dma_Req
+    
+end block;
 
 b_Dma:	BLOCK
 	SIGNAL	Rx_Dma, Tx_Dma	: std_logic;
 BEGIN
-	Dma_Req    <= '1'	WHEN    (Tx_Dma_Req = '1' AND Tx_Dma_Ack = '0') OR Rx_Dma_Req = '1'		ELSE '0';
+	Dma_Req <= Dma_Req_s;
+    Dma_Req_s  <= '1'	WHEN    (Tx_Dma_Req = '1' AND Tx_Dma_Ack = '0') OR Rx_Dma_Req = '1'		ELSE '0';
 
-	Dma_Rw     <= '1'			WHEN   (Rx_Dma = '0' AND Tx_Dma_Req = '1' AND Tx_Dma_Ack = '0') OR Tx_Dma = '1' 	ELSE '0';	
+    Dma_Rw <= Dma_Rw_s;
+    Dma_Rw_s   <= '1'			WHEN   (Rx_Dma = '0' AND Tx_Dma_Req = '1' AND Tx_Dma_Ack = '0') OR Tx_Dma = '1' 	ELSE '0';	
 	Dma_Addr   <= Dma_Tx_Addr	WHEN   (Rx_Dma = '0' AND Tx_Dma_Req = '1' AND Tx_Dma_Ack = '0') OR Tx_Dma = '1' 	ELSE Dma_Rx_Addr;	
 
 	Rx_Dma_Ack <= '1'	WHEN	Rx_Dma = '1' AND Dma_Ack = '1'	ELSE '0';
@@ -198,6 +232,10 @@ BEGIN
 
 	rTx_En  <= Tx_En;
 	rTx_Dat <= Tx_Dat;
+    
+    halfDuplex <= Tx_Half;
+    
+    Tx_Active <= cActivated when Sm_Tx = R_Txd or Sm_Tx = R_Crc else cInactivated;
 
 pTxSm: PROCESS ( Clk, Rst )	 IS
 BEGIN
@@ -423,16 +461,9 @@ BEGIN
 
 	Dma_Rd_Done <= Tx_Done;
 	
-	Tx_Done <= '1' when Dsm = sStat or Dsm = sColl else '0';
+    Tx_Done <= '1' when Dsm = sStat or Dsm = sColl else '0';
     
-    --Read request overflows...
-    -- * before preamble ends
-    -- * during transfer before every 8th cycle (halfx) or 4th cycle (fullx)
-    -- * after exiting crc state (data feteched by dma is not used since crc is calc in hw)
-    Tx_Dma_Req_Overflow <=  '1' when Dibl_Cnt = "01" and Sm_Tx = R_Pre and Tx_Timer(7) = '1' else
-                            '1' when Dibl_Cnt = "10" and Sm_Tx = R_Txd and H_Byte = '0' else
-                            '1' when Dibl_Cnt = "10" and Sm_Tx = R_Crc and Tx_Timer(7) = '1' else
-                            '0';
+    Tx_Dma_Very1stOverflow <= cActivated when Dibl_Cnt = "01" and Sm_Tx = R_Pre and Tx_Timer(7) = '1' else cInactivated;
         
 	Ram_Wr    <= '1' WHEN	s_nWr = '0' AND Sel_Ram = '1' AND s_Adr(10) = '1'	ELSE '0';
 	Ram_Be(1) <= '1' WHEN	s_nWr = '1' OR s_nBE(1) = '0'						ELSE '0';
@@ -952,11 +983,6 @@ BEGIN
     Rx_Done <= '1' when Dsm /= sIdle and Rx_Dsm_Next = sIdle else '0';
     
     Dma_Wr_Done <= Rx_Done;
-	
-	Rx_Dma_Req_Overflow <=  '1' when Dsm = sOdd and Rx_Ovr = '0' else
-                            '1' when Dsm = sData and Rx_Ovr = '0' and F_Val = '1' and Rx_Count(0) = '1' and RX_Count > 1 else
-                            '1' when Rx_Done = '1' else
-                            '0';
 	
 	WrDescStat <= '1' WHEN Dsm = sStat	ELSE '0';	
 
