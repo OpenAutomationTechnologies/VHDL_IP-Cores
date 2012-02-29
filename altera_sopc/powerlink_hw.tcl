@@ -109,6 +109,7 @@
 #--                                 fixed expert mode for dma observer
 #-- 2012-02-21  V1.32   zelenkaj    Changed IP-Core group
 #--                                 Added mif files and removed generation (to support ip-core repo)
+#-- 2012-02-29  V1.33   zelenkaj    Fix buffer size allocation
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -283,7 +284,7 @@ set_parameter_property asyncBuf1Size DISPLAY_NAME "Asynchronous Buffer Nr. 1 Siz
 set_parameter_property asyncBuf1Size DESCRIPTION "The Asynchronous Buffers are used for communication and asynchronous data transfer between PCP and AP. (Asynchronous Buffer Nr. 1 is mandatory)"
 
 add_parameter asyncBuf2Size INTEGER 1514
-set_parameter_property asyncBuf1Size ALLOWED_RANGES 0:2044
+set_parameter_property asyncBuf2Size ALLOWED_RANGES 0:2044
 set_parameter_property asyncBuf2Size UNITS bytes
 set_parameter_property asyncBuf2Size DISPLAY_NAME "Asynchronous Buffer Nr. 2 Size"
 set_parameter_property asyncBuf2Size DESCRIPTION "The Asynchronous Buffers are used for communication and asynchronous data transfer between PCP and AP."
