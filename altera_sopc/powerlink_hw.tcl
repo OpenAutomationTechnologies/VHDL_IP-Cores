@@ -110,6 +110,7 @@
 #-- 2012-02-21  V1.32   zelenkaj    Changed IP-Core group
 #--                                 Added mif files and removed generation (to support ip-core repo)
 #-- 2012-02-29  V1.33   zelenkaj    Fix buffer size allocation
+#-- 2012-03-07  V1.34   zelenkaj    Fix top HDL file path
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -121,52 +122,52 @@ set_module_property INTERNAL false
 set_module_property GROUP "Interface Protocols/Ethernet"
 set_module_property AUTHOR "Michael Hogger and Joerg Zelenka"
 set_module_property DISPLAY_NAME "POWERLINK"
-set_module_property TOP_LEVEL_HDL_FILE powerlink.vhd
+set_module_property TOP_LEVEL_HDL_FILE "src/powerlink.vhd"
 set_module_property TOP_LEVEL_HDL_MODULE powerlink
 set_module_property INSTANTIATE_IN_SYSTEM_MODULE true
 set_module_property EDITABLE FALSE
 set_module_property ANALYZE_HDL TRUE
-set_module_property ICON_PATH img/br.png
+set_module_property ICON_PATH "img/br.png"
 add_documentation_link "POWERLINK IP-Core Documentation" "doc/POWERLINK-IP-Core_Altera.pdf"
 
 #files
-add_file src/powerlink.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi_par.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi_dpr_Altera.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi_tripleVBufLogic.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi_apIrqGen.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi_controlStatusReg.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi_event.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi_led.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi_simpleReg.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenFILTER.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenHUB.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenMAC.vhd {SYNTHESIS SIMULATION}
-add_file src/openMAC_Ethernet.vhd {SYNTHESIS SIMULATION}
-add_file src/openMAC_cmp.vhd {SYNTHESIS SIMULATION}
-add_file src/openMAC_phyAct.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenMAC_DPR_Altera.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenMAC_DMAFifo_Altera.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenMAC_DMAmaster.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenMAC_DMAmaster/dma_handler.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenMAC_DMAmaster/master_handler.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenMAC_PHYMI.vhd {SYNTHESIS SIMULATION}
-add_file src/OpenMAC_rmii2mii.vhd {SYNTHESIS SIMULATION}
-add_file src/portio.vhd {SYNTHESIS SIMULATION}
-add_file src/portio_cnt.vhd {SYNTHESIS SIMULATION}
-add_file src/spi.vhd {SYNTHESIS SIMULATION}
-add_file src/spi_sreg.vhd {SYNTHESIS SIMULATION}
-add_file src/pdi_spi.vhd {SYNTHESIS SIMULATION}
-add_file src/lib/addr_decoder.vhd {SYNTHESIS SIMULATION}
-add_file src/lib/edgedet.vhd {SYNTHESIS SIMULATION}
-add_file src/lib/req_ack.vhd {SYNTHESIS SIMULATION}
-add_file src/lib/sync.vhd {SYNTHESIS SIMULATION}
-add_file src/lib/slow2fastSync.vhd {SYNTHESIS SIMULATION}
-add_file src/lib/memMap.vhd {SYNTHESIS SIMULATION}
-add_file mif/dpr_16_16.mif {SYNTHESIS SIMULATION}
-add_file mif/dpr_16_32.mif {SYNTHESIS SIMULATION}
-add_file mif/pdi_dpr.mif {SYNTHESIS SIMULATION}
+add_file "src/powerlink.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi_par.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi_dpr_Altera.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi_tripleVBufLogic.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi_apIrqGen.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi_controlStatusReg.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi_event.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi_led.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi_simpleReg.vhd" {SYNTHESIS SIMULATION}
+add_file "src/OpenFILTER.vhd" {SYNTHESIS SIMULATION}
+add_file "src/OpenHUB.vhd" {SYNTHESIS SIMULATION}
+add_file "src/OpenMAC.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_Ethernet.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_cmp.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_phyAct.vhd" {SYNTHESIS SIMULATION}
+add_file "src/OpenMAC_DPR_Altera.vhd" {SYNTHESIS SIMULATION}
+add_file "src/OpenMAC_DMAFifo_Altera.vhd" {SYNTHESIS SIMULATION}
+add_file "src/OpenMAC_DMAmaster.vhd" {SYNTHESIS SIMULATION}
+add_file "src/OpenMAC_DMAmaster/dma_handler.vhd" {SYNTHESIS SIMULATION}
+add_file "src/OpenMAC_DMAmaster/master_handler.vhd" {SYNTHESIS SIMULATION}
+add_file "src/OpenMAC_PHYMI.vhd" {SYNTHESIS SIMULATION}
+add_file "src/OpenMAC_rmii2mii.vhd" {SYNTHESIS SIMULATION}
+add_file "src/portio.vhd" {SYNTHESIS SIMULATION}
+add_file "src/portio_cnt.vhd" {SYNTHESIS SIMULATION}
+add_file "src/spi.vhd" {SYNTHESIS SIMULATION}
+add_file "src/spi_sreg.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi_spi.vhd" {SYNTHESIS SIMULATION}
+add_file "src/lib/addr_decoder.vhd" {SYNTHESIS SIMULATION}
+add_file "src/lib/edgedet.vhd" {SYNTHESIS SIMULATION}
+add_file "src/lib/req_ack.vhd" {SYNTHESIS SIMULATION}
+add_file "src/lib/sync.vhd" {SYNTHESIS SIMULATION}
+add_file "src/lib/slow2fastSync.vhd" {SYNTHESIS SIMULATION}
+add_file "src/lib/memMap.vhd" {SYNTHESIS SIMULATION}
+add_file "mif/dpr_16_16.mif" {SYNTHESIS SIMULATION}
+add_file "mif/dpr_16_32.mif" {SYNTHESIS SIMULATION}
+add_file "mif/pdi_dpr.mif" {SYNTHESIS SIMULATION}
 
 #callbacks
 set_module_property VALIDATION_CALLBACK my_validation_callback
