@@ -111,6 +111,7 @@
 #--                                 Added mif files and removed generation (to support ip-core repo)
 #-- 2012-02-29  V1.33   zelenkaj    Fix buffer size allocation
 #-- 2012-03-07  V1.34   zelenkaj    Fix top HDL file path
+#-- 2012-03-13  V1.35   zelenkaj    Forward R/TPDO + async buffer size to system.h
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -722,6 +723,10 @@ proc my_validation_callback {} {
 		send_message error "Set Asynchronous Buffer Nr. 1 Size to at least 20 byte!"
 	}
 	
+    # forward to system.h
+    set_module_assignment embeddedsw.CMacro.PDIASYNCBUFSIZE1        $asyncBuf1Size
+    set_module_assignment embeddedsw.CMacro.PDIASYNCBUFSIZE2        $asyncBuf2Size
+    
 	#set boolean generic
 	if {$asyncBuf1Size == 0} {
 		set_parameter_value genABuf1_g false
@@ -1178,6 +1183,30 @@ proc my_validation_callback {} {
 	set_module_assignment embeddedsw.CMacro.PDIRPDOS				$rpdos
 	set_module_assignment embeddedsw.CMacro.PDITPDOS				$tpdos
 	set_module_assignment embeddedsw.CMacro.FPGAREV					[get_parameter_value iPdiRev_g]
+    
+    set_module_assignment embeddedsw.CMacro.PDITPDOBUFSIZE0         $tpdo0size
+    
+    # RPDO buffer size includes +16!!!
+    # ... set zero if disabled
+    if {$rpdos >= 1} {
+        set rpdo0size   [expr $rpdo0size - 16]
+    } else {
+        set rpdo0size   0
+    }
+    if {$rpdos >= 2} {
+        set rpdo1size   [expr $rpdo1size - 16]
+    } else {
+        set rpdo1size   0
+    }
+    if {$rpdos >= 3} {
+        set rpdo2size   [expr $rpdo2size - 16]
+    } else {
+        set rpdo2size   0
+    }
+    
+    set_module_assignment embeddedsw.CMacro.PDIRPDOBUFSIZE0         $rpdo0size
+    set_module_assignment embeddedsw.CMacro.PDIRPDOBUFSIZE1         $rpdo1size
+    set_module_assignment embeddedsw.CMacro.PDIRPDOBUFSIZE2         $rpdo2size
 	
 }
 
