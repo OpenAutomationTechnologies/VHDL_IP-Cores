@@ -7,6 +7,7 @@ set alterasopc_dir=altera_sopc
 set docu_dir=documentation
 set release_dir=release\altera_sopc
 set ipcore_dir=POWERLINK
+set txt_dir=txt
 
 :: delete directory
 del %release_dir%\%ipcore_dir% /S /Q
@@ -42,6 +43,10 @@ del %release_dir%\%ipcore_dir%\src\openMAC_DMAmaster\ipif_master_handler.vhd
 copy %alterasopc_dir%\%ipcore_name%_hw.tcl                          %release_dir%\%ipcore_dir%
 copy %alterasopc_dir%\*.sdc                                         %release_dir%\%ipcore_dir%\sdc
 copy images\*.*                                                     %release_dir%\%ipcore_dir%\img
+copy %txt_dir%\powerlink_revision.txt                               %release_dir%\%ipcore_dir%\doc
+
+::rename txt
+rename %release_dir%\%ipcore_dir%\doc\powerlink_revision.txt        revision.txt
 
 :: copy documentation
 copy %docu_dir%\*_Generic.pdf                                       %release_dir%\%ipcore_dir%\doc

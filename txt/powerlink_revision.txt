@@ -1,0 +1,29 @@
+------------------------------------------------------------------------------
+POWERLINK IP-CORE
+------------------------------------------------------------------------------
+(C) Bernecker + Rainer, B & R Strasse 1, 5142 Eggelsberg, Austria
+------------------------------------------------------------------------------
+
+Revision History
+==============================================================================
+
+14.11.2011  V0.1.0      First release
+
+29.11.2011  V0.1.1      [FEATURE] OpenMAC DMA Observer
+                        [FEATURE] Wrapper for Xilinx PLB
+
+14.12.2011  V0.1.2      [FEATURE] GUI for POWERLINK IP-Core in XPS with PLB
+
+20.01.2011  V0.1.3      [FIX] Reduction of area utilization
+                        [FIX] MAC_REG connection to 100 MHz PLB possible w/o bridge
+                        [FIX] Async Fifo synchronizer issue and master write hang
+                        [FEATURE] Initialization of M9K
+                        [FEATURE] PDI Time Synchronization HW support
+
+15.03.2011  V0.2.0      [FIX] DMA observer report
+                        [FIX] Complete GUI in SOPC
+                        [FEATURE] Introduction of expert mode
+                        [TASK] Split documentation into generic and platform-specific
+                        [FEATURE] Forward RPDO, TPDO and Async Buffer size to system.h
+                        [FIX] Fix source file paths in powerlink_hw.tcl
+                        [FIX] relocation of mif to support IP-core repository

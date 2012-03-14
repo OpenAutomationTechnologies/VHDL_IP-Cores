@@ -7,6 +7,7 @@ set xilinxxps_dir=xilinx_xps
 set docu_dir=documentation
 set release_dir=release\xilinx_xps\ip_core_repo
 set ipcore_dir=powerlink\pcores\%ipcore_name%_v1_00_a
+set txt_dir=txt
 
 :: delete directory
 del %release_dir%\%ipcore_dir% /S /Q
@@ -27,14 +28,21 @@ copy %activehdl_dir%\src\openMAC\src\openMAC_DMAFifo_Xilinx\*.vhd   %release_dir
 copy %activehdl_dir%\src\PDI\src\*.vhd                              %release_dir%\%ipcore_dir%\hdl\vhdl
 copy %activehdl_dir%\src\POWERLINK\src\*.vhd                        %release_dir%\%ipcore_dir%\hdl\vhdl
 copy %activehdl_dir%\src\SPI\src\*.vhd                              %release_dir%\%ipcore_dir%\hdl\vhdl
-copy %activehdl_dir%\compile\*.vhd                                  %release_dir%\%ipcore_dir%\hdl\vhdl
+copy %activehdl_dir%\compile\plb_powerlink.vhd                      %release_dir%\%ipcore_dir%\hdl\vhdl
+copy %activehdl_dir%\compile\OpenMAC_DMAFifo_Xilinx.vhd             %release_dir%\%ipcore_dir%\hdl\vhdl
+copy %activehdl_dir%\compile\openMAC_DMAmaster.vhd                  %release_dir%\%ipcore_dir%\hdl\vhdl
+copy %activehdl_dir%\compile\openMAC_Ethernet.vhd                   %release_dir%\%ipcore_dir%\hdl\vhdl
 
 :: delete not needed vhdls
-del %release_dir%\%ipcore_dir%\hdl\vhdl\axi_*.vhd
+del %release_dir%\%ipcore_dir%\hdl\vhdl\axi_powerlink.vhd
 del %release_dir%\%ipcore_dir%\hdl\vhdl\*_Altera.vhd
 
 :: copy others
 copy %xilinxxps_dir%\%ipcore_name%*.*                               %release_dir%\%ipcore_dir%\data
+copy %txt_dir%\powerlink_revision.txt                               %release_dir%\%ipcore_dir%\doc
+
+::rename txt
+rename %release_dir%\%ipcore_dir%\doc\powerlink_revision.txt        revision.txt
 
 :: copy documentation
 copy %docu_dir%\*_Generic.pdf                                       %release_dir%\%ipcore_dir%\doc
