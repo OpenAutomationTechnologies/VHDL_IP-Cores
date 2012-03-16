@@ -38,10 +38,10 @@ del %release_dir%\%ipcore_dir%\hdl\vhdl\*_Altera.vhd
 
 :: copy others
 copy %xilinxxps_dir%\%ipcore_name%*.*                               %release_dir%\%ipcore_dir%\data
-copy %txt_dir%\powerlink_revision.txt                               %release_dir%\%ipcore_dir%\doc
+copy %txt_dir%\powerlink_revision.txt                               %release_dir%\%ipcore_dir%
 
 ::rename txt
-rename %release_dir%\%ipcore_dir%\doc\powerlink_revision.txt        revision.txt
+rename %release_dir%\%ipcore_dir%\powerlink_revision.txt            revision.txt
 
 :: copy documentation
 copy %docu_dir%\*_Generic.pdf                                       %release_dir%\%ipcore_dir%\doc
