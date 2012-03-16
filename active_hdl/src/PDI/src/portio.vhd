@@ -138,11 +138,9 @@ begin
 		end if;
 	end process;
     
-    with s0_address select 
-        s0_readdata <=  --read port
-                        sPortInL when '0',
-                        --read port config
-                        x_operational_s & "000" & x"00000" & x"0" & sPortConfig when others;
+    
+    s0_readdata <=  sPortInL when s0_read = '1' and s0_address = '0' else
+        x_operational_s & "000" & x"00000" & x"0" & sPortConfig;
 	
 	thePortioCnters : for i in 0 to 3 generate
 		thePortioCnt : entity work.portio_cnt
