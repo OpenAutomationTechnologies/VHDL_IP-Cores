@@ -39,8 +39,10 @@
 -- 2010-10-04  	V0.02	zelenkaj	Bugfix: PORTDIR was mapped incorrectly (according to doc) to Avalon bus
 -- 2010-11-23	V0.03	zelenkaj	Added Operational Flag to portio
 --									Added counter for valid assertion duration
--- 2010-04-20	V0.10	zelenkaj	Added synchronizer at inputs
+-- 2011-04-20	V0.10	zelenkaj	Added synchronizer at inputs
 -- 2011-12-02	V0.11	zelenkaj	Added I, O and T instead of IO ports
+-- 2012-03-16   V0.12   zelenkaj    Traveled back to the past to change the version history
+--                                  Removed readdata register (saves resources)
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -109,13 +111,11 @@ begin
 	avalonPro : process(clk, reset)
 	begin
 		if reset = '1' then
-			s0_readdata <= (others => '0');
 			x_portOutValid_s <= (others => '0');
 			sPortOut <= (others => '0');
 			x_operational_s <= '0';
 			
 		elsif clk = '1' and clk'event then
-			s0_readdata <= (others => '0');
 			x_portOutValid_s <= (others => '0');
 			
 			if s0_write = '1' then
@@ -134,19 +134,15 @@ begin
 					when others =>
 				end case;
 				
-			elsif s0_read = '1' then
-				case s0_address is
-					when '0' =>	--read port
-						s0_readdata <= sPortInL;
-					when '1' =>	--read port config
-						s0_readdata <= x_operational_s & "000" & x"00000" & x"0" & sPortConfig;
-					when others =>
-							s0_readdata <= x"deadc0de";
-				end case;
-				
 			end if;
 		end if;
 	end process;
+    
+    with s0_address select 
+        s0_readdata <=  --read port
+                        sPortInL when '0',
+                        --read port config
+                        x_operational_s & "000" & x"00000" & x"0" & sPortConfig when others;
 	
 	thePortioCnters : for i in 0 to 3 generate
 		thePortioCnt : entity work.portio_cnt
