@@ -36,15 +36,16 @@
 -- Version History
 ------------------------------------------------------------------------------------------------------------------------      
 --  2009-08-07  V0.01	zelenkaj	Converted to official version.
---	2011-10-12	V0.10	zelenkaj	Implementation is based on UG687 (v13.2)
+--	2011-10-12	V0.10	zelenkaj	Implementation is based on UG687 (v13.2)     
+--	2012-03-01	V0.11	mairt   	added memory init for pdi dpr
 ------------------------------------------------------------------------------------------------------------------------
 --
 
--- dual clocked DPRAM for XILINX SPARTAN 6 --
+-- dual clocked DPRAM for XILINX SPARTAN 6 -- 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-use ieee.std_logic_arith.all;
+use ieee.std_logic_arith.all;  
 
 entity dc_dpr is
 	generic (
@@ -128,9 +129,10 @@ use ieee.std_logic_arith.all;
 
 entity dc_dpr_be is
 	generic (
-		WIDTH      	: integer := 16;
-		SIZE       	: integer := 128;
-		ADDRWIDTH  	: integer := 7
+        gDoInit       : boolean := false; -- if dpr is used in pdi init state field with invalid state
+        WIDTH      	  : integer := 16;
+		SIZE       	  : integer := 128;
+		ADDRWIDTH  	  : integer := 7
 	);
 	
 	port (
@@ -164,10 +166,25 @@ architecture xilinx of dc_dpr_be is
         end loop;
         return res;
   end function Log2;
-
-  type ramType is array (0 to SIZE-1) of std_logic_vector(WIDTH-1 downto 0);
-  shared variable ram : ramType := (others => (others => '0'));
   
+  type ramType is array (0 to SIZE-1) of std_logic_vector(WIDTH-1 downto 0);
+  
+  function InitRam return ramType is
+      variable RAM : ramType := (others => (others => '0'));
+  begin  
+      if gDoInit = true then
+          for i in ramType'range loop
+              RAM(i) := X"00000000";
+              if i = 4 then -- init state field with invalid state
+                  RAM(i) := X"00EEFFFF";   
+              end if;
+          end loop;
+      end if;
+      
+      return RAM;
+  end function;
+  
+  shared variable ram : ramType := InitRam;
   constant BYTE : integer := 8;
   
   signal readA : std_logic_vector(WIDTH-1 downto 0):= (others => '0');
@@ -240,6 +257,7 @@ begin
 	
 	dpr_packet:		entity work.dc_dpr_be
 	generic map (
+        gDoInit => false,
 		WIDTH => 16,
 		SIZE => 2**AddrA'length,
 		ADDRWIDTH => AddrA'length
@@ -284,6 +302,7 @@ begin
 	
 	dpr_packet:		entity work.dc_dpr_be
 	generic map (
+        gDoInit => false,
 		WIDTH => 32,
 		SIZE => 2**AddrB'length,
 		ADDRWIDTH => AddrB'length
@@ -349,6 +368,7 @@ begin
 	
 	dpr_packet:		entity work.dc_dpr_be
 	generic map (
+        gDoInit => false,
 		WIDTH => 32,
 		SIZE => memSize_g/4,
 		ADDRWIDTH => memSizeLOG2_g-2

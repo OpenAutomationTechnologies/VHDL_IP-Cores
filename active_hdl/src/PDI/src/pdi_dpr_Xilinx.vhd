@@ -71,7 +71,8 @@ begin
 	
 	abuseMacDpr : entity work.dc_dpr_be
 	generic map (
-		WIDTH => data_a'length,
+        gDoInit => true,
+        WIDTH => data_a'length,
 		SIZE => NUM_WORDS,
 		ADDRWIDTH => LOG2_NUM_WORDS
 	)
