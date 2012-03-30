@@ -52,6 +52,7 @@
 -------------------------------------------------------------------------------
 -- 2011-09-12	V0.01	zelenkaj	Initial creation
 -- 2011-10-10	V0.02	zelenkaj	Split bus ack into wr/rd and bug fix
+-- 2012-03-21   V0.03   zelenkaj    Added endian generic
 -------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -61,7 +62,8 @@ USE ieee.std_logic_arith.ALL;
 
 entity openMAC_16to32conv is
 	generic(
-		bus_address_width : integer := 10
+        gEndian : string := "little";
+        bus_address_width : integer := 10
 	);
 	port(
 		clk : in std_logic;
@@ -128,7 +130,7 @@ begin
 	s_read <= bus_read and bus_select;
 	cnt_dec <= (not s_waitrequest) and bus_select;
 	
-	bus_readdata <= word_reg & s_readdata when bus_access = dword else
+	bus_readdata <= s_readdata & word_reg when bus_access = dword else
 					s_readdata & s_readdata;
 	
 	bus_ack <= 	'1' when cnt = 1 and s_waitrequest = '0' and bus_access = dword else
@@ -139,18 +141,20 @@ begin
 	bus_ack_rd <= bus_ack and bus_read;
 	
 	s_address(bus_address_width-1 downto 1) <= '0' & bus_address(bus_address_width-1 downto 2);
-	--word address set to +0 when first dword access or word access with selected word/byte
-	s_address(0) <= '0' when bus_access = dword and cnt = 2 else --first word of dword access
-					'1' when bus_access = dword and cnt = 1 else	
+	--word address set to +0 (little) when first dword access or word access with selected word/byte
+	s_address(0) <= '0' when bus_access = dword and (cnt = 2 or cnt = 0) and gEndian = "little" else --first word of dword access
+                    '1' when bus_access = dword and cnt = 1 and gEndian = "little" else
+                    '1' when bus_access = dword and (cnt = 2 or cnt = 0) and gEndian = "big" else
+                    '0' when bus_access = dword and cnt = 1 and gEndian = "big" else --first word of dword access
 					bus_address(1);
 	
 	s_byteenable <= "11" when bus_access = dword else
 					bus_byteenable(3 downto 2) or bus_byteenable(1 downto 0);
 	
-	s_writedata <= 	bus_writedata(31 downto 16) when bus_access = dword and cnt = 2 else
-					bus_writedata(15 downto 0) when bus_access = dword and cnt = 1 else
-					bus_writedata(31 downto 16) when bus_address(1) = '0' else
-					bus_writedata(15 downto 0); --when bus_address(1) = '1' else
+	s_writedata <= 	bus_writedata(15 downto 0) when bus_access = dword and (cnt = 2 or cnt = 0) else
+					bus_writedata(31 downto 16) when bus_access = dword and cnt = 1 else
+					bus_writedata(15 downto 0) when bus_address(1) = '0' else
+					bus_writedata(31 downto 16); --when bus_address(1) = '1' else
 	
 	--fsm
 	bus_access <= 	none when bus_select /= '1' else

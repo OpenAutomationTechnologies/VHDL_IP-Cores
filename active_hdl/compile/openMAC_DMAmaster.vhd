@@ -49,6 +49,7 @@
 -- 2011-11-30	V0.05	zelenkaj	Added generic for DMA observer
 -- 2011-12-02	V0.06	zelenkaj	Added Dma Req Overflow
 -- 2011-12-05	V0.07	zelenkaj	Reduced Dma Req overflow 
+-- 2012-03-21   V0.10   zelenkaj    Fixed 32 bit FIFO to support openMAC endian
 --
 -------------------------------------------------------------------------------
 
@@ -72,7 +73,6 @@ entity openMAC_DMAmaster is
        tx_fifo_word_size_g : integer := 32;
        rx_fifo_word_size_g : integer := 32;
        fifo_data_width_g : integer := 16;
-       endian_g : string := "little";
        gen_dma_observer_g : boolean := true
   );
   port(
@@ -436,11 +436,9 @@ begin
            wr_usedw => rx_wr_usedw( rx_fifo_word_size_log2_c-1 downto 0 )
       );
   end generate rxFifoGen;
-  --endian conversion
-wr_data <= dma_dout(7 downto 0) & dma_dout(15 downto 8) when endian_g = "little" else
-		dma_dout;
-dma_din <= rd_data(7 downto 0) & rd_data(15 downto 8) when endian_g = "little" else
-		rd_data;
+  --
+wr_data <= dma_dout;
+dma_din <= rd_data;
 end generate gen16bitFifo;
 
 genRxAddrSync : if gen_rx_fifo_g generate
@@ -514,8 +512,8 @@ begin
     
     tx_rd_req_s <= tx_rd_req when tx_rd_sel_word = '0' else '0';
     
-    dma_din <= 	rd_data(31 downto 16) when tx_rd_sel_word = '1' else
-    			rd_data(15 downto 0);
+    dma_din <= 	rd_data(15 downto 0) when tx_rd_sel_word = '1' else
+                rd_data(31 downto 16);
   end generate txFifoGen32;
 
   rxFifoGen32 : if gen_rx_fifo_g generate
@@ -567,7 +565,7 @@ begin
     	end if;
     end process;
     
-    wr_data <= wr_data_s & dma_dout;
+    wr_data <=  dma_dout & wr_data_s;
   end generate rxFifoGen32;
 end generate gen32bitFifo;
 

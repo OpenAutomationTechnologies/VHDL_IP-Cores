@@ -55,6 +55,7 @@
 -- 2011-12-02   V0.08    zelenkaj    Added Dma Req Overflow
 -- 2011-12-05   V0.09    zelenkaj    Reduced Dma Req overflow vector
 -- 2012-01-26   V0.10    zelenkaj    Revised SMI to use one SMI with two phys
+-- 2012-03-21   V0.20    zelenkaj    redesigned endian conversion
 --
 -------------------------------------------------------------------------------
 
@@ -289,7 +290,6 @@ end component;
 component openMAC_DMAmaster
   generic(
        dma_highadr_g : integer := 31;
-       endian_g : string := "little";
        fifo_data_width_g : integer := 16;
        gen_dma_observer_g : boolean := true;
        gen_rx_fifo_g : boolean := true;
@@ -529,39 +529,46 @@ signal smi_be_n : std_logic_vector (1 downto 0);
 signal smi_din : std_logic_vector (15 downto 0);
 signal smi_dout : std_logic_vector (15 downto 0);
 signal s_address_s : std_logic_vector (s_address'length downto 0);
+signal t_readdata_s : std_logic_vector (31 downto 0);
+signal t_writedata_s : std_logic_vector (31 downto 0);
 
 begin
 
 ---- User Signal Assignments ----
---assign address bus and be to openMAC
-mac_addr <= 
-	s_address(9 downto 1) & s_address(0) when mac_selfilter = '1' and endian_g = "little" else
-	s_address(9 downto 1) & not s_address(0) when endian_g = "little" else
-	s_address(9 downto 1) & s_address(0); -- when endian_g = "big" else
+--endian conversion
+t_writedata_s <=    t_writedata(7 downto 0) & t_writedata(15 downto 8) &
+                    t_writedata(23 downto 16) & t_writedata(31 downto 24) when endian_g = "big" else
+                    t_writedata;
 
-mac_be <= 
-	s_byteenable(0) & s_byteenable(1) when endian_g = "little" else
-	s_byteenable;
+t_readdata <=   t_readdata_s(7 downto 0) & t_readdata_s(15 downto 8) &
+                t_readdata_s(23 downto 16) & t_readdata_s(31 downto 24) when endian_g = "big" else
+                t_readdata_s;
+--assign address bus and be to openMA
+mac_addr <= s_address(9 downto 0);
+mac_be <= s_byteenable;
 --convert word into byte addresses
 s_address_s <= s_address & '0';
 smi_addr <= s_address(2 downto 0);
 smi_be <= s_byteenable;
 --assign output data to readdata
 s_readdata <=
-	mac_dout(15 downto 8) & mac_dout(7 downto 0) when (mac_selram = '1' or mac_selcont = '1') and s_byteenable = "11" and endian_g = "little" else
-	mac_dout(7 downto 0) & mac_dout(15 downto 8) when (mac_selram = '1' or mac_selcont = '1') and endian_g = "little" else
-	mac_dout when (mac_selram = '1' or mac_selcont = '1') and endian_g = "big" else
-	smi_dout when smi_sel = '1' else
-	irqTable when irqTable_sel = '1' else
-	(8 => dma_rd_err, 0 => dma_wr_err, others => '0') when dmaErr_sel = '1' else
-	(others => '0');
+    mac_dout when (mac_selram = '1' or mac_selcont = '1') and endian_g = "little" else
+    mac_dout when (mac_selram = '1' or mac_selcont = '1') and endian_g = "big" and s_byteenable /= "11" else
+    mac_dout(7 downto 0) & mac_dout(15 downto 8) when (mac_selram = '1' or mac_selcont = '1') and endian_g = "big" else --and s_byteenable = "11"
+    smi_dout when smi_sel = '1' and endian_g = "little" else
+    smi_dout when smi_sel = '1' and endian_g = "big" and s_byteenable /= "11" else
+    smi_dout(7 downto 0) & smi_dout(15 downto 8) when smi_sel = '1' and endian_g = "big" else --and s_byteenable = "11"
+    irqTable when irqTable_sel = '1' and endian_g = "little" else
+    irqTable(7 downto 0) & irqTable(15 downto 8) when irqTable_sel = '1' and endian_g = "big" else
+    (8 => dma_rd_err, 0 => dma_wr_err, others => '0') when dmaErr_sel = '1' and endian_g = "little" else
+    (8 => dma_rd_err, 0 => dma_wr_err, others => '0') when dmaErr_sel = '1' and endian_g = "big" else
+    (others => '0');
 --assign writedata to input data
-mac_din <=
-	s_writedata(15 downto 8) & s_writedata(7 downto 0) when s_byteenable = "11" and endian_g = "little" else
-	s_writedata(7 downto 0) & s_writedata(15 downto 8) when endian_g = "little" else
-	s_writedata; -- when endian_g = "big" else
+mac_din <=  s_writedata when endian_g = "little" or (endian_g = "big" and s_byteenable /= "11") else
+            s_writedata(7 downto 0) & s_writedata(15 downto 8); --when endian_g = "big" and s_byteenable = "11"
 
-smi_din <= s_writedata;
+smi_din <=  s_writedata when endian_g = "little" or (endian_g = "big" and s_byteenable /= "11") else
+            s_writedata(7 downto 0) & s_writedata(15 downto 8); --when endian_g = "big" and s_byteenable = "11"
 
 ----  Component instantiations  ----
 
@@ -573,8 +580,8 @@ THE_MAC_TIME_CMP : openMAC_cmp
   port map(
        addr => t_address,
        clk => clk,
-       din => t_writedata,
-       dout => t_readdata,
+       din => t_writedata_s,
+       dout => t_readdata_s,
        irq => t_irq,
        mac_time => mac_time( 31 downto 0 ),
        rst => rst,
@@ -1098,15 +1105,9 @@ begin
     );
 
   --endian conversion
-dma_dout_s <= 
-	dma_dout(7 downto 0) & dma_dout(15 downto 8) when endian_g = "little" else
-	dma_dout;
-dma_din <= 
-	dma_din_s(7 downto 0) & dma_din_s(15 downto 8) when endian_g = "little" else
-	dma_din_s;
-dma_addr_s(iPktBufSizeLog2_g-1 downto 1) <=
-	dma_addr(iPktBufSizeLog2_g-1 downto 2) & dma_addr(1) when endian_g = "little" else
-	dma_addr(iPktBufSizeLog2_g-1 downto 2) & not dma_addr(1);
+dma_dout_s <= dma_dout;
+dma_din <= dma_din_s;
+dma_addr_s(iPktBufSizeLog2_g-1 downto 1) <= dma_addr(iPktBufSizeLog2_g-1 downto 1);
   --write DPR from port A only if RX data is written to DPR
 write_a <= dma_req_write when useRxIntPktBuf_g = TRUE else '0';
 
@@ -1143,7 +1144,6 @@ begin
   THE_MAC_DMA_MASTER : openMAC_DMAmaster
     generic map (
          dma_highadr_g => dma_highadr_g,
-         endian_g => endian_g,
          fifo_data_width_g => fifo_data_width_c,
          gen_dma_observer_g => gen_dma_observer_g,
          gen_rx_fifo_g => gen_rx_fifo_c,

@@ -52,6 +52,7 @@
 -- 2011-12-05	V0.46	zelenkaj	Minor change of constants (logic level)
 -- 2011-12-23   V0.47   zelenkaj    Improvement of Dma Request Overflow determination
 -- 2012-02-23   V0.48   zelenkaj    Bug Fix: Dma Req Overflow generation faulty in case of hot plugging
+-- 2012-03-20   V0.50   zelenkaj    Converted openMAC to little endian
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -197,8 +198,8 @@ BEGIN
 		ELSE											Tx_Dma_Ack <= '0';
 		END IF;
 		
-		IF	Tx_Dma_Ack = '1'		THEN	Tx_LatchH <= Dma_Din(15 DOWNTO 8);
-											Tx_LatchL <= Dma_Din( 7 DOWNTO 0);
+		IF	Tx_Dma_Ack = '1'		THEN	Tx_LatchL <= Dma_Din(15 DOWNTO 8);
+											Tx_LatchH <= Dma_Din( 7 DOWNTO 0);
 		END IF;
 
 	END IF; 
@@ -495,7 +496,7 @@ BEGIN
 				 '1' & Ext_Desc & DescIdx;
 
 gTxTime:	IF Timer GENERATE
-	DescRam_In <= Zeit(31 DOWNTO 16)		WHEN	Dsm  = sTimH	ELSE
+	DescRam_In <= Zeit(15 DOWNTO 0)		    WHEN	Dsm  = sTimH	ELSE
 				  ZeitL						WHEN	Dsm  = sTimL	ELSE
 				  x"000" & "01" & Tx_Ident	WHEN	Dsm  = sBegL	ELSE
 				  Tx_Dma_Out & Tx_Sync & "00" & "0100" & "00" & "0" & "0" & Col_Cnt;
@@ -589,7 +590,7 @@ BEGIN
 	ELSIF	rising_edge( Clk ) 	THEN
 		
 		IF	TxSyncOn  = true	THEN 
-			IF		Tx_Sync = '1' AND Dsm = sBegL AND (Tx_Cmp_High & DescRam_Out) = Zeit	THEN	Tx_Beg <= '1';
+			IF		Tx_Sync = '1' AND Dsm = sBegL AND (DescRam_Out & Tx_Cmp_High ) = Zeit	THEN	Tx_Beg <= '1';
 			ELSE																					Tx_Beg <= '0';	
 			END IF;
 		END IF;
@@ -599,7 +600,7 @@ BEGIN
 		END IF;
 
 		IF Timer THEN
-			IF	Dsm  = sTimH	THEN	ZeitL <= Zeit(15 DOWNTO 0);
+			IF	Dsm  = sTimH	THEN	ZeitL <= Zeit(31 DOWNTO 16);
 			END IF;
 		END IF;
 
@@ -649,8 +650,8 @@ BEGIN
 		
 		if	TxDel = true and Tx_Del = '1' then
 			if	Dsm = sBegH							then	Tx_Del_Cnt(Tx_Del_Cnt'high)	<= '0';
-															Tx_Del_Cnt(31 downto 16)	<= DescRam_Out;
-			elsif	Dsm = sBegL						then	Tx_Del_Cnt(15 downto  0) <= DescRam_Out;
+															Tx_Del_Cnt(15 downto 0)	<= DescRam_Out;
+			elsif	Dsm = sBegL						then	Tx_Del_Cnt(31 downto 16) <= DescRam_Out;
 			elsif	Dsm = sDel and Tx_Del_Run = '1'	then	Tx_Del_Cnt <= Tx_Del_Cnt - 1;
 			end if;
 
@@ -660,13 +661,15 @@ BEGIN
 
 		end if;
 		
-		IF		Dsm = sAdrL		 THEN	Dma_Tx_Addr(15 DOWNTO 1)	<= DescRam_Out(15 DOWNTO 1);	
+		IF		Dsm = sAdrL		 THEN	--Dma_Tx_Addr(15 DOWNTO 1)	<= DescRam_Out(15 DOWNTO 1);
+				Dma_Tx_Addr(Dma_Addr'high DOWNTO 16) <= DescRam_Out(Dma_Addr'high-16 DOWNTO 0);
+				Tx_Ident <= DescRam_Out(15 DOWNTO 14);
 		ELSIF	Tx_Dma_Ack = '1' THEN	Dma_Tx_Addr(15 DOWNTO 1)	<= Dma_Tx_Addr(15 DOWNTO 1) + 1;	
 		END IF;
 
-		IF		Dsm = sAdrH		 THEN	
-				Dma_Tx_Addr(Dma_Addr'high DOWNTO 16) <= DescRam_Out(Dma_Addr'high-16 DOWNTO 0);
-				Tx_Ident <= DescRam_Out(15 DOWNTO 14);
+		IF		Dsm = sAdrH		 THEN	Dma_Tx_Addr(15 DOWNTO 1)	<= DescRam_Out(15 DOWNTO 1);
+--				Dma_Tx_Addr(Dma_Addr'high DOWNTO 16) <= DescRam_Out(Dma_Addr'high-16 DOWNTO 0);
+--				Tx_Ident <= DescRam_Out(15 DOWNTO 14);
 		ELSIF	Tx_Dma_Ack = '1' AND Dma_Tx_Addr(15 DOWNTO 1) = x"FFF" & "111"	THEN	
 				Dma_Tx_Addr(Dma_Addr'high DOWNTO 16) <= Dma_Tx_Addr(Dma_Addr'high DOWNTO 16) + 1;	
 		END IF;
@@ -1008,7 +1011,7 @@ BEGIN
 	Desc_Addr <= "0" & Rx_Desc & DescIdx;	
 
 gRxTime:	IF timer GENERATE
-	DescRam_In <= Zeit(31 DOWNTO 16)			WHEN	Dsm = sTimH		ELSE
+	DescRam_In <= Zeit(15 DOWNTO 0)			    WHEN	Dsm = sTimH		ELSE
 				  ZeitL							WHEN	Dsm = sTimL		ELSE
 				  x"0"  & Rx_Count				WHEN	Dsm = sLenW		ELSE
 				  Rx_Dma_Out & '0' & "0" & A_Err & Hub_Rx_L & "00" & Match_Desc & N_Err & P_Err & Rx_Ovr & F_Err;
@@ -1077,7 +1080,7 @@ BEGIN
 	ELSIF	rising_edge( Clk ) 	THEN
 
 		IF	Timer	THEN
-			IF		Dsm  = sTimH	THEN	ZeitL <= Zeit(15 DOWNTO 0);
+			IF		Dsm  = sTimH	THEN	ZeitL <= Zeit(31 DOWNTO 16);
 			END IF;
 		END IF;
 
@@ -1105,12 +1108,13 @@ BEGIN
 		END IF;
 
 		
-		IF		Dsm = sAdrL		 THEN	Dma_Rx_Addr(15 DOWNTO 1) <= DescRam_Out(15 DOWNTO 1);	
+		IF		Dsm = sAdrL		 THEN	--Dma_Rx_Addr(15 DOWNTO 1) <= DescRam_Out(15 DOWNTO 1);	
+            Dma_Rx_Addr(Dma_Addr'high DOWNTO 16) <= DescRam_Out(Dma_Addr'high-16 DOWNTO 0);
 		ELSIF	Rx_Dma_Ack = '1' THEN	Dma_Rx_Addr(15 DOWNTO 1) <= Dma_Rx_Addr(15 DOWNTO 1) + 1;	
 		END IF;
 
-		IF		Dsm = sAdrH		 THEN	
-				Dma_Rx_Addr(Dma_Addr'high DOWNTO 16) <= DescRam_Out(Dma_Addr'high-16 DOWNTO 0);
+		IF		Dsm = sAdrH		 THEN	Dma_Rx_Addr(15 DOWNTO 1) <= DescRam_Out(15 DOWNTO 1);	
+				--Dma_Rx_Addr(Dma_Addr'high DOWNTO 16) <= DescRam_Out(Dma_Addr'high-16 DOWNTO 0);
 		ELSIF	Rx_Dma_Ack = '1' AND Dma_Rx_Addr(15 DOWNTO 1) = x"FFF" & "111"	THEN	
 				Dma_Rx_Addr(Dma_Addr'high DOWNTO 16) <= Dma_Rx_Addr(Dma_Addr'high DOWNTO 16) + 1;	
 		END IF;
@@ -1126,7 +1130,7 @@ BEGIN
 
 END PROCESS pRxControl;
 
-	Dma_Dout <= Rx_LatchH & Rx_LatchL;
+	Dma_Dout <= Rx_LatchL & Rx_LatchH; --Rx_LatchH & Rx_LatchL;
 
 	nRx_Int <= '1'	WHEN	Rx_Icnt = 0 OR Rx_Ie = '0'	 	ELSE	'0';
 

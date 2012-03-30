@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 34294
+ FREEID 34828
  VARIABLES
  {
   #ARCHITECTURE="strct"
@@ -2108,6 +2108,7 @@ PAGE ""
 "-- 2011-11-30\tV0.05\tzelenkaj\tAdded generic for DMA observer\n"+
 "-- 2011-12-02\tV0.06\tzelenkaj\tAdded Dma Req Overflow\n"+
 "-- 2011-12-05\tV0.07\tzelenkaj\tReduced Dma Req overflow \n"+
+"-- 2012-03-21   V0.10   zelenkaj    Fixed 32 bit FIFO to support openMAC endian\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -2455,32 +2456,6 @@ PAGE ""
    NET 20117
    VTX 20321, 20322
   }
-  GENERIC  23282, 0, 0
-  {
-   LABEL "Generic"
-   TEXT 
-"simulate : boolean := false;\n"+
-"dma_highadr_g : integer := 31;\n"+
-"gen_tx_fifo_g : boolean := true;\n"+
-"gen_rx_fifo_g : boolean := true;\n"+
-"m_burstcount_width_g : integer := 4;\n"+
-"m_burstcount_const_g : boolean := true;\n"+
-"m_tx_burst_size_g : integer := 16;\n"+
-"m_rx_burst_size_g : integer := 16;\n"+
-"tx_fifo_word_size_g : integer := 32;\n"+
-"rx_fifo_word_size_g : integer := 32;\n"+
-"fifo_data_width_g : integer := 16;\n"+
-"endian_g : string := \"little\";\n"+
-"gen_dma_observer_g : boolean := true;\n"+
-""
-   RECT (2060,940,3020,1440)
-   MARGINS (20,20)
-   MULTILINE
-   SYNTAXCOLORED
-   SHOWLABEL
-   SHOWTEXT
-   CORNER 10
-  }
   VTX  28072, 0, 0
   {
    COORD (1120,1620)
@@ -2578,6 +2553,31 @@ PAGE ""
   {
    NET 20099
    VTX 28082, 28083
+  }
+  GENERIC  34781, 0, 0
+  {
+   LABEL "Generic"
+   TEXT 
+"simulate : boolean := false;\n"+
+"dma_highadr_g : integer := 31;\n"+
+"gen_tx_fifo_g : boolean := true;\n"+
+"gen_rx_fifo_g : boolean := true;\n"+
+"m_burstcount_width_g : integer := 4;\n"+
+"m_burstcount_const_g : boolean := true;\n"+
+"m_tx_burst_size_g : integer := 16;\n"+
+"m_rx_burst_size_g : integer := 16;\n"+
+"tx_fifo_word_size_g : integer := 32;\n"+
+"rx_fifo_word_size_g : integer := 32;\n"+
+"fifo_data_width_g : integer := 16;\n"+
+"gen_dma_observer_g : boolean := true;\n"+
+""
+   RECT (1760,1060,2380,1520)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   CORNER 10
   }
  }
  
@@ -3182,11 +3182,9 @@ PAGE "16 bit FIFO"
   {
    LABEL "endianConv"
    TEXT 
-"--endian conversion\n"+
-"wr_data <= dma_dout(7 downto 0) & dma_dout(15 downto 8) when endian_g = \"little\" else\n"+
-"\t\tdma_dout;\n"+
-"dma_din <= rd_data(7 downto 0) & rd_data(15 downto 8) when endian_g = \"little\" else\n"+
-"\t\trd_data;"
+"--\n"+
+"wr_data <= dma_dout;\n"+
+"dma_din <= rd_data;"
    RECT (480,1800,2180,2020)
    MARGINS (20,20)
    MULTILINE
@@ -4936,6 +4934,7 @@ PAGE "BUS MASTER HANDLER"
    VARIABLES
    {
     #COMPONENT="BusOutput"
+    #DOWNTO="1"
     #LIBRARY="#terminals"
     #REFERENCE="m_address(dma_highadr_g:0)"
     #SYMBOL="BusOutput"
@@ -7026,7 +7025,6 @@ PAGE "32 bit FIFO"
     #COMPONENT="BusOutput"
     #DOWNTO="1"
     #LIBRARY="#terminals"
-    #MDA_RECORD_TOKEN="OTHER"
     #REFERENCE="m_writedata(fifo_data_width_g-1:0)"
     #SYMBOL="BusOutput"
    }
@@ -7068,7 +7066,6 @@ PAGE "32 bit FIFO"
    VARIABLES
    {
     #COMPONENT="BusInput"
-    #DOWNTO="1"
     #LIBRARY="#terminals"
     #REFERENCE="dma_dout(15:0)"
     #SYMBOL="BusInput"
@@ -7089,7 +7086,6 @@ PAGE "32 bit FIFO"
    VARIABLES
    {
     #COMPONENT="BusOutput"
-    #DOWNTO="1"
     #LIBRARY="#terminals"
     #REFERENCE="dma_din(15:0)"
     #SYMBOL="BusOutput"
@@ -7629,17 +7625,8 @@ PAGE "32 bit FIFO"
 "\n"+
 "tx_rd_req_s <= tx_rd_req when tx_rd_sel_word = '0' else '0';\n"+
 "\n"+
-"dma_din <= \trd_data(31 downto 16) when tx_rd_sel_word = '1' else\n"+
-"\t\t\trd_data(15 downto 0);\n"+
-"\n"+
-"\n"+
-"\n"+
-"\n"+
-"\n"+
-"\n"+
-"\n"+
-"\n"+
-"\n"+
+"dma_din <= \trd_data(15 downto 0) when tx_rd_sel_word = '1' else\n"+
+"            rd_data(31 downto 16);\n"+
 "\n"+
 "\n"+
 ""
@@ -7746,23 +7733,6 @@ PAGE "32 bit FIFO"
     #NAMED="1"
    }
   }
-  VTX  26145, 0, 0
-  {
-   COORD (2320,760)
-  }
-  VTX  26146, 0, 0
-  {
-   COORD (2640,760)
-  }
-  WIRE  26148, 0, 0
-  {
-   NET 26149
-   VTX 26145, 26146
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
   NET WIRE  26149, 0, 0
   {
    VARIABLES
@@ -7773,10 +7743,10 @@ PAGE "32 bit FIFO"
   TEXT  26150, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2398,730,2562,759)
+   RECT (2058,730,2222,759)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 26148
+   PARENT 34627
   }
   NET BUS  26171, 0, 0
   {
@@ -7844,7 +7814,9 @@ PAGE "32 bit FIFO"
 "\tend if;\n"+
 "end process;\n"+
 "\n"+
-"wr_data <= wr_data_s & dma_dout;\n"+
+"wr_data <=  dma_dout & wr_data_s;\n"+
+"\n"+
+"\n"+
 ""
    RECT (640,1240,760,1380)
    MARGINS (20,20)
@@ -7890,6 +7862,23 @@ PAGE "32 bit FIFO"
    NET 25743
    VTX 27307, 27308
   }
+  VTX  34625, 0, 0
+  {
+   COORD (1980,760)
+  }
+  VTX  34626, 0, 0
+  {
+   COORD (2300,760)
+  }
+  WIRE  34627, 0, 0
+  {
+   NET 26149
+   VTX 34625, 34626
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
  }
  
 }
@@ -7915,7 +7904,7 @@ PAGE ""
  
  BODY
  {
-  TEXT  34277, 0, 0
+  TEXT  34811, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7926,7 +7915,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34278, 0, 0
+  TEXT  34812, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -7937,7 +7926,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  34279, 0, 0
+  TEXT  34813, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -7947,7 +7936,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34280, 0, 0
+  TEXT  34814, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7959,7 +7948,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  34281, 0, 0
+  TEXT  34815, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -7973,7 +7962,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  34282, 0, 0
+  TEXT  34816, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -7983,7 +7972,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34283, 0, 0
+  TEXT  34817, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7995,7 +7984,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  34284, 0, 0
+  TEXT  34818, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -8005,7 +7994,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34285, 0, 0
+  TEXT  34819, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -8016,7 +8005,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  34286, 0, 0
+  GROUP  34820, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -8028,7 +8017,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34287, 0, 0
+  GROUP  34821, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -8040,7 +8029,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34288, 0, 0
+  GROUP  34822, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -8052,7 +8041,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34289, 0, 0
+  GROUP  34823, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -8064,7 +8053,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34290, 0, 0
+  GROUP  34824, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -8076,7 +8065,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34291, 0, 0
+  GROUP  34825, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -8087,14 +8076,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  34292, 0, 0
+  LINE  34826, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  34293, 0, 0
+  LINKBMPPICT  34827, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\dat\\#BR.bmp"

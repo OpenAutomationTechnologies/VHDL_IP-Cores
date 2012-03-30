@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 48707
+ FREEID 50612
  VARIABLES
  {
   #ARCHITECTURE="rtl"
@@ -2796,8 +2796,7 @@ HEADER
     #GENERIC0="simulate:boolean:=false"
     #GENERIC1="dma_highadr_g:integer:=31"
     #GENERIC10="fifo_data_width_g:integer:=16"
-    #GENERIC11="endian_g:string:=\"little\""
-    #GENERIC12="gen_dma_observer_g:boolean:=true"
+    #GENERIC11="gen_dma_observer_g:boolean:=true"
     #GENERIC2="gen_tx_fifo_g:boolean:=true"
     #GENERIC3="gen_rx_fifo_g:boolean:=true"
     #GENERIC4="m_burstcount_width_g:integer:=4"
@@ -2810,7 +2809,7 @@ HEADER
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1323066534"
+    #MODIFIED="1332509931"
    }
   }
   PAGE "" 
@@ -4004,6 +4003,7 @@ PAGE "MAC"
 "-- 2011-12-02   V0.08    zelenkaj    Added Dma Req Overflow\n"+
 "-- 2011-12-05   V0.09    zelenkaj    Reduced Dma Req overflow vector\n"+
 "-- 2012-01-26   V0.10    zelenkaj    Revised SMI to use one SMI with two phys\n"+
+"-- 2012-03-21   V0.20    zelenkaj    redesigned endian conversion\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -10316,15 +10316,9 @@ PAGE "SLAVEINTERFACE"
   {
    LABEL "addressAssignment"
    TEXT 
-"--assign address bus and be to openMAC\n"+
-"mac_addr <= \n"+
-"\ts_address(9 downto 1) & s_address(0) when mac_selfilter = '1' and endian_g = \"little\" else\n"+
-"\ts_address(9 downto 1) & not s_address(0) when endian_g = \"little\" else\n"+
-"\ts_address(9 downto 1) & s_address(0); -- when endian_g = \"big\" else\n"+
-"\n"+
-"mac_be <= \n"+
-"\ts_byteenable(0) & s_byteenable(1) when endian_g = \"little\" else\n"+
-"\ts_byteenable;"
+"--assign address bus and be to openMA\n"+
+"mac_addr <= s_address(9 downto 0);\n"+
+"mac_be <= s_byteenable;"
    RECT (1700,420,2800,660)
    MARGINS (20,20)
    MULTILINE
@@ -10728,14 +10722,18 @@ PAGE "SLAVEINTERFACE"
    TEXT 
 "--assign output data to readdata\n"+
 "s_readdata <=\n"+
-"\tmac_dout(15 downto 8) & mac_dout(7 downto 0) when (mac_selram = '1' or mac_selcont = '1') and s_byteenable = \"11\" and endian_g = \"little\" else\n"+
-"\tmac_dout(7 downto 0) & mac_dout(15 downto 8) when (mac_selram = '1' or mac_selcont = '1') and endian_g = \"little\" else\n"+
-"\tmac_dout when (mac_selram = '1' or mac_selcont = '1') and endian_g = \"big\" else\n"+
-"\tsmi_dout when smi_sel = '1' else\n"+
-"\tirqTable when irqTable_sel = '1' else\n"+
-"\t(8 => dma_rd_err, 0 => dma_wr_err, others => '0') when dmaErr_sel = '1' else\n"+
-"\t(others => '0');"
-   RECT (1500,1180,2780,1520)
+"    mac_dout when (mac_selram = '1' or mac_selcont = '1') and endian_g = \"little\" else\n"+
+"    mac_dout when (mac_selram = '1' or mac_selcont = '1') and endian_g = \"big\" and s_byteenable /= \"11\" else\n"+
+"    mac_dout(7 downto 0) & mac_dout(15 downto 8) when (mac_selram = '1' or mac_selcont = '1') and endian_g = \"big\" else --and s_byteenable = \"11\"\n"+
+"    smi_dout when smi_sel = '1' and endian_g = \"little\" else\n"+
+"    smi_dout when smi_sel = '1' and endian_g = \"big\" and s_byteenable /= \"11\" else\n"+
+"    smi_dout(7 downto 0) & smi_dout(15 downto 8) when smi_sel = '1' and endian_g = \"big\" else --and s_byteenable = \"11\"\n"+
+"    irqTable when irqTable_sel = '1' and endian_g = \"little\" else\n"+
+"    irqTable(7 downto 0) & irqTable(15 downto 8) when irqTable_sel = '1' and endian_g = \"big\" else\n"+
+"    (8 => dma_rd_err, 0 => dma_wr_err, others => '0') when dmaErr_sel = '1' and endian_g = \"little\" else\n"+
+"    (8 => dma_rd_err, 0 => dma_wr_err, others => '0') when dmaErr_sel = '1' and endian_g = \"big\" else\n"+
+"    (others => '0');"
+   RECT (1500,1180,2780,1500)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -10774,12 +10772,11 @@ PAGE "SLAVEINTERFACE"
    LABEL "writedataAssignment"
    TEXT 
 "--assign writedata to input data\n"+
-"mac_din <=\n"+
-"\ts_writedata(15 downto 8) & s_writedata(7 downto 0) when s_byteenable = \"11\" and endian_g = \"little\" else\n"+
-"\ts_writedata(7 downto 0) & s_writedata(15 downto 8) when endian_g = \"little\" else\n"+
-"\ts_writedata; -- when endian_g = \"big\" else\n"+
+"mac_din <=  s_writedata when endian_g = \"little\" or (endian_g = \"big\" and s_byteenable /= \"11\") else\n"+
+"            s_writedata(7 downto 0) & s_writedata(15 downto 8); --when endian_g = \"big\" and s_byteenable = \"11\"\n"+
 "\n"+
-"smi_din <= s_writedata;"
+"smi_din <=  s_writedata when endian_g = \"little\" or (endian_g = \"big\" and s_byteenable /= \"11\") else\n"+
+"            s_writedata(7 downto 0) & s_writedata(15 downto 8); --when endian_g = \"big\" and s_byteenable = \"11\""
    RECT (1700,860,2660,1140)
    MARGINS (20,20)
    MULTILINE
@@ -11706,13 +11703,13 @@ PAGE "MAC TIMER CMP"
     #REFERENCE="t_writedata(31:0)"
     #SYMBOL="BusInput"
    }
-   COORD (1440,1260)
-   VERTEXES ( (2,10632) )
+   COORD (540,1540)
+   VERTEXES ( (2,50468) )
   }
   TEXT  10414, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (1169,1243,1389,1278)
+   RECT (269,1523,489,1558)
    ALIGN 6
    MARGINS (1,1)
    PARENT 10413
@@ -11722,18 +11719,19 @@ PAGE "MAC TIMER CMP"
    VARIABLES
    {
     #COMPONENT="BusOutput"
+    #DOWNTO="1"
     #LIBRARY="#terminals"
     #MDA_RECORD_TOKEN="OTHER"
     #REFERENCE="t_readdata(31:0)"
     #SYMBOL="BusOutput"
    }
-   COORD (2300,1020)
-   VERTEXES ( (2,10634) )
+   COORD (2020,1620)
+   VERTEXES ( (2,50526) )
   }
   TEXT  10416, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (2352,1003,2568,1038)
+   RECT (2072,1603,2288,1638)
    ALIGN 4
    MARGINS (1,1)
    PARENT 10415
@@ -11752,8 +11750,8 @@ PAGE "MAC TIMER CMP"
     #SYMBOL="openMAC_cmp"
    }
    COORD (1680,900)
-   VERTEXES ( (8,16704), (10,10619), (12,10621), (14,10649), (18,17192), (20,10629), (22,10631), (24,10633), (26,10658) )
-   PINPROP 18,"#PIN_STATE","0"
+   VERTEXES ( (8,16704), (10,10619), (12,10621), (14,10649), (18,17192), (20,10629), (26,10658), (22,50434), (24,50439) )
+   PINPROP 24,"#PIN_STATE","0"
   }
   TEXT  10470, 0, 0
   {
@@ -11856,8 +11854,6 @@ PAGE "MAC TIMER CMP"
    PARENT 10590
   }
   NET BUS  10596, 0, 0
-  NET BUS  10604, 0, 0
-  NET BUS  10612, 0, 0
   VTX  10619, 0, 0
   {
    COORD (1680,1020)
@@ -11882,22 +11878,6 @@ PAGE "MAC TIMER CMP"
   {
    COORD (1440,1220)
   }
-  VTX  10631, 0, 0
-  {
-   COORD (1680,1260)
-  }
-  VTX  10632, 0, 0
-  {
-   COORD (1440,1260)
-  }
-  VTX  10633, 0, 0
-  {
-   COORD (2060,1020)
-  }
-  VTX  10634, 0, 0
-  {
-   COORD (2300,1020)
-  }
   WIRE  10635, 0, 0
   {
    NET 10487
@@ -11920,16 +11900,6 @@ PAGE "MAC TIMER CMP"
   {
    NET 10596
    VTX 10629, 10630
-  }
-  BUS  10641, 0, 0
-  {
-   NET 10604
-   VTX 10631, 10632
-  }
-  BUS  10642, 0, 0
-  {
-   NET 10612
-   VTX 10633, 10634
   }
   NET BUS  10643, 0, 0
   {
@@ -12070,14 +12040,14 @@ PAGE "MAC TIMER CMP"
     #REFERENCE="regack3"
     #SYMBOL="req_ack"
    }
-   COORD (1220,1740)
-   VERTEXES ( (2,16968), (4,17258), (6,16978), (8,16983) )
+   COORD (2220,580)
+   VERTEXES ( (2,50399), (6,50401), (8,50403), (4,50413) )
    PINPROP 4,"#PIN_STATE","0"
   }
   TEXT  16960, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (1220,1684,1325,1719)
+   RECT (2220,524,2325,559)
    ALIGN 8
    MARGINS (1,1)
    PARENT 16959
@@ -12085,98 +12055,47 @@ PAGE "MAC TIMER CMP"
   TEXT  16964, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (1220,1920,1325,1955)
+   RECT (2220,760,2325,795)
    MARGINS (1,1)
    PARENT 16959
-  }
-  VTX  16968, 0, 0
-  {
-   COORD (1220,1780)
-  }
-  VTX  16969, 0, 0
-  {
-   COORD (1080,1780)
-  }
-  WIRE  16971, 0, 0
-  {
-   NET 10487
-   VTX 16968, 16969
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  16978, 0, 0
-  {
-   COORD (1220,1820)
-  }
-  VTX  16979, 0, 0
-  {
-   COORD (1080,1820)
-  }
-  WIRE  16981, 0, 0
-  {
-   NET 10492
-   VTX 16978, 16979
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  16983, 0, 0
-  {
-   COORD (1220,1860)
-  }
-  VTX  16984, 0, 0
-  {
-   COORD (1080,1860)
-  }
-  WIRE  16986, 0, 0
-  {
-   NET 10585
-   VTX 16983, 16984
-   VARIABLES
-   {
-    #NAMED="1"
-   }
   }
   TEXT  16988, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1134,1750,1166,1779)
+   RECT (2134,590,2166,619)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 16971
+   PARENT 50417
   }
   TEXT  16996, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1136,1790,1165,1819)
+   RECT (2136,630,2165,659)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 16981
+   PARENT 50418
   }
   TEXT  17000, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1107,1830,1193,1859)
+   RECT (2107,670,2193,699)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 16986
+   PARENT 50419
   }
   TEXT  17030, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (1220,1956,1492,2022)
+   RECT (2220,796,2492,862)
    PARENT 16959
   }
   TEXT  17040, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1382,1750,1518,1779)
+   RECT (2382,590,2518,619)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 17264
+   PARENT 50425
   }
   INSTANCE  17045, 0, 0
   {
@@ -12187,13 +12106,13 @@ PAGE "MAC TIMER CMP"
     #REFERENCE="t_waitrequest"
     #SYMBOL="Output"
    }
-   COORD (1800,1660)
-   VERTEXES ( (2,17256) )
+   COORD (2800,500)
+   VERTEXES ( (2,50411) )
   }
   TEXT  17046, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (1852,1643,2027,1678)
+   RECT (2852,483,3027,518)
    ALIGN 4
    MARGINS (1,1)
    PARENT 17045
@@ -12212,14 +12131,14 @@ PAGE "MAC TIMER CMP"
     #REFERENCE="regack2"
     #SYMBOL="req_ack"
    }
-   COORD (1220,1420)
-   VERTEXES ( (2,17078), (4,17260), (6,17080), (8,17082) )
+   COORD (2220,260)
+   VERTEXES ( (2,50405), (6,50407), (8,50409), (4,50415) )
    PINPROP 4,"#PIN_STATE","0"
   }
   TEXT  17062, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (1220,1364,1325,1399)
+   RECT (2220,204,2325,239)
    ALIGN 8
    MARGINS (1,1)
    PARENT 17057
@@ -12227,98 +12146,47 @@ PAGE "MAC TIMER CMP"
   TEXT  17063, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (1220,1600,1325,1635)
+   RECT (2220,440,2325,475)
    MARGINS (1,1)
    PARENT 17057
   }
   TEXT  17064, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (1220,1636,1504,1702)
+   RECT (2220,476,2504,542)
    PARENT 17057
   }
   TEXT  17068, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1134,1430,1166,1459)
+   RECT (2134,270,2166,299)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 17086
+   PARENT 50420
   }
   TEXT  17071, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1136,1470,1165,1499)
+   RECT (2136,310,2165,339)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 17087
+   PARENT 50421
   }
   TEXT  17074, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1109,1510,1192,1539)
+   RECT (2109,350,2192,379)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 17088
+   PARENT 50422
   }
   TEXT  17077, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1384,1430,1517,1459)
+   RECT (2384,270,2517,299)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 17269
-  }
-  VTX  17078, 0, 0
-  {
-   COORD (1220,1460)
-  }
-  VTX  17079, 0, 0
-  {
-   COORD (1080,1460)
-  }
-  VTX  17080, 0, 0
-  {
-   COORD (1220,1500)
-  }
-  VTX  17081, 0, 0
-  {
-   COORD (1080,1500)
-  }
-  VTX  17082, 0, 0
-  {
-   COORD (1220,1540)
-  }
-  VTX  17083, 0, 0
-  {
-   COORD (1080,1540)
-  }
-  WIRE  17086, 0, 0
-  {
-   NET 10487
-   VTX 17078, 17079
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  17087, 0, 0
-  {
-   NET 10492
-   VTX 17080, 17081
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  17088, 0, 0
-  {
-   NET 17091
-   VTX 17082, 17083
-   VARIABLES
-   {
-    #NAMED="1"
-   }
+   PARENT 50430
   }
   NET WIRE  17091, 0, 0
   {
@@ -12449,89 +12317,6 @@ PAGE "MAC TIMER CMP"
    MARGINS (1,1)
    PARENT 17242
   }
-  VTX  17256, 0, 0
-  {
-   COORD (1800,1660)
-  }
-  VTX  17257, 0, 0
-  {
-   COORD (1760,1660)
-  }
-  VTX  17258, 0, 0
-  {
-   COORD (1380,1780)
-  }
-  VTX  17259, 0, 0
-  {
-   COORD (1600,1680)
-  }
-  VTX  17260, 0, 0
-  {
-   COORD (1380,1460)
-  }
-  VTX  17261, 0, 0
-  {
-   COORD (1600,1640)
-  }
-  WIRE  17262, 0, 0
-  {
-   NET 17050
-   VTX 17256, 17257
-  }
-  VTX  17263, 0, 0
-  {
-   COORD (1520,1780)
-  }
-  WIRE  17264, 0, 0
-  {
-   NET 17870
-   VTX 17258, 17263
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  17265, 0, 0
-  {
-   COORD (1520,1680)
-  }
-  WIRE  17266, 0, 0
-  {
-   NET 17870
-   VTX 17263, 17265
-  }
-  WIRE  17267, 0, 0
-  {
-   NET 17870
-   VTX 17265, 17259
-  }
-  VTX  17268, 0, 0
-  {
-   COORD (1520,1460)
-  }
-  WIRE  17269, 0, 0
-  {
-   NET 17869
-   VTX 17260, 17268
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  17270, 0, 0
-  {
-   COORD (1520,1640)
-  }
-  WIRE  17271, 0, 0
-  {
-   NET 17869
-   VTX 17268, 17270
-  }
-  WIRE  17272, 0, 0
-  {
-   NET 17869
-   VTX 17270, 17261
-  }
   NET WIRE  17869, 0, 0
   {
    VARIABLES
@@ -12555,8 +12340,370 @@ PAGE "MAC TIMER CMP"
     #REFERENCE="U46"
     #SYMBOL="nor2"
    }
-   COORD (1600,1620)
-   VERTEXES ( (2,17259), (6,17261), (20,17257) )
+   COORD (2600,460)
+   VERTEXES ( (6,50416), (2,50414), (20,50412) )
+  }
+  VTX  50399, 0, 0
+  {
+   COORD (2220,620)
+  }
+  VTX  50400, 0, 0
+  {
+   COORD (2080,620)
+  }
+  VTX  50401, 0, 0
+  {
+   COORD (2220,660)
+  }
+  VTX  50402, 0, 0
+  {
+   COORD (2080,660)
+  }
+  VTX  50403, 0, 0
+  {
+   COORD (2220,700)
+  }
+  VTX  50404, 0, 0
+  {
+   COORD (2080,700)
+  }
+  VTX  50405, 0, 0
+  {
+   COORD (2220,300)
+  }
+  VTX  50406, 0, 0
+  {
+   COORD (2080,300)
+  }
+  VTX  50407, 0, 0
+  {
+   COORD (2220,340)
+  }
+  VTX  50408, 0, 0
+  {
+   COORD (2080,340)
+  }
+  VTX  50409, 0, 0
+  {
+   COORD (2220,380)
+  }
+  VTX  50410, 0, 0
+  {
+   COORD (2080,380)
+  }
+  VTX  50411, 0, 0
+  {
+   COORD (2800,500)
+  }
+  VTX  50412, 0, 0
+  {
+   COORD (2760,500)
+  }
+  VTX  50413, 0, 0
+  {
+   COORD (2380,620)
+  }
+  VTX  50414, 0, 0
+  {
+   COORD (2600,520)
+  }
+  VTX  50415, 0, 0
+  {
+   COORD (2380,300)
+  }
+  VTX  50416, 0, 0
+  {
+   COORD (2600,480)
+  }
+  WIRE  50417, 0, 0
+  {
+   NET 10487
+   VTX 50399, 50400
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  50418, 0, 0
+  {
+   NET 10492
+   VTX 50401, 50402
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  50419, 0, 0
+  {
+   NET 10585
+   VTX 50403, 50404
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  50420, 0, 0
+  {
+   NET 10487
+   VTX 50405, 50406
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  50421, 0, 0
+  {
+   NET 10492
+   VTX 50407, 50408
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  50422, 0, 0
+  {
+   NET 17091
+   VTX 50409, 50410
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  50423, 0, 0
+  {
+   NET 17050
+   VTX 50411, 50412
+  }
+  VTX  50424, 0, 0
+  {
+   COORD (2520,620)
+  }
+  WIRE  50425, 0, 0
+  {
+   NET 17870
+   VTX 50413, 50424
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  50426, 0, 0
+  {
+   COORD (2520,520)
+  }
+  WIRE  50427, 0, 0
+  {
+   NET 17870
+   VTX 50424, 50426
+  }
+  WIRE  50428, 0, 0
+  {
+   NET 17870
+   VTX 50426, 50414
+  }
+  VTX  50429, 0, 0
+  {
+   COORD (2520,300)
+  }
+  WIRE  50430, 0, 0
+  {
+   NET 17869
+   VTX 50415, 50429
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  50431, 0, 0
+  {
+   COORD (2520,480)
+  }
+  WIRE  50432, 0, 0
+  {
+   NET 17869
+   VTX 50429, 50431
+  }
+  WIRE  50433, 0, 0
+  {
+   NET 17869
+   VTX 50431, 50416
+  }
+  VTX  50434, 0, 0
+  {
+   COORD (1680,1260)
+  }
+  VTX  50435, 0, 0
+  {
+   COORD (1420,1260)
+  }
+  BUS  50437, 0, 0
+  {
+   NET 50444
+   VTX 50434, 50435
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  50439, 0, 0
+  {
+   COORD (2060,1020)
+  }
+  VTX  50440, 0, 0
+  {
+   COORD (2320,1020)
+  }
+  BUS  50442, 0, 0
+  {
+   NET 50577
+   VTX 50439, 50440
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET BUS  50444, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="t_writedata_s(31:0)"
+   }
+  }
+  TEXT  50445, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1447,1230,1653,1259)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 50437
+  }
+  NET BUS  50449, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="t_readdata(31:0)"
+   }
+  }
+  TEXT  50450, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2088,990,2292,1019)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 50442
+  }
+  SIGNALASSIGN  50454, 0, 0
+  {
+   LABEL "SignalAssignments_5"
+   TEXT 
+"--endian conversion\n"+
+"t_writedata_s <=    t_writedata(7 downto 0) & t_writedata(15 downto 8) &\n"+
+"                    t_writedata(23 downto 16) & t_writedata(31 downto 24) when endian_g = \"big\" else\n"+
+"                    t_writedata;\n"+
+"\n"+
+"t_readdata <=   t_readdata_s(7 downto 0) & t_readdata_s(15 downto 8) &\n"+
+"                t_readdata_s(23 downto 16) & t_readdata_s(31 downto 24) when endian_g = \"big\" else\n"+
+"                t_readdata_s;"
+   RECT (600,1440,1920,1760)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   UPDATE 0
+   CORNER 10
+   VTX (  50467, 50525, 50545, 50558 )
+  }
+  NET BUS  50460, 0, 0
+  VTX  50467, 0, 0
+  {
+   COORD (600,1540)
+  }
+  VTX  50468, 0, 0
+  {
+   COORD (540,1540)
+  }
+  BUS  50469, 0, 0
+  {
+   NET 50460
+   VTX 50467, 50468
+  }
+  NET BUS  50512, 0, 0
+  VTX  50525, 0, 0
+  {
+   COORD (1920,1620)
+  }
+  VTX  50526, 0, 0
+  {
+   COORD (2020,1620)
+  }
+  BUS  50527, 0, 0
+  {
+   NET 50512
+   VTX 50525, 50526
+  }
+  TEXT  50531, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1947,1510,2153,1539)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 50546
+  }
+  VTX  50544, 0, 0
+  {
+   COORD (2180,1540)
+  }
+  VTX  50545, 0, 0
+  {
+   COORD (1920,1540)
+  }
+  BUS  50546, 0, 0
+  {
+   NET 50444
+   VTX 50544, 50545
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  TEXT  50550, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (381,1570,560,1599)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 50559
+  }
+  VTX  50557, 0, 0
+  {
+   COORD (340,1600)
+  }
+  VTX  50558, 0, 0
+  {
+   COORD (600,1600)
+  }
+  BUS  50559, 0, 0
+  {
+   NET 50449
+   VTX 50557, 50558
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET BUS  50577, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="t_readdata_s(31:0)"
+   }
   }
  }
  
@@ -13035,15 +13182,9 @@ PAGE "PACKET BUFFER"
    LABEL "endianConv"
    TEXT 
 "--endian conversion\n"+
-"dma_dout_s <= \n"+
-"\tdma_dout(7 downto 0) & dma_dout(15 downto 8) when endian_g = \"little\" else\n"+
-"\tdma_dout;\n"+
-"dma_din <= \n"+
-"\tdma_din_s(7 downto 0) & dma_din_s(15 downto 8) when endian_g = \"little\" else\n"+
-"\tdma_din_s;\n"+
-"dma_addr_s(iPktBufSizeLog2_g-1 downto 1) <=\n"+
-"\tdma_addr(iPktBufSizeLog2_g-1 downto 2) & dma_addr(1) when endian_g = \"little\" else\n"+
-"\tdma_addr(iPktBufSizeLog2_g-1 downto 2) & not dma_addr(1);"
+"dma_dout_s <= dma_dout;\n"+
+"dma_din <= dma_din_s;\n"+
+"dma_addr_s(iPktBufSizeLog2_g-1 downto 1) <= dma_addr(iPktBufSizeLog2_g-1 downto 1);"
    RECT (720,1160,1820,1360)
    MARGINS (20,20)
    MULTILINE
@@ -14685,26 +14826,25 @@ PAGE "PACKET DMA MASTER"
    VARIABLES
    {
     #COMPONENT="openMAC_DMAmaster"
-    #GENERIC0="simulate : boolean := simulate"
-    #GENERIC1="rx_fifo_word_size_g : integer := rx_fifo_word_size_c"
-    #GENERIC10="gen_rx_fifo_g : boolean := gen_rx_fifo_c"
-    #GENERIC11="gen_tx_fifo_g : boolean := gen_tx_fifo_c"
-    #GENERIC12="gen_dma_observer_g : boolean := gen_dma_observer_g"
-    #GENERIC2="tx_fifo_word_size_g : integer := tx_fifo_word_size_c"
-    #GENERIC3="m_rx_burst_size_g : integer := m_rx_burst_size_g"
-    #GENERIC4="m_tx_burst_size_g : integer := m_tx_burst_size_g"
+    #GENERIC0="m_tx_burst_size_g : integer := m_tx_burst_size_g"
+    #GENERIC1="m_burstcount_const_g : boolean := m_burstcount_const_g"
+    #GENERIC10="rx_fifo_word_size_g : integer := rx_fifo_word_size_c"
+    #GENERIC11="tx_fifo_word_size_g : integer := tx_fifo_word_size_c"
+    #GENERIC12="m_rx_burst_size_g : integer := m_rx_burst_size_g"
+    #GENERIC2="m_burstcount_width_g : integer := m_burstcount'length"
+    #GENERIC3="gen_tx_fifo_g : boolean := gen_tx_fifo_c"
+    #GENERIC4="gen_dma_observer_g : boolean := gen_dma_observer_g"
     #GENERIC5="fifo_data_width_g : integer := fifo_data_width_c"
-    #GENERIC6="endian_g : string := endian_g"
-    #GENERIC7="dma_highadr_g : integer := dma_highadr_g"
-    #GENERIC8="m_burstcount_const_g : boolean := m_burstcount_const_g"
-    #GENERIC9="m_burstcount_width_g : integer := m_burstcount'length"
+    #GENERIC6="dma_highadr_g : integer := dma_highadr_g"
+    #GENERIC8="gen_rx_fifo_g : boolean := gen_rx_fifo_c"
+    #GENERIC9="simulate : boolean := simulate"
     #LIBRARY="#default"
     #PRAGMED_GENERICS=""
     #REFERENCE="THE_MAC_DMA_MASTER"
     #SYMBOL="openMAC_DMAmaster"
    }
    COORD (1220,660)
-   VERTEXES ( (2,29579), (4,29858), (6,29581), (8,29587), (10,29583), (12,29596), (14,29606), (16,29594), (18,29608), (20,29593), (22,29610), (24,29600), (26,43622), (28,29604), (32,29598), (34,43624), (36,29602), (40,29577), (42,29589), (44,29591), (46,29612), (48,40166), (54,45012), (50,45048), (52,45053) )
+   VERTEXES ( (2,29579), (4,29858), (6,29581), (8,29587), (10,29583), (12,29596), (14,29606), (16,29594), (18,29608), (20,29593), (22,29610), (24,29600), (26,43622), (28,29604), (32,29598), (34,43624), (36,29602), (40,29577), (42,29589), (44,29591), (46,29612), (48,40166), (50,45048), (52,45053), (54,45012) )
    PINPROP 52,"#PIN_STATE","0"
   }
   TEXT  28213, 0, 0
@@ -14735,7 +14875,7 @@ PAGE "PACKET DMA MASTER"
   TEXT  28721, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (1800,1260,2440,1689)
+   RECT (1800,1260,2440,1656)
    PARENT 28212
   }
   ARCHITECTUREDECLARATIONS  28726, 0, 0
@@ -17743,14 +17883,14 @@ PAGE ""
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311687673"
    DESCRIPTION="bla",BOTH
-   PAGENAME="SLAVEINTERFACE"
-   PAGENUMBER="4"
+   PAGENAME="PACKET DMA MASTER"
+   PAGENUMBER="7"
   }
  }
  
  BODY
  {
-  TEXT  48690, 0, 0
+  TEXT  50595, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17761,7 +17901,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  48691, 0, 0
+  TEXT  50596, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -17772,7 +17912,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  48692, 0, 0
+  TEXT  50597, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -17782,7 +17922,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  48693, 0, 0
+  TEXT  50598, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17794,7 +17934,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  48694, 0, 0
+  TEXT  50599, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -17808,7 +17948,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  48695, 0, 0
+  TEXT  50600, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -17818,7 +17958,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  48696, 0, 0
+  TEXT  50601, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17830,7 +17970,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  48697, 0, 0
+  TEXT  50602, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -17840,7 +17980,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  48698, 0, 0
+  TEXT  50603, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -17851,7 +17991,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  48699, 0, 0
+  GROUP  50604, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -17863,7 +18003,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  48700, 0, 0
+  GROUP  50605, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -17875,7 +18015,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  48701, 0, 0
+  GROUP  50606, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -17887,7 +18027,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  48702, 0, 0
+  GROUP  50607, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -17899,7 +18039,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  48703, 0, 0
+  GROUP  50608, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -17911,7 +18051,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  48704, 0, 0
+  GROUP  50609, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -17922,14 +18062,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  48705, 0, 0
+  LINE  50610, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  48706, 0, 0
+  LINKBMPPICT  50611, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
