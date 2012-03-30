@@ -3,9 +3,9 @@
 :: set ip core name and directories
 set ipcore_name=powerlink
 set activehdl_dir=active_hdl
-set alterasopc_dir=altera_qsys
+set alterasopc_dir=altera_sopc
 set docu_dir=documentation
-set release_dir=release\altera_qsys
+set release_dir=release\altera_sopc
 set ipcore_dir=POWERLINK
 set txt_dir=txt
 
@@ -35,6 +35,7 @@ copy %activehdl_dir%\src\mif\*.mif                                  %release_dir
 
 :: delete not needed vhdls
 del %release_dir%\%ipcore_dir%\src\axi_*.vhd
+del %release_dir%\%ipcore_dir%\src\qsys_*.vhd
 del %release_dir%\%ipcore_dir%\src\plb_*.vhd
 del %release_dir%\%ipcore_dir%\src\*_Xilinx.vhd
 del %release_dir%\%ipcore_dir%\src\openMAC_DMAmaster\ipif_master_handler.vhd
@@ -43,10 +44,10 @@ del %release_dir%\%ipcore_dir%\src\openMAC_DMAmaster\ipif_master_handler.vhd
 copy %alterasopc_dir%\%ipcore_name%_hw.tcl                          %release_dir%\%ipcore_dir%
 copy %alterasopc_dir%\*.sdc                                         %release_dir%\%ipcore_dir%\sdc
 copy images\*.*                                                     %release_dir%\%ipcore_dir%\img
-copy %txt_dir%\powerlink_revision.txt                               %release_dir%\%ipcore_dir%
+copy %txt_dir%\powerlink_revision.txt                               %release_dir%\%ipcore_dir%\doc
 
 ::rename txt
-rename %release_dir%\%ipcore_dir%\powerlink_revision.txt            revision.txt
+rename %release_dir%\%ipcore_dir%\doc\powerlink_revision.txt        revision.txt
 
 :: copy documentation
 copy %docu_dir%\*_Generic.pdf                                       %release_dir%\%ipcore_dir%\doc
