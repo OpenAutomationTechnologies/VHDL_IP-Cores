@@ -27,3 +27,9 @@ Revision History
                         [FEATURE] Forward RPDO, TPDO and Async Buffer size to system.h
                         [FIX] Fix source file paths in powerlink_hw.tcl
                         [FIX] relocation of mif to support IP-core repository
+
+30.03.2011  V0.2.1      [FIX] Removed readdata register in portio (saves resources)
+                        [TASK] Changed location of revision.txt
+                        [TASK] Converted openMAC to little endian
+                        [FIX] 16 to 32 bit converter considers little endian support
+                        [FEATURE] POWERLINK IP-Core supports AXI in XPS
