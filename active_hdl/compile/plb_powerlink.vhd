@@ -50,9 +50,10 @@
 -- 2011-12-16   V0.07   mairt       added TX/RX burst size feature
 -- 2012-01-19   V0.08   zelenkaj    Added bus to core clock ration feature
 -- 2012-01-26   V0.09   zelenkaj    Added number of SMI generic feature
--- 2012-01-16	V0.10	zelenkaj	Replace plb_* with ipif_master_handler
+-- 2012-01-16   V0.10   zelenkaj    Replace plb_* with ipif_master_handler
 -- 2012-01-27   V0.20   zelenkaj    Incremented PdiRev
 -- 2012-02-01   V0.21   zelenkaj    Added attributes and RMII clk out
+-- 2012-03-23   V0.22   zelenkaj    fixed to/downto issue
 --
 -------------------------------------------------------------------------------
 
@@ -630,7 +631,8 @@ component ipif_master_handler
 end component;
 component openMAC_16to32conv
   generic(
-       bus_address_width : integer := 10
+       bus_address_width : integer := 10;
+       gEndian : string := "little"
   );
   port (
        bus_address : in std_logic_vector(bus_address_width-1 downto 0);
@@ -1082,7 +1084,7 @@ signal clkAp : std_logic;
 signal clkPcp : std_logic;
 signal GND : std_logic;
 signal IP2Bus_Error_s : std_logic;
-signal IP2Bus_RrAck_s : std_logic;
+signal IP2Bus_RdAck_s : std_logic;
 signal IP2Bus_WrAck_s : std_logic;
 signal mac_chipselect : std_logic;
 signal MAC_CMP2Bus_Error : std_logic;
@@ -1149,7 +1151,8 @@ signal ap_address : std_logic_vector (12 downto 0);
 signal ap_byteenable : std_logic_vector (3 downto 0);
 signal ap_readdata : std_logic_vector (31 downto 0);
 signal ap_writedata : std_logic_vector (31 downto 0);
-signal Bus2MAC_DMA_MstRd_d : std_logic_vector (0 to C_MAC_DMA_PLB_NATIVE_DWIDTH-1);
+signal Bus2MAC_DMA_MstRd_d : std_logic_vector (C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0);
+signal Bus2MAC_DMA_MstRd_d_s : std_logic_vector (C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0);
 signal Bus2MAC_DMA_MstRd_rem : std_logic_vector (0 to (C_MAC_DMA_PLB_NATIVE_DWIDTH/8)-1);
 signal Bus2MAC_PKT_Addr : std_logic_vector (C_MAC_PKT_PLB_AWIDTH-1 downto 0);
 signal Bus2MAC_PKT_BE : std_logic_vector ((C_MAC_PKT_PLB_DWIDTH/8)-1 downto 0);
@@ -1160,6 +1163,7 @@ signal Bus2MAC_REG_BE : std_logic_vector ((C_MAC_REG_PLB_DWIDTH/8)-1 downto 0);
 signal Bus2MAC_REG_BE_s : std_logic_vector ((C_MAC_REG_PLB_DWIDTH/8)-1 downto 0);
 signal Bus2MAC_REG_CS : std_logic_vector (1 downto 0);
 signal Bus2MAC_REG_Data : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
+signal Bus2MAC_REG_Data_s : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
 signal Bus2PDI_AP_Addr : std_logic_vector (C_PDI_AP_PLB_AWIDTH-1 downto 0);
 signal Bus2PDI_AP_BE : std_logic_vector ((C_PDI_AP_PLB_DWIDTH/8)-1 downto 0);
 signal Bus2PDI_AP_CS : std_logic_vector (0 downto 0);
@@ -1176,7 +1180,8 @@ signal IP2Bus_Data_s : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
 signal mac_address : std_logic_vector (C_MAC_REG_PLB_AWIDTH-1 downto 0);
 signal mac_byteenable : std_logic_vector (1 downto 0);
 signal MAC_CMP2Bus_Data : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
-signal MAC_DMA2Bus_MstWr_d : std_logic_vector (0 to C_MAC_DMA_PLB_NATIVE_DWIDTH-1);
+signal MAC_DMA2Bus_MstWr_d : std_logic_vector (C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0);
+signal MAC_DMA2Bus_MstWr_d_s : std_logic_vector (C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0);
 signal MAC_DMA2Bus_MstWr_rem : std_logic_vector (0 to (C_MAC_DMA_PLB_NATIVE_DWIDTH/8)-1);
 signal MAC_DMA2Bus_Mst_Addr : std_logic_vector (0 to C_MAC_DMA_PLB_AWIDTH-1);
 signal MAC_DMA2Bus_Mst_BE : std_logic_vector (0 to (C_MAC_DMA_PLB_NATIVE_DWIDTH/8)-1);
@@ -1184,6 +1189,7 @@ signal MAC_DMA2Bus_Mst_Length : std_logic_vector (0 to 11);
 signal MAC_PKT2Bus_Data : std_logic_vector (C_MAC_PKT_PLB_DWIDTH-1 downto 0);
 signal mac_readdata : std_logic_vector (15 downto 0);
 signal MAC_REG2Bus_Data : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
+signal MAC_REG2Bus_Data_s : std_logic_vector (C_MAC_REG_PLB_DWIDTH-1 downto 0);
 signal mac_writedata : std_logic_vector (15 downto 0);
 signal mbf_address : std_logic_vector (C_MAC_PKT_SIZE_LOG2-3 downto 0);
 signal mbf_byteenable : std_logic_vector (3 downto 0);
@@ -1225,7 +1231,7 @@ with Bus2MAC_REG_CS select
 						'0'										when others;	
 
 with Bus2MAC_REG_CS select 
-	IP2Bus_RrAck_s <= MAC_REG2Bus_RdAck 				when "10",
+	IP2Bus_RdAck_s <= MAC_REG2Bus_RdAck 				when "10",
 						MAC_CMP2Bus_RdAck 					when "01",
 						'0'										when others;	
 
@@ -1233,58 +1239,94 @@ with Bus2MAC_REG_CS select
 	IP2Bus_Error_s <= MAC_REG2Bus_Error 				when "10",
 						MAC_CMP2Bus_Error 					when "01",
 						'0'										when others;
-Bus2MAC_REG_BE_s <= Bus2MAC_REG_BE;
+Bus2MAC_REG_BE_s <=
+    Bus2MAC_REG_BE(0) & Bus2MAC_REG_BE(1) & 
+    Bus2MAC_REG_BE(2) & Bus2MAC_REG_BE(3);
+
+Bus2MAC_REG_Data_s <=
+    Bus2MAC_REG_Data(7 downto 0) & Bus2MAC_REG_Data(15 downto 8) & 
+    Bus2MAC_REG_Data(23 downto 16) & Bus2MAC_REG_Data(31 downto 24);
+
+MAC_REG2Bus_Data <=
+    MAC_REG2Bus_Data_s(7 downto 0) & MAC_REG2Bus_Data_s(15 downto 8) & 
+    MAC_REG2Bus_Data_s(23 downto 16) & MAC_REG2Bus_Data_s(31 downto 24);
+--test_port
+
+test_port(181 downto 179) <= mac_chipselect & mac_write & mac_read;
+test_port(178) <= mac_waitrequest;
+test_port(177 downto 176) <= mac_byteenable;
+
+test_port(171 downto 160) <= mac_address(11 downto 0);
+test_port(159 downto 144) <= mac_writedata;
+test_port(143 downto 128) <= mac_readdata;
+
+test_port(104 downto 102) <= Bus2MAC_REG_CS & Bus2MAC_REG_RNW;
+test_port(101 downto 100) <= IP2Bus_WrAck_s & IP2Bus_RdAck_s;
+test_port(99 downto 96) <= Bus2MAC_REG_BE;
+
+test_port(95 downto 64) <= Bus2MAC_REG_Addr;
+test_port(63 downto 32) <= Bus2MAC_REG_Data;
+test_port(31 downto 0) <= IP2Bus_Data_s;
+
+--test_port(255 downto 251) <= m_read & m_write & m_waitrequest & m_readdatavalid & MAC_DMA2Bus_Mst_Type;
+
+--test_port(244 downto 240) <= MAC_DMA2Bus_MstWr_Req & MAC_DMA2Bus_MstWr_sof_n & MAC_DMA2Bus_MstWr_eof_n & MAC_DMA2Bus_MstWr_src_rdy_n & Bus2MAC_DMA_MstWr_dst_rdy_n;
+--test_port(234 downto 230) <= MAC_DMA2Bus_MstRd_Req & Bus2MAC_DMA_MstRd_sof_n & Bus2MAC_DMA_MstRd_eof_n & Bus2MAC_DMA_MstRd_src_rdy_n & MAC_DMA2Bus_MstRd_dst_rdy_n;
+
+--test_port(142 downto 140) <= Bus2MAC_DMA_Mst_Cmplt & Bus2MAC_DMA_Mst_Error & Bus2MAC_DMA_Mst_Cmd_Timeout;
+
+--test_port(MAC_DMA2Bus_Mst_Length'length+120-1 downto 120) <= MAC_DMA2Bus_Mst_Length;
+
+--test_port(m_burstcount'length+110-1 downto 110) <= m_burstcount;
+--test_port(m_burstcounter'length+96-1 downto 96) <= m_burstcounter;
+--test_port(95 downto 64) <= m_address;
+--test_port(63 downto 32) <= m_writedata;
+--test_port(31 downto 0) <= m_readdata;
 --mac_cmp assignments
 ---cmp_clk <= Bus2MAC_CMP_Clk;
-tcp_writedata <= Bus2MAC_REG_Data;
+tcp_writedata <=
+    Bus2MAC_REG_Data(7 downto 0) & Bus2MAC_REG_Data(15 downto 8) & 
+    Bus2MAC_REG_Data(23 downto 16) & Bus2MAC_REG_Data(31 downto 24);
 tcp_read <= Bus2MAC_REG_RNW;
 tcp_write <= not Bus2MAC_REG_RNW;
 tcp_chipselect <= Bus2MAC_REG_CS(0);
-tcp_byteenable <= Bus2MAC_REG_BE;
+tcp_byteenable <=
+    Bus2MAC_REG_BE(0) & Bus2MAC_REG_BE(1) & 
+    Bus2MAC_REG_BE(2) & Bus2MAC_REG_BE(3);
 tcp_address <= Bus2MAC_REG_Addr(3 downto 2);
 
-MAC_CMP2Bus_Data <= tcp_readdata;
+MAC_CMP2Bus_Data <= 
+    tcp_readdata(7 downto 0) & tcp_readdata(15 downto 8) & 
+    tcp_readdata(23 downto 16) & tcp_readdata(31 downto 24);
 MAC_CMP2Bus_RdAck <= tcp_chipselect and tcp_read and not tcp_waitrequest;
 MAC_CMP2Bus_WrAck <= tcp_chipselect and tcp_write and not tcp_waitrequest;
 MAC_CMP2Bus_Error <= '0';
 --mac_pkt assignments
 pkt_clk <= Bus2MAC_PKT_Clk;
-mbf_writedata <= Bus2MAC_PKT_Data;
---	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
---	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
+mbf_writedata <=
+    Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
+    Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
 mbf_read <= Bus2MAC_PKT_RNW;
 mbf_write <= not Bus2MAC_PKT_RNW;
 mbf_chipselect <= Bus2MAC_PKT_CS(0);
-mbf_byteenable <= Bus2MAC_PKT_BE;
+mbf_byteenable <=
+    Bus2MAC_PKT_BE(0) & Bus2MAC_PKT_BE(1) &
+    Bus2MAC_PKT_BE(2) & Bus2MAC_PKT_BE(3);
 mbf_address <= Bus2MAC_PKT_Addr(C_MAC_PKT_SIZE_LOG2-1 downto 2);
 
-MAC_PKT2Bus_Data <= mbf_readdata;
---	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
---	mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);
+MAC_PKT2Bus_Data <=
+    mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
+    mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);
 MAC_PKT2Bus_RdAck <= mbf_chipselect and mbf_read and not mbf_waitrequest;
 MAC_PKT2Bus_WrAck <= mbf_chipselect and mbf_write and not mbf_waitrequest;
 MAC_PKT2Bus_Error <= '0';
---test_port
-test_port(255 downto 251) <= m_read & m_write & m_waitrequest & m_readdatavalid & MAC_DMA2Bus_Mst_Type;
-
-test_port(244 downto 240) <= MAC_DMA2Bus_MstWr_Req & MAC_DMA2Bus_MstWr_sof_n & MAC_DMA2Bus_MstWr_eof_n & MAC_DMA2Bus_MstWr_src_rdy_n & Bus2MAC_DMA_MstWr_dst_rdy_n;
-test_port(234 downto 230) <= MAC_DMA2Bus_MstRd_Req & Bus2MAC_DMA_MstRd_sof_n & Bus2MAC_DMA_MstRd_eof_n & Bus2MAC_DMA_MstRd_src_rdy_n & MAC_DMA2Bus_MstRd_dst_rdy_n;
-
-test_port(142 downto 140) <= Bus2MAC_DMA_Mst_Cmplt & Bus2MAC_DMA_Mst_Error & Bus2MAC_DMA_Mst_Cmd_Timeout;
-
-test_port(MAC_DMA2Bus_Mst_Length'length+120-1 downto 120) <= MAC_DMA2Bus_Mst_Length;
-
-test_port(m_burstcount'length+110-1 downto 110) <= m_burstcount;
-test_port(m_burstcounter'length+96-1 downto 96) <= m_burstcounter;
-test_port(95 downto 64) <= m_address;
-test_port(63 downto 32) <= m_writedata;
-test_port(31 downto 0) <= m_readdata;
 
 ----  Component instantiations  ----
 
 MAC_REG_16to32 : openMAC_16to32conv
   generic map (
-       bus_address_width => C_MAC_REG_PLB_AWIDTH
+       bus_address_width => C_MAC_REG_PLB_AWIDTH,
+       gEndian => "big"
   )
   port map(
        bus_ack_rd => MAC_REG2Bus_RdAck,
@@ -1292,10 +1334,10 @@ MAC_REG_16to32 : openMAC_16to32conv
        bus_address => Bus2MAC_REG_Addr( C_MAC_REG_PLB_AWIDTH-1 downto 0 ),
        bus_byteenable => Bus2MAC_REG_BE_s( (C_MAC_REG_PLB_DWIDTH/8)-1 downto 0 ),
        bus_read => Bus2MAC_REG_RNW,
-       bus_readdata => MAC_REG2Bus_Data( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
+       bus_readdata => MAC_REG2Bus_Data_s( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
        bus_select => Bus2MAC_REG_CS(1),
        bus_write => Bus2MAC_REG_RNW_n,
-       bus_writedata => Bus2MAC_REG_Data( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
+       bus_writedata => Bus2MAC_REG_Data_s( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
        clk => clk50,
        rst => rst,
        s_address => mac_address( C_MAC_REG_PLB_AWIDTH-1 downto 0 ),
@@ -1332,7 +1374,7 @@ MAC_REG_PLB_SINGLE_SLAVE : plbv46_slave_single
        Bus2IP_Reset => Bus2MAC_REG_Reset,
        IP2Bus_Data => IP2Bus_Data_s( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
        IP2Bus_Error => IP2Bus_Error_s,
-       IP2Bus_RdAck => IP2Bus_RrAck_s,
+       IP2Bus_RdAck => IP2Bus_RdAck_s,
        IP2Bus_WrAck => IP2Bus_WrAck_s,
        PLB_ABus => MAC_REG_ABus,
        PLB_BE => MAC_REG_BE( 0 to (C_MAC_REG_PLB_DWIDTH / 8) - 1 ),
@@ -1654,7 +1696,7 @@ begin
          C_MPLB_SMALLEST_SLAVE => 32
     )  
     port map(
-         Bus2IP_MstRd_d => Bus2MAC_DMA_MstRd_d( 0 to C_MAC_DMA_PLB_NATIVE_DWIDTH-1 ),
+         Bus2IP_MstRd_d => Bus2MAC_DMA_MstRd_d( C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0 ),
          Bus2IP_MstRd_eof_n => Bus2MAC_DMA_MstRd_eof_n,
          Bus2IP_MstRd_rem => Bus2MAC_DMA_MstRd_rem( 0 to (C_MAC_DMA_PLB_NATIVE_DWIDTH/8)-1 ),
          Bus2IP_MstRd_sof_n => Bus2MAC_DMA_MstRd_sof_n,
@@ -1671,7 +1713,7 @@ begin
          IP2Bus_MstRd_dst_dsc_n => MAC_DMA2Bus_MstRd_dst_dsc_n,
          IP2Bus_MstRd_dst_rdy_n => MAC_DMA2Bus_MstRd_dst_rdy_n,
          IP2Bus_MstWr_Req => MAC_DMA2Bus_MstWr_Req,
-         IP2Bus_MstWr_d => MAC_DMA2Bus_MstWr_d( 0 to C_MAC_DMA_PLB_NATIVE_DWIDTH-1 ),
+         IP2Bus_MstWr_d => MAC_DMA2Bus_MstWr_d( C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0 ),
          IP2Bus_MstWr_eof_n => MAC_DMA2Bus_MstWr_eof_n,
          IP2Bus_MstWr_rem => MAC_DMA2Bus_MstWr_rem( 0 to (C_MAC_DMA_PLB_NATIVE_DWIDTH/8)-1 ),
          IP2Bus_MstWr_sof_n => MAC_DMA2Bus_MstWr_sof_n,
@@ -1729,7 +1771,7 @@ begin
          m_burstcount_width_g => C_M_BURSTCOUNT_WIDTH
     )  
     port map(
-         Bus2MAC_DMA_MstRd_d => Bus2MAC_DMA_MstRd_d( 0 to C_MAC_DMA_PLB_NATIVE_DWIDTH-1 ),
+         Bus2MAC_DMA_MstRd_d => Bus2MAC_DMA_MstRd_d_s( C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0 ),
          Bus2MAC_DMA_MstRd_eof_n => Bus2MAC_DMA_MstRd_eof_n,
          Bus2MAC_DMA_MstRd_rem => Bus2MAC_DMA_MstRd_rem( 0 to (C_MAC_DMA_PLB_NATIVE_DWIDTH/8)-1 ),
          Bus2MAC_DMA_MstRd_sof_n => Bus2MAC_DMA_MstRd_sof_n,
@@ -1746,7 +1788,7 @@ begin
          MAC_DMA2Bus_MstRd_dst_dsc_n => MAC_DMA2Bus_MstRd_dst_dsc_n,
          MAC_DMA2Bus_MstRd_dst_rdy_n => MAC_DMA2Bus_MstRd_dst_rdy_n,
          MAC_DMA2Bus_MstWr_Req => MAC_DMA2Bus_MstWr_Req,
-         MAC_DMA2Bus_MstWr_d => MAC_DMA2Bus_MstWr_d( 0 to C_MAC_DMA_PLB_NATIVE_DWIDTH-1 ),
+         MAC_DMA2Bus_MstWr_d => MAC_DMA2Bus_MstWr_d_s( C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0 ),
          MAC_DMA2Bus_MstWr_eof_n => MAC_DMA2Bus_MstWr_eof_n,
          MAC_DMA2Bus_MstWr_rem => MAC_DMA2Bus_MstWr_rem( 0 to (C_MAC_DMA_PLB_NATIVE_DWIDTH/8)-1 ),
          MAC_DMA2Bus_MstWr_sof_n => MAC_DMA2Bus_MstWr_sof_n,
@@ -1772,6 +1814,12 @@ begin
          m_write => m_write,
          m_writedata => m_writedata
     );
+
+  Bus2MAC_DMA_MstRd_d_s <=    Bus2MAC_DMA_MstRd_d(7 downto 0) & Bus2MAC_DMA_MstRd_d(15 downto 8) &
+                            Bus2MAC_DMA_MstRd_d(23 downto 16) & Bus2MAC_DMA_MstRd_d(31 downto 24);
+
+MAC_DMA2Bus_MstWr_d <=      MAC_DMA2Bus_MstWr_d_s(7 downto 0) & MAC_DMA2Bus_MstWr_d_s(15 downto 8) &
+                            MAC_DMA2Bus_MstWr_d_s(23 downto 16) & MAC_DMA2Bus_MstWr_d_s(31 downto 24);
 end generate genThePlbMaster;
 
 genMacPktPLbSingleSlave : if C_PKT_BUF_EN generate
@@ -1925,18 +1973,24 @@ begin
   --pdi_pcp assignments
 clkPcp <= Bus2PDI_PCP_Clk;
 rstPcp <= Bus2PDI_PCP_Reset;
-pcp_writedata <= Bus2PDI_PCP_Data;
---	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
---	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
+--pcp_writedata <= Bus2PDI_PCP_Data;
+pcp_writedata <=  Bus2PDI_PCP_Data(7 downto 0) & Bus2PDI_PCP_Data(15 downto 8) & Bus2PDI_PCP_Data(23 downto 16) & Bus2PDI_PCP_Data(31 downto 24);
+--pcp_writedata <=  Bus2PDI_PCP_Data(15 downto 0) & Bus2PDI_PCP_Data(31 downto 16) when Bus2PDI_PCP_BE = "1100" or Bus2PDI_PCP_BE = "0011" else
+--            Bus2PDI_PCP_Data(15 downto 8) & Bus2PDI_PCP_Data(7 downto 0) & Bus2PDI_PCP_Data(31 downto 24) & Bus2PDI_PCP_Data(23 downto 16) when Bus2PDI_PCP_BE = "1000" or Bus2PDI_PCP_BE = "0100" or Bus2PDI_PCP_BE = "0010" or Bus2PDI_PCP_BE = "0001" else
+--            Bus2PDI_PCP_Data;
+
 pcp_read <= Bus2PDI_PCP_RNW;
 pcp_write <= not Bus2PDI_PCP_RNW;
 pcp_chipselect <= Bus2PDI_PCP_CS(0);
-pcp_byteenable <= Bus2PDI_PCP_BE;
+
+--pcp_byteenable <= Bus2PDI_PCP_BE;
+pcp_byteenable <= Bus2PDI_PCP_BE(0) & Bus2PDI_PCP_BE(1) & Bus2PDI_PCP_BE(2) & Bus2PDI_PCP_BE(3);
+
 pcp_address <= Bus2PDI_PCP_Addr(14 downto 2);
 
-PDI_PCP2Bus_Data <= pcp_readdata;
---	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
---	mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);
+--PDI_PCP2Bus_Data <= pcp_readdata;
+PDI_PCP2Bus_Data <=  pcp_readdata(7 downto 0) & pcp_readdata(15 downto 8) & pcp_readdata(23 downto 16) & pcp_readdata(31 downto 24);
+
 PDI_PCP2Bus_RdAck <= pcp_chipselect and pcp_read and not pcp_waitrequest;
 PDI_PCP2Bus_WrAck <= pcp_chipselect and pcp_write and not pcp_waitrequest;
 PDI_PCP2Bus_Error <= '0';
@@ -2020,18 +2074,21 @@ begin
   --ap_pcp assignments
 clkAp <= Bus2PDI_AP_Clk;
 rstAp <= Bus2PDI_AP_Reset;
-ap_writedata <= Bus2PDI_AP_Data;
---	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
---	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
+
+--ap_writedata <=  Bus2PDI_AP_Data;
+ap_writedata <=  Bus2PDI_AP_Data(7 downto 0) & Bus2PDI_AP_Data(15 downto 8) & Bus2PDI_AP_Data(23 downto 16) & Bus2PDI_AP_Data(31 downto 24);
+
 ap_read <= Bus2PDI_AP_RNW;
 ap_write <= not Bus2PDI_AP_RNW;
 ap_chipselect <= Bus2PDI_AP_CS(0);
-ap_byteenable <= Bus2PDI_AP_BE;
+--ap_byteenable <= Bus2PDI_AP_BE;
+ap_byteenable <= Bus2PDI_AP_BE(0) & Bus2PDI_AP_BE(1) & Bus2PDI_AP_BE(2) & Bus2PDI_AP_BE(3);
+
 ap_address <= Bus2PDI_AP_Addr(14 downto 2);
 
-PDI_AP2Bus_Data <= ap_readdata;
---	mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &
---	mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);
+--PDI_AP2Bus_Data <=  ap_readdata;
+PDI_AP2Bus_Data <=  ap_readdata(7 downto 0) & ap_readdata(15 downto 8) & ap_readdata(23 downto 16) & ap_readdata(31 downto 24);
+
 PDI_AP2Bus_RdAck <= ap_chipselect and ap_read and not ap_waitrequest;
 PDI_AP2Bus_WrAck <= ap_chipselect and ap_write and not ap_waitrequest;
 PDI_AP2Bus_Error <= '0';
@@ -2042,14 +2099,19 @@ begin
   --SMP_PCP assignments
 clkPcp <= Bus2SMP_PCP_Clk;
 rstPcp <= Bus2SMP_PCP_Reset;
-smp_writedata <= Bus2SMP_PCP_Data;
+--smp_writedata <= Bus2SMP_PCP_Data;
+smp_writedata <=  Bus2SMP_PCP_Data(7 downto 0) & Bus2SMP_PCP_Data(15 downto 8) & Bus2SMP_PCP_Data(23 downto 16) & Bus2SMP_PCP_Data(31 downto 24);
+
 smp_read <= Bus2SMP_PCP_RNW and Bus2SMP_PCP_CS(0);
 smp_write <= not Bus2SMP_PCP_RNW and Bus2SMP_PCP_CS(0);
 smp_chipselect <= Bus2SMP_PCP_CS(0);
-smp_byteenable <= Bus2SMP_PCP_BE;
+--smp_byteenable <= Bus2SMP_PCP_BE;
+smp_byteenable <= Bus2SMP_PCP_BE(0) & Bus2SMP_PCP_BE(1) & Bus2SMP_PCP_BE(2) & Bus2SMP_PCP_BE(3);
 smp_address <= Bus2SMP_PCP_Addr(2);
 
-SMP_PCP2Bus_Data <= smp_readdata;
+--SMP_PCP2Bus_Data <= smp_readdata;
+SMP_PCP2Bus_Data <=  smp_readdata(7 downto 0) & smp_readdata(15 downto 8) & smp_readdata(23 downto 16) & smp_readdata(31 downto 24);
+
 SMP_PCP2Bus_RdAck <= smp_chipselect and smp_read and not smp_waitrequest;
 SMP_PCP2Bus_WrAck <= smp_chipselect and smp_write and not smp_waitrequest;
 SMP_PCP2Bus_Error <= '0';

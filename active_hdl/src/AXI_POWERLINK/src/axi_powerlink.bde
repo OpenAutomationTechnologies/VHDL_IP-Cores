@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 38014
+ FREEID 38163
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -3559,12 +3559,13 @@ HEADER
    VARIABLES
    {
     #DESCRIPTION=""
-    #GENERIC0="bus_address_width:INTEGER:=10"
+    #GENERIC0="gEndian:STRING:=\"little\""
+    #GENERIC1="bus_address_width:INTEGER:=10"
     #HDL_ENTRIES=
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1326963485"
+    #MODIFIED="1332831357"
    }
   }
   PAGE "" 
@@ -12092,6 +12093,89 @@ PAGE "MAC_DMA"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
+  SIGNALASSIGN  38102, 0, 0
+  {
+   LABEL "testPort"
+   TEXT 
+"--test_port\n"+
+"\n"+
+"--test_port(181 downto 179) <= mac_chipselect & mac_write & mac_read;\n"+
+"--test_port(178) <= mac_waitrequest;\n"+
+"--test_port(177 downto 176) <= mac_byteenable;\n"+
+"--\n"+
+"--test_port(171 downto 160) <= mac_address;\n"+
+"--test_port(159 downto 144) <= mac_writedata;\n"+
+"--test_port(143 downto 128) <= mac_readdata;\n"+
+"--\n"+
+"--test_port(104 downto 102) <= Bus2MAC_REG_CS & Bus2MAC_REG_RNW;\n"+
+"--test_port(101 downto 100) <= IP2Bus_WrAck_s & IP2Bus_RdAck_s;\n"+
+"--test_port(99 downto 96) <= Bus2MAC_REG_BE;\n"+
+"--\n"+
+"--test_port(95 downto 64) <= Bus2MAC_REG_Addr;\n"+
+"--test_port(63 downto 32) <= Bus2MAC_REG_Data;\n"+
+"--test_port(31 downto 0) <= IP2Bus_Data_s;\n"+
+"\n"+
+"test_port(255 downto 251) <= m_read & m_write & m_waitrequest & m_readdatavalid & MAC_DMA2Bus_Mst_Type;\n"+
+"\n"+
+"test_port(244 downto 240) <= MAC_DMA2Bus_MstWr_Req & MAC_DMA2Bus_MstWr_sof_n & MAC_DMA2Bus_MstWr_eof_n & MAC_DMA2Bus_MstWr_src_rdy_n & Bus2MAC_DMA_MstWr_dst_rdy_n;\n"+
+"test_port(234 downto 230) <= MAC_DMA2Bus_MstRd_Req & Bus2MAC_DMA_MstRd_sof_n & Bus2MAC_DMA_MstRd_eof_n & Bus2MAC_DMA_MstRd_src_rdy_n & MAC_DMA2Bus_MstRd_dst_rdy_n;\n"+
+"\n"+
+"test_port(142 downto 140) <= Bus2MAC_DMA_Mst_Cmplt & Bus2MAC_DMA_Mst_Error & Bus2MAC_DMA_Mst_Cmd_Timeout;\n"+
+"\n"+
+"test_port(MAC_DMA2Bus_Mst_Length'length+120-1 downto 120) <= MAC_DMA2Bus_Mst_Length;\n"+
+"\n"+
+"test_port(m_burstcount'length+110-1 downto 110) <= m_burstcount;\n"+
+"test_port(m_burstcounter'length+96-1 downto 96) <= m_burstcounter;\n"+
+"test_port(95 downto 64) <= \"00\" & m_address;\n"+
+"test_port(63 downto 32) <= m_writedata;\n"+
+"test_port(31 downto 0) <= m_readdata;"
+   RECT (220,1800,1740,2060)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   UPDATE 0
+   CORNER 10
+   VTX (  38109 )
+  }
+  INSTANCE  38104, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusOutput"
+    #DECLARATION="(255:0)"
+    #DOWNTO="1"
+    #INITIAL_VALUE="(others => '0')"
+    #LIBRARY="#terminals"
+    #REFERENCE="test_port(255:0)"
+    #SYMBOL="BusOutput"
+   }
+   COORD (1900,1940)
+   VERTEXES ( (2,38110) )
+  }
+  TEXT  38106, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (1952,1923,2159,1958)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 38104
+  }
+  NET BUS  38107, 0, 0
+  VTX  38109, 0, 0
+  {
+   COORD (1740,1940)
+  }
+  VTX  38110, 0, 0
+  {
+   COORD (1900,1940)
+  }
+  BUS  38111, 0, 0
+  {
+   NET 38107
+   VTX 38109, 38110
+  }
  }
  
 }
@@ -13227,76 +13311,6 @@ PAGE "MAC_REG_AXI"
     #NAMED="1"
    }
   }
-  SIGNALASSIGN  29691, 0, 0
-  {
-   LABEL "testPort"
-   TEXT 
-"--test_port\n"+
-"\n"+
-"test_port(181 downto 179) <= mac_chipselect & mac_write & mac_read;\n"+
-"test_port(178) <= mac_waitrequest;\n"+
-"test_port(177 downto 176) <= mac_byteenable;\n"+
-"\n"+
-"test_port(171 downto 160) <= mac_address;\n"+
-"test_port(159 downto 144) <= mac_writedata;\n"+
-"test_port(143 downto 128) <= mac_readdata;\n"+
-"\n"+
-"test_port(104 downto 102) <= Bus2MAC_REG_CS & Bus2MAC_REG_RNW;\n"+
-"test_port(101 downto 100) <= IP2Bus_WrAck_s & IP2Bus_RdAck_s;\n"+
-"test_port(99 downto 96) <= Bus2MAC_REG_BE;\n"+
-"\n"+
-"test_port(95 downto 64) <= Bus2MAC_REG_Addr;\n"+
-"test_port(63 downto 32) <= Bus2MAC_REG_Data;\n"+
-"test_port(31 downto 0) <= IP2Bus_Data_s;\n"+
-"\n"+
-"--test_port(255 downto 251) <= m_read & m_write & m_waitrequest & m_readdatavalid & MAC_DMA2Bus_Mst_Type;\n"+
-"\n"+
-"--test_port(244 downto 240) <= MAC_DMA2Bus_MstWr_Req & MAC_DMA2Bus_MstWr_sof_n & MAC_DMA2Bus_MstWr_eof_n & MAC_DMA2Bus_MstWr_src_rdy_n & Bus2MAC_DMA_MstWr_dst_rdy_n;\n"+
-"--test_port(234 downto 230) <= MAC_DMA2Bus_MstRd_Req & Bus2MAC_DMA_MstRd_sof_n & Bus2MAC_DMA_MstRd_eof_n & Bus2MAC_DMA_MstRd_src_rdy_n & MAC_DMA2Bus_MstRd_dst_rdy_n;\n"+
-"\n"+
-"--test_port(142 downto 140) <= Bus2MAC_DMA_Mst_Cmplt & Bus2MAC_DMA_Mst_Error & Bus2MAC_DMA_Mst_Cmd_Timeout;\n"+
-"\n"+
-"--test_port(MAC_DMA2Bus_Mst_Length'length+120-1 downto 120) <= MAC_DMA2Bus_Mst_Length;\n"+
-"\n"+
-"--test_port(m_burstcount'length+110-1 downto 110) <= m_burstcount;\n"+
-"--test_port(m_burstcounter'length+96-1 downto 96) <= m_burstcounter;\n"+
-"--test_port(95 downto 64) <= m_address;\n"+
-"--test_port(63 downto 32) <= m_writedata;\n"+
-"--test_port(31 downto 0) <= m_readdata;"
-   RECT (220,1840,1740,2100)
-   MARGINS (20,20)
-   MULTILINE
-   SYNTAXCOLORED
-   SHOWLABEL
-   SHOWTEXT
-   UPDATE 0
-   CORNER 10
-   VTX (  31194 )
-  }
-  INSTANCE  29692, 0, 0
-  {
-   VARIABLES
-   {
-    #COMPONENT="BusOutput"
-    #DECLARATION="(255:0)"
-    #DOWNTO="1"
-    #INITIAL_VALUE="(others => '0')"
-    #LIBRARY="#terminals"
-    #REFERENCE="test_port(255:0)"
-    #SYMBOL="BusOutput"
-   }
-   COORD (1900,1980)
-   VERTEXES ( (2,31195) )
-  }
-  TEXT  29694, 0, 0
-  {
-   TEXT "$#REFERENCE"
-   RECT (1952,1963,2159,1998)
-   ALIGN 4
-   MARGINS (1,1)
-   PARENT 29692
-  }
-  NET BUS  29695, 0, 0
   NET WIRE  29719, 0, 0
   {
    VARIABLES
@@ -13341,19 +13355,6 @@ PAGE "MAC_REG_AXI"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
-  VTX  31194, 0, 0
-  {
-   COORD (1740,1980)
-  }
-  VTX  31195, 0, 0
-  {
-   COORD (1900,1980)
-  }
-  BUS  31196, 0, 0
-  {
-   NET 29695
-   VTX 31194, 31195
-  }
  }
  
 }
@@ -13374,7 +13375,8 @@ PAGE "MAC_REG"
    VARIABLES
    {
     #COMPONENT="openMAC_16to32conv"
-    #GENERIC0="bus_address_width : INTEGER := C_S_AXI_MAC_REG_ADDR_WIDTH"
+    #GENERIC0="gEndian : STRING := \"little\""
+    #GENERIC1="bus_address_width : INTEGER := C_S_AXI_MAC_REG_ADDR_WIDTH"
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
@@ -13382,7 +13384,7 @@ PAGE "MAC_REG"
     #SYMBOL="openMAC_16to32conv"
    }
    COORD (1440,460)
-   VERTEXES ( (2,10225), (4,22042), (6,10491), (10,23941), (12,10237), (14,10253), (16,10241), (18,10227), (20,10239), (22,22072), (24,25066), (28,10243), (32,10249), (34,10252), (36,10246), (38,10232), (40,10234), (30,34759), (26,34765) )
+   VERTEXES ( (2,10225), (4,22042), (6,10491), (10,23941), (12,10237), (14,10253), (16,10241), (18,10227), (20,10239), (22,22072), (24,25066), (26,34765), (28,10243), (30,34759), (32,10249), (34,10252), (36,10246), (38,10232), (40,10234) )
    PINPROP 26,"#PIN_STATE","0"
   }
   TEXT  10099, 0, 0
@@ -13403,7 +13405,7 @@ PAGE "MAC_REG"
   TEXT  10101, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (1440,956,2228,989)
+   RECT (1440,956,2228,1022)
    PARENT 10079
   }
   TEXT  10102, 0, 0
@@ -13678,25 +13680,6 @@ PAGE "MAC_REG"
     #NAME="mac_readdata(15:0)"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
-  }
-  SIGNALASSIGN  10182, 0, 0
-  {
-   LABEL "SignalAssignments_1"
-   TEXT 
-"Bus2MAC_REG_BE_s <= Bus2MAC_REG_BE;\n"+
-"\n"+
-"--endianness work-around\n"+
-"Bus2MAC_REG_Data_s <= Bus2MAC_REG_Data(15 downto 0) & Bus2MAC_REG_Data(31 downto 16);\n"+
-"MAC_REG2Bus_Data <= MAC_REG2Bus_Data_s(15 downto 0) & MAC_REG2Bus_Data_s(31 downto 16);"
-   RECT (1200,1180,2000,1440)
-   MARGINS (20,20)
-   MULTILINE
-   SYNTAXCOLORED
-   SHOWLABEL
-   SHOWTEXT
-   UPDATE 0
-   CORNER 10
-   VTX (  34643, 34667, 34971, 35010, 35039 )
   }
   VTX  10215, 0, 0
   {
@@ -14079,7 +14062,7 @@ PAGE "MAC_REG"
   TEXT  22036, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2243,491,2949,520)
+   RECT (2256,491,2937,520)
    ALIGN 9
    MARGINS (1,1)
    PARENT 22043
@@ -14095,7 +14078,7 @@ PAGE "MAC_REG"
   }
   BUS  22043, 0, 0
   {
-   NET 34634
+   NET 38067
    VTX 22041, 22042
    VARIABLES
    {
@@ -14105,7 +14088,7 @@ PAGE "MAC_REG"
   TEXT  22047, 0, 0
   {
    TEXT "$#NAME"
-   RECT (405,691,1129,720)
+   RECT (418,691,1117,720)
    ALIGN 9
    MARGINS (1,1)
    PARENT 22076
@@ -14121,7 +14104,7 @@ PAGE "MAC_REG"
   }
   BUS  22076, 0, 0
   {
-   NET 31124
+   NET 38066
    VTX 22071, 22072
    VARIABLES
    {
@@ -14140,19 +14123,11 @@ PAGE "MAC_REG"
   TEXT  22432, 0, 0
   {
    TEXT "$#NAME"
-   RECT (397,731,1103,760)
+   RECT (410,731,1091,760)
    ALIGN 9
    MARGINS (1,1)
    PARENT 34766
    ORIENTATION 2
-  }
-  TEXT  22890, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (2230,1211,2954,1240)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 35041
   }
   VTX  23941, 0, 0
   {
@@ -14276,98 +14251,12 @@ PAGE "MAC_REG"
     #NAME="mac_address_full(C_S_AXI_MAC_REG_ADDR_WIDTH-1:0)"
    }
   }
-  NET BUS  31124, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #NAME="Bus2MAC_REG_BE_s((C_S_AXI_MAC_REG_DATA_WIDTH/8)-1:0)"
-   }
-  }
-  NET BUS  31125, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #NAME="Bus2MAC_REG_Data(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
-  }
   NET BUS  31126, 0, 0
   {
    VARIABLES
    {
     #DOWNTO="1"
     #NAME="Bus2MAC_REG_Addr(C_S_AXI_MAC_REG_ADDR_WIDTH-1:0)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
-  }
-  NET BUS  34634, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #NAME="MAC_REG2Bus_Data_s(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
-  }
-  TEXT  34635, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (291,1291,997,1320)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 34644
-  }
-  VTX  34642, 0, 0
-  {
-   COORD (1020,1300)
-  }
-  VTX  34643, 0, 0
-  {
-   COORD (1200,1300)
-  }
-  BUS  34644, 0, 0
-  {
-   NET 34634
-   VTX 34642, 34643
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  TEXT  34645, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (2236,1291,2917,1320)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 34669
-   ORIENTATION 2
-  }
-  VTX  34667, 0, 0
-  {
-   COORD (2000,1300)
-  }
-  VTX  34668, 0, 0
-  {
-   COORD (2200,1300)
-  }
-  BUS  34669, 0, 0
-  {
-   NET 34670
-   VTX 34667, 34668
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  NET BUS  34670, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #NAME="MAC_REG2Bus_Data(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
@@ -14398,88 +14287,39 @@ PAGE "MAC_REG"
   }
   BUS  34766, 0, 0
   {
-   NET 35013
+   NET 38065
    VTX 34764, 34765
    VARIABLES
    {
     #NAMED="1"
    }
   }
-  TEXT  34801, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (290,1351,971,1380)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 34972
-   ORIENTATION 2
-  }
-  VTX  34970, 0, 0
-  {
-   COORD (1020,1360)
-  }
-  VTX  34971, 0, 0
-  {
-   COORD (1200,1360)
-  }
-  BUS  34972, 0, 0
-  {
-   NET 31125
-   VTX 34970, 34971
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  TEXT  34973, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (2236,1351,2942,1380)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 35012
-  }
-  VTX  35010, 0, 0
-  {
-   COORD (2000,1360)
-  }
-  VTX  35011, 0, 0
-  {
-   COORD (2200,1360)
-  }
-  BUS  35012, 0, 0
-  {
-   NET 35013
-   VTX 35010, 35011
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  NET BUS  35013, 0, 0
+  NET BUS  38065, 0, 0
   {
    VARIABLES
    {
     #DOWNTO="1"
-    #NAME="Bus2MAC_REG_Data_s(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
+    #NAME="Bus2MAC_REG_Data(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
-  VTX  35039, 0, 0
+  NET BUS  38066, 0, 0
   {
-   COORD (2000,1220)
-  }
-  VTX  35040, 0, 0
-  {
-   COORD (2200,1220)
-  }
-  BUS  35041, 0, 0
-  {
-   NET 31124
-   VTX 35039, 35040
    VARIABLES
    {
-    #NAMED="1"
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_REG_BE((C_S_AXI_MAC_REG_DATA_WIDTH/8)-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  38067, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #NAME="MAC_REG2Bus_Data(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
  }
@@ -19624,7 +19464,7 @@ PAGE "PDI_AP_AXI"
   {
    VARIABLES
    {
-    #CONDITION="(C_GEN_PLB_BUS_IF)"
+    #CONDITION="(C_GEN_AXI_BUS_IF)"
     #GENERATE_KIND="IF"
     #LABEL="genPdiAp"
    }
@@ -19634,7 +19474,7 @@ PAGE "PDI_AP_AXI"
   TEXT  15369, 0, 0
   {
    TEXT "@GENERATE_STATEMENT_DESCRIPTION"
-   RECT (1100,705,1750,740)
+   RECT (1100,705,1741,740)
    ALIGN 8
    MARGINS (1,1)
    PARENT 15368
@@ -24583,7 +24423,7 @@ PAGE "POWERLINK IP-CORE"
 "C_GEN_PDI : boolean := false;\n"+
 "C_GEN_PAR_IF : boolean := false;\n"+
 "C_GEN_SPI_IF : boolean := false;\n"+
-"C_GEN_PLB_BUS_IF : boolean := false;\n"+
+"C_GEN_AXI_BUS_IF : boolean := false;\n"+
 "C_GEN_SIMPLE_IO : boolean := false;\n"+
 "-- openMAC\n"+
 "C_MAC_PKT_SIZE : integer := 1024;\n"+
@@ -24912,52 +24752,52 @@ PAGE "POWERLINK IP-CORE"
    VARIABLES
    {
     #COMPONENT="powerlink"
-    #GENERIC0="iRpdo0BufSize_g : INTEGER := C_RPDO_0_BUF_SIZE"
-    #GENERIC1="iTpdoBufSize_g : INTEGER := C_TPDO_BUF_SIZE"
-    #GENERIC10="use2ndPhy_g : BOOLEAN := C_USE_2ND_PHY"
-    #GENERIC11="use2ndCmpTimer_g : BOOLEAN := C_PDI_GEN_SECOND_TIMER"
-    #GENERIC12="useIntPacketBuf_g : BOOLEAN := C_MAC_PKT_EN"
-    #GENERIC13="genPdi_g : BOOLEAN := C_GEN_PDI"
-    #GENERIC14="m_rx_fifo_size_g : INTEGER := C_M_FIFO_SIZE_RX"
-    #GENERIC15="genOnePdiClkDomain_g : BOOLEAN := false"
-    #GENERIC16="gen_dma_observer_g : BOOLEAN := C_OBSERVER_ENABLE"
-    #GENERIC17="m_data_width_g : INTEGER := 32"
-    #GENERIC18="m_rx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE_RX/4"
-    #GENERIC19="m_tx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE_TX/4"
-    #GENERIC2="genEvent_g : BOOLEAN := C_PDI_GEN_EVENT"
-    #GENERIC20="useRxIntPacketBuf_g : BOOLEAN := C_MAC_PKT_RX_EN"
-    #GENERIC21="endian_g : STRING := \"big\""
-    #GENERIC22="m_tx_fifo_size_g : INTEGER := C_M_FIFO_SIZE_TX"
-    #GENERIC23="gNumSmi : INTEGER range 1 to 2 := C_NUM_SMI"
-    #GENERIC24="genSmiIO : BOOLEAN := false"
-    #GENERIC25="m_burstcount_width_g : INTEGER := C_M_BURSTCOUNT_WIDTH"
-    #GENERIC26="m_burstcount_const_g : BOOLEAN := true"
-    #GENERIC27="genSimpleIO_g : BOOLEAN := C_GEN_SIMPLE_IO"
-    #GENERIC28="iBufSizeLOG2_g : INTEGER := C_MAC_PKT_SIZE_LOG2"
-    #GENERIC29="iBufSize_g : INTEGER := C_MAC_PKT_SIZE"
-    #GENERIC3="genInternalAp_g : BOOLEAN := C_GEN_PLB_BUS_IF"
-    #GENERIC30="Simulate : BOOLEAN := false"
-    #GENERIC31="genIoBuf_g : BOOLEAN := false"
-    #GENERIC32="papLowAct_g : BOOLEAN := C_PAP_LOW_ACT"
-    #GENERIC33="genSpiAp_g : BOOLEAN := C_GEN_SPI_IF"
-    #GENERIC34="pioValLen_g : INTEGER := C_PIO_VAL_LENGTH"
-    #GENERIC35="spiBigEnd_g : BOOLEAN := false"
-    #GENERIC36="papBigEnd_g : BOOLEAN := false"
-    #GENERIC37="iPdiRev_g : INTEGER := 2"
-    #GENERIC38="papDataWidth_g : INTEGER := C_PAP_DATA_WIDTH"
-    #GENERIC39="iAsyBuf1Size_g : INTEGER := C_PDI_ASYNC_BUF_0"
-    #GENERIC4="genTimeSync_g : BOOLEAN := C_PDI_GEN_TIME_SYNC"
-    #GENERIC40="iAsyBuf2Size_g : INTEGER := C_PDI_ASYNC_BUF_1"
-    #GENERIC41="iRpdo1BufSize_g : INTEGER := C_RPDO_1_BUF_SIZE"
-    #GENERIC42="spiCPHA_g : BOOLEAN := C_SPI_CPHA"
-    #GENERIC43="useRmii_g : BOOLEAN := C_USE_RMII"
-    #GENERIC44="iRpdo2BufSize_g : INTEGER := C_RPDO_2_BUF_SIZE"
-    #GENERIC45="spiCPOL_g : BOOLEAN := C_SPI_CPOL"
-    #GENERIC5="genABuf2_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_1"
-    #GENERIC6="genLedGadget_g : BOOLEAN := C_PDI_GEN_LED"
-    #GENERIC7="genABuf1_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_0"
-    #GENERIC8="iTpdos_g : INTEGER := C_NUM_TPDO"
-    #GENERIC9="iRpdos_g : INTEGER := C_NUM_RPDO"
+    #GENERIC0="genABuf2_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_1"
+    #GENERIC1="genABuf1_g : BOOLEAN := C_PDI_GEN_ASYNC_BUF_0"
+    #GENERIC10="papLowAct_g : BOOLEAN := C_PAP_LOW_ACT"
+    #GENERIC11="papDataWidth_g : INTEGER := C_PAP_DATA_WIDTH"
+    #GENERIC12="iPdiRev_g : INTEGER := 2"
+    #GENERIC13="iAsyBuf2Size_g : INTEGER := C_PDI_ASYNC_BUF_1"
+    #GENERIC14="iAsyBuf1Size_g : INTEGER := C_PDI_ASYNC_BUF_0"
+    #GENERIC15="iRpdo2BufSize_g : INTEGER := C_RPDO_2_BUF_SIZE"
+    #GENERIC16="iRpdo1BufSize_g : INTEGER := C_RPDO_1_BUF_SIZE"
+    #GENERIC17="iRpdo0BufSize_g : INTEGER := C_RPDO_0_BUF_SIZE"
+    #GENERIC18="iTpdoBufSize_g : INTEGER := C_TPDO_BUF_SIZE"
+    #GENERIC19="genEvent_g : BOOLEAN := C_PDI_GEN_EVENT"
+    #GENERIC2="iTpdos_g : INTEGER := C_NUM_TPDO"
+    #GENERIC20="genInternalAp_g : BOOLEAN := C_GEN_AXI_BUS_IF"
+    #GENERIC21="genTimeSync_g : BOOLEAN := C_PDI_GEN_TIME_SYNC"
+    #GENERIC22="genLedGadget_g : BOOLEAN := C_PDI_GEN_LED"
+    #GENERIC23="useRmii_g : BOOLEAN := C_USE_RMII"
+    #GENERIC24="iBufSizeLOG2_g : INTEGER := C_MAC_PKT_SIZE_LOG2"
+    #GENERIC25="iBufSize_g : INTEGER := C_MAC_PKT_SIZE"
+    #GENERIC26="Simulate : BOOLEAN := false"
+    #GENERIC27="genSpiAp_g : BOOLEAN := C_GEN_SPI_IF"
+    #GENERIC28="genIoBuf_g : BOOLEAN := false"
+    #GENERIC29="pioValLen_g : INTEGER := C_PIO_VAL_LENGTH"
+    #GENERIC3="iRpdos_g : INTEGER := C_NUM_RPDO"
+    #GENERIC30="spiBigEnd_g : BOOLEAN := false"
+    #GENERIC31="spiCPHA_g : BOOLEAN := C_SPI_CPHA"
+    #GENERIC32="spiCPOL_g : BOOLEAN := C_SPI_CPOL"
+    #GENERIC33="genPdi_g : BOOLEAN := C_GEN_PDI"
+    #GENERIC34="m_rx_fifo_size_g : INTEGER := C_M_FIFO_SIZE_RX"
+    #GENERIC35="m_tx_fifo_size_g : INTEGER := C_M_FIFO_SIZE_TX"
+    #GENERIC36="m_rx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE_RX/4"
+    #GENERIC37="m_tx_burst_size_g : INTEGER := C_MAC_DMA_BURST_SIZE_TX/4"
+    #GENERIC38="m_burstcount_const_g : BOOLEAN := true"
+    #GENERIC39="useRxIntPacketBuf_g : BOOLEAN := C_MAC_PKT_RX_EN"
+    #GENERIC4="gNumSmi : INTEGER range 1 to 2 := C_NUM_SMI"
+    #GENERIC40="useIntPacketBuf_g : BOOLEAN := C_MAC_PKT_EN"
+    #GENERIC41="genOnePdiClkDomain_g : BOOLEAN := false"
+    #GENERIC42="endian_g : STRING := \"little\""
+    #GENERIC43="m_burstcount_width_g : INTEGER := C_M_BURSTCOUNT_WIDTH"
+    #GENERIC44="use2ndPhy_g : BOOLEAN := C_USE_2ND_PHY"
+    #GENERIC45="use2ndCmpTimer_g : BOOLEAN := C_PDI_GEN_SECOND_TIMER"
+    #GENERIC5="genSmiIO : BOOLEAN := false"
+    #GENERIC6="gen_dma_observer_g : BOOLEAN := C_OBSERVER_ENABLE"
+    #GENERIC7="m_data_width_g : INTEGER := 32"
+    #GENERIC8="papBigEnd_g : BOOLEAN := false"
+    #GENERIC9="genSimpleIO_g : BOOLEAN := C_GEN_SIMPLE_IO"
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
@@ -29582,15 +29422,15 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311684073"
-   PAGENAME="header"
-   PAGENUMBER="1"
+   PAGENAME="MAC_REG"
+   PAGENUMBER="5"
    REVISION="1.0"
   }
  }
  
  BODY
  {
-  TEXT  37997, 0, 0
+  TEXT  38146, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -29601,7 +29441,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  37998, 0, 0
+  TEXT  38147, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -29612,7 +29452,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  37999, 0, 0
+  TEXT  38148, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -29622,7 +29462,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38000, 0, 0
+  TEXT  38149, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -29634,7 +29474,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  38001, 0, 0
+  TEXT  38150, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -29648,7 +29488,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  38002, 0, 0
+  TEXT  38151, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -29658,7 +29498,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38003, 0, 0
+  TEXT  38152, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -29670,7 +29510,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  38004, 0, 0
+  TEXT  38153, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -29680,7 +29520,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38005, 0, 0
+  TEXT  38154, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -29691,7 +29531,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  38006, 0, 0
+  GROUP  38155, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -29703,7 +29543,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38007, 0, 0
+  GROUP  38156, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -29715,7 +29555,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38008, 0, 0
+  GROUP  38157, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -29727,7 +29567,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38009, 0, 0
+  GROUP  38158, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -29739,7 +29579,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38010, 0, 0
+  GROUP  38159, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -29751,7 +29591,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38011, 0, 0
+  GROUP  38160, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -29762,14 +29602,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  38012, 0, 0
+  LINE  38161, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  38013, 0, 0
+  LINKBMPPICT  38162, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\dat\\#BR.bmp"

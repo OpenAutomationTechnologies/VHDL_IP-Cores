@@ -146,35 +146,67 @@
     #error "Configuration is unknown!"
 #endif
 #elif defined(__MICROBLAZE__)
-    #define EDRV_INTC_BASE                  XPAR_PCP_INTC_BASEADDR
-    #define EDRV_MAC_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_REG_BASEADDR
-    #define EDRV_MAC_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_REG_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_REG_BASEADDR+1)
-    #define EDRV_MAC_IRQ                    XPAR_PCP_INTC_PLB_POWERLINK_0_MAC_IRQ_INTR
-    #define EDRV_MAC_IRQ_MASK                XPAR_PLB_POWERLINK_0_MAC_IRQ_MASK
-    #define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
-    #define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
-    #define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
-    #define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
-    #define EDRV_CMP_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
-    #define EDRV_CMP_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_CMP_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR+1)
-    #define EDRV_PKT_LOC                    XPAR_PLB_POWERLINK_0_PACKET_LOCATION
-    #define EDRV_PHY_NUM                    XPAR_PLB_POWERLINK_0_PHY_COUNT
-    #define EDRV_DMA_OBSERVER                XPAR_PLB_POWERLINK_0_OBSERVER_ENABLE
-#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
-    #define EDRV_MAX_RX_BUFFERS             XPAR_PLB_POWERLINK_0_MAC_RX_BUFFERS
-    #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
-    #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
-#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
-    #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
-    #define EDRV_PKT_BASE           (void *)0 //not used
-    #define EDRV_PKT_SPAN                   0 //not used
-#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
-    #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
-    #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
-    #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
+    #ifdef POWERLINK_USES_PLB_BUS
+        #define EDRV_INTC_BASE                  XPAR_PCP_INTC_BASEADDR
+        #define EDRV_MAC_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_REG_BASEADDR
+        #define EDRV_MAC_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_REG_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_REG_BASEADDR+1)
+        #define EDRV_MAC_IRQ                    XPAR_PCP_INTC_PLB_POWERLINK_0_MAC_IRQ_INTR
+        #define EDRV_MAC_IRQ_MASK               XPAR_PLB_POWERLINK_0_MAC_IRQ_MASK
+        #define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
+        #define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
+        #define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
+        #define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
+        #define EDRV_CMP_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
+        #define EDRV_CMP_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_CMP_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR+1)
+        #define EDRV_PKT_LOC                    XPAR_PLB_POWERLINK_0_PACKET_LOCATION
+        #define EDRV_PHY_NUM                    XPAR_PLB_POWERLINK_0_PHY_COUNT
+        #define EDRV_DMA_OBSERVER               XPAR_PLB_POWERLINK_0_OBSERVER_ENABLE
+        #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
+            #define EDRV_MAX_RX_BUFFERS             XPAR_PLB_POWERLINK_0_MAC_RX_BUFFERS
+            #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
+            #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
+        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
+            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
+            #define EDRV_PKT_BASE           (void *)0 //not used
+            #define EDRV_PKT_SPAN                   0 //not used
+        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
+            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
+            #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
+            #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
+        #endif
+    #elif defined(POWERLINK_USES_AXI_BUS)
+        #define EDRV_INTC_BASE                  XPAR_PCP_INTC_BASEADDR
+        #define EDRV_MAC_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_BASEADDR
+        #define EDRV_MAC_SPAN                   (XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_HIGHADDR-XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_BASEADDR+1)
+        #define EDRV_MAC_IRQ                    XPAR_INTC_PCP_AXI_POWERLINK_0_MAC_IRQ_INTR
+        #define EDRV_MAC_IRQ_MASK               XPAR_AXI_POWERLINK_0_MAC_IRQ_MASK
+        #define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
+        #define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
+        #define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
+        #define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
+        #define EDRV_CMP_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG1_BASEADDR
+        #define EDRV_CMP_SPAN                   (XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG1_HIGHADDR-XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG1_BASEADDR+1)
+        #define EDRV_PKT_LOC                    XPAR_AXI_POWERLINK_0_PACKET_LOCATION
+        #define EDRV_PHY_NUM                    XPAR_AXI_POWERLINK_0_PHY_COUNT
+        #define EDRV_DMA_OBSERVER               XPAR_AXI_POWERLINK_0_OBSERVER_ENABLE
+        #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
+            #define EDRV_MAX_RX_BUFFERS             XPAR_AXI_POWERLINK_0_MAC_RX_BUFFERS
+            #define EDRV_PKT_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_PKT_BASEADDR
+            #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
+        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
+            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
+            #define EDRV_PKT_BASE           (void *)0 //not used
+            #define EDRV_PKT_SPAN                   0 //not used
+        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
+            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
+            #define EDRV_PKT_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_PKT_BASEADDR
+            #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
+        #endif
+    #else
+        #error "The used bus system is unknown! (Should be PLB or AXI)"
+    #endif
 #else
     #error "Configuration is unknown!"
-#endif
 #endif
 
 #define EDRV_GET_MAC_TIME()            IORD_32DIRECT(EDRV_CMP_BASE, 0)

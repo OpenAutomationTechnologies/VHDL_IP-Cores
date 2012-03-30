@@ -237,80 +237,81 @@
     </widget>
     '>
     <!-- Base Adresses -->
-    <!ENTITY C_MAC_REG_BASEADDR '
-    <widget id="C_MAC_REG_BASEADDR">
-        <key>C_MAC_REG_BASEADDR</key>
+    <!ENTITY C_S_AXI_MAC_REG_RNG0_BASEADDR '
+    <widget id="C_S_AXI_MAC_REG_RNG0_BASEADDR">
+        <key>C_S_AXI_MAC_REG_RNG0_BASEADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_MAC_REG_HIGHADDR '
-    <widget id="C_MAC_REG_HIGHADDR">
-        <key>C_MAC_REG_HIGHADDR</key>
+    <!ENTITY C_S_AXI_MAC_REG_RNG0_HIGHADDR '
+    <widget id="C_S_AXI_MAC_REG_RNG0_HIGHADDR">
+        <key>C_S_AXI_MAC_REG_RNG0_HIGHADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_MAC_CMP_BASEADDR '
-    <widget id="C_MAC_CMP_BASEADDR">
-        <key>C_MAC_CMP_BASEADDR</key>
+    <!ENTITY C_S_AXI_MAC_REG_RNG1_BASEADDR '
+    <widget id="C_S_AXI_MAC_REG_RNG1_BASEADDR">
+        <key>C_S_AXI_MAC_REG_RNG1_BASEADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_MAC_CMP_HIGHADDR '
-    <widget id="C_MAC_CMP_HIGHADDR">
-        <key>C_MAC_CMP_HIGHADDR</key>
+    <!ENTITY C_S_AXI_MAC_REG_RNG1_HIGHADDR '
+    <widget id="C_S_AXI_MAC_REG_RNG1_HIGHADDR">
+        <key>C_S_AXI_MAC_REG_RNG1_HIGHADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_MAC_PKT_BASEADDR '
-    <widget id="C_MAC_PKT_BASEADDR">
-        <key>C_MAC_PKT_BASEADDR</key>
+    <!ENTITY C_S_AXI_MAC_PKT_BASEADDR '
+    <widget id="C_S_AXI_MAC_PKT_BASEADDR">
+        <key>C_S_AXI_MAC_PKT_BASEADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_MAC_PKT_HIGHADDR '
-    <widget id="C_MAC_PKT_HIGHADDR">
-        <key>C_MAC_PKT_HIGHADDR</key>
+    <!ENTITY C_S_AXI_MAC_PKT_HIGHADDR '
+    <widget id="C_S_AXI_MAC_PKT_HIGHADDR">
+        <key>C_S_AXI_MAC_PKT_HIGHADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_PCP_BASEADDR '
-    <widget id="C_PDI_PCP_BASEADDR">
-        <key>C_PDI_PCP_BASEADDR</key>
+    <!ENTITY C_S_AXI_PDI_PCP_BASEADDR '
+    <widget id="C_S_AXI_PDI_PCP_BASEADDR">
+        <key>C_S_AXI_PDI_PCP_BASEADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_PCP_HIGHADDR '
-    <widget id="C_PDI_PCP_HIGHADDR">
-        <key>C_PDI_PCP_HIGHADDR</key>
+    <!ENTITY C_S_AXI_PDI_PCP_HIGHADDR '
+    <widget id="C_S_AXI_PDI_PCP_HIGHADDR">
+        <key>C_S_AXI_PDI_PCP_HIGHADDR</key>
         <tip></tip>
     </widget>
     '>
 
-    <!ENTITY C_PDI_AP_BASEADDR '
-    <widget id="C_PDI_AP_BASEADDR">
-        <key>C_PDI_AP_BASEADDR</key>
+    <!ENTITY C_S_AXI_PDI_AP_BASEADDR '
+    <widget id="C_S_AXI_PDI_AP_BASEADDR">
+        <key>C_S_AXI_PDI_AP_BASEADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_AP_HIGHADDR '
-    <widget id="C_PDI_AP_HIGHADDR">
-        <key>C_PDI_AP_HIGHADDR</key>
+    <!ENTITY C_S_AXI_PDI_AP_HIGHADDR '
+    <widget id="C_S_AXI_PDI_AP_HIGHADDR">
+        <key>C_S_AXI_PDI_AP_HIGHADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_SMP_PCP_BASEADDR '
-    <widget id="C_SMP_PCP_BASEADDR">
-        <key>C_SMP_PCP_BASEADDR</key>
+    <!ENTITY C_S_AXI_SMP_PCP_BASEADDR '
+    <widget id="C_S_AXI_SMP_PCP_BASEADDR">
+        <key>C_S_AXI_SMP_PCP_BASEADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_SMP_PCP_HIGHADDR '
-    <widget id="C_SMP_PCP_HIGHADDR">
-        <key>C_SMP_PCP_HIGHADDR</key>
+    <!ENTITY C_S_AXI_SMP_PCP_HIGHADDR '
+    <widget id="C_S_AXI_SMP_PCP_HIGHADDR">
+        <key>C_S_AXI_SMP_PCP_HIGHADDR</key>
         <tip></tip>
     </widget>
     '>
-    <!-- MAC DMA -->
+
+    <!-- AXI MAC DMA -->
     <!ENTITY C_MAC_DMA_BURST_SIZE_RX '
     <widget id="C_MAC_DMA_BURST_SIZE_RX">
         <key>C_MAC_DMA_BURST_SIZE_RX</key>
@@ -335,255 +336,220 @@
         <label>MAC DMA TX FIFO Size in Byte</label>
     </widget>
     '>
-    <!ENTITY C_MAC_DMA_PLB_NATIVE_DWIDTH '
-    <widget id="C_MAC_DMA_PLB_NATIVE_DWIDTH">
-        <key>C_MAC_DMA_PLB_NATIVE_DWIDTH</key>
+    <!ENTITY C_M_AXI_MAC_DMA_ADDR_WIDTH '
+    <widget id="C_M_AXI_MAC_DMA_ADDR_WIDTH">
+        <key>C_M_AXI_MAC_DMA_ADDR_WIDTH</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_MAC_DMA_PLB_AWIDTH '
-    <widget id="C_MAC_DMA_PLB_AWIDTH">
-        <key>C_MAC_DMA_PLB_AWIDTH</key>
+    <!ENTITY C_M_AXI_MAC_DMA_DATA_WIDTH '
+    <widget id="C_M_AXI_MAC_DMA_DATA_WIDTH">
+        <key>C_M_AXI_MAC_DMA_DATA_WIDTH</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_MAC_DMA_PLB_DWIDTH '
-    <widget id="C_MAC_DMA_PLB_DWIDTH">
-        <key>C_MAC_DMA_PLB_DWIDTH</key>
+    <!ENTITY C_M_AXI_MAC_DMA_NATIVE_DWIDTH '
+    <widget id="C_M_AXI_MAC_DMA_NATIVE_DWIDTH">
+        <key>C_M_AXI_MAC_DMA_NATIVE_DWIDTH</key>
         <tip></tip>
     </widget>
     '>
-
-    <!-- MAC REG PLB -->
-        <!ENTITY C_MAC_REG_PLB_DWIDTH '
-    <widget id="C_MAC_REG_PLB_DWIDTH">
-        <key>C_MAC_REG_PLB_DWIDTH</key>
+    <!ENTITY C_M_AXI_MAC_DMA_LENGTH_WIDTH '
+    <widget id="C_M_AXI_MAC_DMA_LENGTH_WIDTH">
+        <key>C_M_AXI_MAC_DMA_LENGTH_WIDTH</key>
         <tip></tip>
     </widget>
     '>
-
-    <!ENTITY C_MAC_REG_PLB_AWIDTH '
-    <widget id="C_MAC_REG_PLB_AWIDTH">
-        <key>C_MAC_REG_PLB_AWIDTH</key>
+    <!--<!ENTITY C_M_AXI_MAC_DMA_MAX_BURST_LEN '
+    <widget id="C_M_AXI_MAC_DMA_MAX_BURST_LEN">
+        <key>C_M_AXI_MAC_DMA_MAX_BURST_LEN</key>
         <tip></tip>
     </widget>
-    '>
-    <!ENTITY C_MAC_REG_PLB_NUM_MASTERS '
-    <widget id="C_MAC_REG_PLB_NUM_MASTERS">
-        <key>C_MAC_REG_PLB_NUM_MASTERS</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_REG_PLB_MID_WIDTH '
-    <widget id="C_MAC_REG_PLB_MID_WIDTH">
-        <key>C_MAC_REG_PLB_MID_WIDTH</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_REG_PLB_P2P '
-    <widget id="C_MAC_REG_PLB_P2P">
-        <key>C_MAC_REG_PLB_P2P</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_REG_PLB_NATIVE_DWIDTH '
-    <widget id="C_MAC_REG_PLB_NATIVE_DWIDTH">
-        <key>C_MAC_REG_PLB_NATIVE_DWIDTH</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_REG_PLB_SUPPORT_BURSTS '
-    <widget id="C_MAC_REG_PLB_SUPPORT_BURSTS">
-        <key>C_MAC_REG_PLB_SUPPORT_BURSTS</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_REG_Clk_FREQ_HZ '
-    <widget id="C_MAC_REG_Clk_FREQ_HZ">
-        <key>C_MAC_REG_Clk_FREQ_HZ</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_REG_BUS2CORE_CLK_RATIO '
-    <widget id="C_MAC_REG_BUS2CORE_CLK_RATIO">
-        <key>C_MAC_REG_BUS2CORE_CLK_RATIO</key>
+    '>-->
+    <!ENTITY C_M_AXI_MAC_DMA_PROTOCOL '
+    <widget id="C_M_AXI_MAC_DMA_PROTOCOL">
+        <key>C_M_AXI_MAC_DMA_PROTOCOL</key>
         <tip></tip>
     </widget>
     '>
 
-    <!-- MAC PKG PLB -->
-        <!ENTITY C_MAC_PKT_PLB_DWIDTH '
-    <widget id="C_MAC_PKT_PLB_DWIDTH">
-        <key>C_MAC_PKT_PLB_DWIDTH</key>
+    <!-- AXI MAC REG -->
+    <!ENTITY C_S_AXI_MAC_REG_NUM_ADDR_RANGES '
+    <widget id="C_S_AXI_MAC_REG_NUM_ADDR_RANGES">
+        <key>C_S_AXI_MAC_REG_NUM_ADDR_RANGES</key>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_S_AXI_MAC_REG_DATA_WIDTH '
+    <widget id="C_S_AXI_MAC_REG_DATA_WIDTH">
+        <key>C_S_AXI_MAC_REG_DATA_WIDTH</key>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_S_AXI_MAC_REG_ADDR_WIDTH '
+    <widget id="C_S_AXI_MAC_REG_ADDR_WIDTH">
+        <key>C_S_AXI_MAC_REG_ADDR_WIDTH</key>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_S_AXI_MAC_REG_Clk_FREQ_HZ '
+    <widget id="C_S_AXI_MAC_REG_Clk_FREQ_HZ">
+        <key>C_S_AXI_MAC_REG_Clk_FREQ_HZ</key>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_S_AXI_MAC_REG_BUS2CORE_CLK_RATIO '
+    <widget id="C_S_AXI_MAC_REG_BUS2CORE_CLK_RATIO">
+        <key>C_S_AXI_MAC_REG_BUS2CORE_CLK_RATIO</key>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_S_AXI_MAC_REG_USE_WSTRB '
+    <widget id="C_S_AXI_MAC_REG_USE_WSTRB">
+        <key>C_S_AXI_MAC_REG_USE_WSTRB</key>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_S_AXI_MAC_REG_DPHASE_TIMEOUT '
+    <widget id="C_S_AXI_MAC_REG_DPHASE_TIMEOUT">
+        <key>C_S_AXI_MAC_REG_DPHASE_TIMEOUT</key>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_S_AXI_MAC_REG_PROTOCOL '
+    <widget id="C_S_AXI_MAC_REG_PROTOCOL">
+        <key>C_S_AXI_MAC_REG_PROTOCOL</key>
         <tip></tip>
     </widget>
     '>
 
-    <!ENTITY C_MAC_PKT_PLB_AWIDTH '
-    <widget id="C_MAC_PKT_PLB_AWIDTH">
-        <key>C_MAC_PKT_PLB_AWIDTH</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_PKT_PLB_NUM_MASTERS '
-    <widget id="C_MAC_PKT_PLB_NUM_MASTERS">
-        <key>C_MAC_PKT_PLB_NUM_MASTERS</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_PKT_PLB_MID_WIDTH '
-    <widget id="C_MAC_PKT_PLB_MID_WIDTH">
-        <key>C_MAC_PKT_PLB_MID_WIDTH</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_PKT_PLB_P2P '
-    <widget id="C_MAC_PKT_PLB_P2P">
-        <key>C_MAC_PKT_PLB_P2P</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_PKT_PLB_NATIVE_DWIDTH '
-    <widget id="C_MAC_PKT_PLB_NATIVE_DWIDTH">
-        <key>C_MAC_PKT_PLB_NATIVE_DWIDTH</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_MAC_PKT_PLB_SUPPORT_BURSTS '
-    <widget id="C_MAC_PKT_PLB_SUPPORT_BURSTS">
-        <key>C_MAC_PKT_PLB_SUPPORT_BURSTS</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!-- PDI PCP PLB -->
-        <!ENTITY C_PDI_PCP_PLB_DWIDTH '
-    <widget id="C_PDI_PCP_PLB_DWIDTH">
-        <key>C_PDI_PCP_PLB_DWIDTH</key>
+    <!-- AXI MAC PKG -->
+    <!ENTITY C_S_AXI_MAC_PKT_DATA_WIDTH '
+    <widget id="C_S_AXI_MAC_PKT_DATA_WIDTH">
+        <key>C_S_AXI_MAC_PKT_DATA_WIDTH</key>
         <tip></tip>
     </widget>
     '>
 
-    <!ENTITY C_PDI_PCP_PLB_AWIDTH '
-    <widget id="C_PDI_PCP_PLB_AWIDTH">
-        <key>C_PDI_PCP_PLB_AWIDTH</key>
+    <!ENTITY C_S_AXI_MAC_PKT_ADDR_WIDTH '
+    <widget id="C_S_AXI_MAC_PKT_ADDR_WIDTH">
+        <key>C_S_AXI_MAC_PKT_ADDR_WIDTH</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_PCP_PLB_NUM_MASTERS '
-    <widget id="C_PDI_PCP_PLB_NUM_MASTERS">
-        <key>C_PDI_PCP_PLB_NUM_MASTERS</key>
+    <!ENTITY C_S_AXI_MAC_PKT_USE_WSTRB '
+    <widget id="C_S_AXI_MAC_PKT_USE_WSTRB">
+        <key>C_S_AXI_MAC_PKT_USE_WSTRB</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_PCP_PLB_MID_WIDTH '
-    <widget id="C_PDI_PCP_PLB_MID_WIDTH">
-        <key>C_PDI_PCP_PLB_MID_WIDTH</key>
+    <!ENTITY C_S_AXI_MAC_PKT_DPHASE_TIMEOUT '
+    <widget id="C_S_AXI_MAC_PKT_DPHASE_TIMEOUT">
+        <key>C_S_AXI_MAC_PKT_DPHASE_TIMEOUT</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_PCP_PLB_P2P '
-    <widget id="C_PDI_PCP_PLB_P2P">
-        <key>C_PDI_PCP_PLB_P2P</key>
+    <!ENTITY C_S_AXI_MAC_PKT_PROTOCOL '
+    <widget id="C_S_AXI_MAC_PKT_PROTOCOL">
+        <key>C_S_AXI_MAC_PKT_PROTOCOL</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_PCP_PLB_NATIVE_DWIDTH '
-    <widget id="C_PDI_PCP_PLB_NATIVE_DWIDTH">
-        <key>C_PDI_PCP_PLB_NATIVE_DWIDTH</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_PDI_PCP_PLB_SUPPORT_BURSTS '
-    <widget id="C_PDI_PCP_PLB_SUPPORT_BURSTS">
-        <key>C_PDI_PCP_PLB_SUPPORT_BURSTS</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!-- PDI AP PLB -->
-        <!ENTITY C_PDI_AP_PLB_DWIDTH '
-    <widget id="C_PDI_AP_PLB_DWIDTH">
-        <key>C_PDI_AP_PLB_DWIDTH</key>
+    
+    <!-- AXI PDI PCP -->
+        <!ENTITY C_S_AXI_PDI_PCP_DATA_WIDTH '
+    <widget id="C_S_AXI_PDI_PCP_DATA_WIDTH">
+        <key>C_S_AXI_PDI_PCP_DATA_WIDTH</key>
         <tip></tip>
     </widget>
     '>
 
-    <!ENTITY C_PDI_AP_PLB_AWIDTH '
-    <widget id="C_PDI_AP_PLB_AWIDTH">
-        <key>C_PDI_AP_PLB_AWIDTH</key>
+    <!ENTITY C_S_AXI_PDI_PCP_ADDR_WIDTH '
+    <widget id="C_S_AXI_PDI_PCP_ADDR_WIDTH">
+        <key>C_S_AXI_PDI_PCP_ADDR_WIDTH</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_AP_PLB_NUM_MASTERS '
-    <widget id="C_PDI_AP_PLB_NUM_MASTERS">
-        <key>C_PDI_AP_PLB_NUM_MASTERS</key>
+    <!ENTITY C_S_AXI_PDI_PCP_USE_WSTRB '
+    <widget id="C_S_AXI_PDI_PCP_USE_WSTRB">
+        <key>C_S_AXI_PDI_PCP_USE_WSTRB</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_AP_PLB_MID_WIDTH '
-    <widget id="C_PDI_AP_PLB_MID_WIDTH">
-        <key>C_PDI_AP_PLB_MID_WIDTH</key>
+    <!ENTITY C_S_AXI_PDI_PCP_DPHASE_TIMEOUT '
+    <widget id="C_S_AXI_PDI_PCP_DPHASE_TIMEOUT">
+        <key>C_S_AXI_PDI_PCP_DPHASE_TIMEOUT</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_AP_PLB_P2P '
-    <widget id="C_PDI_AP_PLB_P2P">
-        <key>C_PDI_AP_PLB_P2P</key>
+    <!ENTITY C_S_AXI_PDI_PCP_PROTOCOL '
+    <widget id="C_S_AXI_PDI_PCP_PROTOCOL">
+        <key>C_S_AXI_PDI_PCP_PROTOCOL</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PDI_AP_PLB_NATIVE_DWIDTH '
-    <widget id="C_PDI_AP_PLB_NATIVE_DWIDTH">
-        <key>C_PDI_AP_PLB_NATIVE_DWIDTH</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_PDI_AP_PLB_SUPPORT_BURSTS '
-    <widget id="C_PDI_AP_PLB_SUPPORT_BURSTS">
-        <key>C_PDI_AP_PLB_SUPPORT_BURSTS</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!-- SMP PCP PLB -->
-        <!ENTITY C_SMP_PCP_PLB_DWIDTH '
-    <widget id="C_SMP_PCP_PLB_DWIDTH">
-        <key>C_SMP_PCP_PLB_DWIDTH</key>
+    <!-- AXI PDI AP -->
+        <!ENTITY C_S_AXI_PDI_AP_DATA_WIDTH '
+    <widget id="C_S_AXI_PDI_AP_DATA_WIDTH">
+        <key>C_S_AXI_PDI_AP_DATA_WIDTH</key>
         <tip></tip>
     </widget>
     '>
 
-    <!ENTITY C_SMP_PCP_PLB_AWIDTH '
-    <widget id="C_SMP_PCP_PLB_AWIDTH">
-        <key>C_SMP_PCP_PLB_AWIDTH</key>
+    <!ENTITY C_S_AXI_PDI_AP_ADDR_WIDTH '
+    <widget id="C_S_AXI_PDI_AP_ADDR_WIDTH">
+        <key>C_S_AXI_PDI_AP_ADDR_WIDTH</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_SMP_PCP_PLB_NUM_MASTERS '
-    <widget id="C_SMP_PCP_PLB_NUM_MASTERS">
-        <key>C_SMP_PCP_PLB_NUM_MASTERS</key>
+    <!ENTITY C_S_AXI_PDI_AP_USE_WSTRB '
+    <widget id="C_S_AXI_PDI_AP_USE_WSTRB">
+        <key>C_S_AXI_PDI_AP_USE_WSTRB</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_SMP_PCP_PLB_MID_WIDTH '
-    <widget id="C_SMP_PCP_PLB_MID_WIDTH">
-        <key>C_SMP_PCP_PLB_MID_WIDTH</key>
+    <!ENTITY C_S_AXI_PDI_AP_DPHASE_TIMEOUT '
+    <widget id="C_S_AXI_PDI_AP_DPHASE_TIMEOUT">
+        <key>C_S_AXI_PDI_AP_DPHASE_TIMEOUT</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_SMP_PCP_PLB_P2P '
-    <widget id="C_SMP_PCP_PLB_P2P">
-        <key>C_SMP_PCP_PLB_P2P</key>
+    <!ENTITY C_S_AXI_PDI_AP_PROTOCOL '
+    <widget id="C_S_AXI_PDI_AP_PROTOCOL">
+        <key>C_S_AXI_PDI_AP_PROTOCOL</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_SMP_PCP_PLB_NATIVE_DWIDTH '
-    <widget id="C_SMP_PCP_PLB_NATIVE_DWIDTH">
-        <key>C_SMP_PCP_PLB_NATIVE_DWIDTH</key>
+    
+    <!-- AXI SMP PCP -->
+        <!ENTITY C_S_AXI_SMP_PCP_DATA_WIDTH '
+    <widget id="C_S_AXI_SMP_PCP_DATA_WIDTH">
+        <key>C_S_AXI_SMP_PCP_DATA_WIDTH</key>
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_SMP_PCP_PLB_SUPPORT_BURSTS '
-    <widget id="C_SMP_PCP_PLB_SUPPORT_BURSTS">
-        <key>C_SMP_PCP_PLB_SUPPORT_BURSTS</key>
+
+    <!ENTITY C_S_AXI_SMP_PCP_ADDR_WIDTH '
+    <widget id="C_S_AXI_SMP_PCP_ADDR_WIDTH">
+        <key>C_S_AXI_SMP_PCP_ADDR_WIDTH</key>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_S_AXI_SMP_PCP_USE_WSTRB '
+    <widget id="C_S_AXI_SMP_PCP_USE_WSTRB">
+        <key>C_S_AXI_SMP_PCP_USE_WSTRB</key>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_S_AXI_SMP_PCP_DPHASE_TIMEOUT '
+    <widget id="C_S_AXI_SMP_PCP_DPHASE_TIMEOUT">
+        <key>C_S_AXI_SMP_PCP_DPHASE_TIMEOUT</key>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_S_AXI_SMP_PCP_PROTOCOL '
+    <widget id="C_S_AXI_SMP_PCP_PROTOCOL">
+        <key>C_S_AXI_SMP_PCP_PROTOCOL</key>
         <tip></tip>
     </widget>
     '>
@@ -650,81 +616,74 @@
         <display>System</display>
         <group id="Addresses">
             <display>Addresses</display>
-            <item>&C_MAC_REG_BASEADDR;</item>
-            <item>&C_MAC_REG_HIGHADDR;</item>
-            <item>&C_MAC_CMP_BASEADDR;</item>
-            <item>&C_MAC_CMP_HIGHADDR;</item>
-            <item>&C_MAC_PKT_BASEADDR;</item>
-            <item>&C_MAC_PKT_HIGHADDR;</item>
-            <item>&C_PDI_PCP_BASEADDR;</item>
-            <item>&C_PDI_PCP_HIGHADDR;</item>
-            <item>&C_PDI_AP_BASEADDR;</item>
-            <item>&C_PDI_AP_HIGHADDR;</item>
-            <item>&C_SMP_PCP_BASEADDR;</item>
-            <item>&C_SMP_PCP_HIGHADDR;</item>
-
-        </group>
-        <group id="MAC_DMA">
-            <display>MAC DMA</display>
+            <item>&C_S_AXI_MAC_REG_RNG0_BASEADDR;</item>
+            <item>&C_S_AXI_MAC_REG_RNG0_HIGHADDR;</item>
+            <item>&C_S_AXI_MAC_REG_RNG1_BASEADDR;</item>
+            <item>&C_S_AXI_MAC_REG_RNG1_HIGHADDR;</item>
+            <item>&C_S_AXI_MAC_PKT_BASEADDR;</item>
+            <item>&C_S_AXI_MAC_PKT_HIGHADDR;</item>
+            <item>&C_S_AXI_PDI_PCP_BASEADDR;</item>
+            <item>&C_S_AXI_PDI_PCP_HIGHADDR;</item>
+            <item>&C_S_AXI_PDI_AP_BASEADDR;</item>
+            <item>&C_S_AXI_PDI_AP_HIGHADDR;</item>
+            <item>&C_S_AXI_SMP_PCP_BASEADDR;</item>
+            <item>&C_S_AXI_SMP_PCP_HIGHADDR;</item>
+        </group>      
+        <group id="AXI_MAC_DMA">
+            <display>AXI MAC DMA</display>
             <item>&C_MAC_DMA_BURST_SIZE_RX;</item>
             <item>&C_MAC_DMA_FIFO_SIZE_RX;</item>
             <item>&C_MAC_DMA_BURST_SIZE_TX;</item>
             <item>&C_MAC_DMA_FIFO_SIZE_TX;</item>
-            <item>&C_MAC_DMA_PLB_NATIVE_DWIDTH;</item>
-            <item>&C_MAC_DMA_PLB_AWIDTH;</item>
-            <item>&C_MAC_DMA_PLB_DWIDTH;</item>
+            <item>&C_M_AXI_MAC_DMA_ADDR_WIDTH;</item>
+            <item>&C_M_AXI_MAC_DMA_DATA_WIDTH;</item>
+            <item>&C_M_AXI_MAC_DMA_NATIVE_DWIDTH;</item>
+            <item>&C_M_AXI_MAC_DMA_LENGTH_WIDTH;</item>
+            <!--<item>&C_M_AXI_MAC_DMA_MAX_BURST_LEN;</item>-->
+            <item>&C_M_AXI_MAC_DMA_PROTOCOL;</item>
         </group>
-        <group id="MAC_REG_PLB">
-            <display>MAC REG PLB</display>
-            <item>&C_MAC_REG_PLB_DWIDTH;</item>
-            <item>&C_MAC_REG_PLB_AWIDTH;</item>
-            <item>&C_MAC_REG_PLB_NUM_MASTERS;</item>
-            <item>&C_MAC_REG_PLB_MID_WIDTH;</item>
-            <item>&C_MAC_REG_PLB_P2P;</item>
-            <item>&C_MAC_REG_PLB_NATIVE_DWIDTH;</item>
-            <item>&C_MAC_REG_PLB_SUPPORT_BURSTS;</item>
-            <item>&C_MAC_REG_Clk_FREQ_HZ;</item>
-            <item>&C_MAC_REG_BUS2CORE_CLK_RATIO;</item>
+        <group id="AXI_MAC_REG">
+            <display>AXI MAC REG</display>
+            <item>&C_S_AXI_MAC_REG_NUM_ADDR_RANGES;</item>
+            <item>&C_S_AXI_MAC_REG_DATA_WIDTH;</item>
+            <item>&C_S_AXI_MAC_REG_ADDR_WIDTH;</item>
+            <item>&C_S_AXI_MAC_REG_Clk_FREQ_HZ;</item>
+            <item>&C_S_AXI_MAC_REG_BUS2CORE_CLK_RATIO;</item>
+            <item>&C_S_AXI_MAC_REG_USE_WSTRB;</item>
+            <item>&C_S_AXI_MAC_REG_DPHASE_TIMEOUT;</item>
+            <item>&C_S_AXI_MAC_REG_PROTOCOL;</item>
         </group>
-        <group id="MAC_PKG_PLB">
-            <display>MAC PKT PLB</display>
-            <item>&C_MAC_PKT_PLB_DWIDTH;</item>
-            <item>&C_MAC_PKT_PLB_AWIDTH;</item>
-            <item>&C_MAC_PKT_PLB_NUM_MASTERS;</item>
-            <item>&C_MAC_PKT_PLB_MID_WIDTH;</item>
-            <item>&C_MAC_PKT_PLB_P2P;</item>
-            <item>&C_MAC_PKT_PLB_NATIVE_DWIDTH;</item>
-            <item>&C_MAC_PKT_PLB_SUPPORT_BURSTS;</item>
+        <group id="AXI_MAC_PKT">
+            <display>AXI MAC PKT</display>
+            <item>&C_S_AXI_MAC_PKT_DATA_WIDTH;</item>
+            <item>&C_S_AXI_MAC_PKT_ADDR_WIDTH;</item>
+            <item>&C_S_AXI_MAC_PKT_USE_WSTRB;</item>
+            <item>&C_S_AXI_MAC_PKT_DPHASE_TIMEOUT;</item>
+            <item>&C_S_AXI_MAC_PKT_PROTOCOL;</item>
+        </group>       
+        <group id="AXI_PDI_PCP">
+            <display>AXI PDI PCP</display>
+            <item>&C_S_AXI_PDI_PCP_DATA_WIDTH;</item>
+            <item>&C_S_AXI_PDI_PCP_ADDR_WIDTH;</item>
+            <item>&C_S_AXI_PDI_PCP_USE_WSTRB;</item>
+            <item>&C_S_AXI_PDI_PCP_DPHASE_TIMEOUT;</item>
+            <item>&C_S_AXI_PDI_PCP_PROTOCOL;</item>
+        </group>     
+        <group id="AXI_PDI_AP">
+            <display>AXI PDI AP</display>
+            <item>&C_S_AXI_PDI_AP_DATA_WIDTH;</item>
+            <item>&C_S_AXI_PDI_AP_ADDR_WIDTH;</item>
+            <item>&C_S_AXI_PDI_AP_USE_WSTRB;</item>
+            <item>&C_S_AXI_PDI_AP_DPHASE_TIMEOUT;</item>
+            <item>&C_S_AXI_PDI_AP_PROTOCOL;</item>
         </group>
-        <group id="PDI_PCP_PLB">
-            <display>PDI PCP PLB</display>
-            <item>&C_PDI_PCP_PLB_DWIDTH;</item>
-            <item>&C_PDI_PCP_PLB_AWIDTH;</item>
-            <item>&C_PDI_PCP_PLB_NUM_MASTERS;</item>
-            <item>&C_PDI_PCP_PLB_MID_WIDTH;</item>
-            <item>&C_PDI_PCP_PLB_P2P;</item>
-            <item>&C_PDI_PCP_PLB_NATIVE_DWIDTH;</item>
-            <item>&C_PDI_PCP_PLB_SUPPORT_BURSTS;</item>
-        </group>
-        <group id="PDI_AP_PLB">
-            <display>PDI AP PLB</display>
-            <item>&C_PDI_AP_PLB_DWIDTH;</item>
-            <item>&C_PDI_AP_PLB_AWIDTH;</item>
-            <item>&C_PDI_AP_PLB_NUM_MASTERS;</item>
-            <item>&C_PDI_AP_PLB_MID_WIDTH;</item>
-            <item>&C_PDI_AP_PLB_P2P;</item>
-            <item>&C_PDI_AP_PLB_NATIVE_DWIDTH;</item>
-            <item>&C_PDI_AP_PLB_SUPPORT_BURSTS;</item>
-        </group>
-        <group id="SMP_PCP_PLB">
-            <display>SMP PCP PLB</display>
-            <item>&C_SMP_PCP_PLB_DWIDTH;</item>
-            <item>&C_SMP_PCP_PLB_AWIDTH;</item>
-            <item>&C_SMP_PCP_PLB_NUM_MASTERS;</item>
-            <item>&C_SMP_PCP_PLB_MID_WIDTH;</item>
-            <item>&C_SMP_PCP_PLB_P2P;</item>
-            <item>&C_SMP_PCP_PLB_NATIVE_DWIDTH;</item>
-            <item>&C_SMP_PCP_PLB_SUPPORT_BURSTS;</item>
+        <group id="AXI_SMP_PCP">
+            <display>AXI SMP PCP</display>
+            <item>&C_S_AXI_SMP_PCP_DATA_WIDTH;</item>
+            <item>&C_S_AXI_SMP_PCP_ADDR_WIDTH;</item>
+            <item>&C_S_AXI_SMP_PCP_USE_WSTRB;</item>
+            <item>&C_S_AXI_SMP_PCP_DPHASE_TIMEOUT;</item>
+            <item>&C_S_AXI_SMP_PCP_PROTOCOL;</item>
         </group>
         <group id="Hidden">
             <display>Hidden</display>

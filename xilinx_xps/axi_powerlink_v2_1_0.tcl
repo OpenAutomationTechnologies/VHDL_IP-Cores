@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------------------------------------------------
-#-- POWERLINK XPS PLB Component (TCL)
+#-- POWERLINK XPS AXI Component (TCL)
 #--
 #--       Copyright (C) 2011 B&R
 #--
@@ -85,7 +85,7 @@ proc generate {drv_handle} {
     } else {
           set C_PDI_GEN_TIME_SYNC {C_PDI_GEN_TIME_SYNC 0}
     }
-
+    
     #calc async buffer count
     if { $async_buf_1_size == 0 } {
         set C_PDI_ASYNC_BUF_COUNT {C_PDI_ASYNC_BUF_COUNT 1}
@@ -94,17 +94,16 @@ proc generate {drv_handle} {
         set C_PDI_ASYNC_BUF_COUNT {C_PDI_ASYNC_BUF_COUNT 2}
         set async_buf_count "PCP_PDI_ASYNC_BUF_MAX 2"
     }
-    
-    
+
     if { $ip_core_mode == 0} {
         # Direct IO
         puts "POWERLINK IP-Core in Direct IO mode!"
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_SMP_PCP_BASEADDR" "C_SMP_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_SMP_PCP_BASEADDR" "C_S_AXI_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_SMP_PCP_BASEADDR" "C_SMP_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_SMP_PCP_BASEADDR" "C_S_AXI_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
         }
     } elseif { $ip_core_mode == 1} {
         # PDI with pap
@@ -124,10 +123,10 @@ proc generate {drv_handle} {
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
         }
     } elseif { $ip_core_mode == 3} {
         # PDI with spi
@@ -140,36 +139,36 @@ proc generate {drv_handle} {
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
         }
     } elseif { $ip_core_mode == 4} {
-        # PDI with plb interface
-        puts "POWERLINK IP-Core in PDI mode with PLB interface!"
+        # PDI with axi interface
+        puts "POWERLINK IP-Core in PDI mode with AXI interface!"
         
-        set big_endian true
+        set big_endian false
 
         #create cnApiCfg header file
-        create_cnapi_header $drv_handle "CN_API_INT_PLB" $big_endian $async_buf_count
+        create_cnapi_header $drv_handle "CN_API_INT_AXI" $big_endian $async_buf_count
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_S_AXI_PDI_AP_BASEADDR" "C_S_AXI_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_S_AXI_PDI_AP_BASEADDR" "C_S_AXI_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
         }
     } elseif { $ip_core_mode == 5} {
         # PDI with pap
         puts "POWERLINK IP-Core in openMAC only mode!"
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
         }
     } else {
          error "Invalid Powerlink IP-Core mode $ip_core_mode!" "" "mdd_error"
@@ -208,7 +207,7 @@ proc create_cnapi_header { drv_handle ip_core_mode big_endian async_buf_count} {
         set time_sync_hw "PCP_FPGA_TIMESYNCHW 0"
     }
     
-    set used_bus "AP_USES_PLB_BUS"
+    set used_bus "AP_USES_AXI_BUS"
 
     my_xdefine_include_file $drv_handle "cnApiCfg.h" "libCnApi" 1 $ip_core_mode $endianes $used_bus $num_rpdos $num_tpdos $pdi_rev $sys_id $time_sync_hw $async_buf_count
 }
@@ -225,7 +224,7 @@ proc my_xdefine_include_file {drv_handle file_name drv_string non_driver args} {
         puts $file_handle "#define _CNAPICFG_H_"
     } else {
         puts $file_handle "/* Definitions for the POWERLINK IP-Core */"
-        puts $file_handle "#define POWERLINK_USES_PLB_BUS"
+        puts $file_handle "#define POWERLINK_USES_AXI_BUS"
     }
 
     # Handle special cases
@@ -241,12 +240,12 @@ proc my_xdefine_include_file {drv_handle file_name drv_string non_driver args} {
 
     lappend newargs
     foreach arg $args {
-    set value [xget_value $drv_handle "PARAMETER" $arg]
-    if {[llength $value] == 0} {
-        lappend newargs $arg
-    } else {
-        puts $file_handle "#define [xget_dname $drv_string $arg] [xget_value $drv_handle "PARAMETER" $arg]"
-    }
+        set value [xget_value $drv_handle "PARAMETER" $arg]
+        if {[llength $value] == 0} {
+            lappend newargs $arg
+        } else {
+            puts $file_handle "#define [xget_dname $drv_string $arg] [xget_value $drv_handle "PARAMETER" $arg]"
+        }
     }
     set args $newargs
 
@@ -397,59 +396,76 @@ proc iplevel_drc_proc { ipinst_handle } {
     set error_happend 0
     set pack_loc [ xget_hw_parameter_value $ipinst_handle "C_PACKET_LOCATION" ]
     set ip_core_mode [ xget_hw_parameter_value $ipinst_handle "C_IP_CORE_MODE" ]
+    
 
+    
     # check if mac reg bus interface is connected to a 50Mhz clock
-    set splb_mac_reg_handle [xget_hw_busif_handle $ipinst_handle "MAC_REG"]
-    set splb_mac_reg_conn [xget_hw_value $splb_mac_reg_handle]
+    set saxi_mac_reg_handle [xget_hw_busif_handle $ipinst_handle "S_AXI_MAC_REG"]
+    set saxi_mac_reg_conn [xget_hw_value $saxi_mac_reg_handle]
 
-    if { $splb_mac_reg_conn == "" } {
-        error "The bus interface MAC_REG is not connected! Please connect it to a PLB bus with a 50 Mhz clock source." "" "mdt_error"
+    if { $saxi_mac_reg_conn == "" } {
+        error "The bus interface S_AXI_MAC_REG is not connected! Please connect it to a AXI bus with a 50 Mhz clock source." "" "mdt_error"
         set error_happend 1;
     }
 
     # check if mac pkt is connected when pkt's are internal
-    set splb_mac_pkt_handle [xget_hw_busif_handle $ipinst_handle "MAC_PKT"]
-    set splb_mac_pkt_conn [xget_hw_value $splb_mac_pkt_handle]
+    set saxi_mac_pkt_handle [xget_hw_busif_handle $ipinst_handle "S_AXI_MAC_PKT"]
+    
+    if { $saxi_mac_pkt_handle != "" } {
+        set saxi_mac_pkt_conn [xget_hw_value $saxi_mac_pkt_handle]
 
-    if { $pack_loc < 2 && $splb_mac_pkt_conn == "" } {
-        error "The bus interface MAC_PKT is not connected! Please connect it to the PLB bus where also the PCP bus master is present." "" "mdt_error"
-        set error_happend 1;
+        if { $pack_loc < 2 && $saxi_mac_pkt_conn == "" } {
+            error "The bus interface S_AXI_MAC_PKT is not connected! Please connect it to the AXI bus where also the PCP bus master is present." "" "mdt_error"
+            set error_happend 1;
+        }
     }
-
+    
     # check if mac dma is connected to the memory controller
-    set splb_mac_dma_handle [xget_hw_busif_handle $ipinst_handle "MAC_DMA"]
-    set splb_mac_dma_conn [xget_hw_value $splb_mac_dma_handle]
+    set saxi_mac_dma_handle [xget_hw_busif_handle $ipinst_handle "M_AXI_MAC_DMA"]
+    
+    if { $saxi_mac_dma_handle != "" } {   
+        set saxi_mac_dma_conn [xget_hw_value $saxi_mac_dma_handle]
 
-    if { $pack_loc != 0 && $splb_mac_dma_conn == "" } {
-        error "The MAC_DMA master bus interface is not connected! Please connect it to the PLB bus where the heap of the powerlink stack is located." "" "mdt_error"
-        set error_happend 1;
+        if { $pack_loc != 0 && $saxi_mac_dma_conn == "" } {
+            error "The M_AXI_MAC_DMA master bus interface is not connected! Please connect it to the AXI bus where the heap of the powerlink stack is located." "" "mdt_error"
+            set error_happend 1;
+        }
     }
 
     # check if pdi pcp is connected to the pcp microblaze bus master
-    set splb_pdi_pcp_handle [xget_hw_busif_handle $ipinst_handle "PDI_PCP"]
-    set splb_pdi_pcp_conn [xget_hw_value $splb_pdi_pcp_handle]
+    set saxi_pdi_pcp_handle [xget_hw_busif_handle $ipinst_handle "S_AXI_PDI_PCP"]
+    
+    if { $saxi_pdi_pcp_handle != "" } {   
+        set saxi_pdi_pcp_conn [xget_hw_value $saxi_pdi_pcp_handle]
 
-    if { ( $ip_core_mode != 0 && $ip_core_mode != 5 ) && $splb_pdi_pcp_conn == "" } {
-        error "The PDI_PCP bus interface is not connected! Please connect it to the PLB bus where also the PCP bus master is present." "" "mdt_error"
-        set error_happend 1;
+        if { ( $ip_core_mode != 0 && $ip_core_mode != 5 ) && $saxi_pdi_pcp_conn == "" } {
+            error "The S_AXI_PDI_PCP bus interface is not connected! Please connect it to the AXI bus where also the PCP bus master is present." "" "mdt_error"
+            set error_happend 1;
+        }
     }
 
     # check if pdi ap is connected to the ap microblaze bus master
-    set splb_pdi_ap_handle [xget_hw_busif_handle $ipinst_handle "PDI_AP"]
-    set splb_pdi_ap_conn [xget_hw_value $splb_pdi_ap_handle]
+    set saxi_pdi_ap_handle [xget_hw_busif_handle $ipinst_handle "S_AXI_PDI_AP"]
+    
+    if { $saxi_pdi_ap_handle != "" } {       
+        set saxi_pdi_ap_conn [xget_hw_value $saxi_pdi_ap_handle]
 
-    if { $ip_core_mode == 4  && $splb_pdi_ap_conn == "" } {
-        error "The PDI_AP bus interface is not connected! Please connect it to the PLB bus where also the AP bus master is present." "" "mdt_error"
-        set error_happend 1;
+        if { $ip_core_mode == 4  && $saxi_pdi_ap_conn == "" } {
+            error "The S_AXI_PDI_AP bus interface is not connected! Please connect it to the AXI bus where also the AP bus master is present." "" "mdt_error"
+            set error_happend 1;
+        }
     }
 
     # check if smp pcp is connected to the microblaze bus master
-    set splb_smp_pcp_handle [xget_hw_busif_handle $ipinst_handle "SMP_PCP"]
-    set splb_smp_pcp_conn [xget_hw_value $splb_smp_pcp_handle]
+    set saxi_smp_pcp_handle [xget_hw_busif_handle $ipinst_handle "S_AXI_SMP_PCP"]
+    
+    if { $saxi_smp_pcp_handle != "" } {          
+        set saxi_smp_pcp_conn [xget_hw_value $saxi_smp_pcp_handle]
 
-    if { $ip_core_mode == 0  && $splb_smp_pcp_conn == "" } {
-        error "The SMP_PCP bus interface is not connected! Please connect it to the PLB bus where also the PCP bus master is present." "" "mdt_error"
-        set error_happend 1;
+        if { $ip_core_mode == 0  && $saxi_smp_pcp_conn == "" } {
+            error "The S_AXI_SMP_PCP bus interface is not connected! Please connect it to the AXI bus where also the PCP bus master is present." "" "mdt_error"
+            set error_happend 1;
+        }
     }
 
     # check if interrupts are connected
@@ -485,10 +501,10 @@ proc drc_mac_pkt_high_addr { param_handle } {
 
     # check if the two msb's of the high addr is zero
     if { $mac_pkt_high >= 0x3FFFFFFF } {
-        error "C_MAC_PKT_HIGHADDR needs the two MSBs set to zero and it's value should therefore be less then 0x3FFFFFFF!" "" "mdt_error"
+        error "C_S_AXI_MAC_PKT_HIGHADDR needs the two MSBs set to zero and it's value should therefore be less then 0x3FFFFFFF!" "" "mdt_error"
         return 1
     } elseif { $mac_pkt_high == 0xFFFFFFFF } {
-        error "C_MAC_PKT_HIGHADDR needs to be unequal 0xFFFFFFFF!" "" "mdt_error"
+        error "C_S_AXI_MAC_PKT_HIGHADDR needs to be unequal 0xFFFFFFFF!" "" "mdt_error"
         return 1
     } else {
         return 0;
@@ -501,7 +517,7 @@ proc drc_mac_pkt_base_addr { param_handle } {
 
     # check if the two msb's of the high addr is zero
     if { $mac_pkt_base == 0x00000000 } {
-        error "C_MAC_PKT_BASEADDR needs to be unequal 0x00000000!" "" "mdt_error"
+        error "C_S_AXI_MAC_PKT_BASEADDR needs to be unequal 0x00000000!" "" "mdt_error"
         return 1
     } else {
         return 0;
@@ -524,8 +540,6 @@ proc drc_check_mac_reg_clk_freq { param_handle } {
 proc drc_check_if_event_is_active { param_handle } {
     set event_support [ xget_hw_value $param_handle ]
 
-    puts $event_support
-
     if { $event_support }  {
          return 0;
     } else {
@@ -540,8 +554,8 @@ proc drc_check_if_event_is_active { param_handle } {
 # get if pdi should be generated in the ip-core
 proc get_pdi_enable { param_handle }    {
 
-      set mhsinst      [xget_hw_parent_handle $param_handle]
-   set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]
+    set mhsinst      [xget_hw_parent_handle $param_handle]
+    set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]
 
     if {$ipcore_mode > 0 && $ipcore_mode < 5} {
        return true
@@ -553,7 +567,7 @@ proc get_pdi_enable { param_handle }    {
 # check if the parallel interface is enabled
 proc get_par_if_enable { param_handle }    {
 
-      set mhsinst      [xget_hw_parent_handle $param_handle]
+    set mhsinst      [xget_hw_parent_handle $param_handle]
     set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]
 
     if {$ipcore_mode == 1} {
@@ -566,7 +580,7 @@ proc get_par_if_enable { param_handle }    {
 # check if the SPI interface is enabled
 proc get_spi_if_enable { param_handle }    {
 
-      set mhsinst      [xget_hw_parent_handle $param_handle]
+    set mhsinst      [xget_hw_parent_handle $param_handle]
     set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]
 
     if {$ipcore_mode == 3} {
@@ -576,10 +590,10 @@ proc get_spi_if_enable { param_handle }    {
     }
 }
 
-# check if the plb bus interface is enabled
-proc get_plb_bus_enable { param_handle }    {
+# check if the axi bus interface is enabled
+proc get_axi_bus_enable { param_handle }    {
 
-      set mhsinst      [xget_hw_parent_handle $param_handle]
+    set mhsinst      [xget_hw_parent_handle $param_handle]
     set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]
 
     if {$ipcore_mode == 4} {
@@ -593,7 +607,7 @@ proc get_plb_bus_enable { param_handle }    {
 # check if the simple IO interface is enabled
 proc get_simple_io_enable { param_handle }    {
 
-      set mhsinst      [xget_hw_parent_handle $param_handle]
+    set mhsinst      [xget_hw_parent_handle $param_handle]
     set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]
 
     if {$ipcore_mode == 0} {
@@ -663,10 +677,10 @@ proc calc_mac_packet_size { param_handle } {
         #TX and RX into DPRAM
         set macBufSize [expr $txBufSize + $rxBufSize]
     } elseif {$pack_loc == 1} {
-        #TX into DPRAM and RX over PLB
+        #TX into DPRAM and RX over axi
         set macBufSize $txBufSize
     } elseif {$pack_loc == 2} {
-        #TX and RX over PLB
+        #TX and RX over axi
         set macBufSize 0
     } else {
          #should not happen
@@ -696,11 +710,11 @@ proc calc_mac_packet_size_log2 { param_handle } {
         set macBufSize [expr $txBufSize + $rxBufSize]
         set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
     } elseif {$pack_loc == 1} {
-        #TX into DPRAM and RX over PLB
+        #TX into DPRAM and RX over axi
         set macBufSize $txBufSize
         set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
     } elseif {$pack_loc == 2} {
-        #TX and RX over PLB
+        #TX and RX over axi
         set log2MacBufSize 3
     } else {
          #should not happen
@@ -875,7 +889,7 @@ proc gen_async_1_buffer { param_handle} {
 }
 
 proc calc_async_1_buffer_size { param_handle} {
-       set mhsinst          [xget_hw_parent_handle $param_handle]
+    set mhsinst          [xget_hw_parent_handle $param_handle]
     set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]
     set async_buf_size    [xget_hw_parameter_value $mhsinst "C_PDI_ASYNC_BUF_1_SIZE_USER"]
 
@@ -962,18 +976,46 @@ proc calc_second_time_sync_val { param_handle } {
 }
 
 ###################################################
+## calc the max burst size for the mac dma
+###################################################
+proc calc_mac_dma_max_burst_len { param_handle } {
+    set mhsinst      [xget_hw_parent_handle $param_handle]
+    set rx_burst_len [xget_hw_parameter_value $mhsinst "C_MAC_DMA_BURST_SIZE_RX"]
+    set tx_burst_len [xget_hw_parameter_value $mhsinst "C_MAC_DMA_BURST_SIZE_TX"]
+    
+    set pack_lock   [xget_hw_parameter_value $mhsinst "C_PACKET_LOCATION"]
+    
+    if { $pack_lock == 2 } {
+        #RX and TX in heap
+        if { $rx_burst_len > $tx_burst_len } {
+            return $rx_burst_len;
+        } else {
+            return $tx_burst_len;
+        }
+    } elseif { $pack_lock == 1 } {
+        #RX in heap and TX internal
+        return $rx_burst_len;
+    } else {
+        # both internal and therefore return zero
+        return 0;
+    }
+    
+
+}
+
+###################################################
 ## calc mac reg bus to core clock ratio
 ###################################################
 proc calc_bus2core_clk_ratio { param_handle } {
     set mhsinst          [xget_hw_parent_handle $param_handle]
-    set clk_frequency   [xget_hw_parameter_value $mhsinst "C_MAC_REG_Clk_FREQ_HZ"]
+    set clk_frequency   [xget_hw_parameter_value $mhsinst "C_S_AXI_MAC_REG_Clk_FREQ_HZ"]
 
     if { $clk_frequency == 50000000 } {
         return 1;
     } elseif { $clk_frequency == 100000000 } {
         return 2;
     } else {
-        error "C_MAC_REG_BUS2CORE_CLK_RATIO clock ratio can't be calculated! Please check the frequency of C_MAC_REG_Clk_FREQ_HZ!" "" "mdt_error"
+        error "C_S_AXI_MAC_REG_BUS2CORE_CLK_RATIO clock ratio can't be calculated! Please check the frequency of C_S_AXI_MAC_REG_Clk_FREQ_HZ!" "" "mdt_error"
         return 0;
     }
 }

@@ -74,7 +74,7 @@ entity axi_powerlink is
        C_GEN_PDI : boolean := false;
        C_GEN_PAR_IF : boolean := false;
        C_GEN_SPI_IF : boolean := false;
-       C_GEN_PLB_BUS_IF : boolean := false;
+       C_GEN_AXI_BUS_IF : boolean := false;
        C_GEN_SIMPLE_IO : boolean := false;
        -- openMAC
        C_MAC_PKT_SIZE : integer := 1024;
@@ -482,7 +482,8 @@ component ipif_master_handler
 end component;
 component openMAC_16to32conv
   generic(
-       bus_address_width : integer := 10
+       bus_address_width : integer := 10;
+       gEndian : string := "little"
   );
   port (
        bus_address : in std_logic_vector(bus_address_width-1 downto 0);
@@ -994,10 +995,8 @@ signal Bus2MAC_PKT_CS : std_logic_vector (0 downto 0);
 signal Bus2MAC_PKT_Data : std_logic_vector (C_S_AXI_MAC_PKT_DATA_WIDTH-1 downto 0);
 signal Bus2MAC_REG_Addr : std_logic_vector (C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0);
 signal Bus2MAC_REG_BE : std_logic_vector ((C_S_AXI_MAC_REG_DATA_WIDTH/8)-1 downto 0);
-signal Bus2MAC_REG_BE_s : std_logic_vector ((C_S_AXI_MAC_REG_DATA_WIDTH/8)-1 downto 0);
 signal Bus2MAC_REG_CS : std_logic_vector (1 downto 0);
 signal Bus2MAC_REG_Data : std_logic_vector (C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0);
-signal Bus2MAC_REG_Data_s : std_logic_vector (C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0);
 signal Bus2PDI_AP_Addr : std_logic_vector (C_S_AXI_PDI_AP_ADDR_WIDTH-1 downto 0);
 signal Bus2PDI_AP_BE : std_logic_vector ((C_S_AXI_PDI_AP_DATA_WIDTH/8)-1 downto 0);
 signal Bus2PDI_AP_CS : std_logic_vector (0 downto 0);
@@ -1023,7 +1022,6 @@ signal MAC_DMA2bus_mst_length : std_logic_vector (C_M_AXI_MAC_DMA_LENGTH_WIDTH-1
 signal MAC_PKT2Bus_Data : std_logic_vector (C_S_AXI_MAC_PKT_DATA_WIDTH-1 downto 0);
 signal mac_readdata : std_logic_vector (15 downto 0);
 signal MAC_REG2Bus_Data : std_logic_vector (C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0);
-signal MAC_REG2Bus_Data_s : std_logic_vector (C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0);
 signal mac_writedata : std_logic_vector (15 downto 0);
 signal mbf_address : std_logic_vector (C_MAC_PKT_SIZE_LOG2-3 downto 0);
 signal mbf_byteenable : std_logic_vector (3 downto 0);
@@ -1061,11 +1059,6 @@ with Bus2MAC_REG_CS select
 IP2Bus_WrAck_s <= MAC_REG2Bus_WrAck or MAC_CMP2Bus_WrAck;
 IP2Bus_RdAck_s <= MAC_REG2Bus_RdAck or MAC_CMP2Bus_RdAck;
 IP2Bus_Error_s <= MAC_REG2Bus_Error or MAC_CMP2Bus_Error;
-Bus2MAC_REG_BE_s <= Bus2MAC_REG_BE;
-
---endianness work-around
-Bus2MAC_REG_Data_s <= Bus2MAC_REG_Data(15 downto 0) & Bus2MAC_REG_Data(31 downto 16);
-MAC_REG2Bus_Data <= MAC_REG2Bus_Data_s(15 downto 0) & MAC_REG2Bus_Data_s(31 downto 16);
 mac_address <= mac_address_full(mac_address'range);
 --mac_cmp assignments
 ---cmp_clk <= Bus2MAC_CMP_Clk;
@@ -1098,53 +1091,54 @@ MAC_PKT2Bus_WrAck <= mbf_chipselect and mbf_write and not mbf_waitrequest;
 MAC_PKT2Bus_Error <= '0';
 --test_port
 
-test_port(181 downto 179) <= mac_chipselect & mac_write & mac_read;
-test_port(178) <= mac_waitrequest;
-test_port(177 downto 176) <= mac_byteenable;
+--test_port(181 downto 179) <= mac_chipselect & mac_write & mac_read;
+--test_port(178) <= mac_waitrequest;
+--test_port(177 downto 176) <= mac_byteenable;
+--
+--test_port(171 downto 160) <= mac_address;
+--test_port(159 downto 144) <= mac_writedata;
+--test_port(143 downto 128) <= mac_readdata;
+--
+--test_port(104 downto 102) <= Bus2MAC_REG_CS & Bus2MAC_REG_RNW;
+--test_port(101 downto 100) <= IP2Bus_WrAck_s & IP2Bus_RdAck_s;
+--test_port(99 downto 96) <= Bus2MAC_REG_BE;
+--
+--test_port(95 downto 64) <= Bus2MAC_REG_Addr;
+--test_port(63 downto 32) <= Bus2MAC_REG_Data;
+--test_port(31 downto 0) <= IP2Bus_Data_s;
 
-test_port(171 downto 160) <= mac_address;
-test_port(159 downto 144) <= mac_writedata;
-test_port(143 downto 128) <= mac_readdata;
+test_port(255 downto 251) <= m_read & m_write & m_waitrequest & m_readdatavalid & MAC_DMA2Bus_Mst_Type;
 
-test_port(104 downto 102) <= Bus2MAC_REG_CS & Bus2MAC_REG_RNW;
-test_port(101 downto 100) <= IP2Bus_WrAck_s & IP2Bus_RdAck_s;
-test_port(99 downto 96) <= Bus2MAC_REG_BE;
+test_port(244 downto 240) <= MAC_DMA2Bus_MstWr_Req & MAC_DMA2Bus_MstWr_sof_n & MAC_DMA2Bus_MstWr_eof_n & MAC_DMA2Bus_MstWr_src_rdy_n & Bus2MAC_DMA_MstWr_dst_rdy_n;
+test_port(234 downto 230) <= MAC_DMA2Bus_MstRd_Req & Bus2MAC_DMA_MstRd_sof_n & Bus2MAC_DMA_MstRd_eof_n & Bus2MAC_DMA_MstRd_src_rdy_n & MAC_DMA2Bus_MstRd_dst_rdy_n;
 
-test_port(95 downto 64) <= Bus2MAC_REG_Addr;
-test_port(63 downto 32) <= Bus2MAC_REG_Data;
-test_port(31 downto 0) <= IP2Bus_Data_s;
+test_port(142 downto 140) <= Bus2MAC_DMA_Mst_Cmplt & Bus2MAC_DMA_Mst_Error & Bus2MAC_DMA_Mst_Cmd_Timeout;
 
---test_port(255 downto 251) <= m_read & m_write & m_waitrequest & m_readdatavalid & MAC_DMA2Bus_Mst_Type;
+test_port(MAC_DMA2Bus_Mst_Length'length+120-1 downto 120) <= MAC_DMA2Bus_Mst_Length;
 
---test_port(244 downto 240) <= MAC_DMA2Bus_MstWr_Req & MAC_DMA2Bus_MstWr_sof_n & MAC_DMA2Bus_MstWr_eof_n & MAC_DMA2Bus_MstWr_src_rdy_n & Bus2MAC_DMA_MstWr_dst_rdy_n;
---test_port(234 downto 230) <= MAC_DMA2Bus_MstRd_Req & Bus2MAC_DMA_MstRd_sof_n & Bus2MAC_DMA_MstRd_eof_n & Bus2MAC_DMA_MstRd_src_rdy_n & MAC_DMA2Bus_MstRd_dst_rdy_n;
-
---test_port(142 downto 140) <= Bus2MAC_DMA_Mst_Cmplt & Bus2MAC_DMA_Mst_Error & Bus2MAC_DMA_Mst_Cmd_Timeout;
-
---test_port(MAC_DMA2Bus_Mst_Length'length+120-1 downto 120) <= MAC_DMA2Bus_Mst_Length;
-
---test_port(m_burstcount'length+110-1 downto 110) <= m_burstcount;
---test_port(m_burstcounter'length+96-1 downto 96) <= m_burstcounter;
---test_port(95 downto 64) <= m_address;
---test_port(63 downto 32) <= m_writedata;
---test_port(31 downto 0) <= m_readdata;
+test_port(m_burstcount'length+110-1 downto 110) <= m_burstcount;
+test_port(m_burstcounter'length+96-1 downto 96) <= m_burstcounter;
+test_port(95 downto 64) <= "00" & m_address;
+test_port(63 downto 32) <= m_writedata;
+test_port(31 downto 0) <= m_readdata;
 
 ----  Component instantiations  ----
 
 MAC_REG_16to32 : openMAC_16to32conv
   generic map (
-       bus_address_width => C_S_AXI_MAC_REG_ADDR_WIDTH
+       bus_address_width => C_S_AXI_MAC_REG_ADDR_WIDTH,
+       gEndian => "little"
   )
   port map(
        bus_ack_rd => MAC_REG2Bus_RdAck,
        bus_ack_wr => MAC_REG2Bus_WrAck,
        bus_address => Bus2MAC_REG_Addr( C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0 ),
-       bus_byteenable => Bus2MAC_REG_BE_s( (C_S_AXI_MAC_REG_DATA_WIDTH/8)-1 downto 0 ),
+       bus_byteenable => Bus2MAC_REG_BE( (C_S_AXI_MAC_REG_DATA_WIDTH/8)-1 downto 0 ),
        bus_read => Bus2MAC_REG_RNW,
-       bus_readdata => MAC_REG2Bus_Data_s( C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0 ),
+       bus_readdata => MAC_REG2Bus_Data( C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0 ),
        bus_select => Bus2MAC_REG_CS(1),
        bus_write => Bus2MAC_REG_RNW_n,
-       bus_writedata => Bus2MAC_REG_Data_s( C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0 ),
+       bus_writedata => Bus2MAC_REG_Data( C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0 ),
        clk => Bus2MAC_REG_Clk,
        rst => Bus2MAC_REG_Reset,
        s_address => mac_address_full( C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0 ),
@@ -1206,12 +1200,12 @@ MAC_REG_AXI_SINGLE_SLAVE : axi_lite_ipif
 THE_POWERLINK_IP_CORE : powerlink
   generic map (
        Simulate => false,
-       endian_g => "big",
+       endian_g => "little",
        gNumSmi => C_NUM_SMI,
        genABuf1_g => C_PDI_GEN_ASYNC_BUF_0,
        genABuf2_g => C_PDI_GEN_ASYNC_BUF_1,
        genEvent_g => C_PDI_GEN_EVENT,
-       genInternalAp_g => C_GEN_PLB_BUS_IF,
+       genInternalAp_g => C_GEN_AXI_BUS_IF,
        genIoBuf_g => false,
        genLedGadget_g => C_PDI_GEN_LED,
        genOnePdiClkDomain_g => false,
@@ -1693,7 +1687,7 @@ PDI_PCP2Bus_WrAck <= pcp_chipselect and pcp_write and not pcp_waitrequest;
 PDI_PCP2Bus_Error <= '0';
 end generate genPcpPdiLink;
 
-genPdiAp : if (C_GEN_PLB_BUS_IF) generate
+genPdiAp : if (C_GEN_AXI_BUS_IF) generate
 begin
   PDI_AP_AXI_SINGLE_SLAVE : axi_lite_ipif
     generic map (

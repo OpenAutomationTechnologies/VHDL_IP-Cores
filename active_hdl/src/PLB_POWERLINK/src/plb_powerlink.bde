@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 114163
+ FREEID 116867
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -8369,12 +8369,13 @@ HEADER
    VARIABLES
    {
     #DESCRIPTION=""
-    #GENERIC0="bus_address_width:INTEGER:=10"
+    #GENERIC0="gEndian:STRING:=\"little\""
+    #GENERIC1="bus_address_width:INTEGER:=10"
     #HDL_ENTRIES=
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1326963485"
+    #MODIFIED="1332343860"
    }
   }
   PAGE "" 
@@ -8898,9 +8899,10 @@ PAGE "header"
 "-- 2011-12-16   V0.07   mairt       added TX/RX burst size feature\n"+
 "-- 2012-01-19   V0.08   zelenkaj    Added bus to core clock ration feature\n"+
 "-- 2012-01-26   V0.09   zelenkaj    Added number of SMI generic feature\n"+
-"-- 2012-01-16\tV0.10\tzelenkaj\tReplace plb_* with ipif_master_handler\n"+
+"-- 2012-01-16   V0.10   zelenkaj    Replace plb_* with ipif_master_handler\n"+
 "-- 2012-01-27   V0.20   zelenkaj    Incremented PdiRev\n"+
 "-- 2012-02-01   V0.21   zelenkaj    Added attributes and RMII clk out\n"+
+"-- 2012-03-23   V0.22   zelenkaj    fixed to/downto issue\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -10107,15 +10109,6 @@ PAGE "MAC_DMA_PLB"
     #NAME="MAC_DMA2Bus_MstRd_dst_dsc_n"
    }
   }
-  NET BUS  11360, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="0"
-    #NAME="MAC_DMA2Bus_MstWr_d(0:C_MAC_DMA_PLB_NATIVE_DWIDTH-1)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
-  }
   NET BUS  11361, 0, 0
   {
    VARIABLES
@@ -10186,15 +10179,6 @@ PAGE "MAC_DMA_PLB"
    VARIABLES
    {
     #NAME="Bus2MAC_DMA_Mst_Cmd_Timeout"
-   }
-  }
-  NET BUS  11371, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="0"
-    #NAME="Bus2MAC_DMA_MstRd_d(0:C_MAC_DMA_PLB_NATIVE_DWIDTH-1)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
   NET BUS  11372, 0, 0
@@ -11028,7 +11012,7 @@ PAGE "MAC_DMA_PLB"
   }
   BUS  11921, 0, 0
   {
-   NET 11371
+   NET 116832
    VTX 11842, 11843
    VARIABLES
    {
@@ -11091,7 +11075,7 @@ PAGE "MAC_DMA_PLB"
   }
   BUS  11928, 0, 0
   {
-   NET 11360
+   NET 116831
    VTX 11856, 11857
    VARIABLES
    {
@@ -11197,6 +11181,26 @@ PAGE "MAC_DMA_PLB"
    ALIGN 8
    MARGINS (1,1)
    PARENT 57952
+  }
+  NET BUS  116831, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="MAC_DMA2Bus_MstWr_d(C_MAC_DMA_PLB_NATIVE_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  116832, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_DMA_MstRd_d(C_MAC_DMA_PLB_NATIVE_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
   }
  }
  
@@ -12339,17 +12343,10 @@ PAGE "MAC_REG_PLB"
    MARGINS (1,1)
    PARENT 94878
   }
-  NET WIRE  94468, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="IP2Bus_RrAck_s"
-   }
-  }
   TEXT  94469, 0, 0
   {
    TEXT "$#NAME"
-   RECT (430,1911,611,1940)
+   RECT (427,1911,614,1940)
    ALIGN 9
    MARGINS (1,1)
    PARENT 94879
@@ -13104,7 +13101,7 @@ PAGE "MAC_REG_PLB"
   }
   WIRE  94879, 0, 0
   {
-   NET 94468
+   NET 115588
    VTX 94824, 94825
    VARIABLES
    {
@@ -13128,6 +13125,13 @@ PAGE "MAC_REG_PLB"
     #MDA_RECORD_TOKEN="OTHER"
     #NAME="Bus2MAC_REG_CS(1:0)"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET WIRE  115588, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="IP2Bus_RdAck_s"
    }
   }
  }
@@ -13204,312 +13208,7 @@ PAGE "POWERLINK IP-CORE"
    }
    COORD (2000,640)
    VERTEXES ( (2,111045), (4,108836), (6,108901), (8,108838), (10,108989), (12,108975), (14,108903), (16,108840), (18,108905), (20,108842), (22,108907), (24,108977), (26,108909), (28,108844), (30,108911), (32,108846), (34,108913), (36,108848), (38,108850), (40,108852), (42,108854), (44,108856), (46,108858), (48,108860), (50,108997), (52,108862), (54,108864), (56,108866), (58,108868), (60,109015), (62,108870), (66,108872), (70,108874), (72,108785), (74,108876), (76,108787), (78,108878), (80,109017), (82,108880), (86,108882), (88,110000), (90,108884), (92,110002), (94,108886), (98,108888), (100,108793), (102,108890), (104,109019), (106,108892), (108,108795), (110,108894), (114,108896), (116,108797), (118,108898), (120,108923), (122,109021), (124,108943), (126,109023), (128,108991), (130,109025), (134,109027), (136,108915), (138,109029), (140,108949), (142,109031), (144,108969), (146,109033), (148,108993), (150,109035), (154,109037), (156,108917), (158,109039), (160,108925), (162,109041), (164,108945), (166,109043), (168,108947), (170,108833), (172,108951), (174,108815), (176,108971), (178,108817), (180,108973), (182,109002), (184,113914), (186,108819), (188,113912), (190,108821), (192,113910), (194,108823), (196,113908), (198,109000), (200,113906), (202,108825), (204,113899), (206,108827), (208,108829), (210,108831), (212,109045), (214,109047), (216,109049), (218,109051), (220,109053), (222,108813), (224,108811), (226,108927), (228,108933), (230,108931), (232,108919), (234,108953), (236,108959), (238,108957), (240,108921), (242,108941), (244,108929), (246,108939), (248,108937), (250,108935), (252,108967), (254,108955), (256,108965), (258,108963), (260,108961), (262,109003), (264,109009), (266,109005), (268,109007), (270,109011), (272,109013), (274,108996), (276,109055), (278,109057), (280,109059), (282,109077), (284,109067), (286,109069), (288,109061), (290,109075), (292,109063), (294,109330), (296,109065), (298,109377), (300,110004), (302,110006), (306,113897), (310,113904), (312,113895), (314,113892), (304,113922) )
-   PINPROP 134,"#PIN_COMMENT",""
-   PINPROP 134,"#PIN_STATE","0"
-   PINPROP 132,"#PIN_COMMENT",""
-   PINPROP 132,"#PIN_STATE","0"
-   PINPROP 130,"#PIN_COMMENT",""
-   PINPROP 130,"#PIN_STATE","0"
-   PINPROP 128,"#PIN_COMMENT",""
-   PINPROP 128,"#PIN_STATE","0"
-   PINPROP 126,"#PIN_COMMENT",""
-   PINPROP 126,"#PIN_STATE","0"
-   PINPROP 124,"#PIN_COMMENT",""
-   PINPROP 124,"#PIN_STATE","0"
-   PINPROP 122,"#PIN_COMMENT",""
-   PINPROP 122,"#PIN_STATE","0"
-   PINPROP 120,"#PIN_COMMENT",""
-   PINPROP 120,"#PIN_STATE","0"
-   PINPROP 118,"#PIN_COMMENT",""
-   PINPROP 118,"#PIN_STATE","0"
-   PINPROP 116,"#PIN_COMMENT",""
-   PINPROP 116,"#PIN_STATE","0"
-   PINPROP 96,"#PIN_COMMENT",""
-   PINPROP 96,"#PIN_STATE","0"
-   PINPROP 100,"#PIN_COMMENT",""
-   PINPROP 100,"#PIN_STATE","0"
-   PINPROP 98,"#PIN_COMMENT",""
-   PINPROP 98,"#PIN_STATE","0"
-   PINPROP 114,"#PIN_COMMENT",""
-   PINPROP 114,"#PIN_STATE","0"
-   PINPROP 112,"#PIN_COMMENT",""
-   PINPROP 112,"#PIN_STATE","0"
-   PINPROP 110,"#PIN_COMMENT",""
-   PINPROP 110,"#PIN_STATE","0"
-   PINPROP 108,"#PIN_COMMENT",""
-   PINPROP 108,"#PIN_STATE","0"
-   PINPROP 106,"#PIN_COMMENT",""
-   PINPROP 106,"#PIN_STATE","0"
-   PINPROP 104,"#PIN_COMMENT",""
-   PINPROP 104,"#PIN_STATE","0"
-   PINPROP 102,"#PIN_COMMENT",""
-   PINPROP 102,"#PIN_STATE","0"
-   PINPROP 84,"#PIN_COMMENT",""
-   PINPROP 84,"#PIN_STATE","0"
-   PINPROP 92,"#PIN_COMMENT",""
-   PINPROP 92,"#PIN_STATE","0"
-   PINPROP 90,"#PIN_COMMENT",""
-   PINPROP 90,"#PIN_STATE","0"
-   PINPROP 164,"#PIN_COMMENT",""
-   PINPROP 164,"#PIN_STATE","0"
-   PINPROP 162,"#PIN_COMMENT",""
-   PINPROP 162,"#PIN_STATE","0"
-   PINPROP 160,"#PIN_COMMENT",""
-   PINPROP 160,"#PIN_STATE","0"
-   PINPROP 158,"#PIN_COMMENT",""
-   PINPROP 158,"#PIN_STATE","0"
-   PINPROP 156,"#PIN_COMMENT",""
-   PINPROP 156,"#PIN_STATE","0"
-   PINPROP 154,"#PIN_COMMENT",""
-   PINPROP 154,"#PIN_STATE","0"
-   PINPROP 152,"#PIN_COMMENT",""
-   PINPROP 152,"#PIN_STATE","0"
-   PINPROP 150,"#PIN_COMMENT",""
-   PINPROP 150,"#PIN_STATE","0"
-   PINPROP 148,"#PIN_COMMENT",""
-   PINPROP 148,"#PIN_STATE","0"
-   PINPROP 146,"#PIN_COMMENT",""
-   PINPROP 146,"#PIN_STATE","0"
-   PINPROP 144,"#PIN_COMMENT",""
-   PINPROP 144,"#PIN_STATE","0"
-   PINPROP 142,"#PIN_COMMENT",""
-   PINPROP 142,"#PIN_STATE","0"
-   PINPROP 140,"#PIN_COMMENT",""
-   PINPROP 140,"#PIN_STATE","0"
-   PINPROP 138,"#PIN_COMMENT",""
-   PINPROP 138,"#PIN_STATE","0"
-   PINPROP 136,"#PIN_COMMENT",""
-   PINPROP 136,"#PIN_STATE","0"
-   PINPROP 262,"#PIN_COMMENT",""
-   PINPROP 262,"#PIN_STATE","0"
-   PINPROP 260,"#PIN_COMMENT",""
-   PINPROP 260,"#PIN_STATE","0"
-   PINPROP 258,"#PIN_COMMENT",""
-   PINPROP 258,"#PIN_STATE","0"
-   PINPROP 256,"#PIN_COMMENT",""
-   PINPROP 256,"#PIN_STATE","0"
-   PINPROP 254,"#PIN_COMMENT",""
-   PINPROP 254,"#PIN_STATE","0"
-   PINPROP 238,"#PIN_COMMENT",""
-   PINPROP 238,"#PIN_STATE","0"
-   PINPROP 236,"#PIN_COMMENT",""
-   PINPROP 236,"#PIN_STATE","0"
-   PINPROP 234,"#PIN_COMMENT",""
-   PINPROP 234,"#PIN_STATE","0"
-   PINPROP 212,"#PIN_COMMENT",""
-   PINPROP 212,"#PIN_STATE","0"
-   PINPROP 210,"#PIN_COMMENT",""
-   PINPROP 210,"#PIN_STATE","0"
-   PINPROP 208,"#PIN_COMMENT",""
-   PINPROP 208,"#PIN_STATE","0"
-   PINPROP 200,"#PIN_COMMENT",""
-   PINPROP 200,"#PIN_STATE","0"
-   PINPROP 198,"#PIN_COMMENT",""
-   PINPROP 198,"#PIN_STATE","0"
-   PINPROP 180,"#PIN_COMMENT",""
-   PINPROP 180,"#PIN_STATE","0"
-   PINPROP 282,"#PIN_COMMENT",""
-   PINPROP 282,"#PIN_STATE","0"
-   PINPROP 280,"#PIN_COMMENT",""
-   PINPROP 280,"#PIN_STATE","0"
-   PINPROP 278,"#PIN_COMMENT",""
-   PINPROP 278,"#PIN_STATE","0"
-   PINPROP 276,"#PIN_COMMENT",""
-   PINPROP 276,"#PIN_STATE","0"
-   PINPROP 274,"#PIN_COMMENT",""
-   PINPROP 274,"#PIN_STATE","0"
-   PINPROP 302,"#PIN_COMMENT",""
-   PINPROP 302,"#PIN_STATE","0"
-   PINPROP 300,"#PIN_COMMENT",""
-   PINPROP 300,"#PIN_STATE","0"
-   PINPROP 298,"#PIN_COMMENT",""
-   PINPROP 298,"#PIN_STATE","0"
-   PINPROP 296,"#PIN_COMMENT",""
-   PINPROP 296,"#PIN_STATE","0"
-   PINPROP 294,"#PIN_COMMENT",""
-   PINPROP 294,"#PIN_STATE","0"
-   PINPROP 292,"#PIN_COMMENT",""
-   PINPROP 292,"#PIN_STATE","0"
-   PINPROP 290,"#PIN_COMMENT",""
-   PINPROP 290,"#PIN_STATE","0"
-   PINPROP 288,"#PIN_COMMENT",""
-   PINPROP 288,"#PIN_STATE","0"
-   PINPROP 286,"#PIN_COMMENT",""
-   PINPROP 286,"#PIN_STATE","0"
-   PINPROP 284,"#PIN_COMMENT",""
-   PINPROP 284,"#PIN_STATE","0"
-   PINPROP 246,"#PIN_COMMENT",""
-   PINPROP 246,"#PIN_STATE","0"
-   PINPROP 244,"#PIN_COMMENT",""
-   PINPROP 244,"#PIN_STATE","0"
-   PINPROP 242,"#PIN_COMMENT",""
-   PINPROP 242,"#PIN_STATE","0"
-   PINPROP 240,"#PIN_COMMENT",""
-   PINPROP 240,"#PIN_STATE","0"
-   PINPROP 178,"#PIN_COMMENT",""
-   PINPROP 178,"#PIN_STATE","0"
-   PINPROP 176,"#PIN_COMMENT",""
-   PINPROP 176,"#PIN_STATE","0"
-   PINPROP 196,"#PIN_COMMENT",""
-   PINPROP 196,"#PIN_STATE","0"
-   PINPROP 194,"#PIN_COMMENT",""
-   PINPROP 194,"#PIN_STATE","0"
-   PINPROP 192,"#PIN_COMMENT",""
-   PINPROP 192,"#PIN_STATE","0"
-   PINPROP 186,"#PIN_COMMENT",""
-   PINPROP 186,"#PIN_STATE","0"
-   PINPROP 184,"#PIN_COMMENT",""
-   PINPROP 184,"#PIN_STATE","0"
-   PINPROP 182,"#PIN_COMMENT",""
-   PINPROP 182,"#PIN_STATE","0"
-   PINPROP 218,"#PIN_COMMENT",""
-   PINPROP 218,"#PIN_STATE","0"
-   PINPROP 216,"#PIN_COMMENT",""
-   PINPROP 216,"#PIN_STATE","0"
-   PINPROP 214,"#PIN_COMMENT",""
-   PINPROP 214,"#PIN_STATE","0"
-   PINPROP 174,"#PIN_COMMENT",""
-   PINPROP 174,"#PIN_STATE","0"
-   PINPROP 168,"#PIN_COMMENT",""
-   PINPROP 168,"#PIN_STATE","0"
-   PINPROP 224,"#PIN_COMMENT",""
-   PINPROP 224,"#PIN_STATE","0"
-   PINPROP 222,"#PIN_COMMENT",""
-   PINPROP 222,"#PIN_STATE","0"
-   PINPROP 220,"#PIN_COMMENT",""
-   PINPROP 220,"#PIN_STATE","0"
-   PINPROP 314,"#PIN_COMMENT",""
-   PINPROP 314,"#PIN_STATE","0"
-   PINPROP 272,"#PIN_COMMENT",""
-   PINPROP 272,"#PIN_STATE","0"
-   PINPROP 270,"#PIN_COMMENT",""
-   PINPROP 270,"#PIN_STATE","0"
-   PINPROP 268,"#PIN_COMMENT",""
-   PINPROP 268,"#PIN_STATE","0"
-   PINPROP 266,"#PIN_COMMENT",""
-   PINPROP 266,"#PIN_STATE","0"
-   PINPROP 264,"#PIN_COMMENT",""
-   PINPROP 264,"#PIN_STATE","0"
-   PINPROP 190,"#PIN_COMMENT",""
-   PINPROP 190,"#PIN_STATE","0"
-   PINPROP 188,"#PIN_COMMENT",""
-   PINPROP 188,"#PIN_STATE","0"
-   PINPROP 170,"#PIN_COMMENT",""
-   PINPROP 170,"#PIN_STATE","0"
-   PINPROP 232,"#PIN_COMMENT",""
-   PINPROP 232,"#PIN_STATE","0"
-   PINPROP 230,"#PIN_COMMENT",""
-   PINPROP 230,"#PIN_STATE","0"
-   PINPROP 228,"#PIN_COMMENT",""
-   PINPROP 228,"#PIN_STATE","0"
-   PINPROP 226,"#PIN_COMMENT",""
-   PINPROP 226,"#PIN_STATE","0"
-   PINPROP 252,"#PIN_COMMENT",""
-   PINPROP 252,"#PIN_STATE","0"
-   PINPROP 250,"#PIN_COMMENT",""
-   PINPROP 250,"#PIN_STATE","0"
-   PINPROP 248,"#PIN_COMMENT",""
-   PINPROP 248,"#PIN_STATE","0"
-   PINPROP 166,"#PIN_COMMENT",""
-   PINPROP 166,"#PIN_STATE","0"
-   PINPROP 312,"#PIN_COMMENT",""
-   PINPROP 312,"#PIN_STATE","0"
-   PINPROP 310,"#PIN_COMMENT",""
-   PINPROP 310,"#PIN_STATE","0"
-   PINPROP 308,"#PIN_COMMENT",""
-   PINPROP 308,"#PIN_STATE","0"
-   PINPROP 306,"#PIN_COMMENT",""
-   PINPROP 306,"#PIN_STATE","0"
-   PINPROP 304,"#PIN_COMMENT",""
-   PINPROP 304,"#PIN_STATE","0"
-   PINPROP 172,"#PIN_COMMENT",""
-   PINPROP 172,"#PIN_STATE","0"
-   PINPROP 206,"#PIN_COMMENT",""
-   PINPROP 206,"#PIN_STATE","0"
-   PINPROP 204,"#PIN_COMMENT",""
-   PINPROP 204,"#PIN_STATE","0"
-   PINPROP 202,"#PIN_COMMENT",""
-   PINPROP 202,"#PIN_STATE","0"
-   PINPROP 2,"#PIN_COMMENT",""
-   PINPROP 2,"#PIN_STATE","0"
-   PINPROP 48,"#PIN_COMMENT",""
-   PINPROP 48,"#PIN_STATE","0"
-   PINPROP 46,"#PIN_COMMENT",""
-   PINPROP 46,"#PIN_STATE","0"
-   PINPROP 44,"#PIN_COMMENT",""
-   PINPROP 44,"#PIN_STATE","0"
-   PINPROP 42,"#PIN_COMMENT",""
-   PINPROP 42,"#PIN_STATE","0"
-   PINPROP 40,"#PIN_COMMENT",""
-   PINPROP 40,"#PIN_STATE","0"
-   PINPROP 38,"#PIN_COMMENT",""
-   PINPROP 38,"#PIN_STATE","0"
-   PINPROP 36,"#PIN_COMMENT",""
-   PINPROP 36,"#PIN_STATE","0"
-   PINPROP 32,"#PIN_COMMENT",""
-   PINPROP 32,"#PIN_STATE","0"
-   PINPROP 30,"#PIN_COMMENT",""
-   PINPROP 30,"#PIN_STATE","0"
-   PINPROP 28,"#PIN_COMMENT",""
-   PINPROP 28,"#PIN_STATE","0"
-   PINPROP 26,"#PIN_COMMENT",""
-   PINPROP 26,"#PIN_STATE","0"
-   PINPROP 24,"#PIN_COMMENT",""
-   PINPROP 24,"#PIN_STATE","0"
-   PINPROP 22,"#PIN_COMMENT",""
-   PINPROP 22,"#PIN_STATE","0"
-   PINPROP 20,"#PIN_COMMENT",""
-   PINPROP 20,"#PIN_STATE","0"
-   PINPROP 34,"#PIN_COMMENT",""
-   PINPROP 34,"#PIN_STATE","0"
-   PINPROP 16,"#PIN_COMMENT",""
-   PINPROP 16,"#PIN_STATE","0"
-   PINPROP 14,"#PIN_COMMENT",""
-   PINPROP 14,"#PIN_STATE","0"
-   PINPROP 12,"#PIN_COMMENT",""
-   PINPROP 12,"#PIN_STATE","0"
-   PINPROP 18,"#PIN_COMMENT",""
-   PINPROP 18,"#PIN_STATE","0"
-   PINPROP 8,"#PIN_COMMENT",""
-   PINPROP 8,"#PIN_STATE","0"
-   PINPROP 6,"#PIN_COMMENT",""
-   PINPROP 6,"#PIN_STATE","0"
-   PINPROP 10,"#PIN_COMMENT",""
-   PINPROP 10,"#PIN_STATE","0"
-   PINPROP 4,"#PIN_COMMENT",""
-   PINPROP 4,"#PIN_STATE","0"
-   PINPROP 80,"#PIN_COMMENT",""
-   PINPROP 80,"#PIN_STATE","0"
-   PINPROP 78,"#PIN_COMMENT",""
-   PINPROP 78,"#PIN_STATE","0"
-   PINPROP 76,"#PIN_COMMENT",""
-   PINPROP 76,"#PIN_STATE","0"
-   PINPROP 74,"#PIN_COMMENT",""
-   PINPROP 74,"#PIN_STATE","0"
-   PINPROP 72,"#PIN_COMMENT",""
-   PINPROP 72,"#PIN_STATE","0"
-   PINPROP 70,"#PIN_COMMENT",""
-   PINPROP 70,"#PIN_STATE","0"
-   PINPROP 68,"#PIN_COMMENT",""
-   PINPROP 68,"#PIN_STATE","0"
-   PINPROP 66,"#PIN_COMMENT",""
-   PINPROP 66,"#PIN_STATE","0"
-   PINPROP 64,"#PIN_COMMENT",""
    PINPROP 64,"#PIN_STATE","0"
-   PINPROP 62,"#PIN_COMMENT",""
-   PINPROP 62,"#PIN_STATE","0"
-   PINPROP 60,"#PIN_COMMENT",""
-   PINPROP 60,"#PIN_STATE","0"
-   PINPROP 58,"#PIN_COMMENT",""
-   PINPROP 58,"#PIN_STATE","0"
-   PINPROP 56,"#PIN_COMMENT",""
-   PINPROP 56,"#PIN_STATE","0"
-   PINPROP 54,"#PIN_COMMENT",""
-   PINPROP 54,"#PIN_STATE","0"
-   PINPROP 52,"#PIN_COMMENT",""
-   PINPROP 52,"#PIN_STATE","0"
-   PINPROP 50,"#PIN_COMMENT",""
-   PINPROP 50,"#PIN_STATE","0"
   }
   TEXT  11994, 0, 0
   {
@@ -19490,7 +19189,7 @@ PAGE "MAC_DMA"
   TEXT  26559, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2458,850,3202,879)
+   RECT (2458,850,3227,879)
    ALIGN 8
    MARGINS (1,1)
    PARENT 113687
@@ -19608,15 +19307,6 @@ PAGE "MAC_DMA"
     #NAME="MAC_DMA2Bus_MstRd_dst_dsc_n"
    }
   }
-  NET BUS  26580, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="0"
-    #NAME="MAC_DMA2Bus_MstWr_d(0:C_MAC_DMA_PLB_NATIVE_DWIDTH-1)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
-  }
   NET BUS  26581, 0, 0
   {
    VARIABLES
@@ -19711,7 +19401,7 @@ PAGE "MAC_DMA"
   TEXT  26677, 0, 0
   {
    TEXT "$#NAME"
-   RECT (158,690,902,719)
+   RECT (133,690,902,719)
    ALIGN 10
    MARGINS (1,1)
    PARENT 80245
@@ -19813,15 +19503,6 @@ PAGE "MAC_DMA"
    VARIABLES
    {
     #NAME="Bus2MAC_DMA_Mst_Cmd_Timeout"
-   }
-  }
-  NET BUS  26698, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="0"
-    #NAME="Bus2MAC_DMA_MstRd_d(0:C_MAC_DMA_PLB_NATIVE_DWIDTH-1)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
   NET BUS  26699, 0, 0
@@ -20134,7 +19815,7 @@ PAGE "MAC_DMA"
   }
   BUS  80245, 0, 0
   {
-   NET 26698
+   NET 116810
    VTX 80191, 80192
    VARIABLES
    {
@@ -20266,13 +19947,14 @@ PAGE "MAC_DMA"
     #GENERATE_KIND="IF"
     #LABEL="genThePlbMaster"
    }
-   AREA (1000,280,2400,1640)
+   AREA (240,280,3080,2120)
    INSTANCES 110029
+   ASSIGNMENTS 116546
   }
   TEXT  80260, 0, 0
   {
    TEXT "@GENERATE_STATEMENT_DESCRIPTION"
-   RECT (1000,244,1717,279)
+   RECT (240,244,957,279)
    ALIGN 8
    MARGINS (1,1)
    PARENT 80259
@@ -20365,71 +20047,6 @@ PAGE "MAC_DMA"
     #NAME="m_burstcounter(C_M_BURSTCOUNT_WIDTH-1:0)"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
-  }
-  SIGNALASSIGN  85212, 0, 0
-  {
-   LABEL "testPort"
-   TEXT 
-"--test_port\n"+
-"test_port(255 downto 251) <= m_read & m_write & m_waitrequest & m_readdatavalid & MAC_DMA2Bus_Mst_Type;\n"+
-"\n"+
-"test_port(244 downto 240) <= MAC_DMA2Bus_MstWr_Req & MAC_DMA2Bus_MstWr_sof_n & MAC_DMA2Bus_MstWr_eof_n & MAC_DMA2Bus_MstWr_src_rdy_n & Bus2MAC_DMA_MstWr_dst_rdy_n;\n"+
-"test_port(234 downto 230) <= MAC_DMA2Bus_MstRd_Req & Bus2MAC_DMA_MstRd_sof_n & Bus2MAC_DMA_MstRd_eof_n & Bus2MAC_DMA_MstRd_src_rdy_n & MAC_DMA2Bus_MstRd_dst_rdy_n;\n"+
-"\n"+
-"test_port(142 downto 140) <= Bus2MAC_DMA_Mst_Cmplt & Bus2MAC_DMA_Mst_Error & Bus2MAC_DMA_Mst_Cmd_Timeout;\n"+
-"\n"+
-"test_port(MAC_DMA2Bus_Mst_Length'length+120-1 downto 120) <= MAC_DMA2Bus_Mst_Length;\n"+
-"\n"+
-"test_port(m_burstcount'length+110-1 downto 110) <= m_burstcount;\n"+
-"test_port(m_burstcounter'length+96-1 downto 96) <= m_burstcounter;\n"+
-"test_port(95 downto 64) <= m_address;\n"+
-"test_port(63 downto 32) <= m_writedata;\n"+
-"test_port(31 downto 0) <= m_readdata;"
-   RECT (220,1860,1740,2120)
-   MARGINS (20,20)
-   MULTILINE
-   SYNTAXCOLORED
-   SHOWLABEL
-   SHOWTEXT
-   UPDATE 0
-   CORNER 10
-  }
-  INSTANCE  85213, 0, 0
-  {
-   VARIABLES
-   {
-    #COMPONENT="BusOutput"
-    #DECLARATION="(255:0)"
-    #DOWNTO="1"
-    #INITIAL_VALUE="(others => '0')"
-    #LIBRARY="#terminals"
-    #REFERENCE="test_port(255:0)"
-    #SYMBOL="BusOutput"
-   }
-   COORD (1900,2000)
-   VERTEXES ( (2,85275) )
-  }
-  TEXT  85215, 0, 0
-  {
-   TEXT "$#REFERENCE"
-   RECT (1952,1983,2159,2018)
-   ALIGN 4
-   MARGINS (1,1)
-   PARENT 85213
-  }
-  NET BUS  85216, 0, 0
-  VTX  85274, 0, 0
-  {
-   COORD (1820,2000)
-  }
-  VTX  85275, 0, 0
-  {
-   COORD (1900,2000)
-  }
-  BUS  85276, 0, 0
-  {
-   NET 85216
-   VTX 85274, 85275
   }
   INSTANCE  110029, 0, 0
   {
@@ -20878,7 +20495,7 @@ PAGE "MAC_DMA"
   }
   BUS  113687, 0, 0
   {
-   NET 26580
+   NET 116811
    VTX 113665, 113666
    VARIABLES
    {
@@ -20930,6 +20547,167 @@ PAGE "MAC_DMA"
     #NAMED="1"
    }
   }
+  SIGNALASSIGN  116546, 0, 0
+  {
+   LABEL "SignalAssignments_3"
+   TEXT 
+"Bus2MAC_DMA_MstRd_d_s <=    Bus2MAC_DMA_MstRd_d(7 downto 0) & Bus2MAC_DMA_MstRd_d(15 downto 8) &\n"+
+"                            Bus2MAC_DMA_MstRd_d(23 downto 16) & Bus2MAC_DMA_MstRd_d(31 downto 24);\n"+
+"\n"+
+"MAC_DMA2Bus_MstWr_d <=      MAC_DMA2Bus_MstWr_d_s(7 downto 0) & MAC_DMA2Bus_MstWr_d_s(15 downto 8) &\n"+
+"                            MAC_DMA2Bus_MstWr_d_s(23 downto 16) & MAC_DMA2Bus_MstWr_d_s(31 downto 24);"
+   RECT (1100,1620,2200,1820)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   UPDATE 0
+   CORNER 10
+   VTX (  116782, 116784, 116785, 116787 )
+  }
+  TEXT  116549, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2278,1630,3047,1659)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 116791
+  }
+  TEXT  116569, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2278,1670,3022,1699)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 116792
+   ORIENTATION 2
+  }
+  TEXT  116583, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (298,1630,1042,1659)
+   ALIGN 10
+   MARGINS (1,1)
+   PARENT 116789
+   ORIENTATION 2
+  }
+  TEXT  116594, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (273,1670,1042,1699)
+   ALIGN 10
+   MARGINS (1,1)
+   PARENT 116790
+  }
+  VTX  116781, 0, 0
+  {
+   COORD (1060,1640)
+  }
+  VTX  116782, 0, 0
+  {
+   COORD (1100,1640)
+  }
+  VTX  116783, 0, 0
+  {
+   COORD (1060,1680)
+  }
+  VTX  116784, 0, 0
+  {
+   COORD (1100,1680)
+  }
+  VTX  116785, 0, 0
+  {
+   COORD (2200,1640)
+  }
+  VTX  116786, 0, 0
+  {
+   COORD (2260,1640)
+  }
+  VTX  116787, 0, 0
+  {
+   COORD (2200,1680)
+  }
+  VTX  116788, 0, 0
+  {
+   COORD (2260,1680)
+  }
+  BUS  116789, 0, 0
+  {
+   NET 116829
+   VTX 116781, 116782
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  116790, 0, 0
+  {
+   NET 116811
+   VTX 116783, 116784
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  116791, 0, 0
+  {
+   NET 116810
+   VTX 116785, 116786
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  116792, 0, 0
+  {
+   NET 116830
+   VTX 116787, 116788
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET BUS  116810, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_DMA_MstRd_d_s(C_MAC_DMA_PLB_NATIVE_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  116811, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="MAC_DMA2Bus_MstWr_d_s(C_MAC_DMA_PLB_NATIVE_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  116829, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_DMA_MstRd_d(C_MAC_DMA_PLB_NATIVE_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  116830, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="MAC_DMA2Bus_MstWr_d(C_MAC_DMA_PLB_NATIVE_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
  }
  
 }
@@ -20950,7 +20728,8 @@ PAGE "MAC_REG"
    VARIABLES
    {
     #COMPONENT="openMAC_16to32conv"
-    #GENERIC1="bus_address_width : INTEGER := C_MAC_REG_PLB_AWIDTH"
+    #GENERIC0="bus_address_width : INTEGER := C_MAC_REG_PLB_AWIDTH"
+    #GENERIC1="gEndian : STRING := \"big\""
     #LIBRARY="#default"
     #NO_CONF="1"
     #PRAGMED_GENERICS=""
@@ -20958,7 +20737,7 @@ PAGE "MAC_REG"
     #SYMBOL="openMAC_16to32conv"
    }
    COORD (1440,420)
-   VERTEXES ( (6,66285), (10,66251), (14,66278), (18,66276), (22,66247), (26,66249), (30,66281), (34,66261), (36,66259), (4,66253), (12,66262), (16,66266), (20,66268), (24,66270), (28,66272), (32,66264), (38,66257), (40,66255), (2,111082) )
+   VERTEXES ( (2,111082), (4,66253), (6,66285), (10,66251), (12,66262), (14,66278), (16,66266), (18,66276), (20,66268), (22,66247), (24,66270), (26,66249), (28,66272), (30,66281), (32,66264), (34,66261), (36,66259), (38,66257), (40,66255) )
    PINPROP 2,"#PIN_STATE","0"
   }
   TEXT  23888, 0, 0
@@ -20979,13 +20758,13 @@ PAGE "MAC_REG"
   TEXT  23896, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (1440,916,2123,949)
+   RECT (1440,916,2123,982)
    PARENT 23887
   }
   TEXT  23906, 0, 0
   {
    TEXT "$#NAME"
-   RECT (502,691,1106,720)
+   RECT (490,691,1119,720)
    ALIGN 9
    MARGINS (1,1)
    PARENT 66296
@@ -21040,7 +20819,7 @@ PAGE "MAC_REG"
   TEXT  24165, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2239,451,2843,480)
+   RECT (2227,451,2856,480)
    ALIGN 9
    MARGINS (1,1)
    PARENT 66298
@@ -21308,65 +21087,29 @@ PAGE "MAC_REG"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
-  TEXT  58593, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (384,1211,1006,1240)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 66324
-   ORIENTATION 2
-  }
-  TEXT  58600, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (2201,1211,2848,1240)
-   ALIGN 9
-   MARGINS (1,1)
-   PARENT 66323
-  }
-  NET BUS  58613, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #MDA_RECORD_TOKEN="OTHER"
-    #NAME="Bus2MAC_REG_BE((C_MAC_REG_PLB_DWIDTH/8)-1:0)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
-  }
   SIGNALASSIGN  58617, 0, 0
   {
    LABEL "SignalAssignments_1"
-   TEXT "Bus2MAC_REG_BE_s <= Bus2MAC_REG_BE;"
-   RECT (1200,1140,2000,1320)
+   TEXT 
+"Bus2MAC_REG_BE_s <=\n"+
+"    Bus2MAC_REG_BE(0) & Bus2MAC_REG_BE(1) & \n"+
+"    Bus2MAC_REG_BE(2) & Bus2MAC_REG_BE(3);\n"+
+"\n"+
+"Bus2MAC_REG_Data_s <=\n"+
+"    Bus2MAC_REG_Data(7 downto 0) & Bus2MAC_REG_Data(15 downto 8) & \n"+
+"    Bus2MAC_REG_Data(23 downto 16) & Bus2MAC_REG_Data(31 downto 24);\n"+
+"\n"+
+"MAC_REG2Bus_Data <=\n"+
+"    MAC_REG2Bus_Data_s(7 downto 0) & MAC_REG2Bus_Data_s(15 downto 8) & \n"+
+"    MAC_REG2Bus_Data_s(23 downto 16) & MAC_REG2Bus_Data_s(31 downto 24);"
+   RECT (1020,1140,2200,1620)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
    SHOWLABEL
    SHOWTEXT
    CORNER 10
-   VTX (  66290, 66293 )
-  }
-  NET BUS  65189, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #MDA_RECORD_TOKEN="OTHER"
-    #NAME="Bus2MAC_REG_Data(C_MAC_REG_PLB_DWIDTH-1:0)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
-  }
-  NET BUS  65190, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #MDA_RECORD_TOKEN="OTHER"
-    #NAME="MAC_REG2Bus_Data(C_MAC_REG_PLB_DWIDTH-1:0)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
+   VTX (  115529, 115531, 115533, 115534, 115537, 115538 )
   }
   VTX  66244, 0, 0
   {
@@ -21528,22 +21271,6 @@ PAGE "MAC_REG"
   {
    COORD (1140,500)
   }
-  VTX  66290, 0, 0
-  {
-   COORD (2000,1220)
-  }
-  VTX  66291, 0, 0
-  {
-   COORD (2180,1220)
-  }
-  VTX  66292, 0, 0
-  {
-   COORD (1040,1220)
-  }
-  VTX  66293, 0, 0
-  {
-   COORD (1200,1220)
-  }
   WIRE  66294, 0, 0
   {
    NET 24175
@@ -21564,7 +21291,7 @@ PAGE "MAC_REG"
   }
   BUS  66296, 0, 0
   {
-   NET 65189
+   NET 115128
    VTX 66248, 66249
    VARIABLES
    {
@@ -21582,7 +21309,7 @@ PAGE "MAC_REG"
   }
   BUS  66298, 0, 0
   {
-   NET 65190
+   NET 115154
    VTX 66252, 66253
    VARIABLES
    {
@@ -21738,24 +21465,6 @@ PAGE "MAC_REG"
     #NAMED="1"
    }
   }
-  BUS  66323, 0, 0
-  {
-   NET 58592
-   VTX 66290, 66291
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  BUS  66324, 0, 0
-  {
-   NET 58613
-   VTX 66292, 66293
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
   NET BUS  95108, 0, 0
   {
    VARIABLES
@@ -21798,6 +21507,290 @@ PAGE "MAC_REG"
    ALIGN 9
    MARGINS (1,1)
    PARENT 111085
+  }
+  NET BUS  115128, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_REG_Data_s(C_MAC_REG_PLB_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  115154, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="MAC_REG2Bus_Data_s(C_MAC_REG_PLB_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  TEXT  115168, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (204,1211,826,1240)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 115540
+   ORIENTATION 2
+  }
+  NET BUS  115170, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_REG_BE((C_MAC_REG_PLB_DWIDTH/8)-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  115171, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_REG_Data(C_MAC_REG_PLB_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  TEXT  115175, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (222,1291,826,1320)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 115541
+   ORIENTATION 2
+  }
+  TEXT  115178, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (225,1371,854,1400)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 115542
+  }
+  TEXT  115380, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2401,1211,3048,1240)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 115543
+  }
+  NET BUS  115382, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="MAC_REG2Bus_Data(C_MAC_REG_PLB_DWIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  TEXT  115384, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2402,1291,3031,1320)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 115545
+  }
+  TEXT  115386, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2399,1371,3003,1400)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 115544
+   ORIENTATION 2
+  }
+  VTX  115528, 0, 0
+  {
+   COORD (860,1220)
+  }
+  VTX  115529, 0, 0
+  {
+   COORD (1020,1220)
+  }
+  VTX  115530, 0, 0
+  {
+   COORD (860,1300)
+  }
+  VTX  115531, 0, 0
+  {
+   COORD (1020,1300)
+  }
+  VTX  115532, 0, 0
+  {
+   COORD (860,1380)
+  }
+  VTX  115533, 0, 0
+  {
+   COORD (1020,1380)
+  }
+  VTX  115534, 0, 0
+  {
+   COORD (2200,1220)
+  }
+  VTX  115535, 0, 0
+  {
+   COORD (2380,1220)
+  }
+  VTX  115536, 0, 0
+  {
+   COORD (2380,1380)
+  }
+  VTX  115537, 0, 0
+  {
+   COORD (2200,1380)
+  }
+  VTX  115538, 0, 0
+  {
+   COORD (2200,1300)
+  }
+  VTX  115539, 0, 0
+  {
+   COORD (2380,1300)
+  }
+  BUS  115540, 0, 0
+  {
+   NET 115170
+   VTX 115528, 115529
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  115541, 0, 0
+  {
+   NET 115171
+   VTX 115530, 115531
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  115542, 0, 0
+  {
+   NET 115154
+   VTX 115532, 115533
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  115543, 0, 0
+  {
+   NET 58592
+   VTX 115534, 115535
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  115544, 0, 0
+  {
+   NET 115382
+   VTX 115536, 115537
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  115545, 0, 0
+  {
+   NET 115128
+   VTX 115538, 115539
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  INSTANCE  115563, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusOutput"
+    #DECLARATION="(255:0)"
+    #DOWNTO="1"
+    #INITIAL_VALUE="(others => '0')"
+    #LIBRARY="#terminals"
+    #REFERENCE="test_port(255:0)"
+    #SYMBOL="BusOutput"
+   }
+   COORD (1620,1900)
+   VERTEXES ( (2,115564) )
+  }
+  VTX  115564, 0, 0
+  {
+   COORD (1620,1900)
+  }
+  TEXT  115565, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (1672,1883,1879,1918)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 115563
+  }
+  BUS  115567, 0, 0
+  {
+   NET 115568
+   VTX 115569, 115564
+  }
+  NET BUS  115568, 0, 0
+  VTX  115569, 0, 0
+  {
+   COORD (1540,1900)
+  }
+  SIGNALASSIGN  115570, 0, 0
+  {
+   LABEL "SignalAssignments_2"
+   TEXT 
+"--test_port\n"+
+"\n"+
+"test_port(181 downto 179) <= mac_chipselect & mac_write & mac_read;\n"+
+"test_port(178) <= mac_waitrequest;\n"+
+"test_port(177 downto 176) <= mac_byteenable;\n"+
+"\n"+
+"test_port(171 downto 160) <= mac_address(11 downto 0);\n"+
+"test_port(159 downto 144) <= mac_writedata;\n"+
+"test_port(143 downto 128) <= mac_readdata;\n"+
+"\n"+
+"test_port(104 downto 102) <= Bus2MAC_REG_CS & Bus2MAC_REG_RNW;\n"+
+"test_port(101 downto 100) <= IP2Bus_WrAck_s & IP2Bus_RdAck_s;\n"+
+"test_port(99 downto 96) <= Bus2MAC_REG_BE;\n"+
+"\n"+
+"test_port(95 downto 64) <= Bus2MAC_REG_Addr;\n"+
+"test_port(63 downto 32) <= Bus2MAC_REG_Data;\n"+
+"test_port(31 downto 0) <= IP2Bus_Data_s;\n"+
+"\n"+
+"--test_port(255 downto 251) <= m_read & m_write & m_waitrequest & m_readdatavalid & MAC_DMA2Bus_Mst_Type;\n"+
+"\n"+
+"--test_port(244 downto 240) <= MAC_DMA2Bus_MstWr_Req & MAC_DMA2Bus_MstWr_sof_n & MAC_DMA2Bus_MstWr_eof_n & MAC_DMA2Bus_MstWr_src_rdy_n & Bus2MAC_DMA_MstWr_dst_rdy_n;\n"+
+"--test_port(234 downto 230) <= MAC_DMA2Bus_MstRd_Req & Bus2MAC_DMA_MstRd_sof_n & Bus2MAC_DMA_MstRd_eof_n & Bus2MAC_DMA_MstRd_src_rdy_n & MAC_DMA2Bus_MstRd_dst_rdy_n;\n"+
+"\n"+
+"--test_port(142 downto 140) <= Bus2MAC_DMA_Mst_Cmplt & Bus2MAC_DMA_Mst_Error & Bus2MAC_DMA_Mst_Cmd_Timeout;\n"+
+"\n"+
+"--test_port(MAC_DMA2Bus_Mst_Length'length+120-1 downto 120) <= MAC_DMA2Bus_Mst_Length;\n"+
+"\n"+
+"--test_port(m_burstcount'length+110-1 downto 110) <= m_burstcount;\n"+
+"--test_port(m_burstcounter'length+96-1 downto 96) <= m_burstcounter;\n"+
+"--test_port(95 downto 64) <= m_address;\n"+
+"--test_port(63 downto 32) <= m_writedata;\n"+
+"--test_port(31 downto 0) <= m_readdata;"
+   RECT (200,1680,1500,2180)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   CORNER 10
   }
  }
  
@@ -22089,18 +22082,24 @@ PAGE "MAC_CMP"
    TEXT 
 "--mac_cmp assignments\n"+
 "---cmp_clk <= Bus2MAC_CMP_Clk;\n"+
-"tcp_writedata <= Bus2MAC_REG_Data;\n"+
+"tcp_writedata <=\n"+
+"    Bus2MAC_REG_Data(7 downto 0) & Bus2MAC_REG_Data(15 downto 8) & \n"+
+"    Bus2MAC_REG_Data(23 downto 16) & Bus2MAC_REG_Data(31 downto 24);\n"+
 "tcp_read <= Bus2MAC_REG_RNW;\n"+
 "tcp_write <= not Bus2MAC_REG_RNW;\n"+
 "tcp_chipselect <= Bus2MAC_REG_CS(0);\n"+
-"tcp_byteenable <= Bus2MAC_REG_BE;\n"+
+"tcp_byteenable <=\n"+
+"    Bus2MAC_REG_BE(0) & Bus2MAC_REG_BE(1) & \n"+
+"    Bus2MAC_REG_BE(2) & Bus2MAC_REG_BE(3);\n"+
 "tcp_address <= Bus2MAC_REG_Addr(3 downto 2);\n"+
 "\n"+
-"MAC_CMP2Bus_Data <= tcp_readdata;\n"+
+"MAC_CMP2Bus_Data <= \n"+
+"    tcp_readdata(7 downto 0) & tcp_readdata(15 downto 8) & \n"+
+"    tcp_readdata(23 downto 16) & tcp_readdata(31 downto 24);\n"+
 "MAC_CMP2Bus_RdAck <= tcp_chipselect and tcp_read and not tcp_waitrequest;\n"+
 "MAC_CMP2Bus_WrAck <= tcp_chipselect and tcp_write and not tcp_waitrequest;\n"+
 "MAC_CMP2Bus_Error <= '0';"
-   RECT (960,540,2340,1160)
+   RECT (960,540,2340,1240)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -22537,7 +22536,7 @@ PAGE "MAC_CMP"
 "\t\t\t\t\t\t'0'\t\t\t\t\t\t\t\t\t\twhen others;\t\n"+
 "\n"+
 "with Bus2MAC_REG_CS select \n"+
-"\tIP2Bus_RrAck_s <= MAC_REG2Bus_RdAck \t\t\t\twhen \"10\",\n"+
+"\tIP2Bus_RdAck_s <= MAC_REG2Bus_RdAck \t\t\t\twhen \"10\",\n"+
 "\t\t\t\t\t\tMAC_CMP2Bus_RdAck \t\t\t\t\twhen \"01\",\n"+
 "\t\t\t\t\t\t'0'\t\t\t\t\t\t\t\t\t\twhen others;\t\n"+
 "\n"+
@@ -24893,22 +24892,24 @@ PAGE "MAC_PKT"
    TEXT 
 "--mac_pkt assignments\n"+
 "pkt_clk <= Bus2MAC_PKT_Clk;\n"+
-"mbf_writedata <= Bus2MAC_PKT_Data;\n"+
-"--\tBus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &\n"+
-"--\tBus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);\n"+
+"mbf_writedata <=\n"+
+"    Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &\n"+
+"    Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);\n"+
 "mbf_read <= Bus2MAC_PKT_RNW;\n"+
 "mbf_write <= not Bus2MAC_PKT_RNW;\n"+
 "mbf_chipselect <= Bus2MAC_PKT_CS(0);\n"+
-"mbf_byteenable <= Bus2MAC_PKT_BE;\n"+
+"mbf_byteenable <=\n"+
+"    Bus2MAC_PKT_BE(0) & Bus2MAC_PKT_BE(1) &\n"+
+"    Bus2MAC_PKT_BE(2) & Bus2MAC_PKT_BE(3);\n"+
 "mbf_address <= Bus2MAC_PKT_Addr(C_MAC_PKT_SIZE_LOG2-1 downto 2);\n"+
 "\n"+
-"MAC_PKT2Bus_Data <= mbf_readdata;\n"+
-"--\tmbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &\n"+
-"--\tmbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);\n"+
+"MAC_PKT2Bus_Data <=\n"+
+"    mbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &\n"+
+"    mbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);\n"+
 "MAC_PKT2Bus_RdAck <= mbf_chipselect and mbf_read and not mbf_waitrequest;\n"+
 "MAC_PKT2Bus_WrAck <= mbf_chipselect and mbf_write and not mbf_waitrequest;\n"+
 "MAC_PKT2Bus_Error <= '0';"
-   RECT (980,600,2360,1220)
+   RECT (980,600,2360,1320)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -27466,22 +27467,28 @@ PAGE "PDI_PCP"
 "--pdi_pcp assignments\n"+
 "clkPcp <= Bus2PDI_PCP_Clk;\n"+
 "rstPcp <= Bus2PDI_PCP_Reset;\n"+
-"pcp_writedata <= Bus2PDI_PCP_Data;\n"+
-"--\tBus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &\n"+
-"--\tBus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);\n"+
+"--pcp_writedata <= Bus2PDI_PCP_Data;\n"+
+"pcp_writedata <=  Bus2PDI_PCP_Data(7 downto 0) & Bus2PDI_PCP_Data(15 downto 8) & Bus2PDI_PCP_Data(23 downto 16) & Bus2PDI_PCP_Data(31 downto 24);\n"+
+"--pcp_writedata <=  Bus2PDI_PCP_Data(15 downto 0) & Bus2PDI_PCP_Data(31 downto 16) when Bus2PDI_PCP_BE = \"1100\" or Bus2PDI_PCP_BE = \"0011\" else\n"+
+"--            Bus2PDI_PCP_Data(15 downto 8) & Bus2PDI_PCP_Data(7 downto 0) & Bus2PDI_PCP_Data(31 downto 24) & Bus2PDI_PCP_Data(23 downto 16) when Bus2PDI_PCP_BE = \"1000\" or Bus2PDI_PCP_BE = \"0100\" or Bus2PDI_PCP_BE = \"0010\" or Bus2PDI_PCP_BE = \"0001\" else\n"+
+"--            Bus2PDI_PCP_Data;\n"+
+"\n"+
 "pcp_read <= Bus2PDI_PCP_RNW;\n"+
 "pcp_write <= not Bus2PDI_PCP_RNW;\n"+
 "pcp_chipselect <= Bus2PDI_PCP_CS(0);\n"+
-"pcp_byteenable <= Bus2PDI_PCP_BE;\n"+
+"\n"+
+"--pcp_byteenable <= Bus2PDI_PCP_BE;\n"+
+"pcp_byteenable <= Bus2PDI_PCP_BE(0) & Bus2PDI_PCP_BE(1) & Bus2PDI_PCP_BE(2) & Bus2PDI_PCP_BE(3);\n"+
+"\n"+
 "pcp_address <= Bus2PDI_PCP_Addr(14 downto 2);\n"+
 "\n"+
-"PDI_PCP2Bus_Data <= pcp_readdata;\n"+
-"--\tmbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &\n"+
-"--\tmbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);\n"+
+"--PDI_PCP2Bus_Data <= pcp_readdata;\n"+
+"PDI_PCP2Bus_Data <=  pcp_readdata(7 downto 0) & pcp_readdata(15 downto 8) & pcp_readdata(23 downto 16) & pcp_readdata(31 downto 24);\n"+
+"\n"+
 "PDI_PCP2Bus_RdAck <= pcp_chipselect and pcp_read and not pcp_waitrequest;\n"+
 "PDI_PCP2Bus_WrAck <= pcp_chipselect and pcp_write and not pcp_waitrequest;\n"+
 "PDI_PCP2Bus_Error <= '0';"
-   RECT (980,580,2360,1240)
+   RECT (980,580,2360,1680)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -28029,7 +28036,7 @@ PAGE "PDI_PCP"
     #GENERATE_KIND="IF"
     #LABEL="genPcpPdiLink"
    }
-   AREA (240,440,3100,1320)
+   AREA (240,440,3100,1720)
    ASSIGNMENTS 96128
   }
   TEXT  109702, 0, 0
@@ -30089,7 +30096,7 @@ PAGE "AP_PCP"
   TEXT  97453, 0, 0
   {
    TEXT "$#NAME"
-   RECT (640,810,852,839)
+   RECT (640,810,839,839)
    ALIGN 8
    MARGINS (1,1)
    PARENT 113781
@@ -30214,22 +30221,25 @@ PAGE "AP_PCP"
 "--ap_pcp assignments\n"+
 "clkAp <= Bus2PDI_AP_Clk;\n"+
 "rstAp <= Bus2PDI_AP_Reset;\n"+
-"ap_writedata <= Bus2PDI_AP_Data;\n"+
-"--\tBus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &\n"+
-"--\tBus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);\n"+
+"\n"+
+"--ap_writedata <=  Bus2PDI_AP_Data;\n"+
+"ap_writedata <=  Bus2PDI_AP_Data(7 downto 0) & Bus2PDI_AP_Data(15 downto 8) & Bus2PDI_AP_Data(23 downto 16) & Bus2PDI_AP_Data(31 downto 24);\n"+
+"\n"+
 "ap_read <= Bus2PDI_AP_RNW;\n"+
 "ap_write <= not Bus2PDI_AP_RNW;\n"+
 "ap_chipselect <= Bus2PDI_AP_CS(0);\n"+
-"ap_byteenable <= Bus2PDI_AP_BE;\n"+
+"--ap_byteenable <= Bus2PDI_AP_BE;\n"+
+"ap_byteenable <= Bus2PDI_AP_BE(0) & Bus2PDI_AP_BE(1) & Bus2PDI_AP_BE(2) & Bus2PDI_AP_BE(3);\n"+
+"\n"+
 "ap_address <= Bus2PDI_AP_Addr(14 downto 2);\n"+
 "\n"+
-"PDI_AP2Bus_Data <= ap_readdata;\n"+
-"--\tmbf_readdata(7 downto 0) & mbf_readdata(15 downto 8) &\n"+
-"--\tmbf_readdata(23 downto 16) & mbf_readdata(31 downto 24);\n"+
+"--PDI_AP2Bus_Data <=  ap_readdata;\n"+
+"PDI_AP2Bus_Data <=  ap_readdata(7 downto 0) & ap_readdata(15 downto 8) & ap_readdata(23 downto 16) & ap_readdata(31 downto 24);\n"+
+"\n"+
 "PDI_AP2Bus_RdAck <= ap_chipselect and ap_read and not ap_waitrequest;\n"+
 "PDI_AP2Bus_WrAck <= ap_chipselect and ap_write and not ap_waitrequest;\n"+
 "PDI_AP2Bus_Error <= '0';"
-   RECT (980,480,2360,1120)
+   RECT (980,480,2360,1580)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -30238,15 +30248,6 @@ PAGE "AP_PCP"
    UPDATE 0
    CORNER 10
    VTX (  113730, 113732, 113734, 113736, 113738, 113740, 113741, 113743, 113746, 113747, 113749, 113751, 113753, 113755, 113757, 113759, 113762, 113763, 113765, 113768, 113770, 113772 )
-  }
-  NET BUS  97520, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #MDA_RECORD_TOKEN="OTHER"
-    #NAME="pcp_readdata(31:0)"
-   }
   }
   NET WIRE  97621, 0, 0
   {
@@ -30403,7 +30404,7 @@ PAGE "AP_PCP"
     #GENERATE_KIND="IF"
     #LABEL="genApPdiLink"
    }
-   AREA (220,341,3080,1221)
+   AREA (220,341,3080,1660)
    ASSIGNMENTS 97481
   }
   TEXT  113728, 0, 0
@@ -30664,7 +30665,7 @@ PAGE "AP_PCP"
   }
   BUS  113781, 0, 0
   {
-   NET 97520
+   NET 114820
    VTX 113745, 113746
    VARIABLES
    {
@@ -30788,6 +30789,14 @@ PAGE "AP_PCP"
     #NAMED="1"
    }
   }
+  NET BUS  114820, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #NAME="ap_readdata(31:0)"
+   }
+  }
  }
  
 }
@@ -30814,7 +30823,7 @@ PAGE "SMP_PCP"
   TEXT  98193, 0, 0
   {
    TEXT "$#NAME"
-   RECT (705,1150,889,1179)
+   RECT (680,1151,864,1180)
    ALIGN 8
    MARGINS (1,1)
    PARENT 109686
@@ -30939,7 +30948,7 @@ PAGE "SMP_PCP"
   TEXT  98221, 0, 0
   {
    TEXT "$#NAME"
-   RECT (780,1070,889,1099)
+   RECT (760,1071,869,1100)
    ALIGN 8
    MARGINS (1,1)
    PARENT 109688
@@ -30947,7 +30956,7 @@ PAGE "SMP_PCP"
   TEXT  98222, 0, 0
   {
    TEXT "$#NAME"
-   RECT (778,1110,889,1139)
+   RECT (760,1111,871,1140)
    ALIGN 8
    MARGINS (1,1)
    PARENT 109689
@@ -30955,7 +30964,7 @@ PAGE "SMP_PCP"
   TEXT  98223, 0, 0
   {
    TEXT "$#NAME"
-   RECT (720,1030,889,1059)
+   RECT (700,1031,869,1060)
    ALIGN 8
    MARGINS (1,1)
    PARENT 109687
@@ -30976,18 +30985,23 @@ PAGE "SMP_PCP"
 "--SMP_PCP assignments\n"+
 "clkPcp <= Bus2SMP_PCP_Clk;\n"+
 "rstPcp <= Bus2SMP_PCP_Reset;\n"+
-"smp_writedata <= Bus2SMP_PCP_Data;\n"+
+"--smp_writedata <= Bus2SMP_PCP_Data;\n"+
+"smp_writedata <=  Bus2SMP_PCP_Data(7 downto 0) & Bus2SMP_PCP_Data(15 downto 8) & Bus2SMP_PCP_Data(23 downto 16) & Bus2SMP_PCP_Data(31 downto 24);\n"+
+"\n"+
 "smp_read <= Bus2SMP_PCP_RNW and Bus2SMP_PCP_CS(0);\n"+
 "smp_write <= not Bus2SMP_PCP_RNW and Bus2SMP_PCP_CS(0);\n"+
 "smp_chipselect <= Bus2SMP_PCP_CS(0);\n"+
-"smp_byteenable <= Bus2SMP_PCP_BE;\n"+
+"--smp_byteenable <= Bus2SMP_PCP_BE;\n"+
+"smp_byteenable <= Bus2SMP_PCP_BE(0) & Bus2SMP_PCP_BE(1) & Bus2SMP_PCP_BE(2) & Bus2SMP_PCP_BE(3);\n"+
 "smp_address <= Bus2SMP_PCP_Addr(2);\n"+
 "\n"+
-"SMP_PCP2Bus_Data <= smp_readdata;\n"+
+"--SMP_PCP2Bus_Data <= smp_readdata;\n"+
+"SMP_PCP2Bus_Data <=  smp_readdata(7 downto 0) & smp_readdata(15 downto 8) & smp_readdata(23 downto 16) & smp_readdata(31 downto 24);\n"+
+"\n"+
 "SMP_PCP2Bus_RdAck <= smp_chipselect and smp_read and not smp_waitrequest;\n"+
 "SMP_PCP2Bus_WrAck <= smp_chipselect and smp_write and not smp_waitrequest;\n"+
 "SMP_PCP2Bus_Error <= '0';"
-   RECT (960,580,2340,1200)
+   RECT (960,580,2340,1320)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -31500,7 +31514,7 @@ PAGE "SMP_PCP"
     #GENERATE_KIND="IF"
     #LABEL="genSimpleIoSignals"
    }
-   AREA (240,440,3080,1260)
+   AREA (240,440,3080,1360)
    ASSIGNMENTS 98226
   }
   TEXT  109697, 0, 0
@@ -33495,7 +33509,7 @@ PAGE ""
  
  BODY
  {
-  TEXT  114146, 0, 0
+  TEXT  116850, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -33506,7 +33520,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  114147, 0, 0
+  TEXT  116851, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -33517,7 +33531,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  114148, 0, 0
+  TEXT  116852, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -33527,7 +33541,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  114149, 0, 0
+  TEXT  116853, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -33539,7 +33553,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  114150, 0, 0
+  TEXT  116854, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -33553,7 +33567,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  114151, 0, 0
+  TEXT  116855, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -33563,7 +33577,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  114152, 0, 0
+  TEXT  116856, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -33575,7 +33589,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  114153, 0, 0
+  TEXT  116857, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -33585,7 +33599,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  114154, 0, 0
+  TEXT  116858, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -33596,7 +33610,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  114155, 0, 0
+  GROUP  116859, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -33608,7 +33622,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  114156, 0, 0
+  GROUP  116860, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -33620,7 +33634,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  114157, 0, 0
+  GROUP  116861, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -33632,7 +33646,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  114158, 0, 0
+  GROUP  116862, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -33644,7 +33658,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  114159, 0, 0
+  GROUP  116863, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -33656,7 +33670,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  114160, 0, 0
+  GROUP  116864, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -33667,14 +33681,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  114161, 0, 0
+  LINE  116865, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  114162, 0, 0
+  LINKBMPPICT  116866, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
