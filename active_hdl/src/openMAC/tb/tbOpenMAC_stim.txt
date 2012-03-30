@@ -1,0 +1,42 @@
+#openMAC TX frame manually
+#read 16bit: RDw 00000000
+#write 16bit: WRw 00000000 1234
+#read 8bit: RDb 00000000
+#write 8bit: WRb 00000000 XX34
+#
+#jumpe equal: JEw 00000000 1234
+#
+#
+#nop: NP
+#
+# read phy reset
+RDw 00002004
+#deactivate phy reset
+WRw 00002004 0080
+# read from phy
+WRw 00002000 6000
+JEw 00002000 0080
+#set TX0
+# 60 byte
+WRw 00001502 003C
+# pointer = ABCDEF00
+WRw 00001504 EF00
+WRw 00001506 ABCD
+# time = 0x00000020
+WRw 00001508 0020
+WRw 0000150A 0000
+# start owner + last
+#WRw 00001500 0300
+WRb 00001500 0000
+WRb 00001501 0300
+#
+#set TX control
+# half + run
+WRw 00000002 2080
+#WRb 00000003 2000
+#WRb 00000002 0080
+#
+#read TX0
+JEw 00001500 0400
+RDw 0000150C
+RDw 0000150E
