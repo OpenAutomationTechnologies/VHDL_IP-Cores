@@ -123,10 +123,10 @@ begin
 						"0100" when addrReg(1 downto 0) = "10" and spiBigEnd_g = false else
 						"1000" when addrReg(1 downto 0) = "11" and spiBigEnd_g = false else
 						--big endian
-						"0001" when addrReg(1 downto 0) = "11" and spiBigEnd_g = true else
-						"0010" when addrReg(1 downto 0) = "10" and spiBigEnd_g = true else
-						"0100" when addrReg(1 downto 0) = "01" and spiBigEnd_g = true else
-						"1000" when addrReg(1 downto 0) = "00" and spiBigEnd_g = true else
+						--"0001" when addrReg(1 downto 0) = "11" and spiBigEnd_g = true else
+						--"0010" when addrReg(1 downto 0) = "10" and spiBigEnd_g = true else
+						--"0100" when addrReg(1 downto 0) = "01" and spiBigEnd_g = true else
+						--"1000" when addrReg(1 downto 0) = "00" and spiBigEnd_g = true else
 						"0000";
 	
 	ap_writedata <=		(dout & dout & dout & dout);

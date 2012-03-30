@@ -389,6 +389,14 @@ begin
 		--sync and async interrupt are driven by only one line
 		-- this gives some effort for Nios II AP ;)
 		ap_irq <= ap_irq_s or ap_asyncIrq_s;
+
+		-- added by mairt (2.3.2012)
+		-- microblaze can handle 2 interrupts
+		ap_syncIrq <= ap_irq_s;
+		ap_syncIrq_n <= not ap_irq_s;
+
+		ap_asyncIrq <= ap_asyncIrq_s;
+		ap_asyncIrq_n <= not ap_asyncIrq_s;
 		
 		theAvalonPdi : entity work.pdi
 			generic map (
