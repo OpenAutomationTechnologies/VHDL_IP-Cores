@@ -14,13 +14,13 @@ Revision History
 
 14.12.2011  V0.1.2      [FEATURE] GUI for POWERLINK IP-Core in XPS with PLB
 
-20.01.2011  V0.1.3      [FIX] Reduction of area utilization
+20.01.2012  V0.1.3      [FIX] Reduction of area utilization
                         [FIX] MAC_REG connection to 100 MHz PLB possible w/o bridge
                         [FIX] Async Fifo synchronizer issue and master write hang
                         [FEATURE] Initialization of M9K
                         [FEATURE] PDI Time Synchronization HW support
 
-15.03.2011  V0.2.0      [FIX] DMA observer report
+15.03.2012  V0.2.0      [FIX] DMA observer report
                         [FIX] Complete GUI in SOPC
                         [FEATURE] Introduction of expert mode
                         [TASK] Split documentation into generic and platform-specific
@@ -28,8 +28,10 @@ Revision History
                         [FIX] Fix source file paths in powerlink_hw.tcl
                         [FIX] relocation of mif to support IP-core repository
 
-30.03.2011  V0.2.1      [FIX] Removed readdata register in portio (saves resources)
+30.03.2012  V0.2.1      [FIX] Removed readdata register in portio (saves resources)
                         [TASK] Changed location of revision.txt
                         [TASK] Converted openMAC to little endian
                         [FIX] 16 to 32 bit converter considers little endian support
                         [FEATURE] POWERLINK IP-Core supports AXI in XPS
+
+??.??.2012  V0.2.2      [FIX] vhdl file names case sensitive

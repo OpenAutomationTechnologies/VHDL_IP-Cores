@@ -112,6 +112,7 @@
 #-- 2012-02-29  V1.33   zelenkaj    Fix buffer size allocation
 #-- 2012-03-07  V1.34   zelenkaj    Fix top HDL file path
 #-- 2012-03-13  V1.35   zelenkaj    Forward R/TPDO + async buffer size to system.h
+#-- 2012-04-02  V1.36   zelenkaj    vhdl file names case sensitive
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -142,19 +143,19 @@ add_file "src/pdi_controlStatusReg.vhd" {SYNTHESIS SIMULATION}
 add_file "src/pdi_event.vhd" {SYNTHESIS SIMULATION}
 add_file "src/pdi_led.vhd" {SYNTHESIS SIMULATION}
 add_file "src/pdi_simpleReg.vhd" {SYNTHESIS SIMULATION}
-add_file "src/OpenFILTER.vhd" {SYNTHESIS SIMULATION}
-add_file "src/OpenHUB.vhd" {SYNTHESIS SIMULATION}
-add_file "src/OpenMAC.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openFILTER.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openHUB.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC.vhd" {SYNTHESIS SIMULATION}
 add_file "src/openMAC_Ethernet.vhd" {SYNTHESIS SIMULATION}
 add_file "src/openMAC_cmp.vhd" {SYNTHESIS SIMULATION}
 add_file "src/openMAC_phyAct.vhd" {SYNTHESIS SIMULATION}
-add_file "src/OpenMAC_DPR_Altera.vhd" {SYNTHESIS SIMULATION}
-add_file "src/OpenMAC_DMAFifo_Altera.vhd" {SYNTHESIS SIMULATION}
-add_file "src/OpenMAC_DMAmaster.vhd" {SYNTHESIS SIMULATION}
-add_file "src/OpenMAC_DMAmaster/dma_handler.vhd" {SYNTHESIS SIMULATION}
-add_file "src/OpenMAC_DMAmaster/master_handler.vhd" {SYNTHESIS SIMULATION}
-add_file "src/OpenMAC_PHYMI.vhd" {SYNTHESIS SIMULATION}
-add_file "src/OpenMAC_rmii2mii.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_DPR_Altera.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_DMAFifo_Altera.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_DMAmaster.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_DMAmaster/dma_handler.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_DMAmaster/master_handler.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_PHYMI.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_rmii2mii.vhd" {SYNTHESIS SIMULATION}
 add_file "src/portio.vhd" {SYNTHESIS SIMULATION}
 add_file "src/portio_cnt.vhd" {SYNTHESIS SIMULATION}
 add_file "src/spi.vhd" {SYNTHESIS SIMULATION}
