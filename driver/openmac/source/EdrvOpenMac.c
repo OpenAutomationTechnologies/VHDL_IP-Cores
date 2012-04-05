@@ -94,7 +94,6 @@
 
 //comment the following lines to disable feature
 //#define EDRV_DEBUG        //debugging information forwarded to stdout
-//#define EDRV_TTTX        //use time-triggered TX feature for MN
 //#define EDRV_2NDTXQUEUE    //use additional TX queue for MN
 
 //---------------------------------------------------------------------------
@@ -232,14 +231,14 @@
 #define EDRV_MAX_RX_BUFFERS 6
 #endif
 
-#if (EDRV_AUTO_RESPONSE == FALSE && !defined(EDRV_TTTX))
+#if (EDRV_AUTO_RESPONSE == FALSE && !defined(EDRV_TIME_TRIG_TX))
     #error "Please enable EDRV_AUTO_RESPONSE in EplCfg.h to use openMAC for CN!"
 #endif
-#if (EDRV_AUTO_RESPONSE != FALSE && defined(EDRV_TTTX))
+#if (EDRV_AUTO_RESPONSE != FALSE && defined(EDRV_TIME_TRIG_TX))
 #error "Please disable EDRV_AUTO_RESPONSE in EplCfg.h to use openMAC for MN!"
 #endif
 
-#if (defined(EDRV_2NDTXQUEUE) && !defined(EDRV_TTTX))
+#if (defined(EDRV_2NDTXQUEUE) && !defined(EDRV_TIME_TRIG_TX))
     #undef EDRV_2NDTXQUEUE //2nd TX queue makes no sense here..
     #undef EDRV_MAX_TX_BUF2
 #endif
@@ -928,7 +927,7 @@ unsigned long       ulTxLength;
 //    }
 //#endif
 
-#ifndef EDRV_TTTX
+#ifndef EDRV_TIME_TRIG_TX
     if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
     {
         Ret = kEplEdrvInvalidParam;
@@ -939,7 +938,7 @@ unsigned long       ulTxLength;
     pPacket = GET_TYPE_BASE(ometh_packet_typ, data, pBuffer_p->m_pbBuffer);
 
     pPacket->length = pBuffer_p->m_uiTxMsgLen;
-#ifdef EDRV_TTTX
+#ifdef EDRV_TIME_TRIG_TX
     if( (pBuffer_p->m_dwTimeOffsetAbsTk & 1) == 1)
     {
         //free tx descriptors available
@@ -975,7 +974,7 @@ unsigned long       ulTxLength;
 #endif
         ulTxLength = omethTransmitArg(EdrvInstance_l.m_hOpenMac, pPacket,
                             EdrvCbSendAck, pBuffer_p);
-#ifdef EDRV_TTTX
+#ifdef EDRV_TIME_TRIG_TX
     }
 #endif
 
@@ -1341,7 +1340,7 @@ static void EdrvIrqHandler (void* pArg_p, DWORD dwInt_p)
         omethTxIrqHandler(pArg_p);
     }
 
-#if (defined(EDRV_2NDTXQUEUE) && defined(EDRV_TTTX))
+#if (defined(EDRV_2NDTXQUEUE) && defined(EDRV_TIME_TRIG_TX))
     //observe additional TX queue and send packet if necessary
     while( (EdrvInstance_l.m_iTxQueueWr - EdrvInstance_l.m_iTxQueueRd) &&
         (omethTransmitPending(EdrvInstance_l.m_hOpenMac) < 16U) )
