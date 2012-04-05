@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 50612
+ FREEID 50637
  VARIABLES
  {
   #ARCHITECTURE="rtl"
@@ -13113,7 +13113,7 @@ PAGE "PACKET BUFFER"
    LABEL "genAck"
    TEXT 
 "genAck :\n"+
-"process (clk, rst, dma_ack_rw)\n"+
+"process (clk, rst)\n"+
 "-- Section above this comment may be overwritten according to\n"+
 "-- \"Update sensitivity list automatically\" option status\n"+
 "-- declarations\n"+
@@ -13137,12 +13137,13 @@ PAGE "PACKET BUFFER"
    SYNTAXCOLORED
    SHOWLABEL
    CORNER 10
-   VTX (  36198, 36200, 36203, 36205 )
+   VTX (  36198, 36200, 36205 )
    VARIABLES
    {
-    #DIRECTION_LIST="36198 36200 36203 "
+    #DIRECTION_LIST="36198 36200 "
+    #UPDATE_SENS_LIST="1"
    }
-   LIST (  36198, 36200, 36203 )
+   LIST (  36200, 36198 )
   }
   TEXT  13062, 0, 0
   {
@@ -14290,10 +14291,6 @@ PAGE "PACKET BUFFER"
   {
    COORD (1160,1580)
   }
-  VTX  36203, 0, 0
-  {
-   COORD (760,1520)
-  }
   VTX  36204, 0, 0
   {
    COORD (1160,1440)
@@ -14343,29 +14340,6 @@ PAGE "PACKET BUFFER"
    {
     #NAMED="1"
    }
-  }
-  VTX  36214, 0, 0
-  {
-   COORD (700,1580)
-  }
-  WIRE  36215, 0, 0
-  {
-   NET 14401
-   VTX 36202, 36214
-  }
-  VTX  36216, 0, 0
-  {
-   COORD (700,1520)
-  }
-  WIRE  36217, 0, 0
-  {
-   NET 14401
-   VTX 36214, 36216
-  }
-  WIRE  36218, 0, 0
-  {
-   NET 14401
-   VTX 36216, 36203
   }
   WIRE  36219, 0, 0
   {
@@ -14468,6 +14442,33 @@ PAGE "PACKET BUFFER"
     #NAME="dma_addr_s(iPktBufSizeLog2_g-1:1)"
     #VHDL_TYPE="std_logic_vector"
    }
+  }
+  VTX  50612, 0, 0
+  {
+   COORD (560,1520)
+  }
+  VTX  50613, 0, 0
+  {
+   COORD (560,1580)
+  }
+  WIRE  50614, 0, 0
+  {
+   NET 14401
+   VTX 36202, 50613
+  }
+  WIRE  50615, 0, 0
+  {
+   NET 14401
+   VTX 50613, 50612
+  }
+  VTX  50618, 0, 0
+  {
+   COORD (720,1520)
+  }
+  WIRE  50619, 0, 0
+  {
+   NET 14401
+   VTX 50612, 50618
   }
  }
  
@@ -17883,14 +17884,14 @@ PAGE ""
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311687673"
    DESCRIPTION="bla",BOTH
-   PAGENAME="PACKET DMA MASTER"
-   PAGENUMBER="7"
+   PAGENAME="PACKET BUFFER"
+   PAGENUMBER="6"
   }
  }
  
  BODY
  {
-  TEXT  50595, 0, 0
+  TEXT  50620, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17901,7 +17902,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  50596, 0, 0
+  TEXT  50621, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -17912,7 +17913,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  50597, 0, 0
+  TEXT  50622, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -17922,7 +17923,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  50598, 0, 0
+  TEXT  50623, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17934,7 +17935,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  50599, 0, 0
+  TEXT  50624, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -17948,7 +17949,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  50600, 0, 0
+  TEXT  50625, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -17958,7 +17959,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  50601, 0, 0
+  TEXT  50626, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17970,7 +17971,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  50602, 0, 0
+  TEXT  50627, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -17980,7 +17981,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  50603, 0, 0
+  TEXT  50628, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -17991,7 +17992,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  50604, 0, 0
+  GROUP  50629, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -18003,7 +18004,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  50605, 0, 0
+  GROUP  50630, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -18015,7 +18016,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  50606, 0, 0
+  GROUP  50631, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -18027,7 +18028,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  50607, 0, 0
+  GROUP  50632, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -18039,7 +18040,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  50608, 0, 0
+  GROUP  50633, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -18051,7 +18052,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  50609, 0, 0
+  GROUP  50634, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -18062,14 +18063,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  50610, 0, 0
+  LINE  50635, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  50611, 0, 0
+  LINKBMPPICT  50636, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"

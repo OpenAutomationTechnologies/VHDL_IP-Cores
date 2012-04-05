@@ -1112,7 +1112,7 @@ dma_addr_s(iPktBufSizeLog2_g-1 downto 1) <= dma_addr(iPktBufSizeLog2_g-1 downto 
 write_a <= dma_req_write when useRxIntPktBuf_g = TRUE else '0';
 
   genAck :
-  process (clk, rst, dma_ack_rw)
+  process (clk, rst)
   -- Section above this comment may be overwritten according to
   -- "Update sensitivity list automatically" option status
   -- declarations
