@@ -24,8 +24,10 @@ mkdir %release_dir%\%ipcore_dir%\doc
 :: copy vhdls
 copy %activehdl_dir%\src\lib\src\*.vhd                              %release_dir%\%ipcore_dir%\src\lib
 copy %activehdl_dir%\src\openMAC\src\*.vhd                          %release_dir%\%ipcore_dir%\src
+copy %activehdl_dir%\src\openMAC\src\*.mif                          %release_dir%\%ipcore_dir%\mif
 copy %activehdl_dir%\src\openMAC\src\openMAC_DMAmaster\*.vhd        %release_dir%\%ipcore_dir%\src\openMAC_DMAmaster
 copy %activehdl_dir%\src\PDI\src\*.vhd                              %release_dir%\%ipcore_dir%\src
+copy %activehdl_dir%\src\PDI\src\*.mif                              %release_dir%\%ipcore_dir%\mif
 copy %activehdl_dir%\src\POWERLINK\src\*.vhd                        %release_dir%\%ipcore_dir%\src
 copy %activehdl_dir%\src\SPI\src\*.vhd                              %release_dir%\%ipcore_dir%\src
 copy %activehdl_dir%\compile\*.vhd                                  %release_dir%\%ipcore_dir%\src

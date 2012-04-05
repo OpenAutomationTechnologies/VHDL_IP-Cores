@@ -114,6 +114,11 @@
 #-- 2012-03-13  V1.35   zelenkaj    Forward R/TPDO + async buffer size to system.h
 #-- 2012-04-02  V1.36   zelenkaj    vhdl file names case sensitive
 #-- 2012-03-15  V1.40   zelenkaj    Revised for Qsys support
+#-- 2012-04-03  V1.41   zelenkaj    Omit phy link if not used
+#--                                 Changed interface order for a better overview in qsys
+#--                                 Increased DMA burst capability
+#--                                 Relocation of mif files
+#--                                 Added feature to set DMA data width
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -134,6 +139,7 @@ set_module_property ICON_PATH "img/br.png"
 add_documentation_link "POWERLINK IP-Core Documentation" "doc/POWERLINK-IP-Core_Altera.pdf"
 
 #files
+add_file "src/qsys_powerlink.vhd" {SYNTHESIS SIMULATION}
 add_file "src/powerlink.vhd" {SYNTHESIS SIMULATION}
 add_file "src/pdi.vhd" {SYNTHESIS SIMULATION}
 add_file "src/pdi_par.vhd" {SYNTHESIS SIMULATION}
@@ -168,9 +174,9 @@ add_file "src/lib/req_ack.vhd" {SYNTHESIS SIMULATION}
 add_file "src/lib/sync.vhd" {SYNTHESIS SIMULATION}
 add_file "src/lib/slow2fastSync.vhd" {SYNTHESIS SIMULATION}
 add_file "src/lib/memMap.vhd" {SYNTHESIS SIMULATION}
-add_file "mif/dpr_16_16.mif" {SYNTHESIS SIMULATION}
-add_file "mif/dpr_16_32.mif" {SYNTHESIS SIMULATION}
-add_file "mif/pdi_dpr.mif" {SYNTHESIS SIMULATION}
+add_file "src/dpr_16_16.mif" {SYNTHESIS SIMULATION}
+add_file "src/dpr_16_32.mif" {SYNTHESIS SIMULATION}
+add_file "src/pdi_dpr.mif" {SYNTHESIS SIMULATION}
 
 #callbacks
 set_module_property VALIDATION_CALLBACK my_validation_callback
@@ -346,18 +352,23 @@ set_parameter_property macGen2ndSmi DISPLAY_NAME "Enable second Phy Serial Manag
 set_parameter_property macGen2ndSmi DESCRIPTION "The POWERLINK Slave allows a second Serial Management Interface, which is used for the Ethernet Phy configuration. If the two available Phys share one SMI, disable this setting!"
 
 add_parameter macTxBurstSize INTEGER 4
-set_parameter_property macTxBurstSize ALLOWED_RANGES {1 4 8 16}
+set_parameter_property macTxBurstSize ALLOWED_RANGES {1 4 8 16 32 64}
 set_parameter_property macTxBurstSize DISPLAY_NAME "Number of Words per DMA Read Transfer (TX direction)"
 set_parameter_property macTxBurstSize DESCRIPTION "Sets the number of words (2 bytes) for each openMAC DMA read transfer (TX direction). A value of 1 refers to single beat transfers and disables burst transfers."
 
 add_parameter macRxBurstSize INTEGER 4
-set_parameter_property macRxBurstSize ALLOWED_RANGES {1 4 8 16}
+set_parameter_property macRxBurstSize ALLOWED_RANGES {1 4 8 16 32 64}
 set_parameter_property macRxBurstSize DISPLAY_NAME "Number of Words per DMA Write Transfer (RX direction)"
 set_parameter_property macRxBurstSize DESCRIPTION "Sets the number of words (2 bytes) for each openMAC DMA write transfer (RX direction). A value of 1 refers to single beat transfers and disables burst transfers."
 
 add_parameter enDmaObserver BOOLEAN false
 set_parameter_property enDmaObserver DISPLAY_NAME "Enable packet DMA transfer monitor circuit"
 set_parameter_property enDmaObserver DESCRIPTION "The DMA monitor verifies the error-free Ethernet packet data transfer to/from the memory."
+
+add_parameter dmaDataWidth INTEGER 16
+set_parameter_property dmaDataWidth ALLOWED_RANGES {16 32}
+set_parameter_property dmaDataWidth DISPLAY_NAME "Data Width of openMAC DMA"
+set_parameter_property dmaDataWidth DESCRIPTION "The openMAC DMA data width can be set depending on the connected memory device. It is recommended to set the equal data width in order to optimize the design."
 
 #parameters for PDI HDL
 add_parameter genOnePdiClkDomain_g INTEGER 0
@@ -607,6 +618,7 @@ proc my_validation_callback {} {
     set genEvent                    [get_parameter_value genEvent]
     
     set expert                      [get_parameter_value expertMode]
+    set dmaDataWidth                [get_parameter_value dmaDataWidth]
 	
 	if {$mii == "RMII"} {
 		set_parameter_value useRmii_g 1
@@ -637,6 +649,8 @@ proc my_validation_callback {} {
         #no expert mode set them to one per default
         set macTxBurstSize 1
         set macRxBurstSize 1
+        #no expert set to 16 bit
+        set dmaDataWidth 16
     }
 	
 	#burst size setting allowed?!
@@ -644,6 +658,7 @@ proc my_validation_callback {} {
 		#no
 		set_parameter_property macTxBurstSize VISIBLE false
 		set_parameter_property macRxBurstSize VISIBLE false
+        set_parameter_property dmaDataWidth VISIBLE false
 		
 		#no bursts...
 		set macTxBurstSize 0
@@ -655,8 +670,10 @@ proc my_validation_callback {} {
 			set_parameter_property macTxBurstSize VISIBLE false
             if {$expert} {
 			    set_parameter_property macRxBurstSize VISIBLE true
+                set_parameter_property dmaDataWidth VISIBLE true
 			} else {
                 set_parameter_property macRxBurstSize VISIBLE false
+                set_parameter_property dmaDataWidth VISIBLE false
             }
             
 			#no tx bursts...
@@ -665,9 +682,11 @@ proc my_validation_callback {} {
             if {$expert} {
     			set_parameter_property macTxBurstSize VISIBLE true
     			set_parameter_property macRxBurstSize VISIBLE true
+                set_parameter_property dmaDataWidth VISIBLE true
             } else {
                 set_parameter_property macTxBurstSize VISIBLE false
     			set_parameter_property macRxBurstSize VISIBLE false
+                set_parameter_property dmaDataWidth VISIBLE false
             }
 		} else {
 			#oje :(
@@ -1059,6 +1078,8 @@ proc my_validation_callback {} {
         set_parameter_value gen_dma_observer_g	    0
     }
     
+    set_parameter_value m_data_width_g      $dmaDataWidth
+    
     set_parameter_value Simulate			0
 	
     set_parameter_value iBufSize_g			$macBufSize
@@ -1270,6 +1291,7 @@ add_display_item "openMAC" mac2phys PARAMETER
 add_display_item "openMAC" macGen2ndSmi PARAMETER
 add_display_item "openMAC" packetLoc  PARAMETER
 add_display_item "openMAC" enDmaObserver PARAMETER
+add_display_item "openMAC" dmaDataWidth PARAMETER
 add_display_item "openMAC" macTxBurstSize  PARAMETER
 add_display_item "openMAC" macRxBurstSize  PARAMETER
 add_display_item "openMAC" macTxBuf  PARAMETER
@@ -1286,8 +1308,7 @@ add_interface_port pcp_clk clkPcp clk Input 1
 
 ##pcp reset
 add_interface pcp_reset reset end
-set_interface_property pcp_reset associatedClock pcp_clk
-set_interface_property pcp_reset synchronousEdges DEASSERT
+set_interface_property pcp_reset synchronousEdges NONE
 set_interface_property pcp_reset ENABLED true
 add_interface_port pcp_reset rstPcp reset Input 1
 
@@ -1295,37 +1316,33 @@ add_interface_port pcp_reset rstPcp reset Input 1
 add_interface ap_clk clock end
 set_interface_property ap_clk ENABLED true
 add_interface_port ap_clk clkAp clk Input 1
-#add_interface_port ap_clk rstAp reset Input 1
 
 ##ap reset
 add_interface ap_reset reset end
-set_interface_property ap_reset associatedClock ap_clk
-set_interface_property ap_reset synchronousEdges DEASSERT
+set_interface_property ap_reset synchronousEdges NONE
 set_interface_property ap_reset ENABLED true
 add_interface_port ap_reset rstAp reset Input 1
+
+##common reset
+add_interface reset reset end
+set_interface_property reset synchronousEdges NONE
+set_interface_property reset ENABLED true
+add_interface_port reset rst reset Input 1
+
+##clk 50MHz
+add_interface clk50meg clock end
+set_interface_property clk50meg ENABLED true
+add_interface_port clk50meg clk50 clk Input 1
 
 ##clk Ethernet
 add_interface clkEth clock end
 set_interface_property clkEth ENABLED true
 add_interface_port clkEth clkEth clk Input 1
 
-##clk 50MHz
-add_interface clk50meg clock end
-set_interface_property clk50meg ENABLED true
-add_interface_port clk50meg clk50 clk Input 1
-#add_interface_port clk50meg rst reset Input 1
-
-##common reset
-add_interface cm_reset reset end
-set_interface_property cm_reset associatedClock clk50meg
-set_interface_property cm_reset synchronousEdges DEASSERT
-set_interface_property cm_reset ENABLED true
-add_interface_port cm_reset rst reset Input 1
-
-##master clock
-add_interface clkMaster clock end
-set_interface_property clkMaster ENABLED true
-add_interface_port clkMaster m_clk clk Input 1
+##DMA Clock
+add_interface clkDma clock end
+set_interface_property clkDma ENABLED true
+add_interface_port clkDma m_clk clk Input 1
 
 ##pkt buffer clock
 add_interface clkPkt clock end
@@ -1337,7 +1354,7 @@ add_interface_port clkPkt pkt_clk clk Input 1
 add_interface MAC_CMP avalon end
 set_interface_property MAC_CMP addressAlignment DYNAMIC
 set_interface_property MAC_CMP associatedClock clk50meg
-set_interface_property MAC_CMP associatedReset cm_reset
+set_interface_property MAC_CMP associatedReset reset
 set_interface_property MAC_CMP burstOnBurstBoundariesOnly false
 set_interface_property MAC_CMP explicitAddressSpan 0
 set_interface_property MAC_CMP holdTime 0
@@ -1372,7 +1389,7 @@ add_interface_port MACCMP_IRQ tcp_irq irq Output 1
 add_interface MAC_REG avalon end
 set_interface_property MAC_REG addressAlignment DYNAMIC
 set_interface_property MAC_REG associatedClock clk50meg
-set_interface_property MAC_REG associatedReset cm_reset
+set_interface_property MAC_REG associatedReset reset
 set_interface_property MAC_REG burstOnBurstBoundariesOnly false
 set_interface_property MAC_REG explicitAddressSpan 0
 set_interface_property MAC_REG holdTime 0
@@ -1403,80 +1420,11 @@ set_interface_property MAC_IRQ ASSOCIATED_CLOCK clk50meg
 set_interface_property MAC_IRQ ENABLED true
 add_interface_port MAC_IRQ mac_irq irq Output 1
 
-##Export Phy Management shared
-add_interface PHYM conduit end
-set_interface_property PHYM ENABLED true
-add_interface_port PHYM phy_SMIClk export Output 1
-add_interface_port PHYM phy_SMIDat export Bidir 1
-add_interface_port PHYM phy_Rst_n export Output 1
-
-##Export Phy Management 0
-add_interface PHYM0 conduit end
-set_interface_property PHYM0 ENABLED true
-add_interface_port PHYM0 phy0_SMIClk export Output 1
-add_interface_port PHYM0 phy0_SMIDat export Bidir 1
-add_interface_port PHYM0 phy0_Rst_n export Output 1
-
-##Export Phy Management 1
-add_interface PHYM1 conduit end
-set_interface_property PHYM1 ENABLED true
-add_interface_port PHYM1 phy1_SMIClk export Output 1
-add_interface_port PHYM1 phy1_SMIDat export Bidir 1
-add_interface_port PHYM1 phy1_Rst_n export Output 1
-
-##Export Phy Links
-add_interface PHYL conduit end
-set_interface_property PHYL ENABLED true
-add_interface_port PHYL phy0_link export Input 1
-add_interface_port PHYL phy1_link export Input 1
-
-##Export Rmii Phy 0
-add_interface RMII0 conduit end
-set_interface_property RMII0 ENABLED true
-add_interface_port RMII0 phy0_RxDat export Input 2
-add_interface_port RMII0 phy0_RxDv export Input 1
-add_interface_port RMII0 phy0_TxDat export Output 2
-add_interface_port RMII0 phy0_TxEn export Output 1
-add_interface_port RMII0 phy0_RxErr export Input 1
-
-##Export Rmii Phy 1
-add_interface RMII1 conduit end
-set_interface_property RMII1 ENABLED true
-add_interface_port RMII1 phy1_RxDat export Input 2
-add_interface_port RMII1 phy1_RxDv export Input 1
-add_interface_port RMII1 phy1_TxDat export Output 2
-add_interface_port RMII1 phy1_TxEn export Output 1
-add_interface_port RMII1 phy1_RxErr export Input 1
-
-##Export Mii Phy 0
-add_interface MII0 conduit end
-set_interface_property MII0 ENABLED false
-add_interface_port MII0 phyMii0_TxClk export Input 1
-add_interface_port MII0 phyMii0_TxEn export Output 1
-add_interface_port MII0 phyMii0_TxEr export Output 1
-add_interface_port MII0 phyMii0_TxDat export Output 4
-add_interface_port MII0 phyMii0_RxClk export Input 1
-add_interface_port MII0 phyMii0_RxDv export Input 1
-add_interface_port MII0 phyMii0_RxEr export Input 1
-add_interface_port MII0 phyMii0_RxDat export Input 4
-
-##Export Mii Phy 1
-add_interface MII1 conduit end
-set_interface_property MII1 ENABLED false
-add_interface_port MII1 phyMii1_TxClk export Input 1
-add_interface_port MII1 phyMii1_TxEn export Output 1
-add_interface_port MII1 phyMii1_TxEr export Output 1
-add_interface_port MII1 phyMii1_TxDat export Output 4
-add_interface_port MII1 phyMii1_RxClk export Input 1
-add_interface_port MII1 phyMii1_RxDv export Input 1
-add_interface_port MII0 phyMii1_RxEr export Input 1
-add_interface_port MII1 phyMii1_RxDat export Input 4
-
 ##Avalon Memory Mapped Slave: MAC_BUF Buffer
 add_interface MAC_BUF avalon end
 set_interface_property MAC_BUF addressAlignment DYNAMIC
 set_interface_property MAC_BUF associatedClock clkPkt
-set_interface_property MAC_BUF associatedReset cm_reset
+set_interface_property MAC_BUF associatedReset reset
 set_interface_property MAC_BUF burstOnBurstBoundariesOnly false
 set_interface_property MAC_BUF explicitAddressSpan 0
 set_interface_property MAC_BUF holdTime 0
@@ -1506,8 +1454,8 @@ add_interface MAC_DMA avalon start
 set_interface_property MAC_DMA burstOnBurstBoundariesOnly false
 #not yet supported: set_interface_property MAC_DMA constantBurstBehavior false
 set_interface_property MAC_DMA linewrapBursts false
-set_interface_property MAC_DMA ASSOCIATED_CLOCK clkMaster
-set_interface_property MAC_DMA associatedReset cm_reset
+set_interface_property MAC_DMA ASSOCIATED_CLOCK clkDma
+set_interface_property MAC_DMA associatedReset reset
 set_interface_property MAC_DMA ENABLED false
 add_interface_port MAC_DMA m_read read Output 1
 add_interface_port MAC_DMA m_write write Output 1
@@ -1578,12 +1526,108 @@ add_interface_port PDI_AP ap_writedata writedata Input 32
 add_interface_port PDI_AP ap_readdata readdata Output 32
 add_interface_port PDI_AP ap_waitrequest waitrequest Output 1
 
+#Simple I/O
+##Avalon Memory Mapped Slave: SMP
+add_interface SMP avalon end
+set_interface_property SMP addressAlignment DYNAMIC
+set_interface_property SMP associatedClock pcp_clk
+set_interface_property SMP associatedReset pcp_reset
+set_interface_property SMP burstOnBurstBoundariesOnly false
+set_interface_property SMP explicitAddressSpan 0
+set_interface_property SMP holdTime 0
+set_interface_property SMP isMemoryDevice false
+set_interface_property SMP isNonVolatileStorage false
+set_interface_property SMP linewrapBursts false
+set_interface_property SMP maximumPendingReadTransactions 0
+set_interface_property SMP printableDevice false
+set_interface_property SMP readLatency 0
+set_interface_property SMP readWaitTime 1
+set_interface_property SMP setupTime 0
+set_interface_property SMP timingUnits Cycles
+set_interface_property SMP writeWaitTime 0
+set_interface_property SMP ENABLED false
+add_interface_port SMP smp_address address Input 1
+add_interface_port SMP smp_read read Input 1
+add_interface_port SMP smp_readdata readdata Output 32
+add_interface_port SMP smp_write write Input 1
+add_interface_port SMP smp_writedata writedata Input 32
+add_interface_port SMP smp_byteenable byteenable Input 4
+
 ###PDI AP IRQ source
 add_interface PDI_AP_IRQ interrupt end
 set_interface_property PDI_AP_IRQ associatedAddressablePoint PDI_AP
 set_interface_property PDI_AP_IRQ ASSOCIATED_CLOCK clk50meg
 set_interface_property PDI_AP_IRQ ENABLED true
 add_interface_port PDI_AP_IRQ ap_irq irq Output 1
+
+##Export Phy Management shared
+add_interface PHYM conduit end
+set_interface_property PHYM ENABLED true
+add_interface_port PHYM phy_SMIClk export Output 1
+add_interface_port PHYM phy_SMIDat export Bidir 1
+add_interface_port PHYM phy_Rst_n export Output 1
+
+##Export Phy Management 0
+add_interface PHYM0 conduit end
+set_interface_property PHYM0 ENABLED true
+add_interface_port PHYM0 phy0_SMIClk export Output 1
+add_interface_port PHYM0 phy0_SMIDat export Bidir 1
+add_interface_port PHYM0 phy0_Rst_n export Output 1
+
+##Export Phy Management 1
+add_interface PHYM1 conduit end
+set_interface_property PHYM1 ENABLED true
+add_interface_port PHYM1 phy1_SMIClk export Output 1
+add_interface_port PHYM1 phy1_SMIDat export Bidir 1
+add_interface_port PHYM1 phy1_Rst_n export Output 1
+
+##Export Phy Links
+add_interface PHYL conduit end
+set_interface_property PHYL ENABLED true
+add_interface_port PHYL phy0_link export Input 1
+add_interface_port PHYL phy1_link export Input 1
+
+##Export Rmii Phy 0
+add_interface RMII0 conduit end
+set_interface_property RMII0 ENABLED true
+add_interface_port RMII0 phy0_RxDat export Input 2
+add_interface_port RMII0 phy0_RxDv export Input 1
+add_interface_port RMII0 phy0_TxDat export Output 2
+add_interface_port RMII0 phy0_TxEn export Output 1
+add_interface_port RMII0 phy0_RxErr export Input 1
+
+##Export Rmii Phy 1
+add_interface RMII1 conduit end
+set_interface_property RMII1 ENABLED true
+add_interface_port RMII1 phy1_RxDat export Input 2
+add_interface_port RMII1 phy1_RxDv export Input 1
+add_interface_port RMII1 phy1_TxDat export Output 2
+add_interface_port RMII1 phy1_TxEn export Output 1
+add_interface_port RMII1 phy1_RxErr export Input 1
+
+##Export Mii Phy 0
+add_interface MII0 conduit end
+set_interface_property MII0 ENABLED false
+add_interface_port MII0 phyMii0_TxClk export Input 1
+add_interface_port MII0 phyMii0_TxEn export Output 1
+add_interface_port MII0 phyMii0_TxEr export Output 1
+add_interface_port MII0 phyMii0_TxDat export Output 4
+add_interface_port MII0 phyMii0_RxClk export Input 1
+add_interface_port MII0 phyMii0_RxDv export Input 1
+add_interface_port MII0 phyMii0_RxEr export Input 1
+add_interface_port MII0 phyMii0_RxDat export Input 4
+
+##Export Mii Phy 1
+add_interface MII1 conduit end
+set_interface_property MII1 ENABLED false
+add_interface_port MII1 phyMii1_TxClk export Input 1
+add_interface_port MII1 phyMii1_TxEn export Output 1
+add_interface_port MII1 phyMii1_TxEr export Output 1
+add_interface_port MII1 phyMii1_TxDat export Output 4
+add_interface_port MII1 phyMii1_RxClk export Input 1
+add_interface_port MII1 phyMii1_RxDv export Input 1
+add_interface_port MII0 phyMii1_RxEr export Input 1
+add_interface_port MII1 phyMii1_RxDat export Input 4
 
 ##AP external IRQ
 add_interface AP_EX_IRQ conduit end
@@ -1621,33 +1665,6 @@ add_interface_port PAR_AP pap_ack export Output 1
 add_interface_port PAR_AP pap_ack_n export Output 1
 ###GPIO
 add_interface_port PAR_AP pap_gpio export Bidir 2
-
-#Simple I/O
-##Avalon Memory Mapped Slave: SMP
-add_interface SMP avalon end
-set_interface_property SMP addressAlignment DYNAMIC
-set_interface_property SMP associatedClock pcp_clk
-set_interface_property SMP associatedReset pcp_reset
-set_interface_property SMP burstOnBurstBoundariesOnly false
-set_interface_property SMP explicitAddressSpan 0
-set_interface_property SMP holdTime 0
-set_interface_property SMP isMemoryDevice false
-set_interface_property SMP isNonVolatileStorage false
-set_interface_property SMP linewrapBursts false
-set_interface_property SMP maximumPendingReadTransactions 0
-set_interface_property SMP printableDevice false
-set_interface_property SMP readLatency 0
-set_interface_property SMP readWaitTime 1
-set_interface_property SMP setupTime 0
-set_interface_property SMP timingUnits Cycles
-set_interface_property SMP writeWaitTime 0
-set_interface_property SMP ENABLED false
-add_interface_port SMP smp_address address Input 1
-add_interface_port SMP smp_read read Input 1
-add_interface_port SMP smp_readdata readdata Output 32
-add_interface_port SMP smp_write write Input 1
-add_interface_port SMP smp_writedata writedata Input 32
-add_interface_port SMP smp_byteenable byteenable Input 4
 
 ##Portio export
 add_interface SMP_PIO conduit end
@@ -1716,7 +1733,7 @@ if {$ClkRate50meg == 50000000} {
 	set_interface_property LED_GADGET ENABLED false
 	
 	set_interface_property MAC_DMA ENABLED false
-	set_interface_property clkMaster ENABLED false
+	set_interface_property clkDma ENABLED false
 	set_interface_property MAC_BUF ENABLED false
 	set_interface_property clkPkt ENABLED false
 	
@@ -1739,11 +1756,11 @@ if {$ClkRate50meg == 50000000} {
 		set_interface_property clkPkt ENABLED true
 		#use DMA for Rx packets
 		set_interface_property MAC_DMA ENABLED true
-		set_interface_property clkMaster ENABLED true
+		set_interface_property clkDma ENABLED true
 	} elseif {[get_parameter_value packetLoc] == "TX and RX over Avalon Master"} {
 		#use external packet buffering
 		set_interface_property MAC_DMA ENABLED true
-		set_interface_property clkMaster ENABLED true
+		set_interface_property clkDma ENABLED true
 	} else {
 		send_message error "error 0x04"
 	}
@@ -1808,6 +1825,8 @@ if {$ClkRate50meg == 50000000} {
 		#don't need pcp_clk
 		set_interface_property pcp_clk ENABLED false
         set_interface_property pcp_reset ENABLED false
+        #and those phy links...
+        set_interface_property PHYL ENABLED false
 	} elseif {[get_parameter_value configPowerlink] == "Direct I/O CN"} {
 		#the Direct I/O CN requires:
 		# MAC stuff
@@ -1815,11 +1834,14 @@ if {$ClkRate50meg == 50000000} {
 		# Avalon SMP
 		set_interface_property SMP ENABLED true
 		set_interface_property SMP_PIO ENABLED true
+        set_interface_property PHYL ENABLED false
 	} else {
 		#CN with Processor Interface requires:
 		# MAC stuff
 		# PDI_PCP
 		set_interface_property PDI_PCP ENABLED true
+        # and those phy links...
+        set_interface_property PHYL ENABLED true
 		
 		if {[get_parameter_value configApInterface] == "Avalon"} {
 		# AP as Avalon (PDI_AP)
