@@ -113,7 +113,7 @@ proc generate {drv_handle} {
         set big_endian [xget_param_value $periph "C_PAP_BIG_END"]
         
         #create cnApiCfg header file
-        if{ $pap_width == 8 } {
+        if { $pap_width == 8 } {
             create_cnapi_header $drv_handle "CN_API_USING_8BIT" $big_endian $async_buf_count
         } elseif { $pap_width == 16 } {
             create_cnapi_header $drv_handle "CN_API_USING_16BIT" $big_endian $async_buf_count
