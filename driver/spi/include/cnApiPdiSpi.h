@@ -1,12 +1,12 @@
 /**
 ********************************************************************************
-\file		cnApiPdiSpi.h
+\file        cnApiPdiSpi.h
 
-\brief		Library for FPGA PDI via SPI
+\brief       Library for FPGA PDI via SPI
 
-\author		Joerg Zelenka
+\author      Joerg Zelenka
 
-\date		2010/09/09
+\date        2010/09/09
 
 ------------------------------------------------------------------------------
 Copyright (c) 2010, B&R
@@ -43,7 +43,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  Functions:
             CnApi_initSpiMaster     initialize the PDI SPI driver
-            
+
             CnApi_Spi_write         write given data size from PDI
 
             CnApi_Spi_read          read given data size to PDI
@@ -54,12 +54,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------------
  History:
-    2010/09/09  zelenkaj    created
-	2010/10/25	hoggerm		added function for scalable data size transfers
-	2010/12/13	zelenkaj	added sq-functionality
-	2011/01/10	zelenkaj	added wake up functionality
-	2011/03/01	zelenkaj	extend wake up (4 wake up pattern, inversion)
-    2011/03/03  hoggerm     added SPI HW Layer test
+    2010/09/09    zelenkaj    created
+    2010/10/25    hoggerm     added function for scalable data size transfers
+    2010/12/13    zelenkaj    added sq-functionality
+    2011/01/10    zelenkaj    added wake up functionality
+    2011/03/01    zelenkaj    extend wake up (4 wake up pattern, inversion)
+    2011/03/03    hoggerm     added SPI HW Layer test
 
 *******************************************************************************/
 
@@ -93,10 +93,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PDISPI_MAX_ADR_OFFSET           (PDISPI_MAX_SIZE - 1)   ///< highest possible address of PDI SPI
 
 //WAKEUP
-#define PDISPI_WAKEUP					0x03U
-#define PDISPI_WAKEUP1					0x0AU
-#define PDISPI_WAKEUP2					0x0CU
-#define PDISPI_WAKEUP3					0x0FU
+#define PDISPI_WAKEUP                    0x03U
+#define PDISPI_WAKEUP1                    0x0AU
+#define PDISPI_WAKEUP2                    0x0CU
+#define PDISPI_WAKEUP3                    0x0FU
 
 //CMD Frame:
 // CMD(2..0) | DATA(4..0)
@@ -130,19 +130,19 @@ typedef int (*tSpiMasterRxHandler) (BYTE *pRxBuf_p, int iBytes_p);
 
 typedef struct _tPdiSpiInstance
 {
-	//Tx Handler of the SPI Master Component
+    //Tx Handler of the SPI Master Component
     tSpiMasterTxHandler     m_SpiMasterTxHandler;
     //Rx Handler of the SPI Master Component
     tSpiMasterRxHandler     m_SpiMasterRxHandler;
-	
+
     //Local copy of the Address Register of the PDI SPI Slave
-    WORD					m_addrReg;
-    
+    WORD                    m_addrReg;
+
     //Tx Buffer
-    BYTE					m_txBuffer[PDISPI_MAX_TX];
+    BYTE                    m_txBuffer[PDISPI_MAX_TX];
     int                     m_toBeTx;
     //Rx Buffer
-    BYTE					m_rxBuffer[PDISPI_MAX_RX];
+    BYTE                    m_rxBuffer[PDISPI_MAX_RX];
     int                     m_toBeRx;
 } tPdiSpiInstance;
 
@@ -150,33 +150,77 @@ typedef struct _tPdiSpiInstance
 int CnApi_initSpiMaster
 (
     tSpiMasterTxHandler     SpiMasterTxH_p, ///< SPI Master Tx Handler
-    tSpiMasterRxHandler     SpiMasterRxH_p  ///< SPI MASTER Rx Handler
+    tSpiMasterRxHandler     SpiMasterRxH_p,  ///< SPI MASTER Rx Handler
+    void                    *pfnEnableGlobalIntH_p,
+    void                    *pfnDisableGlobalIntH_p
 );
 
 int CnApi_Spi_writeByte
 (
     WORD    uwAddr_p,       ///< PDI Address to be written to
-    BYTE	ubData_p        ///< Write data
+    BYTE  ubData_p        ///< Write data
 );
 
 int CnApi_Spi_readByte
 (
     WORD    uwAddr_p,       ///< PDI Address to be read from
-    BYTE	*pData_p        ///< Read data
+    BYTE  *pData_p        ///< Read data
+);
+
+int CnApi_Spi_writeWord
+(
+    WORD    uwAddr_p,       ///< PDI Address to be written to
+    WORD    wData_p,       ///< Write data
+    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+);
+
+int CnApi_Spi_readWord
+(
+    WORD    uwAddr_p,       ///< PDI Address to be read from
+    WORD    *pData_p,        ///< Read data
+    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+);
+
+int CnApi_Spi_writeDword
+(
+    WORD    uwAddr_p,       ///< PDI Address to be written to
+    DWORD   dwData_p,        ///< Write data
+    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+);
+
+int CnApi_Spi_readDword
+(
+    WORD    uwAddr_p,       ///< PDI Address to be read from
+    DWORD   *pData_p,        ///< Read data
+    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+);
+
+int CnApi_Spi_writeQword
+(
+    WORD    uwAddr_p,       ///< PDI Address to be written to
+    QWORD   qwData_p,        ///< Write data
+    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
+);
+
+int CnApi_Spi_readQword
+(
+    WORD    uwAddr_p,       ///< PDI Address to be read from
+    QWORD   *pData_p,        ///< Read data
+    BYTE    ubBigEndian_p   ///< Word Endian (TRUE = BigEndian, FALSE = Little Endian)
 );
 
 int CnApi_Spi_read
 (
-   WORD   	wPcpAddr_p,      ///< PDI Address to be read from
-   WORD   	wSize_p,         ///< size in Bytes
-   BYTE		*pApTgtVar_p      ///< ptr to local target
+   WORD    wPcpAddr_p,      ///< PDI Address to be read from
+   WORD    wSize_p,         ///< size in Bytes
+   BYTE    *pApTgtVar_p      ///< ptr to local target
 );
 
 int CnApi_Spi_write
 (
-   WORD   	wPcpAddr_p,      ///< PDI Address to be written to
-   WORD   	wSize_p,         ///< size in Bytes
-   BYTE		*pApSrcVar_p      ///< ptr to local source
+   WORD    wPcpAddr_p,      ///< PDI Address to be written to
+   WORD    wSize_p,         ///< size in Bytes
+   BYTE    *pApSrcVar_p      ///< ptr to local source
 );
 
 #endif /* _CNAPI_PDI_SPI_H_ */

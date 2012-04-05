@@ -1,12 +1,12 @@
 /**
 ********************************************************************************
-\file		cnApiPdiSpi.c
+\file        cnApiPdiSpi.c
 
-\brief		Library for FPGA PDI via SPI
+\brief        Library for FPGA PDI via SPI
 
-\author		Joerg Zelenka
+\author        Joerg Zelenka
 
-\date		2010/09/09
+\date        2010/09/09
 
 ------------------------------------------------------------------------------
 Copyright (c) 2010, B&R
@@ -43,7 +43,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  Functions:
             CnApi_initSpiMaster     initialize the PDI SPI driver
-            
+
             CnApi_Spi_write         write given data size from PDI
 
             CnApi_Spi_read          read given data size to PDI
@@ -52,10 +52,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
             CnApi_Spi_readByte      read a byte from given address
 
-            
-            writeSq     	write given bytes to given address
 
-            readSq      	read bytes from given address
+            writeSq         write given bytes to given address
+
+            readSq          read bytes from given address
 
             setPdiAddrReg   build addressing commands for given address
 
@@ -67,17 +67,22 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------------
  History:
-    2010/09/09  zelenkaj    created
-	2010/10/25	hoggerm		added function for scalable data size transfers
-	2010/12/13	zelenkaj	added sq-functionality
-	2011/01/10	zelenkaj	added wake up functionality
-	2011/03/01	zelenkaj	extend wake up (4 wake up pattern, inversion)
-	2011/03/03  hoggerm     added SPI HW Layer test
+    2010/09/09    zelenkaj    created
+    2010/10/25    hoggerm     added function for scalable data size transfers
+    2010/12/13    zelenkaj    added sq-functionality
+    2011/01/10    zelenkaj    added wake up functionality
+    2011/03/01    zelenkaj    extend wake up (4 wake up pattern, inversion)
+    2011/03/03    hoggerm     added SPI HW Layer test
 
 *******************************************************************************/
 
 /* target specific header files */
-#include <unistd.h> // for usleep()
+#ifdef __NIOS2__
+#include <unistd.h>    //for usleep()
+#elif defined(__MICROBLAZE__)
+#include "xilinx_usleep.h"
+#endif
+
 #include <string.h> // for memcpy() memset()
 
 /* Cn API header files */
@@ -92,9 +97,20 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADDR_WR_DOWN_LO 3
 #define ADDR_CHECK_LO   4
 
+
+/***************************************************************************************
+ * GLOBAL VARS
+ ***************************************************************************************/
+void (*pfnEnableGlobalIntH_g)(void) = NULL; ///< function pointer to global interrupt enable callback
+void (*pfnDisableGlobalIntH_g)(void) = NULL; ///< function pointer to global interrupt disable callback
+
 /***************************************************************************************
  * LOCALS
  ***************************************************************************************/
+static void byteSwap(
+    BYTE *pVal_p, ///< register base to be swapped
+    int iSize_p ///< size of register
+);
 
 static int writeSq
 (
@@ -112,7 +128,7 @@ static int readSq
 
 static int setPdiAddrReg
 (
-    WORD			uwAddr_p,   //address to be accessed at PDI
+    WORD            uwAddr_p,   //address to be accessed at PDI
     int             fWr_p       //way of handle address change
 );
 
@@ -128,9 +144,9 @@ static int recRxBuffer
 
 static int buildCmdFrame
 (
-    WORD			uwPayload_p,   //CMD frame address
-    BYTE			*pFrame_p,  //buffer for CMD frame to be built
-    BYTE			ubTyp_p     //CMD frame type
+    WORD            uwPayload_p,   //CMD frame address
+    BYTE            *pFrame_p,  //buffer for CMD frame to be built
+    BYTE            ubTyp_p     //CMD frame type
 );
 
 /* PDI SPI Driver Instance
@@ -159,7 +175,9 @@ to a known state.
 int CnApi_initSpiMaster
 (
     tSpiMasterTxHandler     SpiMasterTxH_p, ///< SPI Master Tx Handler
-    tSpiMasterRxHandler     SpiMasterRxH_p  ///< SPI MASTER Rx Handler
+    tSpiMasterRxHandler     SpiMasterRxH_p,  ///< SPI MASTER Rx Handler
+    void                    *pfnEnableGlobalIntH_p,
+    void                    *pfnDisableGlobalIntH_p
 )
 {
     int     iRet = PDISPI_OK;
@@ -169,16 +187,20 @@ int CnApi_initSpiMaster
     BYTE    bnegPattern = 0;
     WORD    wSpiErrors = 0;
     BOOL    fPcpSpiPresent = FALSE;
-    
-    if( (SpiMasterTxH_p == 0) || (SpiMasterRxH_p == 0) )
+
+    if( (SpiMasterTxH_p == 0) || (SpiMasterRxH_p == 0) ||
+        (pfnEnableGlobalIntH_p == NULL) || (pfnDisableGlobalIntH_p == NULL))
     {
         iRet = PDISPI_ERROR;
-        
+
         goto exit;
     }
-    
+
+    pfnEnableGlobalIntH_g = pfnEnableGlobalIntH_p;
+    pfnDisableGlobalIntH_g = pfnDisableGlobalIntH_p;
+
     memset(&PdiSpiInstance_l, 0, sizeof(PdiSpiInstance_l));
-    
+
     PdiSpiInstance_l.m_SpiMasterTxHandler = SpiMasterTxH_p;
     PdiSpiInstance_l.m_SpiMasterRxHandler = SpiMasterRxH_p;
 
@@ -240,57 +262,57 @@ int CnApi_initSpiMaster
         goto exit;
     }
 #endif /* DEBUG_VERIFY_SPI_HW_CONNECTION */
-    
+
     DEBUG_TRACE0(DEBUG_LVL_CNAPI_INFO, "\nStarting SPI connection..");
 
     /* check if PCP SPI slave is present */
     for(iCnt = 0; iCnt < PCP_SPI_PRESENCE_TIMEOUT; iCnt++)
     {
-		//send out wake up frame to enter idle surely!
-		PdiSpiInstance_l.m_txBuffer[0] = PDISPI_WAKEUP;
-		PdiSpiInstance_l.m_txBuffer[1] = PDISPI_WAKEUP1;
-		PdiSpiInstance_l.m_txBuffer[2] = PDISPI_WAKEUP2;
-		PdiSpiInstance_l.m_txBuffer[3] = PDISPI_WAKEUP3;
-		PdiSpiInstance_l.m_toBeTx = 4;
+        //send out wake up frame to enter idle surely!
+        PdiSpiInstance_l.m_txBuffer[0] = PDISPI_WAKEUP;
+        PdiSpiInstance_l.m_txBuffer[1] = PDISPI_WAKEUP1;
+        PdiSpiInstance_l.m_txBuffer[2] = PDISPI_WAKEUP2;
+        PdiSpiInstance_l.m_txBuffer[3] = PDISPI_WAKEUP3;
+        PdiSpiInstance_l.m_toBeTx = 4;
 
-		//send byte in Tx buffer
-		iRet = sendTxBuffer();
+        //send byte in Tx buffer
+        iRet = sendTxBuffer();
 
-		if( iRet != PDISPI_OK )
-		{
-			goto exit;
-		}
+        if( iRet != PDISPI_OK )
+        {
+            goto exit;
+        }
 
-		//receive one byte
-		PdiSpiInstance_l.m_toBeRx = 1;
+        //receive one byte
+        PdiSpiInstance_l.m_toBeRx = 1;
 
-		iRet = recRxBuffer();
+        iRet = recRxBuffer();
 
-		if( iRet != PDISPI_OK )
-		{
-			goto exit;
-		}
+        if( iRet != PDISPI_OK )
+        {
+            goto exit;
+        }
 
-		if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP3)
-		{
-			//received last wake up pattern without inversion
-			//=> pcpSpi has already woken up
-			fPcpSpiPresent = TRUE;
-			break;
-		}
+        if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP3)
+        {
+            //received last wake up pattern without inversion
+            //=> pcpSpi has already woken up
+            fPcpSpiPresent = TRUE;
+            break;
+        }
 
-		//invert received packet
-		PdiSpiInstance_l.m_rxBuffer[0] = ~PdiSpiInstance_l.m_rxBuffer[0];
+        //invert received packet
+        PdiSpiInstance_l.m_rxBuffer[0] = ~PdiSpiInstance_l.m_rxBuffer[0];
 
-		if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP3)
-		{
-			//received last wake up pattern with inversion
-			//=> wake up was successful
-			fPcpSpiPresent = TRUE;
-			break;
-		}
+        if(PdiSpiInstance_l.m_rxBuffer[0] == PDISPI_WAKEUP3)
+        {
+            //received last wake up pattern with inversion
+            //=> wake up was successful
+            fPcpSpiPresent = TRUE;
+            break;
+        }
 
-		PDISPI_USLEEP(10000);
+        PDISPI_USLEEP(10000);
     }
 
     if(!fPcpSpiPresent)
@@ -311,25 +333,25 @@ int CnApi_initSpiMaster
     PdiSpiInstance_l.m_toBeTx = PDISPI_MAX_TX;
     memset(&PdiSpiInstance_l.m_txBuffer, PDISPI_CMD_IDLE, PDISPI_MAX_TX);
 
-	iRet = sendTxBuffer();
+    iRet = sendTxBuffer();
 
-	if( iRet != PDISPI_OK )
-	{
-		goto exit;
-	}
-
-    //set address register in PDI to zero
-    iRet = setPdiAddrReg(0, ADDR_WR_DOWN_LO);
-    
     if( iRet != PDISPI_OK )
     {
         goto exit;
     }
-    
+
+    //set address register in PDI to zero
+    iRet = setPdiAddrReg(0, ADDR_WR_DOWN_LO);
+
+    if( iRet != PDISPI_OK )
+    {
+        goto exit;
+    }
+
     iRet = sendTxBuffer();
 
 exit:
-	return iRet;
+    return iRet;
 }
 
 /**
@@ -352,17 +374,20 @@ int CnApi_Spi_writeByte
 )
 {
     int             iRet = PDISPI_OK;
-    BYTE			ubTxData;
-    
+    BYTE            ubTxData;
+
+    ///< as SPI is not interrupt safe disable global interrupts
+    (void)pfnDisableGlobalIntH_g();
+
     //check the pdi's address register for the following cmd
     iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK);
     if( iRet != PDISPI_OK )
     {
         goto exit;
     }
-    
+
     buildCmdFrame(uwAddr_p, &ubTxData, PDISPI_CMD_WR);
-    
+
     //store CMD to Tx Buffer
     if( PdiSpiInstance_l.m_toBeTx >= PDISPI_MAX_TX )
     {   //buffer full
@@ -370,7 +395,7 @@ int CnApi_Spi_writeByte
         goto exit;
     }
     PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx++] = ubTxData;
-    
+
     //store Data to Tx Buffer
     if( PdiSpiInstance_l.m_toBeTx >= PDISPI_MAX_TX )
     {   //buffer full
@@ -378,11 +403,14 @@ int CnApi_Spi_writeByte
         goto exit;
     }
     PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx++] = ubData_p;
-    
+
     //send bytes in Tx buffer
     iRet = sendTxBuffer();
 
     PdiSpiInstance_l.m_addrReg++;
+
+    ///< enable the interrupts again
+    (void)pfnEnableGlobalIntH_g();
 
 exit:
     return iRet;
@@ -408,17 +436,20 @@ int CnApi_Spi_readByte
 )
 {
     int             iRet = PDISPI_OK;
-    BYTE			ubTxData;
-    
+    BYTE            ubTxData;
+
+    ///< as SPI is not interrupt safe disable global interrupts
+    (void)pfnDisableGlobalIntH_g();
+
     //check the pdi's address register for the following cmd
     iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK);
     if( iRet != PDISPI_OK )
     {
         goto exit;
     }
-    
+
     buildCmdFrame(uwAddr_p, &ubTxData, PDISPI_CMD_RD);
-    
+
     //store CMD to Tx Buffer
     if( PdiSpiInstance_l.m_toBeTx >= PDISPI_MAX_TX )
     {   //buffer full
@@ -426,14 +457,14 @@ int CnApi_Spi_readByte
         goto exit;
     }
     PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx++] = ubTxData;
-    
+
     //send bytes in Tx buffer
     iRet = sendTxBuffer();
     if( iRet != PDISPI_OK )
     {
         goto exit;
     }
-    
+
     //receive byte
     if( PdiSpiInstance_l.m_toBeRx >= PDISPI_MAX_RX )
     {   //buffer full
@@ -446,13 +477,118 @@ int CnApi_Spi_readByte
     {
         goto exit;
     }
-    
+
     //received byte is stored in driver instance
     *pData_p = PdiSpiInstance_l.m_rxBuffer[0];
-    
+
     PdiSpiInstance_l.m_addrReg++;
 
+    ///< enable the interrupts again
+    (void)pfnEnableGlobalIntH_g();
+
 exit:
+    return iRet;
+}
+
+static void byteSwap(BYTE *pVal_p, int iSize_p)
+{
+    int i;
+    BYTE bVal;
+    BYTE *pValLow = pVal_p;
+    BYTE *pValHigh = pVal_p + iSize_p-1;
+
+    for(i=0; i<iSize_p/2; i++)
+    {
+        bVal = *pValLow; //tmp store of low byte
+        *pValLow = *pValHigh; //store high in low byte
+        *pValHigh = bVal; //store tmp stor of low in high byte
+
+        pValLow++; //increment low byte pointer
+        pValHigh--; //decrement high byte pointer
+    }
+}
+
+int CnApi_Spi_writeWord(WORD uwAddr_p, WORD wData_p, BYTE ubBigEndian_p)
+{
+    int iRet = PDISPI_OK;
+
+    if(ubBigEndian_p != FALSE)
+    {
+        byteSwap((BYTE*)&wData_p, sizeof(WORD));
+    }
+
+    iRet = CnApi_Spi_write(uwAddr_p, sizeof(WORD), (BYTE*)&wData_p);
+
+    return iRet;
+}
+
+int CnApi_Spi_readWord(WORD uwAddr_p, WORD *pData_p, BYTE ubBigEndian_p)
+{
+    int iRet = PDISPI_OK;
+
+    iRet = CnApi_Spi_read(uwAddr_p, sizeof(WORD), (BYTE*)pData_p);
+
+    if(ubBigEndian_p != FALSE)
+    {
+        byteSwap((BYTE*)pData_p, sizeof(WORD));
+    }
+
+    return iRet;
+}
+
+int CnApi_Spi_writeDword(WORD uwAddr_p, DWORD dwData_p, BYTE ubBigEndian_p)
+{
+    int iRet = PDISPI_OK;
+
+    if(ubBigEndian_p != FALSE)
+    {
+        byteSwap((BYTE*)&dwData_p, sizeof(DWORD));
+    }
+
+    iRet = CnApi_Spi_write(uwAddr_p, sizeof(DWORD), (BYTE*)&dwData_p);
+
+    return iRet;
+}
+
+int CnApi_Spi_readDword(WORD uwAddr_p, DWORD *pData_p, BYTE ubBigEndian_p)
+{
+    int iRet = PDISPI_OK;
+
+    iRet = CnApi_Spi_read(uwAddr_p, sizeof(DWORD), (BYTE*)pData_p);
+
+    if(ubBigEndian_p != FALSE)
+    {
+        byteSwap((BYTE*)pData_p, sizeof(DWORD));
+    }
+
+    return iRet;
+}
+
+int CnApi_Spi_writeQword(WORD uwAddr_p, QWORD qwData_p, BYTE ubBigEndian_p)
+{
+    int iRet = PDISPI_OK;
+
+    if(ubBigEndian_p != FALSE)
+    {
+        byteSwap((BYTE*)&qwData_p, sizeof(QWORD));
+    }
+
+    iRet = CnApi_Spi_write(uwAddr_p, sizeof(QWORD), (BYTE*)&qwData_p);
+
+    return iRet;
+}
+
+int CnApi_Spi_readQword(WORD uwAddr_p, QWORD *pData_p, BYTE ubBigEndian_p)
+{
+    int iRet = PDISPI_OK;
+
+    iRet = CnApi_Spi_read(uwAddr_p, sizeof(QWORD), (BYTE*)pData_p);
+
+    if(ubBigEndian_p != FALSE)
+    {
+        byteSwap((BYTE*)pData_p, sizeof(QWORD));
+    }
+
     return iRet;
 }
 
@@ -479,7 +615,7 @@ int CnApi_Spi_write
 {
     int iRet = PDISPI_OK;
 
-    DEBUG_TRACE1(DEBUG_LVL_CNAPI_SPI, "SPI write: %d byte\n", wSize_p);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_SPI, "SPI write: %d byte, address: 0x%x\n", wSize_p, wPcpAddr_p);
 
     /* Depending on data size, choose different SPI processing*/
     if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
@@ -491,7 +627,7 @@ int CnApi_Spi_write
     else if(wSize_p > PDISPI_THRSHLD_SIZE) /* use automatic address increment */
     {
 
-    	iRet = writeSq(wPcpAddr_p, wSize_p, pApSrcVar_p);
+        iRet = writeSq(wPcpAddr_p, wSize_p, pApSrcVar_p);
         if( iRet != PDISPI_OK )
         {
             iRet = PDISPI_ERROR;
@@ -518,17 +654,17 @@ int CnApi_Spi_write
 
 /**
 ********************************************************************************
-\brief	read data from the CN PDI via SPI
+\brief    read data from the CN PDI via SPI
 
 CnApi_Spi_read() reads a certain amount of data from the POWERLINK CN PDI
 via SPI. This data will be read from PDI address and stored to a local address.
 
-\param	wAddr_p		PDI address to be read from
-\param	wSize_p		Size of transmitted data in Bytes
-\param  pTgtVar     (Byte-) Pointer to local target address
+\param    wAddr_p        PDI address to be read from
+\param    wSize_p        Size of transmitted data in Bytes
+\param    pTgtVar       (Byte-) Pointer to local target address
 
-\retval	iRet		can be PDISPI_OK if transfer was successful
-					or PDISPI_ERROR otherwise
+\retval    iRet     can be PDISPI_OK if transfer was successful
+                    or PDISPI_ERROR otherwise
 *******************************************************************************/
 int CnApi_Spi_read
 (
@@ -539,7 +675,7 @@ int CnApi_Spi_read
 {
     int iRet = PDISPI_OK;
 
-    DEBUG_TRACE1(DEBUG_LVL_CNAPI_SPI, "SPI read: %d byte\n", wSize_p);
+    DEBUG_TRACE2(DEBUG_LVL_CNAPI_SPI, "SPI read: %d byte, address: 0x%x \n", wSize_p, wPcpAddr_p);
 
     /* Depending on data size, choose different SPI processing*/
     if((wSize_p > PDISPI_MAX_SIZE) || wSize_p == 0)
@@ -551,7 +687,7 @@ int CnApi_Spi_read
     else if(wSize_p > PDISPI_THRSHLD_SIZE) /* use automatic address increment */
     {
 
-    	iRet = readSq(wPcpAddr_p, wSize_p, pApTgtVar_p);
+        iRet = readSq(wPcpAddr_p, wSize_p, pApTgtVar_p);
         if( iRet != PDISPI_OK )
         {
             iRet = PDISPI_ERROR;
@@ -602,8 +738,11 @@ static int writeSq
 )
 {
     int             iRet = PDISPI_OK;
-    BYTE			ubTxData;
+    BYTE            ubTxData;
     WORD            uwTxSize = 0;
+
+    ///< as SPI is not interrupt safe disable global interrupts
+    (void)pfnDisableGlobalIntH_g();
 
     //check the pdi's address register for the following cmd
     iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK_LO);
@@ -658,6 +797,9 @@ static int writeSq
     }
     while( uwSize_p );
 
+    ///< enable the interrupts again
+    (void)pfnEnableGlobalIntH_g();
+
 exit:
     return iRet;
 }
@@ -684,8 +826,11 @@ static int readSq
 )
 {
     int             iRet = PDISPI_OK;
-    BYTE			ubTxData;
+    BYTE            ubTxData;
     WORD            uwRxSize = 0;
+
+    ///< as SPI is not interrupt safe disable global interrupts
+    (void)pfnDisableGlobalIntH_g();
 
     //check the pdi's address register for the following cmd
     iRet = setPdiAddrReg(uwAddr_p, ADDR_CHECK_LO);
@@ -746,6 +891,9 @@ static int readSq
     }
     while( uwSize_p );
 
+    ///< enable the interrupts again
+    (void)pfnEnableGlobalIntH_g();
+
 exit:
     return iRet;
 }
@@ -760,27 +908,27 @@ is checked with uwAddr_p first to save SPI writes. Otherwise the uwAddr_p is
 written down without verification.
 
 \param  uwAddr_p    address to be accessed at PDI
-\param  fWr_p    	way of handle address change
+\param  fWr_p        way of handle address change
 
 \retval iRet        PDISPI_OK if address register is set correctly
-					PDISPI_ERROR otherwise (e.g. full TX buffer)
+                    PDISPI_ERROR otherwise (e.g. full TX buffer)
 *******************************************************************************/
 static int setPdiAddrReg
 (
-    WORD			uwAddr_p,   ///< address to be accessed at PDI
+    WORD            uwAddr_p,   ///< address to be accessed at PDI
     int             fWr_p       ///< way of handle address change
 )
 {
     int             iRet = PDISPI_OK;
-    BYTE			ubTxData;
-    
+    BYTE            ubTxData;
+
     //check high address first
     switch(fWr_p)
     {
         case ADDR_CHECK :
         case ADDR_CHECK_LO :
             //check address with local copy
-            if( (uwAddr_p & PDISPI_ADDR_HIGHADDR_MASK) == 
+            if( (uwAddr_p & PDISPI_ADDR_HIGHADDR_MASK) ==
                 (PdiSpiInstance_l.m_addrReg & PDISPI_ADDR_HIGHADDR_MASK) )
             {
                 //HIGHADDR is equal to local copy(HIGHADDR) => skip
@@ -790,7 +938,7 @@ static int setPdiAddrReg
         case ADDR_WR_DOWN_LO :
         default :
             buildCmdFrame(uwAddr_p, &ubTxData, PDISPI_CMD_HIGHADDR);
-            
+
             //store CMD to Tx Buffer
             if( PdiSpiInstance_l.m_toBeTx >= PDISPI_MAX_TX )
             {   //buffer full
@@ -798,17 +946,17 @@ static int setPdiAddrReg
                 goto exit;
             }
             PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx++] = ubTxData;
-            
+
             break;
     }
-    
+
     //check mid address
     switch(fWr_p)
     {
         case ADDR_CHECK :
         case ADDR_CHECK_LO :
             //check address with local copy
-            if( (uwAddr_p & PDISPI_ADDR_MIDADDR_MASK) == 
+            if( (uwAddr_p & PDISPI_ADDR_MIDADDR_MASK) ==
                 (PdiSpiInstance_l.m_addrReg & PDISPI_ADDR_MIDADDR_MASK) )
             {
                 //MIDADDR is equal to local copy(MIDADDR) => skip
@@ -818,7 +966,7 @@ static int setPdiAddrReg
         case ADDR_WR_DOWN_LO :
         default :
             buildCmdFrame(uwAddr_p, &ubTxData, PDISPI_CMD_MIDADDR);
-            
+
             //store CMD to Tx Buffer
             if( PdiSpiInstance_l.m_toBeTx >= PDISPI_MAX_TX )
             {   //buffer full
@@ -828,7 +976,7 @@ static int setPdiAddrReg
             PdiSpiInstance_l.m_txBuffer[PdiSpiInstance_l.m_toBeTx++] = ubTxData;
             break;
     }
-    
+
     //check low address only if fWr_p is set to ???_LO
     switch(fWr_p)
     {
@@ -877,33 +1025,33 @@ static int sendTxBuffer
 )
 {
     int             iRet = PDISPI_OK;
-    
+
     //check number of toBeTx bytes
     if( PdiSpiInstance_l.m_toBeTx == 0 )
     {
         iRet = PDISPI_ERROR;
         goto exit;
     }
-    
+
     //call Tx handler
     if( PdiSpiInstance_l.m_SpiMasterTxHandler == 0 )
     {
         iRet = PDISPI_ERROR;
         goto exit;
     }
-    
+
     iRet = PdiSpiInstance_l.m_SpiMasterTxHandler(
-                PdiSpiInstance_l.m_txBuffer, 
+                PdiSpiInstance_l.m_txBuffer,
                 PdiSpiInstance_l.m_toBeTx);
-    
+
     if( iRet != PDISPI_OK )
     {
         goto exit;
     }
-    
+
     //bytes sent...
     PdiSpiInstance_l.m_toBeTx = 0;
-    
+
 exit:
     return iRet;
 }
@@ -923,33 +1071,33 @@ static int recRxBuffer
 )
 {
     int             iRet = PDISPI_OK;
-    
+
     //check number of toBeRx bytes
     if( PdiSpiInstance_l.m_toBeRx == 0 )
     {
         iRet = PDISPI_ERROR;
         goto exit;
     }
-    
+
     //call Rx handler
     if( PdiSpiInstance_l.m_SpiMasterRxHandler == 0 )
     {
         iRet = PDISPI_ERROR;
         goto exit;
     }
-    
+
     iRet = PdiSpiInstance_l.m_SpiMasterRxHandler(
-                PdiSpiInstance_l.m_rxBuffer, 
+                PdiSpiInstance_l.m_rxBuffer,
                 PdiSpiInstance_l.m_toBeRx);
-    
+
     if( iRet != PDISPI_OK )
     {
         goto exit;
     }
-    
+
     //bytes received...
     PdiSpiInstance_l.m_toBeRx = 0;
-    
+
 exit:
     return iRet;
 }
@@ -967,17 +1115,17 @@ uwPayload_p. ubType_p gives the command type (use defines).
 \param  ubTyp_p     cmd frame type
 
 \retval iRet        can be PDISPI_OK only - if ubTyp_p is unknown, idle frame
-					is returned!
+                    is returned!
 *******************************************************************************/
 static int buildCmdFrame
 (
-    WORD			uwPayload_p,   ///< CMD frame payload
-    BYTE			*pFrame_p,  ///< buffer for CMD frame to be built
-    BYTE			ubTyp_p     ///< CMD frame type
+    WORD            uwPayload_p,   ///< CMD frame payload
+    BYTE            *pFrame_p,  ///< buffer for CMD frame to be built
+    BYTE            ubTyp_p     ///< CMD frame type
 )
 {
     int         iRet = PDISPI_OK;
-    
+
     switch(ubTyp_p)
     {
         case PDISPI_CMD_HIGHADDR :
@@ -1020,6 +1168,6 @@ static int buildCmdFrame
             *pFrame_p = (BYTE) (0 | PDISPI_CMD_IDLE);
             break;
     }
-    
+
     return iRet;
 }
