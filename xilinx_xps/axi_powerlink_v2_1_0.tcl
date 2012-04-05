@@ -44,6 +44,7 @@
 #-- 2012-02-01    V0.06    mairt    openmac only mode RX buffer number is now a user entry
 #-- 2012-02-07    V0.07    mairt    reduced timesync module to just one parameter
 #-- 2012-02-17    V0.08    mairt    added cnApiCfg.h generation
+#-- 2012-04-05    V0.09    zelenkaj    fixed DRC error when MAC_DMA is disabled
 #------------------------------------------------------------------------------------------------------------------------
 
 #uses "xillib.tcl"
@@ -996,8 +997,8 @@ proc calc_mac_dma_max_burst_len { param_handle } {
         #RX in heap and TX internal
         return $rx_burst_len;
     } else {
-        # both internal and therefore return zero
-        return 0;
+        # both internal and therefore return the minimum (16)
+        return 16;
     }
     
 
