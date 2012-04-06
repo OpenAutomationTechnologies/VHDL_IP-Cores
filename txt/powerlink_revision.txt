@@ -39,3 +39,4 @@ Revision History
                         [FIX] openMAC Time-Triggered TX has to be enabled via EplCfg.h
                         [FIX] remove tabs in SPI driver, make read/write byte global
                         [FIX] pap tcl script error fix in SDK
+                        [FEATURE] changed GUI allows better overview in Qsys

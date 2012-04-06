@@ -119,6 +119,7 @@
 #--                                 Increased DMA burst capability
 #--                                 Relocation of mif files
 #--                                 Added feature to set DMA data width
+#-- 2012-04-05  V1.42   zelenkaj    Changed GUI
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -722,7 +723,7 @@ proc my_validation_callback {} {
 		set_parameter_value m_rx_burst_size_g $macRxBurstSize
 		
 		if {$macTxBurstSize > 1 || $macRxBurstSize > 1} {
-			send_message info "The Avalon Master 'MAC_DMA' performs 16bit burst transfers (TX=$macTxBurstSize RX=$macRxBurstSize)."
+			send_message info "The Avalon Master 'MAC_DMA' performs $dmaDataWidth bit burst transfers (TX=$macTxBurstSize RX=$macRxBurstSize)."
 		} else {
 			#no burst transfers
 		}
@@ -1263,39 +1264,43 @@ proc my_validation_callback {} {
 	
 }
 
-#display
-add_display_item "Block Diagram" id0 icon img/block_diagram.png
-add_display_item "General Settings" expertMode PARAMETER
-add_display_item "General Settings" configPowerlink PARAMETER
-add_display_item "Process Data Interface Settings" configApInterface PARAMETER
-add_display_item "Process Data Interface Settings" configApParallelInterface PARAMETER
-add_display_item "Process Data Interface Settings" configApParOutSigs PARAMETER
-add_display_item "Process Data Interface Settings" configApParSigs PARAMETER
-add_display_item "Process Data Interface Settings" configApSpi_IRQ PARAMETER
-add_display_item "Process Data Interface Settings" configApEndian PARAMETER
-add_display_item "Process Data Interface Settings" configApSpi_CPOL PARAMETER
-add_display_item "Process Data Interface Settings" configApSpi_CPHA PARAMETER
-add_display_item "Process Data Interface Settings" validSet PARAMETER
-add_display_item "Process Data Interface Settings" validAssertDuration PARAMETER
-add_display_item "Process Data Interface Settings" hwSupportSyncIrq PARAMETER
-add_display_item "Process Data Interface Settings" genLedGadget PARAMETER
-add_display_item "Process Data Interface Settings" genEvent PARAMETER
-add_display_item "Receive Process Data" rpdoNum PARAMETER
-add_display_item "Transmit Process Data" tpdoNum PARAMETER
-add_display_item "Transmit Process Data" tpdo0size PARAMETER
-add_display_item "Receive Process Data" rpdo0size PARAMETER
-add_display_item "Asynchronous Buffer" asyncBuf1Size  PARAMETER
-add_display_item "Asynchronous Buffer" asyncBuf2Size  PARAMETER
-add_display_item "openMAC" phyIF  PARAMETER
-add_display_item "openMAC" mac2phys PARAMETER
-add_display_item "openMAC" macGen2ndSmi PARAMETER
-add_display_item "openMAC" packetLoc  PARAMETER
-add_display_item "openMAC" enDmaObserver PARAMETER
-add_display_item "openMAC" dmaDataWidth PARAMETER
-add_display_item "openMAC" macTxBurstSize  PARAMETER
-add_display_item "openMAC" macRxBurstSize  PARAMETER
-add_display_item "openMAC" macTxBuf  PARAMETER
-add_display_item "openMAC" macRxBuf  PARAMETER
+add_display_item "" "Process Data Interface" GROUP "tab"
+add_display_item "Process Data Interface" "Configuration" GROUP
+add_display_item "Process Data Interface" "Process Data" GROUP
+add_display_item "Process Data Interface" "Asynchronous Data" GROUP
+add_display_item "Configuration" configApInterface PARAMETER
+add_display_item "Configuration" configApParallelInterface PARAMETER
+add_display_item "Configuration" configApParOutSigs PARAMETER
+add_display_item "Configuration" configApParSigs PARAMETER
+add_display_item "Configuration" configApSpi_IRQ PARAMETER
+add_display_item "Configuration" configApEndian PARAMETER
+add_display_item "Configuration" configApSpi_CPOL PARAMETER
+add_display_item "Configuration" configApSpi_CPHA PARAMETER
+add_display_item "Configuration" validSet PARAMETER
+add_display_item "Configuration" validAssertDuration PARAMETER
+add_display_item "Configuration" hwSupportSyncIrq PARAMETER
+add_display_item "Configuration" genLedGadget PARAMETER
+add_display_item "Configuration" genEvent PARAMETER
+add_display_item "Process Data" rpdoNum PARAMETER
+add_display_item "Process Data" tpdoNum PARAMETER
+add_display_item "Process Data" tpdo0size PARAMETER
+add_display_item "Process Data" rpdo0size PARAMETER
+add_display_item "Asynchronous Data" asyncBuf1Size  PARAMETER
+add_display_item "Asynchronous Data" asyncBuf2Size  PARAMETER
+
+add_display_item "" "openMAC" GROUP "tab"
+add_display_item "openMAC" "Media Independent Interface" GROUP
+add_display_item "openMAC" "Packet Handling" GROUP
+add_display_item "Media Independent Interface" phyIF  PARAMETER
+add_display_item "Media Independent Interface" mac2phys PARAMETER
+add_display_item "Media Independent Interface" macGen2ndSmi PARAMETER
+add_display_item "Packet Handling" packetLoc  PARAMETER
+add_display_item "Packet Handling" enDmaObserver PARAMETER
+add_display_item "Packet Handling" dmaDataWidth PARAMETER
+add_display_item "Packet Handling" macTxBurstSize  PARAMETER
+add_display_item "Packet Handling" macRxBurstSize  PARAMETER
+add_display_item "Packet Handling" macTxBuf  PARAMETER
+add_display_item "Packet Handling" macRxBuf  PARAMETER
 
 #INTERFACES
 
