@@ -44,7 +44,6 @@
 #-- 2012-02-01    V0.06    mairt    openmac only mode RX buffer number is now a user entry
 #-- 2012-02-07    V0.07    mairt    reduced timesync module to just one parameter
 #-- 2012-02-17    V0.08    mairt    added cnApiCfg.h generation
-#-- 2012-04-05    V0.09    zelenkaj    fixed DRC error when MAC_DMA is disabled
 #------------------------------------------------------------------------------------------------------------------------
 
 #uses "xillib.tcl"
@@ -526,18 +525,6 @@ proc drc_mac_pkt_base_addr { param_handle } {
 
 }
 
-# check the mac reg clock frequency
-proc drc_check_mac_reg_clk_freq { param_handle } {
-    set mac_reg_clk_freq [ xget_hw_value $param_handle ]
-
-    if { $mac_reg_clk_freq != 50000000 && $mac_reg_clk_freq != 100000000 } {
-        error "C_MAC_REG_Clk_FREQ_HZ has to be 50Mhz or 100Mhz and currently is $mac_reg_clk_freq Hz! Please connect the MAC_REG bus interface to the right clock source." "" "mdt_error"
-        return 1;
-    } else {
-         return 0;
-    }
-}
-
 proc drc_check_if_event_is_active { param_handle } {
     set event_support [ xget_hw_value $param_handle ]
 
@@ -546,6 +533,17 @@ proc drc_check_if_event_is_active { param_handle } {
     } else {
          puts  "WARNING: Deactivating C_PDI_GEN_EVENT is currently not supported by the software. Nevertheless this feature can be deactivated to save resources."
          return 0;
+    }
+}
+
+proc drc_mac_reg_aclk_freq { param_handle } {
+    set aclk_freq [ xget_hw_value $param_handle ]
+
+    if { $aclk_freq == 50000000 } {
+        return 0;
+    } else {
+        error "C_S_AXI_MAC_REG_ACLK_FREQ_HZ is set to $aclk_freq Hz and should be set to 50Mhz! Please connect S_AXI_MAC_REG to a 50Mhz clock source!" "" "mdt_error"
+        return 1;
     }
 }
 
@@ -997,26 +995,7 @@ proc calc_mac_dma_max_burst_len { param_handle } {
         #RX in heap and TX internal
         return $rx_burst_len;
     } else {
-        # both internal and therefore return the minimum (16)
+        # both internal and therefore return a valid value (it will be optimized away anyway)
         return 16;
-    }
-    
-
-}
-
-###################################################
-## calc mac reg bus to core clock ratio
-###################################################
-proc calc_bus2core_clk_ratio { param_handle } {
-    set mhsinst          [xget_hw_parent_handle $param_handle]
-    set clk_frequency   [xget_hw_parameter_value $mhsinst "C_S_AXI_MAC_REG_Clk_FREQ_HZ"]
-
-    if { $clk_frequency == 50000000 } {
-        return 1;
-    } elseif { $clk_frequency == 100000000 } {
-        return 2;
-    } else {
-        error "C_S_AXI_MAC_REG_BUS2CORE_CLK_RATIO clock ratio can't be calculated! Please check the frequency of C_S_AXI_MAC_REG_Clk_FREQ_HZ!" "" "mdt_error"
-        return 0;
     }
 }

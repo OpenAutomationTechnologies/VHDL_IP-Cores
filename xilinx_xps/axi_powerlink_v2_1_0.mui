@@ -392,15 +392,9 @@
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_S_AXI_MAC_REG_Clk_FREQ_HZ '
-    <widget id="C_S_AXI_MAC_REG_Clk_FREQ_HZ">
-        <key>C_S_AXI_MAC_REG_Clk_FREQ_HZ</key>
-        <tip></tip>
-    </widget>
-    '>
-    <!ENTITY C_S_AXI_MAC_REG_BUS2CORE_CLK_RATIO '
-    <widget id="C_S_AXI_MAC_REG_BUS2CORE_CLK_RATIO">
-        <key>C_S_AXI_MAC_REG_BUS2CORE_CLK_RATIO</key>
+    <!ENTITY C_S_AXI_MAC_REG_ACLK_FREQ_HZ '
+    <widget id="C_S_AXI_MAC_REG_ACLK_FREQ_HZ">
+        <key>C_S_AXI_MAC_REG_ACLK_FREQ_HZ</key>
         <tip></tip>
     </widget>
     '>
@@ -647,8 +641,7 @@
             <item>&C_S_AXI_MAC_REG_NUM_ADDR_RANGES;</item>
             <item>&C_S_AXI_MAC_REG_DATA_WIDTH;</item>
             <item>&C_S_AXI_MAC_REG_ADDR_WIDTH;</item>
-            <item>&C_S_AXI_MAC_REG_Clk_FREQ_HZ;</item>
-            <item>&C_S_AXI_MAC_REG_BUS2CORE_CLK_RATIO;</item>
+            <item>&C_S_AXI_MAC_REG_ACLK_FREQ_HZ;</item>
             <item>&C_S_AXI_MAC_REG_USE_WSTRB;</item>
             <item>&C_S_AXI_MAC_REG_DPHASE_TIMEOUT;</item>
             <item>&C_S_AXI_MAC_REG_PROTOCOL;</item>

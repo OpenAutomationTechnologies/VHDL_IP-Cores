@@ -161,52 +161,53 @@ entity axi_powerlink is
        C_S_AXI_MAC_REG_DATA_WIDTH : integer := 32;
        C_S_AXI_MAC_REG_ADDR_WIDTH : integer := 32;
        C_S_AXI_MAC_REG_USE_WSTRB : integer := 1;
-       C_S_AXI_MAC_REG_DPHASE_TIMEOUT : integer := 8
+       C_S_AXI_MAC_REG_DPHASE_TIMEOUT : integer := 8;
+       C_S_AXI_MAC_REG_ACLK_FREQ_HZ : integer := 20 --clock frequency in Hz
   );
   port(
-       MAC_DMA_aclk : in std_logic;
-       MAC_DMA_aresetn : in std_logic;
-       MAC_DMA_arready : in std_logic;
-       MAC_DMA_awready : in std_logic;
-       MAC_DMA_bvalid : in std_logic;
-       MAC_DMA_rlast : in std_logic;
-       MAC_DMA_rvalid : in std_logic;
-       MAC_DMA_wready : in std_logic;
-       MAC_PKT_ACLK : in std_logic;
-       MAC_PKT_ARESETN : in std_logic;
-       MAC_PKT_ARVALID : in std_logic;
-       MAC_PKT_AWVALID : in std_logic;
-       MAC_PKT_BREADY : in std_logic;
-       MAC_PKT_RREADY : in std_logic;
-       MAC_PKT_WVALID : in std_logic;
-       MAC_REG_ACLK : in std_logic;
-       MAC_REG_ARESETN : in std_logic;
-       MAC_REG_ARVALID : in std_logic;
-       MAC_REG_AWVALID : in std_logic;
-       MAC_REG_BREADY : in std_logic;
-       MAC_REG_RREADY : in std_logic;
-       MAC_REG_WVALID : in std_logic;
-       PDI_AP_ACLK : in std_logic;
-       PDI_AP_ARESETN : in std_logic;
-       PDI_AP_ARVALID : in std_logic;
-       PDI_AP_AWVALID : in std_logic;
-       PDI_AP_BREADY : in std_logic;
-       PDI_AP_RREADY : in std_logic;
-       PDI_AP_WVALID : in std_logic;
-       PDI_PCP_ACLK : in std_logic;
-       PDI_PCP_ARESETN : in std_logic;
-       PDI_PCP_ARVALID : in std_logic;
-       PDI_PCP_AWVALID : in std_logic;
-       PDI_PCP_BREADY : in std_logic;
-       PDI_PCP_RREADY : in std_logic;
-       PDI_PCP_WVALID : in std_logic;
-       SMP_PCP_ACLK : in std_logic;
-       SMP_PCP_ARESETN : in std_logic;
-       SMP_PCP_ARVALID : in std_logic;
-       SMP_PCP_AWVALID : in std_logic;
-       SMP_PCP_BREADY : in std_logic;
-       SMP_PCP_RREADY : in std_logic;
-       SMP_PCP_WVALID : in std_logic;
+       M_AXI_MAC_DMA_aclk : in std_logic;
+       M_AXI_MAC_DMA_aresetn : in std_logic;
+       M_AXI_MAC_DMA_arready : in std_logic;
+       M_AXI_MAC_DMA_awready : in std_logic;
+       M_AXI_MAC_DMA_bvalid : in std_logic;
+       M_AXI_MAC_DMA_rlast : in std_logic;
+       M_AXI_MAC_DMA_rvalid : in std_logic;
+       M_AXI_MAC_DMA_wready : in std_logic;
+       S_AXI_MAC_PKT_ACLK : in std_logic;
+       S_AXI_MAC_PKT_ARESETN : in std_logic;
+       S_AXI_MAC_PKT_ARVALID : in std_logic;
+       S_AXI_MAC_PKT_AWVALID : in std_logic;
+       S_AXI_MAC_PKT_BREADY : in std_logic;
+       S_AXI_MAC_PKT_RREADY : in std_logic;
+       S_AXI_MAC_PKT_WVALID : in std_logic;
+       S_AXI_MAC_REG_ACLK : in std_logic;
+       S_AXI_MAC_REG_ARESETN : in std_logic;
+       S_AXI_MAC_REG_ARVALID : in std_logic;
+       S_AXI_MAC_REG_AWVALID : in std_logic;
+       S_AXI_MAC_REG_BREADY : in std_logic;
+       S_AXI_MAC_REG_RREADY : in std_logic;
+       S_AXI_MAC_REG_WVALID : in std_logic;
+       S_AXI_PDI_AP_ACLK : in std_logic;
+       S_AXI_PDI_AP_ARESETN : in std_logic;
+       S_AXI_PDI_AP_ARVALID : in std_logic;
+       S_AXI_PDI_AP_AWVALID : in std_logic;
+       S_AXI_PDI_AP_BREADY : in std_logic;
+       S_AXI_PDI_AP_RREADY : in std_logic;
+       S_AXI_PDI_AP_WVALID : in std_logic;
+       S_AXI_PDI_PCP_ACLK : in std_logic;
+       S_AXI_PDI_PCP_ARESETN : in std_logic;
+       S_AXI_PDI_PCP_ARVALID : in std_logic;
+       S_AXI_PDI_PCP_AWVALID : in std_logic;
+       S_AXI_PDI_PCP_BREADY : in std_logic;
+       S_AXI_PDI_PCP_RREADY : in std_logic;
+       S_AXI_PDI_PCP_WVALID : in std_logic;
+       S_AXI_SMP_PCP_ACLK : in std_logic;
+       S_AXI_SMP_PCP_ARESETN : in std_logic;
+       S_AXI_SMP_PCP_ARVALID : in std_logic;
+       S_AXI_SMP_PCP_AWVALID : in std_logic;
+       S_AXI_SMP_PCP_BREADY : in std_logic;
+       S_AXI_SMP_PCP_RREADY : in std_logic;
+       S_AXI_SMP_PCP_WVALID : in std_logic;
        clk100 : in std_logic;
        pap_cs : in std_logic;
        pap_cs_n : in std_logic;
@@ -234,29 +235,29 @@ entity axi_powerlink is
        spi_clk : in std_logic;
        spi_mosi : in std_logic;
        spi_sel_n : in std_logic;
-       MAC_DMA_bresp : in std_logic_vector(1 downto 0);
-       MAC_DMA_rdata : in std_logic_vector(C_M_AXI_MAC_DMA_DATA_WIDTH-1 downto 0);
-       MAC_DMA_rresp : in std_logic_vector(1 downto 0);
-       MAC_PKT_ARADDR : in std_logic_vector(C_S_AXI_MAC_PKT_ADDR_WIDTH-1 downto 0);
-       MAC_PKT_AWADDR : in std_logic_vector(C_S_AXI_MAC_PKT_ADDR_WIDTH-1 downto 0);
-       MAC_PKT_WDATA : in std_logic_vector(C_S_AXI_MAC_PKT_DATA_WIDTH-1 downto 0);
-       MAC_PKT_WSTRB : in std_logic_vector((C_S_AXI_MAC_PKT_DATA_WIDTH/8)-1 downto 0);
-       MAC_REG_ARADDR : in std_logic_vector(C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0);
-       MAC_REG_AWADDR : in std_logic_vector(C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0);
-       MAC_REG_WDATA : in std_logic_vector(C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0);
-       MAC_REG_WSTRB : in std_logic_vector((C_S_AXI_MAC_REG_DATA_WIDTH/8)-1 downto 0);
-       PDI_AP_ARADDR : in std_logic_vector(C_S_AXI_PDI_AP_ADDR_WIDTH-1 downto 0);
-       PDI_AP_AWADDR : in std_logic_vector(C_S_AXI_PDI_AP_ADDR_WIDTH-1 downto 0);
-       PDI_AP_WDATA : in std_logic_vector(C_S_AXI_PDI_AP_DATA_WIDTH-1 downto 0);
-       PDI_AP_WSTRB : in std_logic_vector((C_S_AXI_PDI_AP_DATA_WIDTH/8)-1 downto 0);
-       PDI_PCP_ARADDR : in std_logic_vector(C_S_AXI_PDI_PCP_ADDR_WIDTH-1 downto 0);
-       PDI_PCP_AWADDR : in std_logic_vector(C_S_AXI_PDI_PCP_ADDR_WIDTH-1 downto 0);
-       PDI_PCP_WDATA : in std_logic_vector(C_S_AXI_PDI_PCP_DATA_WIDTH-1 downto 0);
-       PDI_PCP_WSTRB : in std_logic_vector((C_S_AXI_PDI_PCP_DATA_WIDTH/8)-1 downto 0);
-       SMP_PCP_ARADDR : in std_logic_vector(C_S_AXI_SMP_PCP_ADDR_WIDTH-1 downto 0);
-       SMP_PCP_AWADDR : in std_logic_vector(C_S_AXI_SMP_PCP_ADDR_WIDTH-1 downto 0);
-       SMP_PCP_WDATA : in std_logic_vector(C_S_AXI_SMP_PCP_DATA_WIDTH-1 downto 0);
-       SMP_PCP_WSTRB : in std_logic_vector((C_S_AXI_SMP_PCP_DATA_WIDTH/8)-1 downto 0);
+       M_AXI_MAC_DMA_bresp : in std_logic_vector(1 downto 0);
+       M_AXI_MAC_DMA_rdata : in std_logic_vector(C_M_AXI_MAC_DMA_DATA_WIDTH-1 downto 0);
+       M_AXI_MAC_DMA_rresp : in std_logic_vector(1 downto 0);
+       S_AXI_MAC_PKT_ARADDR : in std_logic_vector(C_S_AXI_MAC_PKT_ADDR_WIDTH-1 downto 0);
+       S_AXI_MAC_PKT_AWADDR : in std_logic_vector(C_S_AXI_MAC_PKT_ADDR_WIDTH-1 downto 0);
+       S_AXI_MAC_PKT_WDATA : in std_logic_vector(C_S_AXI_MAC_PKT_DATA_WIDTH-1 downto 0);
+       S_AXI_MAC_PKT_WSTRB : in std_logic_vector((C_S_AXI_MAC_PKT_DATA_WIDTH/8)-1 downto 0);
+       S_AXI_MAC_REG_ARADDR : in std_logic_vector(C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0);
+       S_AXI_MAC_REG_AWADDR : in std_logic_vector(C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0);
+       S_AXI_MAC_REG_WDATA : in std_logic_vector(C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0);
+       S_AXI_MAC_REG_WSTRB : in std_logic_vector((C_S_AXI_MAC_REG_DATA_WIDTH/8)-1 downto 0);
+       S_AXI_PDI_AP_ARADDR : in std_logic_vector(C_S_AXI_PDI_AP_ADDR_WIDTH-1 downto 0);
+       S_AXI_PDI_AP_AWADDR : in std_logic_vector(C_S_AXI_PDI_AP_ADDR_WIDTH-1 downto 0);
+       S_AXI_PDI_AP_WDATA : in std_logic_vector(C_S_AXI_PDI_AP_DATA_WIDTH-1 downto 0);
+       S_AXI_PDI_AP_WSTRB : in std_logic_vector((C_S_AXI_PDI_AP_DATA_WIDTH/8)-1 downto 0);
+       S_AXI_PDI_PCP_ARADDR : in std_logic_vector(C_S_AXI_PDI_PCP_ADDR_WIDTH-1 downto 0);
+       S_AXI_PDI_PCP_AWADDR : in std_logic_vector(C_S_AXI_PDI_PCP_ADDR_WIDTH-1 downto 0);
+       S_AXI_PDI_PCP_WDATA : in std_logic_vector(C_S_AXI_PDI_PCP_DATA_WIDTH-1 downto 0);
+       S_AXI_PDI_PCP_WSTRB : in std_logic_vector((C_S_AXI_PDI_PCP_DATA_WIDTH/8)-1 downto 0);
+       S_AXI_SMP_PCP_ARADDR : in std_logic_vector(C_S_AXI_SMP_PCP_ADDR_WIDTH-1 downto 0);
+       S_AXI_SMP_PCP_AWADDR : in std_logic_vector(C_S_AXI_SMP_PCP_ADDR_WIDTH-1 downto 0);
+       S_AXI_SMP_PCP_WDATA : in std_logic_vector(C_S_AXI_SMP_PCP_DATA_WIDTH-1 downto 0);
+       S_AXI_SMP_PCP_WSTRB : in std_logic_vector((C_S_AXI_SMP_PCP_DATA_WIDTH/8)-1 downto 0);
        pap_addr : in std_logic_vector(15 downto 0);
        pap_be : in std_logic_vector(C_PAP_DATA_WIDTH/8-1 downto 0);
        pap_be_n : in std_logic_vector(C_PAP_DATA_WIDTH/8-1 downto 0);
@@ -269,38 +270,38 @@ entity axi_powerlink is
        pio_pconfig : in std_logic_vector(3 downto 0);
        pio_portInLatch : in std_logic_vector(3 downto 0);
        pio_portio_I : in std_logic_vector(31 downto 0);
-       MAC_DMA_arvalid : out std_logic;
-       MAC_DMA_awvalid : out std_logic;
-       MAC_DMA_bready : out std_logic;
-       MAC_DMA_md_error : out std_logic;
-       MAC_DMA_rready : out std_logic;
-       MAC_DMA_wlast : out std_logic;
-       MAC_DMA_wvalid : out std_logic;
-       MAC_PKT_ARREADY : out std_logic;
-       MAC_PKT_AWREADY : out std_logic;
-       MAC_PKT_BVALID : out std_logic;
-       MAC_PKT_RVALID : out std_logic;
-       MAC_PKT_WREADY : out std_logic;
-       MAC_REG_ARREADY : out std_logic;
-       MAC_REG_AWREADY : out std_logic;
-       MAC_REG_BVALID : out std_logic;
-       MAC_REG_RVALID : out std_logic;
-       MAC_REG_WREADY : out std_logic;
-       PDI_AP_ARREADY : out std_logic;
-       PDI_AP_AWREADY : out std_logic;
-       PDI_AP_BVALID : out std_logic;
-       PDI_AP_RVALID : out std_logic;
-       PDI_AP_WREADY : out std_logic;
-       PDI_PCP_ARREADY : out std_logic;
-       PDI_PCP_AWREADY : out std_logic;
-       PDI_PCP_BVALID : out std_logic;
-       PDI_PCP_RVALID : out std_logic;
-       PDI_PCP_WREADY : out std_logic;
-       SMP_PCP_ARREADY : out std_logic;
-       SMP_PCP_AWREADY : out std_logic;
-       SMP_PCP_BVALID : out std_logic;
-       SMP_PCP_RVALID : out std_logic;
-       SMP_PCP_WREADY : out std_logic;
+       M_AXI_MAC_DMA_arvalid : out std_logic;
+       M_AXI_MAC_DMA_awvalid : out std_logic;
+       M_AXI_MAC_DMA_bready : out std_logic;
+       M_AXI_MAC_DMA_md_error : out std_logic;
+       M_AXI_MAC_DMA_rready : out std_logic;
+       M_AXI_MAC_DMA_wlast : out std_logic;
+       M_AXI_MAC_DMA_wvalid : out std_logic;
+       S_AXI_MAC_PKT_ARREADY : out std_logic;
+       S_AXI_MAC_PKT_AWREADY : out std_logic;
+       S_AXI_MAC_PKT_BVALID : out std_logic;
+       S_AXI_MAC_PKT_RVALID : out std_logic;
+       S_AXI_MAC_PKT_WREADY : out std_logic;
+       S_AXI_MAC_REG_ARREADY : out std_logic;
+       S_AXI_MAC_REG_AWREADY : out std_logic;
+       S_AXI_MAC_REG_BVALID : out std_logic;
+       S_AXI_MAC_REG_RVALID : out std_logic;
+       S_AXI_MAC_REG_WREADY : out std_logic;
+       S_AXI_PDI_AP_ARREADY : out std_logic;
+       S_AXI_PDI_AP_AWREADY : out std_logic;
+       S_AXI_PDI_AP_BVALID : out std_logic;
+       S_AXI_PDI_AP_RVALID : out std_logic;
+       S_AXI_PDI_AP_WREADY : out std_logic;
+       S_AXI_PDI_PCP_ARREADY : out std_logic;
+       S_AXI_PDI_PCP_AWREADY : out std_logic;
+       S_AXI_PDI_PCP_BVALID : out std_logic;
+       S_AXI_PDI_PCP_RVALID : out std_logic;
+       S_AXI_PDI_PCP_WREADY : out std_logic;
+       S_AXI_SMP_PCP_ARREADY : out std_logic;
+       S_AXI_SMP_PCP_AWREADY : out std_logic;
+       S_AXI_SMP_PCP_BVALID : out std_logic;
+       S_AXI_SMP_PCP_RVALID : out std_logic;
+       S_AXI_SMP_PCP_WREADY : out std_logic;
        ap_asyncIrq : out std_logic;
        ap_asyncIrq_n : out std_logic;
        ap_syncIrq : out std_logic;
@@ -332,35 +333,35 @@ entity axi_powerlink is
        pio_operational : out std_logic;
        spi_miso : out std_logic;
        tcp_irq : out std_logic;
-       MAC_DMA_araddr : out std_logic_vector(C_M_AXI_MAC_DMA_ADDR_WIDTH-1 downto 0);
-       MAC_DMA_arburst : out std_logic_vector(1 downto 0);
-       MAC_DMA_arcache : out std_logic_vector(3 downto 0);
-       MAC_DMA_arlen : out std_logic_vector(7 downto 0);
-       MAC_DMA_arprot : out std_logic_vector(2 downto 0);
-       MAC_DMA_arsize : out std_logic_vector(2 downto 0);
-       MAC_DMA_awaddr : out std_logic_vector(C_M_AXI_MAC_DMA_ADDR_WIDTH-1 downto 0);
-       MAC_DMA_awburst : out std_logic_vector(1 downto 0);
-       MAC_DMA_awcache : out std_logic_vector(3 downto 0);
-       MAC_DMA_awlen : out std_logic_vector(7 downto 0);
-       MAC_DMA_awprot : out std_logic_vector(2 downto 0);
-       MAC_DMA_awsize : out std_logic_vector(2 downto 0);
-       MAC_DMA_wdata : out std_logic_vector(C_M_AXI_MAC_DMA_DATA_WIDTH-1 downto 0);
-       MAC_DMA_wstrb : out std_logic_vector((C_M_AXI_MAC_DMA_DATA_WIDTH/8)-1 downto 0);
-       MAC_PKT_BRESP : out std_logic_vector(1 downto 0);
-       MAC_PKT_RDATA : out std_logic_vector(C_S_AXI_MAC_PKT_DATA_WIDTH-1 downto 0);
-       MAC_PKT_RRESP : out std_logic_vector(1 downto 0);
-       MAC_REG_BRESP : out std_logic_vector(1 downto 0);
-       MAC_REG_RDATA : out std_logic_vector(C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0);
-       MAC_REG_RRESP : out std_logic_vector(1 downto 0);
-       PDI_AP_BRESP : out std_logic_vector(1 downto 0);
-       PDI_AP_RDATA : out std_logic_vector(C_S_AXI_PDI_AP_DATA_WIDTH-1 downto 0);
-       PDI_AP_RRESP : out std_logic_vector(1 downto 0);
-       PDI_PCP_BRESP : out std_logic_vector(1 downto 0);
-       PDI_PCP_RDATA : out std_logic_vector(C_S_AXI_PDI_PCP_DATA_WIDTH-1 downto 0);
-       PDI_PCP_RRESP : out std_logic_vector(1 downto 0);
-       SMP_PCP_BRESP : out std_logic_vector(1 downto 0);
-       SMP_PCP_RDATA : out std_logic_vector(C_S_AXI_SMP_PCP_DATA_WIDTH-1 downto 0);
-       SMP_PCP_RRESP : out std_logic_vector(1 downto 0);
+       M_AXI_MAC_DMA_araddr : out std_logic_vector(C_M_AXI_MAC_DMA_ADDR_WIDTH-1 downto 0);
+       M_AXI_MAC_DMA_arburst : out std_logic_vector(1 downto 0);
+       M_AXI_MAC_DMA_arcache : out std_logic_vector(3 downto 0);
+       M_AXI_MAC_DMA_arlen : out std_logic_vector(7 downto 0);
+       M_AXI_MAC_DMA_arprot : out std_logic_vector(2 downto 0);
+       M_AXI_MAC_DMA_arsize : out std_logic_vector(2 downto 0);
+       M_AXI_MAC_DMA_awaddr : out std_logic_vector(C_M_AXI_MAC_DMA_ADDR_WIDTH-1 downto 0);
+       M_AXI_MAC_DMA_awburst : out std_logic_vector(1 downto 0);
+       M_AXI_MAC_DMA_awcache : out std_logic_vector(3 downto 0);
+       M_AXI_MAC_DMA_awlen : out std_logic_vector(7 downto 0);
+       M_AXI_MAC_DMA_awprot : out std_logic_vector(2 downto 0);
+       M_AXI_MAC_DMA_awsize : out std_logic_vector(2 downto 0);
+       M_AXI_MAC_DMA_wdata : out std_logic_vector(C_M_AXI_MAC_DMA_DATA_WIDTH-1 downto 0);
+       M_AXI_MAC_DMA_wstrb : out std_logic_vector((C_M_AXI_MAC_DMA_DATA_WIDTH/8)-1 downto 0);
+       S_AXI_MAC_PKT_BRESP : out std_logic_vector(1 downto 0);
+       S_AXI_MAC_PKT_RDATA : out std_logic_vector(C_S_AXI_MAC_PKT_DATA_WIDTH-1 downto 0);
+       S_AXI_MAC_PKT_RRESP : out std_logic_vector(1 downto 0);
+       S_AXI_MAC_REG_BRESP : out std_logic_vector(1 downto 0);
+       S_AXI_MAC_REG_RDATA : out std_logic_vector(C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0);
+       S_AXI_MAC_REG_RRESP : out std_logic_vector(1 downto 0);
+       S_AXI_PDI_AP_BRESP : out std_logic_vector(1 downto 0);
+       S_AXI_PDI_AP_RDATA : out std_logic_vector(C_S_AXI_PDI_AP_DATA_WIDTH-1 downto 0);
+       S_AXI_PDI_AP_RRESP : out std_logic_vector(1 downto 0);
+       S_AXI_PDI_PCP_BRESP : out std_logic_vector(1 downto 0);
+       S_AXI_PDI_PCP_RDATA : out std_logic_vector(C_S_AXI_PDI_PCP_DATA_WIDTH-1 downto 0);
+       S_AXI_PDI_PCP_RRESP : out std_logic_vector(1 downto 0);
+       S_AXI_SMP_PCP_BRESP : out std_logic_vector(1 downto 0);
+       S_AXI_SMP_PCP_RDATA : out std_logic_vector(C_S_AXI_SMP_PCP_DATA_WIDTH-1 downto 0);
+       S_AXI_SMP_PCP_RRESP : out std_logic_vector(1 downto 0);
        led_gpo : out std_logic_vector(7 downto 0);
        led_opt : out std_logic_vector(1 downto 0);
        led_phyAct : out std_logic_vector(1 downto 0);
@@ -383,29 +384,29 @@ attribute SIGIS : string;
 
 
 -- Entity attributes --
-attribute SIGIS of MAC_DMA_aclk : signal is "Clk";
+attribute SIGIS of M_AXI_MAC_DMA_aclk : signal is "Clk";
 
-attribute SIGIS of MAC_DMA_aresetn : signal is "Rst";
+attribute SIGIS of M_AXI_MAC_DMA_aresetn : signal is "Rst";
 
-attribute SIGIS of MAC_PKT_ACLK : signal is "Clk";
+attribute SIGIS of S_AXI_MAC_PKT_ACLK : signal is "Clk";
 
-attribute SIGIS of MAC_PKT_ARESETN : signal is "Rst";
+attribute SIGIS of S_AXI_MAC_PKT_ARESETN : signal is "Rst";
 
-attribute SIGIS of MAC_REG_ACLK : signal is "Clk";
+attribute SIGIS of S_AXI_MAC_REG_ACLK : signal is "Clk";
 
-attribute SIGIS of MAC_REG_ARESETN : signal is "Rst";
+attribute SIGIS of S_AXI_MAC_REG_ARESETN : signal is "Rst";
 
-attribute SIGIS of PDI_AP_ACLK : signal is "Clk";
+attribute SIGIS of S_AXI_PDI_AP_ACLK : signal is "Clk";
 
-attribute SIGIS of PDI_AP_ARESETN : signal is "Rst";
+attribute SIGIS of S_AXI_PDI_AP_ARESETN : signal is "Rst";
 
-attribute SIGIS of PDI_PCP_ACLK : signal is "Clk";
+attribute SIGIS of S_AXI_PDI_PCP_ACLK : signal is "Clk";
 
-attribute SIGIS of PDI_PCP_ARESETN : signal is "Rst";
+attribute SIGIS of S_AXI_PDI_PCP_ARESETN : signal is "Rst";
 
-attribute SIGIS of SMP_PCP_ACLK : signal is "Clk";
+attribute SIGIS of S_AXI_SMP_PCP_ACLK : signal is "Clk";
 
-attribute SIGIS of SMP_PCP_ARESETN : signal is "Rst";
+attribute SIGIS of S_AXI_SMP_PCP_ARESETN : signal is "Rst";
 
 attribute SIGIS of clk100 : signal is "Clk";
 
@@ -936,7 +937,13 @@ signal MAC_DMA2bus_mstwr_src_rdy_n : std_logic;
 signal MAC_DMA2bus_mst_lock : std_logic;
 signal MAC_DMA2bus_mst_reset : std_logic;
 signal MAC_DMA2bus_mst_type : std_logic;
+signal MAC_DMA_aclk : std_logic;
+attribute SIGIS of MAC_DMA_aclk : signal is "Clk";
+
 signal MAC_DMA_areset : std_logic;
+signal MAC_DMA_aresetn : std_logic;
+attribute SIGIS of MAC_DMA_aresetn : signal is "Rst";
+
 signal mac_irq_s : std_logic;
 signal MAC_PKT2Bus_Error : std_logic;
 signal MAC_PKT2Bus_RdAck : std_logic;
@@ -1176,25 +1183,25 @@ MAC_REG_AXI_SINGLE_SLAVE : axi_lite_ipif
        IP2Bus_Error => IP2Bus_Error_s,
        IP2Bus_RdAck => IP2Bus_RdAck_s,
        IP2Bus_WrAck => IP2Bus_WrAck_s,
-       S_AXI_ACLK => MAC_REG_ACLK,
-       S_AXI_ARADDR => MAC_REG_ARADDR( C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0 ),
-       S_AXI_ARESETN => MAC_REG_ARESETN,
-       S_AXI_ARREADY => MAC_REG_ARREADY,
-       S_AXI_ARVALID => MAC_REG_ARVALID,
-       S_AXI_AWADDR => MAC_REG_AWADDR( C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0 ),
-       S_AXI_AWREADY => MAC_REG_AWREADY,
-       S_AXI_AWVALID => MAC_REG_AWVALID,
-       S_AXI_BREADY => MAC_REG_BREADY,
-       S_AXI_BRESP => MAC_REG_BRESP,
-       S_AXI_BVALID => MAC_REG_BVALID,
-       S_AXI_RDATA => MAC_REG_RDATA( C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0 ),
-       S_AXI_RREADY => MAC_REG_RREADY,
-       S_AXI_RRESP => MAC_REG_RRESP,
-       S_AXI_RVALID => MAC_REG_RVALID,
-       S_AXI_WDATA => MAC_REG_WDATA( C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0 ),
-       S_AXI_WREADY => MAC_REG_WREADY,
-       S_AXI_WSTRB => MAC_REG_WSTRB( (C_S_AXI_MAC_REG_DATA_WIDTH/8)-1 downto 0 ),
-       S_AXI_WVALID => MAC_REG_WVALID
+       S_AXI_ACLK => S_AXI_MAC_REG_ACLK,
+       S_AXI_ARADDR => S_AXI_MAC_REG_ARADDR( C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0 ),
+       S_AXI_ARESETN => S_AXI_MAC_REG_ARESETN,
+       S_AXI_ARREADY => S_AXI_MAC_REG_ARREADY,
+       S_AXI_ARVALID => S_AXI_MAC_REG_ARVALID,
+       S_AXI_AWADDR => S_AXI_MAC_REG_AWADDR( C_S_AXI_MAC_REG_ADDR_WIDTH-1 downto 0 ),
+       S_AXI_AWREADY => S_AXI_MAC_REG_AWREADY,
+       S_AXI_AWVALID => S_AXI_MAC_REG_AWVALID,
+       S_AXI_BREADY => S_AXI_MAC_REG_BREADY,
+       S_AXI_BRESP => S_AXI_MAC_REG_BRESP,
+       S_AXI_BVALID => S_AXI_MAC_REG_BVALID,
+       S_AXI_RDATA => S_AXI_MAC_REG_RDATA( C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0 ),
+       S_AXI_RREADY => S_AXI_MAC_REG_RREADY,
+       S_AXI_RRESP => S_AXI_MAC_REG_RRESP,
+       S_AXI_RVALID => S_AXI_MAC_REG_RVALID,
+       S_AXI_WDATA => S_AXI_MAC_REG_WDATA( C_S_AXI_MAC_REG_DATA_WIDTH-1 downto 0 ),
+       S_AXI_WREADY => S_AXI_MAC_REG_WREADY,
+       S_AXI_WSTRB => S_AXI_MAC_REG_WSTRB( (C_S_AXI_MAC_REG_DATA_WIDTH/8)-1 downto 0 ),
+       S_AXI_WVALID => S_AXI_MAC_REG_WVALID
   );
 
 THE_POWERLINK_IP_CORE : powerlink
@@ -1477,38 +1484,38 @@ begin
          ip2bus_mstwr_sof_n => MAC_DMA2bus_mstwr_sof_n,
          ip2bus_mstwr_src_dsc_n => MAC_DMA2bus_mstwr_src_dsc_n,
          ip2bus_mstwr_src_rdy_n => MAC_DMA2bus_mstwr_src_rdy_n,
-         m_axi_aclk => MAC_DMA_aclk,
-         m_axi_araddr => MAC_DMA_araddr( C_M_AXI_MAC_DMA_ADDR_WIDTH-1 downto 0 ),
-         m_axi_arburst => MAC_DMA_arburst,
-         m_axi_arcache => MAC_DMA_arcache,
-         m_axi_aresetn => MAC_DMA_aresetn,
-         m_axi_arlen => MAC_DMA_arlen,
-         m_axi_arprot => MAC_DMA_arprot,
-         m_axi_arready => MAC_DMA_arready,
-         m_axi_arsize => MAC_DMA_arsize,
-         m_axi_arvalid => MAC_DMA_arvalid,
-         m_axi_awaddr => MAC_DMA_awaddr( C_M_AXI_MAC_DMA_ADDR_WIDTH-1 downto 0 ),
-         m_axi_awburst => MAC_DMA_awburst,
-         m_axi_awcache => MAC_DMA_awcache,
-         m_axi_awlen => MAC_DMA_awlen,
-         m_axi_awprot => MAC_DMA_awprot,
-         m_axi_awready => MAC_DMA_awready,
-         m_axi_awsize => MAC_DMA_awsize,
-         m_axi_awvalid => MAC_DMA_awvalid,
-         m_axi_bready => MAC_DMA_bready,
-         m_axi_bresp => MAC_DMA_bresp,
-         m_axi_bvalid => MAC_DMA_bvalid,
-         m_axi_rdata => MAC_DMA_rdata( C_M_AXI_MAC_DMA_DATA_WIDTH-1 downto 0 ),
-         m_axi_rlast => MAC_DMA_rlast,
-         m_axi_rready => MAC_DMA_rready,
-         m_axi_rresp => MAC_DMA_rresp,
-         m_axi_rvalid => MAC_DMA_rvalid,
-         m_axi_wdata => MAC_DMA_wdata( C_M_AXI_MAC_DMA_DATA_WIDTH-1 downto 0 ),
-         m_axi_wlast => MAC_DMA_wlast,
-         m_axi_wready => MAC_DMA_wready,
-         m_axi_wstrb => MAC_DMA_wstrb( (C_M_AXI_MAC_DMA_DATA_WIDTH/8)-1 downto 0 ),
-         m_axi_wvalid => MAC_DMA_wvalid,
-         md_error => MAC_DMA_md_error
+         m_axi_aclk => M_AXI_MAC_DMA_aclk,
+         m_axi_araddr => M_AXI_MAC_DMA_araddr( C_M_AXI_MAC_DMA_ADDR_WIDTH-1 downto 0 ),
+         m_axi_arburst => M_AXI_MAC_DMA_arburst,
+         m_axi_arcache => M_AXI_MAC_DMA_arcache,
+         m_axi_aresetn => M_AXI_MAC_DMA_aresetn,
+         m_axi_arlen => M_AXI_MAC_DMA_arlen,
+         m_axi_arprot => M_AXI_MAC_DMA_arprot,
+         m_axi_arready => M_AXI_MAC_DMA_arready,
+         m_axi_arsize => M_AXI_MAC_DMA_arsize,
+         m_axi_arvalid => M_AXI_MAC_DMA_arvalid,
+         m_axi_awaddr => M_AXI_MAC_DMA_awaddr( C_M_AXI_MAC_DMA_ADDR_WIDTH-1 downto 0 ),
+         m_axi_awburst => M_AXI_MAC_DMA_awburst,
+         m_axi_awcache => M_AXI_MAC_DMA_awcache,
+         m_axi_awlen => M_AXI_MAC_DMA_awlen,
+         m_axi_awprot => M_AXI_MAC_DMA_awprot,
+         m_axi_awready => M_AXI_MAC_DMA_awready,
+         m_axi_awsize => M_AXI_MAC_DMA_awsize,
+         m_axi_awvalid => M_AXI_MAC_DMA_awvalid,
+         m_axi_bready => M_AXI_MAC_DMA_bready,
+         m_axi_bresp => M_AXI_MAC_DMA_bresp,
+         m_axi_bvalid => M_AXI_MAC_DMA_bvalid,
+         m_axi_rdata => M_AXI_MAC_DMA_rdata( C_M_AXI_MAC_DMA_DATA_WIDTH-1 downto 0 ),
+         m_axi_rlast => M_AXI_MAC_DMA_rlast,
+         m_axi_rready => M_AXI_MAC_DMA_rready,
+         m_axi_rresp => M_AXI_MAC_DMA_rresp,
+         m_axi_rvalid => M_AXI_MAC_DMA_rvalid,
+         m_axi_wdata => M_AXI_MAC_DMA_wdata( C_M_AXI_MAC_DMA_DATA_WIDTH-1 downto 0 ),
+         m_axi_wlast => M_AXI_MAC_DMA_wlast,
+         m_axi_wready => M_AXI_MAC_DMA_wready,
+         m_axi_wstrb => M_AXI_MAC_DMA_wstrb( (C_M_AXI_MAC_DMA_DATA_WIDTH/8)-1 downto 0 ),
+         m_axi_wvalid => M_AXI_MAC_DMA_wvalid,
+         md_error => M_AXI_MAC_DMA_md_error
     );
 end generate genMacDmaPlbBurst;
 
@@ -1596,25 +1603,25 @@ begin
          IP2Bus_Error => MAC_PKT2Bus_Error,
          IP2Bus_RdAck => MAC_PKT2Bus_RdAck,
          IP2Bus_WrAck => MAC_PKT2Bus_WrAck,
-         S_AXI_ACLK => MAC_PKT_ACLK,
-         S_AXI_ARADDR => MAC_PKT_ARADDR( C_S_AXI_MAC_PKT_ADDR_WIDTH-1 downto 0 ),
-         S_AXI_ARESETN => MAC_PKT_ARESETN,
-         S_AXI_ARREADY => MAC_PKT_ARREADY,
-         S_AXI_ARVALID => MAC_PKT_ARVALID,
-         S_AXI_AWADDR => MAC_PKT_AWADDR( C_S_AXI_MAC_PKT_ADDR_WIDTH-1 downto 0 ),
-         S_AXI_AWREADY => MAC_PKT_AWREADY,
-         S_AXI_AWVALID => MAC_PKT_AWVALID,
-         S_AXI_BREADY => MAC_PKT_BREADY,
-         S_AXI_BRESP => MAC_PKT_BRESP,
-         S_AXI_BVALID => MAC_PKT_BVALID,
-         S_AXI_RDATA => MAC_PKT_RDATA( C_S_AXI_MAC_PKT_DATA_WIDTH-1 downto 0 ),
-         S_AXI_RREADY => MAC_PKT_RREADY,
-         S_AXI_RRESP => MAC_PKT_RRESP,
-         S_AXI_RVALID => MAC_PKT_RVALID,
-         S_AXI_WDATA => MAC_PKT_WDATA( C_S_AXI_MAC_PKT_DATA_WIDTH-1 downto 0 ),
-         S_AXI_WREADY => MAC_PKT_WREADY,
-         S_AXI_WSTRB => MAC_PKT_WSTRB( (C_S_AXI_MAC_PKT_DATA_WIDTH/8)-1 downto 0 ),
-         S_AXI_WVALID => MAC_PKT_WVALID
+         S_AXI_ACLK => S_AXI_MAC_PKT_ACLK,
+         S_AXI_ARADDR => S_AXI_MAC_PKT_ARADDR( C_S_AXI_MAC_PKT_ADDR_WIDTH-1 downto 0 ),
+         S_AXI_ARESETN => S_AXI_MAC_PKT_ARESETN,
+         S_AXI_ARREADY => S_AXI_MAC_PKT_ARREADY,
+         S_AXI_ARVALID => S_AXI_MAC_PKT_ARVALID,
+         S_AXI_AWADDR => S_AXI_MAC_PKT_AWADDR( C_S_AXI_MAC_PKT_ADDR_WIDTH-1 downto 0 ),
+         S_AXI_AWREADY => S_AXI_MAC_PKT_AWREADY,
+         S_AXI_AWVALID => S_AXI_MAC_PKT_AWVALID,
+         S_AXI_BREADY => S_AXI_MAC_PKT_BREADY,
+         S_AXI_BRESP => S_AXI_MAC_PKT_BRESP,
+         S_AXI_BVALID => S_AXI_MAC_PKT_BVALID,
+         S_AXI_RDATA => S_AXI_MAC_PKT_RDATA( C_S_AXI_MAC_PKT_DATA_WIDTH-1 downto 0 ),
+         S_AXI_RREADY => S_AXI_MAC_PKT_RREADY,
+         S_AXI_RRESP => S_AXI_MAC_PKT_RRESP,
+         S_AXI_RVALID => S_AXI_MAC_PKT_RVALID,
+         S_AXI_WDATA => S_AXI_MAC_PKT_WDATA( C_S_AXI_MAC_PKT_DATA_WIDTH-1 downto 0 ),
+         S_AXI_WREADY => S_AXI_MAC_PKT_WREADY,
+         S_AXI_WSTRB => S_AXI_MAC_PKT_WSTRB( (C_S_AXI_MAC_PKT_DATA_WIDTH/8)-1 downto 0 ),
+         S_AXI_WVALID => S_AXI_MAC_PKT_WVALID
     );
 end generate genMacPktPLbSingleSlave;
 
@@ -1645,25 +1652,25 @@ begin
          IP2Bus_Error => PDI_PCP2Bus_Error,
          IP2Bus_RdAck => PDI_PCP2Bus_RdAck,
          IP2Bus_WrAck => PDI_PCP2Bus_WrAck,
-         S_AXI_ACLK => PDI_PCP_ACLK,
-         S_AXI_ARADDR => PDI_PCP_ARADDR( C_S_AXI_PDI_PCP_ADDR_WIDTH-1 downto 0 ),
-         S_AXI_ARESETN => PDI_PCP_ARESETN,
-         S_AXI_ARREADY => PDI_PCP_ARREADY,
-         S_AXI_ARVALID => PDI_PCP_ARVALID,
-         S_AXI_AWADDR => PDI_PCP_AWADDR( C_S_AXI_PDI_PCP_ADDR_WIDTH-1 downto 0 ),
-         S_AXI_AWREADY => PDI_PCP_AWREADY,
-         S_AXI_AWVALID => PDI_PCP_AWVALID,
-         S_AXI_BREADY => PDI_PCP_BREADY,
-         S_AXI_BRESP => PDI_PCP_BRESP,
-         S_AXI_BVALID => PDI_PCP_BVALID,
-         S_AXI_RDATA => PDI_PCP_RDATA( C_S_AXI_PDI_PCP_DATA_WIDTH-1 downto 0 ),
-         S_AXI_RREADY => PDI_PCP_RREADY,
-         S_AXI_RRESP => PDI_PCP_RRESP,
-         S_AXI_RVALID => PDI_PCP_RVALID,
-         S_AXI_WDATA => PDI_PCP_WDATA( C_S_AXI_PDI_PCP_DATA_WIDTH-1 downto 0 ),
-         S_AXI_WREADY => PDI_PCP_WREADY,
-         S_AXI_WSTRB => PDI_PCP_WSTRB( (C_S_AXI_PDI_PCP_DATA_WIDTH/8)-1 downto 0 ),
-         S_AXI_WVALID => PDI_PCP_WVALID
+         S_AXI_ACLK => S_AXI_PDI_PCP_ACLK,
+         S_AXI_ARADDR => S_AXI_PDI_PCP_ARADDR( C_S_AXI_PDI_PCP_ADDR_WIDTH-1 downto 0 ),
+         S_AXI_ARESETN => S_AXI_PDI_PCP_ARESETN,
+         S_AXI_ARREADY => S_AXI_PDI_PCP_ARREADY,
+         S_AXI_ARVALID => S_AXI_PDI_PCP_ARVALID,
+         S_AXI_AWADDR => S_AXI_PDI_PCP_AWADDR( C_S_AXI_PDI_PCP_ADDR_WIDTH-1 downto 0 ),
+         S_AXI_AWREADY => S_AXI_PDI_PCP_AWREADY,
+         S_AXI_AWVALID => S_AXI_PDI_PCP_AWVALID,
+         S_AXI_BREADY => S_AXI_PDI_PCP_BREADY,
+         S_AXI_BRESP => S_AXI_PDI_PCP_BRESP,
+         S_AXI_BVALID => S_AXI_PDI_PCP_BVALID,
+         S_AXI_RDATA => S_AXI_PDI_PCP_RDATA( C_S_AXI_PDI_PCP_DATA_WIDTH-1 downto 0 ),
+         S_AXI_RREADY => S_AXI_PDI_PCP_RREADY,
+         S_AXI_RRESP => S_AXI_PDI_PCP_RRESP,
+         S_AXI_RVALID => S_AXI_PDI_PCP_RVALID,
+         S_AXI_WDATA => S_AXI_PDI_PCP_WDATA( C_S_AXI_PDI_PCP_DATA_WIDTH-1 downto 0 ),
+         S_AXI_WREADY => S_AXI_PDI_PCP_WREADY,
+         S_AXI_WSTRB => S_AXI_PDI_PCP_WSTRB( (C_S_AXI_PDI_PCP_DATA_WIDTH/8)-1 downto 0 ),
+         S_AXI_WVALID => S_AXI_PDI_PCP_WVALID
     );
 end generate genPdiPcp;
 
@@ -1714,25 +1721,25 @@ begin
          IP2Bus_Error => PDI_AP2Bus_Error,
          IP2Bus_RdAck => PDI_AP2Bus_RdAck,
          IP2Bus_WrAck => PDI_AP2Bus_WrAck,
-         S_AXI_ACLK => PDI_AP_ACLK,
-         S_AXI_ARADDR => PDI_AP_ARADDR( C_S_AXI_PDI_AP_ADDR_WIDTH-1 downto 0 ),
-         S_AXI_ARESETN => PDI_AP_ARESETN,
-         S_AXI_ARREADY => PDI_AP_ARREADY,
-         S_AXI_ARVALID => PDI_AP_ARVALID,
-         S_AXI_AWADDR => PDI_AP_AWADDR( C_S_AXI_PDI_AP_ADDR_WIDTH-1 downto 0 ),
-         S_AXI_AWREADY => PDI_AP_AWREADY,
-         S_AXI_AWVALID => PDI_AP_AWVALID,
-         S_AXI_BREADY => PDI_AP_BREADY,
-         S_AXI_BRESP => PDI_AP_BRESP,
-         S_AXI_BVALID => PDI_AP_BVALID,
-         S_AXI_RDATA => PDI_AP_RDATA( C_S_AXI_PDI_AP_DATA_WIDTH-1 downto 0 ),
-         S_AXI_RREADY => PDI_AP_RREADY,
-         S_AXI_RRESP => PDI_AP_RRESP,
-         S_AXI_RVALID => PDI_AP_RVALID,
-         S_AXI_WDATA => PDI_AP_WDATA( C_S_AXI_PDI_AP_DATA_WIDTH-1 downto 0 ),
-         S_AXI_WREADY => PDI_AP_WREADY,
-         S_AXI_WSTRB => PDI_AP_WSTRB( (C_S_AXI_PDI_AP_DATA_WIDTH/8)-1 downto 0 ),
-         S_AXI_WVALID => PDI_AP_WVALID
+         S_AXI_ACLK => S_AXI_PDI_AP_ACLK,
+         S_AXI_ARADDR => S_AXI_PDI_AP_ARADDR( C_S_AXI_PDI_AP_ADDR_WIDTH-1 downto 0 ),
+         S_AXI_ARESETN => S_AXI_PDI_AP_ARESETN,
+         S_AXI_ARREADY => S_AXI_PDI_AP_ARREADY,
+         S_AXI_ARVALID => S_AXI_PDI_AP_ARVALID,
+         S_AXI_AWADDR => S_AXI_PDI_AP_AWADDR( C_S_AXI_PDI_AP_ADDR_WIDTH-1 downto 0 ),
+         S_AXI_AWREADY => S_AXI_PDI_AP_AWREADY,
+         S_AXI_AWVALID => S_AXI_PDI_AP_AWVALID,
+         S_AXI_BREADY => S_AXI_PDI_AP_BREADY,
+         S_AXI_BRESP => S_AXI_PDI_AP_BRESP,
+         S_AXI_BVALID => S_AXI_PDI_AP_BVALID,
+         S_AXI_RDATA => S_AXI_PDI_AP_RDATA( C_S_AXI_PDI_AP_DATA_WIDTH-1 downto 0 ),
+         S_AXI_RREADY => S_AXI_PDI_AP_RREADY,
+         S_AXI_RRESP => S_AXI_PDI_AP_RRESP,
+         S_AXI_RVALID => S_AXI_PDI_AP_RVALID,
+         S_AXI_WDATA => S_AXI_PDI_AP_WDATA( C_S_AXI_PDI_AP_DATA_WIDTH-1 downto 0 ),
+         S_AXI_WREADY => S_AXI_PDI_AP_WREADY,
+         S_AXI_WSTRB => S_AXI_PDI_AP_WSTRB( (C_S_AXI_PDI_AP_DATA_WIDTH/8)-1 downto 0 ),
+         S_AXI_WVALID => S_AXI_PDI_AP_WVALID
     );
 end generate genPdiAp;
 
@@ -1783,25 +1790,25 @@ begin
          IP2Bus_Error => SMP_PCP2Bus_Error,
          IP2Bus_RdAck => SMP_PCP2Bus_RdAck,
          IP2Bus_WrAck => SMP_PCP2Bus_WrAck,
-         S_AXI_ACLK => SMP_PCP_ACLK,
-         S_AXI_ARADDR => SMP_PCP_ARADDR( C_S_AXI_SMP_PCP_ADDR_WIDTH-1 downto 0 ),
-         S_AXI_ARESETN => SMP_PCP_ARESETN,
-         S_AXI_ARREADY => SMP_PCP_ARREADY,
-         S_AXI_ARVALID => SMP_PCP_ARVALID,
-         S_AXI_AWADDR => SMP_PCP_AWADDR( C_S_AXI_SMP_PCP_ADDR_WIDTH-1 downto 0 ),
-         S_AXI_AWREADY => SMP_PCP_AWREADY,
-         S_AXI_AWVALID => SMP_PCP_AWVALID,
-         S_AXI_BREADY => SMP_PCP_BREADY,
-         S_AXI_BRESP => SMP_PCP_BRESP,
-         S_AXI_BVALID => SMP_PCP_BVALID,
-         S_AXI_RDATA => SMP_PCP_RDATA( C_S_AXI_SMP_PCP_DATA_WIDTH-1 downto 0 ),
-         S_AXI_RREADY => SMP_PCP_RREADY,
-         S_AXI_RRESP => SMP_PCP_RRESP,
-         S_AXI_RVALID => SMP_PCP_RVALID,
-         S_AXI_WDATA => SMP_PCP_WDATA( C_S_AXI_SMP_PCP_DATA_WIDTH-1 downto 0 ),
-         S_AXI_WREADY => SMP_PCP_WREADY,
-         S_AXI_WSTRB => SMP_PCP_WSTRB( (C_S_AXI_SMP_PCP_DATA_WIDTH/8)-1 downto 0 ),
-         S_AXI_WVALID => SMP_PCP_WVALID
+         S_AXI_ACLK => S_AXI_SMP_PCP_ACLK,
+         S_AXI_ARADDR => S_AXI_SMP_PCP_ARADDR( C_S_AXI_SMP_PCP_ADDR_WIDTH-1 downto 0 ),
+         S_AXI_ARESETN => S_AXI_SMP_PCP_ARESETN,
+         S_AXI_ARREADY => S_AXI_SMP_PCP_ARREADY,
+         S_AXI_ARVALID => S_AXI_SMP_PCP_ARVALID,
+         S_AXI_AWADDR => S_AXI_SMP_PCP_AWADDR( C_S_AXI_SMP_PCP_ADDR_WIDTH-1 downto 0 ),
+         S_AXI_AWREADY => S_AXI_SMP_PCP_AWREADY,
+         S_AXI_AWVALID => S_AXI_SMP_PCP_AWVALID,
+         S_AXI_BREADY => S_AXI_SMP_PCP_BREADY,
+         S_AXI_BRESP => S_AXI_SMP_PCP_BRESP,
+         S_AXI_BVALID => S_AXI_SMP_PCP_BVALID,
+         S_AXI_RDATA => S_AXI_SMP_PCP_RDATA( C_S_AXI_SMP_PCP_DATA_WIDTH-1 downto 0 ),
+         S_AXI_RREADY => S_AXI_SMP_PCP_RREADY,
+         S_AXI_RRESP => S_AXI_SMP_PCP_RRESP,
+         S_AXI_RVALID => S_AXI_SMP_PCP_RVALID,
+         S_AXI_WDATA => S_AXI_SMP_PCP_WDATA( C_S_AXI_SMP_PCP_DATA_WIDTH-1 downto 0 ),
+         S_AXI_WREADY => S_AXI_SMP_PCP_WREADY,
+         S_AXI_WSTRB => S_AXI_SMP_PCP_WSTRB( (C_S_AXI_SMP_PCP_DATA_WIDTH/8)-1 downto 0 ),
+         S_AXI_WVALID => S_AXI_SMP_PCP_WVALID
     );
 end generate genSmpIo;
 
