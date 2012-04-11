@@ -128,6 +128,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     12.09.2011  zelenkaj    bugfix      - phyId on little endian incorrect
     03.11.2011  zelenkaj                - reverted previous Microblaze changes, since hw
                                           supports endian correctly
+    11.04.2012  zelenkaj    bugfix      - search for phys starting with addr 1
+                                        - added MICREL KSZ8051RNL support
 
 ----------------------------------------------------------------------------*/
 
@@ -169,6 +171,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MICREL_KS8721_PHY_ID        0x22161
 #define    MICREL_KS8721_IPG        40            // due to phy runtime of 460ns the ipg can be reduced to 40 (40+2*460 = 960 ... minimum ipg)
 
+#define MICREL_KSZ8051RNL_PHY_ID    0x22155
+#define    MICREL_KSZ8051RNL_IPG    ~0    //TODO: measure IPG and compensate
 //IPG compensation valid for EBV DBC3C40 with two National phys...
 #define NATIONAL_DP83640_PHY_ID     0x20005CE
 #define NATIONAL_DP83640_IPG        ~0    //TODO: measure IPG and compensate
@@ -178,6 +182,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #define PHY_MICREL_REG1F_NOAUTOMDIX  0x2000
+#define PHY_MICREL_REG1F_CLK50MEG    0x0080
 
 
 
@@ -497,7 +502,7 @@ static OMETH_H        omethCreateInt
 
 
     // search for connected phys and count link bits
-    for(i=0 ; i < 0x20 && hEth->phyCount < OMETH_MAX_PHY_CNT ; i++)
+    for(i=1 ; i < 0x20 && hEth->phyCount < OMETH_MAX_PHY_CNT ; i++)
     {
         // do not search for this phy if list is activated and phy is not in list
         if(hEth->config.mode & OMETH_MODE_PHY_LIST)
@@ -558,6 +563,17 @@ static OMETH_H        omethCreateInt
     }
 
 
+    //MICREL KSZ8051RNL with 50 MHz clock needs special treatment
+    if(phyId==MICREL_KSZ8051RNL_PHY_ID)
+    {
+        for(i=0; i<hEth->phyCount; i++)
+        {
+            omethPhyRead(hEth, i, 0x1F, &data);
+            data |= PHY_MICREL_REG1F_CLK50MEG; //X1 is 50MHz
+            omethPhyWrite(hEth, i, 0x1F, data);
+        }
+    }
+
     // check if there is a special response IPG to be set
     i = ~0;
 
@@ -578,6 +594,8 @@ static OMETH_H        omethCreateInt
         if(phyId==NATIONAL_DP83640_PHY_ID) i = NATIONAL_DP83640_IPG;
         //e.g. TERASIC DE2-115 (Cyclone 4)
         else if(phyId==MARVELL_88E1111_PHY_ID) i = MARVELL_88E1111_IPG;
+        //e.g. ARROW BeMicro
+        else if(phyId==MICREL_KSZ8051RNL_PHY_ID) i = MICREL_KSZ8051RNL_IPG;
         //...add more if needed
     }
 
