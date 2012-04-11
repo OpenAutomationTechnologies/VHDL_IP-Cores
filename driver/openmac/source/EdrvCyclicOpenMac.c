@@ -111,12 +111,6 @@
 #define EDRVCYC_IPG_NS                EPL_C_DLL_T_IFG
 #define EDRVCYC_PREAMB_SIZE            (EPL_C_DLL_T_PREAMBLE / EPL_C_DLL_T_BITTIME / 8U)
 
-#ifdef __SOC_CHECKER
-#define SOC_CHECKER
-#define SOC_CHECKER_JITTER_NS        100U
-#include "socChecker.h"
-#endif
-
 //---------------------------------------------------------------------------
 // const defines
 //---------------------------------------------------------------------------
@@ -148,11 +142,6 @@ typedef struct
     DWORD               m_aTxProcFlt[EDRVCYC_NEGSHFT_FLT_SPAN];
     unsigned int        m_uiTxProcFltIndex;
     DWORD               m_dwTxProcDur;
-
-#ifdef SOC_CHECKER
-    BOOL                m_dwSocCheckerValid;
-#endif
-
 } tEdrvCyclicInstance;
 
 
@@ -403,11 +392,6 @@ int                i;
     //the next cycle value is not valid!
     EdrvCyclicInstance_l.m_fNextCycleValid = FALSE;
 
-#ifdef SOC_CHECKER
-    EdrvCyclicInstance_l.m_dwSocCheckerValid = FALSE;
-    socchecker_init();
-#endif
-
 Exit:
     return Ret;
 
@@ -640,11 +624,6 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
 
     //BENCHMARK_MOD_01_SET(0);
 
-#ifdef SOC_CHECKER
-    //reset SoC Checker before SoC Tx
-    socchecker_rst();
-#endif
-
     if( EdrvCyclicInstance_l.m_fNextCycleValid == FALSE )
     {
         //use current time + negative shift to set a valid next cycle
@@ -653,9 +632,6 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
         //next timer IRQ correction
         udwNextTimerIrqNs -= OMETH_TICKS_2_NS(EdrvCyclicInstance_l.m_dwTxProcDur);
 
-#ifndef SOC_CHECKER
-        EdrvCyclicInstance_l.m_fNextCycleValid = TRUE; //very first call is done
-#endif
     }
     else
     {
@@ -788,37 +764,6 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
         EdrvCyclicCbTimerCycle,
         0L,
         FALSE);
-
-#ifdef SOC_CHECKER
-    if(EdrvCyclicInstance_l.m_fNextCycleValid == TRUE)
-    {
-        if(EdrvCyclicInstance_l.m_dwSocCheckerValid == TRUE)
-        {
-            DWORD dwSocCheckCnt;
-            DWORD dwSocUpperLimit = OMETH_NS_2_TICKS(EdrvCyclicInstance_l.m_dwCycleLenUs * 1000UL + SOC_CHECKER_JITTER_NS/2U);
-            DWORD dwSocLowerLimit = OMETH_NS_2_TICKS(EdrvCyclicInstance_l.m_dwCycleLenUs * 1000UL - SOC_CHECKER_JITTER_NS/2U);
-
-            //get SoC Checker tick value
-            socchecker_read(&dwSocCheckCnt);
-
-            //verify if the cycle time is within the limit
-            if( (dwSocLowerLimit <= dwSocCheckCnt) && (dwSocCheckCnt <= dwSocUpperLimit) )
-            {
-                socchecker_okay();
-            }
-            else
-            {
-                socchecker_error();
-                BENCHMARK_MOD_01_TOGGLE(7);
-                BENCHMARK_MOD_01_TOGGLE(7);
-                BENCHMARK_MOD_01_TOGGLE(7);
-            }
-        }
-        EdrvCyclicInstance_l.m_dwSocCheckerValid = TRUE;
-    }
-
-    EdrvCyclicInstance_l.m_fNextCycleValid = TRUE; //very first call is done
-#endif
 
     if (Ret != kEplSuccessful)
     {
