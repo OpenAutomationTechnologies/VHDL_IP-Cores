@@ -46,10 +46,10 @@ del %release_dir%\%ipcore_dir%\src\openMAC_DMAmaster\ipif_master_handler.vhd
 copy %alterasopc_dir%\%ipcore_name%_hw.tcl                          %release_dir%\%ipcore_dir%
 copy %alterasopc_dir%\*.sdc                                         %release_dir%\%ipcore_dir%\sdc
 copy images\*.*                                                     %release_dir%\%ipcore_dir%\img
-copy %txt_dir%\powerlink_revision.txt                               %release_dir%\%ipcore_dir%\doc
+copy %txt_dir%\powerlink_revision.txt                               %release_dir%\%ipcore_dir%
 
 ::rename txt
-rename %release_dir%\%ipcore_dir%\doc\powerlink_revision.txt        revision.txt
+rename %release_dir%\%ipcore_dir%\powerlink_revision.txt            revision.txt
 
 :: copy documentation
 copy %docu_dir%\*_Generic.pdf                                       %release_dir%\%ipcore_dir%\doc
