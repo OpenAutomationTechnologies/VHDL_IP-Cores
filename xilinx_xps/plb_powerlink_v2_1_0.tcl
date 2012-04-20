@@ -193,8 +193,8 @@ proc create_cnapi_header { drv_handle ip_core_mode big_endian async_buf_count} {
     set num_rpdos [xget_param_value $periph "C_NUM_RPDO"]
     set num_tpdos [xget_param_value $periph "C_NUM_TPDO"]
     
-    set num_rpdos "PCP_PDI_RPDO_MAX $num_rpdos"
-    set num_tpdos "PCP_PDI_TPDO_MAX $num_tpdos"
+    set num_rpdos "PCP_PDI_RPDO_CHANNELS $num_rpdos"
+    set num_tpdos "PCP_PDI_TPDO_CHANNELS $num_tpdos"
     
     set pdi_rev [xget_param_value $periph "C_PDI_REVISION"]
     set pdi_rev "PCP_PDI_REVISION $pdi_rev"
