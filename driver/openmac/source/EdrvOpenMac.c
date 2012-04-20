@@ -178,7 +178,7 @@
         #define EDRV_INTC_BASE                  XPAR_PCP_INTC_BASEADDR
         #define EDRV_MAC_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_BASEADDR
         #define EDRV_MAC_SPAN                   (XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_HIGHADDR-XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_BASEADDR+1)
-        #define EDRV_MAC_IRQ                    XPAR_INTC_PCP_AXI_POWERLINK_0_MAC_IRQ_INTR
+        #define EDRV_MAC_IRQ                    XPAR_PCP_INTC_AXI_POWERLINK_0_MAC_IRQ_INTR
         #define EDRV_MAC_IRQ_MASK               XPAR_AXI_POWERLINK_0_MAC_IRQ_MASK
         #define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
         #define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
