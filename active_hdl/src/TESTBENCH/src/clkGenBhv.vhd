@@ -59,7 +59,7 @@ begin
     
     process
     begin
-        clock <= cInactivated;
+        clock <= cActivated;
         wait for gPeriod / 2;
         clock <= not clock;
         wait for gPeriod / 2;

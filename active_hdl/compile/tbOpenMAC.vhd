@@ -37,6 +37,7 @@
 -- Design unit header --
 library IEEE;
 use IEEE.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 library work;
 use global.all;
@@ -78,6 +79,16 @@ component clkgen
        oClk : out std_logic
   );
 end component;
+component edgeDet
+  port (
+       clk : in std_logic;
+       din : in std_logic;
+       rst : in std_logic;
+       any : out std_logic;
+       falling : out std_logic;
+       rising : out std_logic
+  );
+end component;
 component enableGen
   generic(
        gEnableDelay : time := 100 ns
@@ -88,59 +99,140 @@ component enableGen
        onEnable : out std_logic
   );
 end component;
-component OpenMAC
+component OpenMAC_DMAFifo
   generic(
-       HighAdr : integer := 16;
-       Simulate : boolean := false;
-       Timer : boolean := false;
-       TxDel : boolean := false;
-       TxSyncOn : boolean := false
+       fifo_data_width_g : natural := 16;
+       fifo_word_size_g : natural := 32;
+       fifo_word_size_log2_g : natural := 5
   );
   port (
-       Clk : in std_logic;
-       Dma_Ack : in std_logic;
-       Dma_Din : in std_logic_vector(15 downto 0);
-       Hub_Rx : in std_logic_vector(1 downto 0) := "00";
-       Rst : in std_logic;
-       S_Adr : in std_logic_vector(10 downto 1);
-       S_Din : in std_logic_vector(15 downto 0);
-       S_nBe : in std_logic_vector(1 downto 0);
-       Sel_Cont : in std_logic := '0';
-       Sel_Ram : in std_logic := '0';
-       rCrs_Dv : in std_logic;
-       rRx_Dat : in std_logic_vector(1 downto 0);
-       s_nWr : in std_logic := '0';
-       Dma_Addr : out std_logic_vector(HighAdr downto 1);
-       Dma_Dout : out std_logic_vector(15 downto 0);
-       Dma_Rd_Done : out std_logic;
-       Dma_Req : out std_logic;
-       Dma_Req_Overflow : out std_logic;
-       Dma_Rw : out std_logic;
-       Dma_Wr_Done : out std_logic;
-       Mac_Zeit : out std_logic_vector(31 downto 0);
-       S_Dout : out std_logic_vector(15 downto 0);
-       nRx_Int : out std_logic;
-       nTx_BegInt : out std_logic;
-       nTx_Int : out std_logic;
-       rTx_Dat : out std_logic_vector(1 downto 0);
-       rTx_En : out std_logic
+       aclr : in std_logic;
+       rd_clk : in std_logic;
+       rd_req : in std_logic;
+       wr_clk : in std_logic;
+       wr_data : in std_logic_vector(fifo_data_width_g-1 downto 0);
+       wr_req : in std_logic;
+       rd_data : out std_logic_vector(fifo_data_width_g-1 downto 0);
+       rd_empty : out std_logic;
+       rd_full : out std_logic;
+       rd_usedw : out std_logic_vector(fifo_word_size_log2_g-1 downto 0);
+       wr_empty : out std_logic;
+       wr_full : out std_logic;
+       wr_usedw : out std_logic_vector(fifo_word_size_log2_g-1 downto 0)
   );
 end component;
-component OpenMAC_MII
+component openmac_ethernet
+  generic(
+       dma_highadr_g : integer := 31;
+       endian_g : string := "little";
+       gNumSmi : integer := 2;
+       gen2ndCmpTimer_g : boolean := false;
+       genHub_g : boolean := false;
+       genPhyActLed_g : boolean := false;
+       genSmiIO : boolean := true;
+       gen_dma_observer_g : boolean := true;
+       iPktBufSizeLog2_g : integer := 10;
+       iPktBufSize_g : integer := 1024;
+       m_burstcount_const_g : boolean := true;
+       m_burstcount_width_g : integer := 4;
+       m_data_width_g : integer := 16;
+       m_rx_burst_size_g : integer := 16;
+       m_rx_fifo_size_g : integer := 16;
+       m_tx_burst_size_g : integer := 16;
+       m_tx_fifo_size_g : integer := 16;
+       simulate : boolean := false;
+       useIntPktBuf_g : boolean := false;
+       useRmii_g : boolean := true;
+       useRxIntPktBuf_g : boolean := false
+  );
   port (
-       Addr : in std_logic_vector(2 downto 0);
-       Clk : in std_logic;
-       Data_In : in std_logic_vector(15 downto 0);
-       Mii_Di : in std_logic;
-       Rst : in std_logic;
-       Sel : in std_logic;
-       nBe : in std_logic_vector(1 downto 0);
-       nWr : in std_logic;
-       Data_Out : out std_logic_vector(15 downto 0);
-       Mii_Clk : out std_logic;
-       Mii_Do : out std_logic;
-       Mii_Doe : out std_logic;
-       nResetOut : out std_logic
+       clk : in std_logic;
+       clkx2 : in std_logic;
+       m_clk : in std_logic;
+       m_readdata : in std_logic_vector(m_data_width_g-1 downto 0) := (others => '0');
+       m_readdatavalid : in std_logic;
+       m_waitrequest : in std_logic;
+       phy0_rx_dat : in std_logic_vector(1 downto 0);
+       phy0_rx_dv : in std_logic;
+       phy0_rx_err : in std_logic;
+       phy0_smi_dio_I : in std_logic;
+       phy1_rx_dat : in std_logic_vector(1 downto 0);
+       phy1_rx_dv : in std_logic;
+       phy1_rx_err : in std_logic;
+       phy1_smi_dio_I : in std_logic;
+       phyMii0_rx_clk : in std_logic;
+       phyMii0_rx_dat : in std_logic_vector(3 downto 0);
+       phyMii0_rx_dv : in std_logic;
+       phyMii0_rx_err : in std_logic;
+       phyMii0_tx_clk : in std_logic;
+       phyMii1_rx_clk : in std_logic;
+       phyMii1_rx_dat : in std_logic_vector(3 downto 0);
+       phyMii1_rx_dv : in std_logic;
+       phyMii1_rx_err : in std_logic;
+       phyMii1_tx_clk : in std_logic;
+       phy_smi_dio_I : in std_logic;
+       pkt_address : in std_logic_vector(iPktBufSizeLog2_g-3 downto 0) := (others => '0');
+       pkt_byteenable : in std_logic_vector(3 downto 0);
+       pkt_chipselect : in std_logic;
+       pkt_clk : in std_logic;
+       pkt_read : in std_logic;
+       pkt_write : in std_logic;
+       pkt_writedata : in std_logic_vector(31 downto 0);
+       rst : in std_logic;
+       s_address : in std_logic_vector(11 downto 0);
+       s_byteenable : in std_logic_vector(1 downto 0);
+       s_chipselect : in std_logic;
+       s_read : in std_logic;
+       s_write : in std_logic;
+       s_writedata : in std_logic_vector(15 downto 0);
+       t_address : in std_logic_vector(1 downto 0);
+       t_byteenable : in std_logic_vector(3 downto 0);
+       t_chipselect : in std_logic;
+       t_read : in std_logic;
+       t_write : in std_logic;
+       t_writedata : in std_logic_vector(31 downto 0);
+       act_led : out std_logic;
+       m_address : out std_logic_vector(29 downto 0);
+       m_burstcount : out std_logic_vector(m_burstcount_width_g-1 downto 0);
+       m_burstcounter : out std_logic_vector(m_burstcount_width_g-1 downto 0);
+       m_byteenable : out std_logic_vector(m_data_width_g/8-1 downto 0);
+       m_read : out std_logic;
+       m_write : out std_logic;
+       m_writedata : out std_logic_vector(m_data_width_g-1 downto 0);
+       mac_rx_irq : out std_logic;
+       mac_tx_irq : out std_logic;
+       phy0_rst_n : out std_logic;
+       phy0_smi_clk : out std_logic;
+       phy0_smi_dio_O : out std_logic;
+       phy0_smi_dio_T : out std_logic;
+       phy0_tx_dat : out std_logic_vector(1 downto 0);
+       phy0_tx_en : out std_logic;
+       phy1_rst_n : out std_logic;
+       phy1_smi_clk : out std_logic;
+       phy1_smi_dio_O : out std_logic;
+       phy1_smi_dio_T : out std_logic;
+       phy1_tx_dat : out std_logic_vector(1 downto 0);
+       phy1_tx_en : out std_logic;
+       phyMii0_tx_dat : out std_logic_vector(3 downto 0);
+       phyMii0_tx_en : out std_logic;
+       phyMii1_tx_dat : out std_logic_vector(3 downto 0);
+       phyMii1_tx_en : out std_logic;
+       phy_rst_n : out std_logic;
+       phy_smi_clk : out std_logic;
+       phy_smi_dio_O : out std_logic;
+       phy_smi_dio_T : out std_logic;
+       pkt_readdata : out std_logic_vector(31 downto 0);
+       pkt_waitrequest : out std_logic;
+       s_irq : out std_logic;
+       s_readdata : out std_logic_vector(15 downto 0);
+       s_waitrequest : out std_logic;
+       t_irq : out std_logic;
+       t_readdata : out std_logic_vector(31 downto 0);
+       t_tog : out std_logic;
+       t_waitrequest : out std_logic;
+       phy0_smi_dio : inout std_logic := '1';
+       phy1_smi_dio : inout std_logic := '1';
+       phy_smi_dio : inout std_logic := '1'
   );
 end component;
 component req_ack
@@ -161,6 +253,12 @@ end component;
 constant cAddrwidth : integer := 32;
 constant cDatawidth : integer := 16;
 
+constant cEnableLoop : boolean := true;
+constant cRmiiDelayExp : integer := 20; -- 2**10
+
+constant cGenManCol : boolean := false; --collision with manual tx frame
+constant cGenAutoCol : boolean := false; --collision with auto tx frame
+
 
 ----     Constants     -----
 constant DANGLING_INPUT_CONSTANT : std_logic := 'Z';
@@ -170,36 +268,54 @@ constant GND_CONSTANT   : std_logic := '0';
 
 signal ack : std_logic;
 signal busMasterDone : std_logic;
+signal clk100 : std_logic;
 signal clk50 : std_logic;
-signal dmaAck : std_logic;
-signal dmaReq : std_logic;
 signal done : std_logic := '1';
 signal enable : std_logic;
+signal fifo_rd_empty : std_logic;
+signal fifo_rd_req : std_logic;
+signal fifo_wr_req : std_logic;
+signal fifo_wr_req_falling : std_logic;
 signal GND : std_logic;
 signal macDone : std_logic;
+signal m_read : std_logic;
+signal m_readdatavalid : std_logic;
+signal m_waitrequest : std_logic;
+signal m_write : std_logic;
 signal NET799 : std_logic;
 signal NET808 : std_logic;
-signal nPhyRst : std_logic;
-signal nWrite : std_logic;
+signal phy0_rx_dv : std_logic;
+signal phy0_rx_err : std_logic;
+signal phy0_tx_en : std_logic;
+signal phy1_rx_dv : std_logic;
+signal phy1_rx_err : std_logic;
+signal phy1_tx_en : std_logic;
 signal read : std_logic;
 signal reset : std_logic;
+signal rst : std_logic;
 signal sel : std_logic;
-signal selCont : std_logic;
-signal selRam : std_logic;
-signal selSmi : std_logic;
-signal smiClk : std_logic;
-signal smiDin : std_logic;
-signal smiDout : std_logic;
-signal smiDoutEn : std_logic;
-signal txEn : std_logic;
+signal s_chipselect : std_logic;
+signal s_read : std_logic;
+signal s_waitrequest : std_logic;
+signal s_write : std_logic;
 signal write : std_logic;
 signal address : std_logic_vector (cAddrwidth-1 downto 0);
 signal byteenable : std_logic_vector (cDatawidth/8-1 downto 0);
-signal dmaAddr : std_logic_vector (cAddrwidth-1 downto 0);
-signal macReaddata : std_logic_vector (cDatawidth-1 downto 0);
-signal nByteenable : std_logic_vector (1 downto 0);
+signal fifo_rd_data : std_logic_vector (2 downto 0);
+signal fifo_rd_usedw : std_logic_vector (cRmiiDelayExp-1 downto 0);
+signal fifo_wr_data : std_logic_vector (2 downto 0);
+signal fifo_wr_done : std_logic_vector (31 downto 0);
+signal m_burstcount : std_logic_vector (4 downto 0);
+signal m_burstcounter : std_logic_vector (4 downto 0);
+signal phy0_rx_dat : std_logic_vector (1 downto 0);
+signal phy0_tx_dat : std_logic_vector (1 downto 0);
+signal phy1_rx_dat : std_logic_vector (1 downto 0);
+signal phy1_tx_dat : std_logic_vector (1 downto 0);
 signal readdata : std_logic_vector (cDatawidth-1 downto 0);
-signal smiReaddata : std_logic_vector (cDatawidth-1 downto 0);
+signal s_address : std_logic_vector (11 downto 0);
+signal s_byteenable : std_logic_vector (1 downto 0);
+signal s_readdata : std_logic_vector (15 downto 0);
+signal s_writedata : std_logic_vector (15 downto 0);
 signal writedata : std_logic_vector (cDatawidth-1 downto 0);
 
 ---- Declaration for Dangling input ----
@@ -207,120 +323,252 @@ signal Dangling_Input_Signal : STD_LOGIC;
 
 begin
 
----- Processes ----
-
-Process_1 :
-process
--- Section above this comment may be overwritten according to
--- "Update sensitivity list automatically" option status
--- declarations
-begin
-    macDone <= cInactivated;
-    wait until falling_edge(txEn);
-    macDone <= cActivated;
-    wait;
-end process;
-
-Process_2 :
-process
--- Section above this comment may be overwritten according to
--- "Update sensitivity list automatically" option status
--- declarations
-begin
-    if dmaReq = cActivated and dmaAck = cInactivated then
-        dmaAck <= cActivated;
-    else
-        dmaAck <= cInactivated;
-    end if;
-    wait until rising_edge(clk50);
-end process;
-
 ---- User Signal Assignments ----
 --generate done signal
 done <= busMasterDone and macDone;
---openMAC assignments
-nByteenable <= not byteenable;
-nWrite <= not write;
-selRam <= sel when address (13 downto 12) = "01" else cInactivated;
-selCont <= sel when address(13 downto 12) = "00" else cInactivated;
-selSmi <= sel when address(13 downto 12) = "10" else cInactivated;
+--mac
+macDone <= '1';
+-- write
+s_chipselect <= sel;
+s_read <= read;
+s_write <= write;
+s_address <= address(s_address'high+1 downto 1);
+s_byteenable <= byteenable;
+s_writedata <= writedata;
+-- read
+readdata <= s_readdata;
+ack <= not s_waitrequest;
 
-dmaAddr(0) <= cInactivated;
+--master
+m_waitrequest <= not(m_read or m_write);
+m_readdatavalid <= '0' when unsigned(m_burstcounter) = 0 or m_write = '1' else not m_read;
 
-readdata <= smiReaddata when selSmi = cActivated else
-				macReaddata;
+--phy if
+genNoRx : if not cEnableLoop generate
+begin
+	phy0_rx_dv <= '0';
+	phy0_rx_err <= '0';
+	phy0_rx_dat <= "00";
+end generate;
+
+phy1_rx_dv <=
+	phy0_tx_en after 2500 ns when cGenManCol else
+	phy0_tx_en after 2500 ns when cGenAutoCol and unsigned(fifo_wr_done) = 1 else
+	'0';
+phy1_rx_err <= '0';
+phy1_rx_dat <= 
+	phy0_tx_dat after 2500 ns when cGenManCol else
+	phy0_tx_dat after 2500 ns when cGenAutoCol and unsigned(fifo_wr_done) = 1 else
+	"00";
+fifo_wr_req <= fifo_wr_data(2);
+
+genLoop : if cEnableLoop generate
+begin
+	fifo_wr_data <= phy0_tx_en & phy0_tx_dat;
+	phy0_rx_dv <= fifo_rd_data(2);
+	phy0_rx_dat <= fifo_rd_data(1 downto 0);
+	phy0_rx_err <= '0';
+end generate;
+
+procFifoRdReq : process(clk50, reset)
+begin
+	if reset = '1' then
+		fifo_rd_req <= '0';
+		fifo_wr_done <= (others => '0');
+	elsif rising_edge(clk50) then
+		if fifo_rd_empty = '1' then
+			fifo_rd_req <= '0';
+		elsif fifo_wr_req_falling = '1' then
+			fifo_rd_req <= '1' after 1 us;
+			fifo_wr_done <= std_logic_vector(unsigned(fifo_wr_done) + 1);
+		elsif unsigned(fifo_rd_usedw) > 106 and unsigned(fifo_wr_done) = 0 then
+			fifo_rd_req <= '1'; -- after 1 us;
+			fifo_wr_done <= std_logic_vector(unsigned(fifo_wr_done) + 1);
+		end if;
+	end if;
+end process;
 
 ----  Component instantiations  ----
 
-DUT : OpenMAC
+DUT : openmac_ethernet
   generic map (
-       HighAdr => cAddrwidth-1,
-       Simulate => false,
-       Timer => true,
-       TxDel => true,
-       TxSyncOn => true
+       dma_highadr_g => 29,
+       endian_g => "little",
+       gNumSmi => 2,
+       gen2ndCmpTimer_g => false,
+       genHub_g => true,
+       genPhyActLed_g => false,
+       genSmiIO => true,
+       gen_dma_observer_g => true,
+       iPktBufSizeLog2_g => 10,
+       iPktBufSize_g => 1024,
+       m_burstcount_const_g => true,
+       m_burstcount_width_g => 5,
+       m_data_width_g => 16,
+       m_rx_burst_size_g => 16,
+       m_rx_fifo_size_g => 32,
+       m_tx_burst_size_g => 16,
+       m_tx_fifo_size_g => 32,
+       simulate => false,
+       useIntPktBuf_g => false,
+       useRmii_g => true,
+       useRxIntPktBuf_g => false
   )
   port map(
-       Clk => clk50,
-       Dma_Din(0) => Dangling_Input_Signal,
-       Dma_Din(1) => Dangling_Input_Signal,
-       Dma_Din(2) => Dangling_Input_Signal,
-       Dma_Din(3) => Dangling_Input_Signal,
-       Dma_Din(4) => Dangling_Input_Signal,
-       Dma_Din(5) => Dangling_Input_Signal,
-       Dma_Din(6) => Dangling_Input_Signal,
-       Dma_Din(7) => Dangling_Input_Signal,
-       Dma_Din(8) => Dangling_Input_Signal,
-       Dma_Din(9) => Dangling_Input_Signal,
-       Dma_Din(10) => Dangling_Input_Signal,
-       Dma_Din(11) => Dangling_Input_Signal,
-       Dma_Din(12) => Dangling_Input_Signal,
-       Dma_Din(13) => Dangling_Input_Signal,
-       Dma_Din(14) => Dangling_Input_Signal,
-       Dma_Din(15) => Dangling_Input_Signal,
-       Dma_Ack => dmaAck,
-       Dma_Addr => dmaAddr( cAddrwidth-1 downto 1 ),
-       Dma_Req => dmaReq,
-       rRx_Dat(0) => Dangling_Input_Signal,
-       rRx_Dat(1) => Dangling_Input_Signal,
-       Rst => reset,
-       S_Adr(1) => address(1),
-       S_Adr(2) => address(2),
-       S_Adr(3) => address(3),
-       S_Adr(4) => address(4),
-       S_Adr(5) => address(5),
-       S_Adr(6) => address(6),
-       S_Adr(7) => address(7),
-       S_Adr(8) => address(8),
-       S_Adr(9) => address(9),
-       S_Adr(10) => address(10),
-       S_Din => writedata( cDatawidth-1 downto 0 ),
-       S_Dout => macReaddata( cDatawidth-1 downto 0 ),
-       S_nBe => nByteenable,
-       Sel_Cont => selCont,
-       Sel_Ram => selRam,
-       rCrs_Dv => Dangling_Input_Signal,
-       rTx_En => txEn,
-       s_nWr => nWrite
+       phyMii0_rx_dat(0) => Dangling_Input_Signal,
+       phyMii0_rx_dat(1) => Dangling_Input_Signal,
+       phyMii0_rx_dat(2) => Dangling_Input_Signal,
+       phyMii0_rx_dat(3) => Dangling_Input_Signal,
+       phyMii1_rx_dat(0) => Dangling_Input_Signal,
+       phyMii1_rx_dat(1) => Dangling_Input_Signal,
+       phyMii1_rx_dat(2) => Dangling_Input_Signal,
+       phyMii1_rx_dat(3) => Dangling_Input_Signal,
+       pkt_byteenable(0) => Dangling_Input_Signal,
+       pkt_byteenable(1) => Dangling_Input_Signal,
+       pkt_byteenable(2) => Dangling_Input_Signal,
+       pkt_byteenable(3) => Dangling_Input_Signal,
+       pkt_writedata(0) => Dangling_Input_Signal,
+       pkt_writedata(1) => Dangling_Input_Signal,
+       pkt_writedata(2) => Dangling_Input_Signal,
+       pkt_writedata(3) => Dangling_Input_Signal,
+       pkt_writedata(4) => Dangling_Input_Signal,
+       pkt_writedata(5) => Dangling_Input_Signal,
+       pkt_writedata(6) => Dangling_Input_Signal,
+       pkt_writedata(7) => Dangling_Input_Signal,
+       pkt_writedata(8) => Dangling_Input_Signal,
+       pkt_writedata(9) => Dangling_Input_Signal,
+       pkt_writedata(10) => Dangling_Input_Signal,
+       pkt_writedata(11) => Dangling_Input_Signal,
+       pkt_writedata(12) => Dangling_Input_Signal,
+       pkt_writedata(13) => Dangling_Input_Signal,
+       pkt_writedata(14) => Dangling_Input_Signal,
+       pkt_writedata(15) => Dangling_Input_Signal,
+       pkt_writedata(16) => Dangling_Input_Signal,
+       pkt_writedata(17) => Dangling_Input_Signal,
+       pkt_writedata(18) => Dangling_Input_Signal,
+       pkt_writedata(19) => Dangling_Input_Signal,
+       pkt_writedata(20) => Dangling_Input_Signal,
+       pkt_writedata(21) => Dangling_Input_Signal,
+       pkt_writedata(22) => Dangling_Input_Signal,
+       pkt_writedata(23) => Dangling_Input_Signal,
+       pkt_writedata(24) => Dangling_Input_Signal,
+       pkt_writedata(25) => Dangling_Input_Signal,
+       pkt_writedata(26) => Dangling_Input_Signal,
+       pkt_writedata(27) => Dangling_Input_Signal,
+       pkt_writedata(28) => Dangling_Input_Signal,
+       pkt_writedata(29) => Dangling_Input_Signal,
+       pkt_writedata(30) => Dangling_Input_Signal,
+       pkt_writedata(31) => Dangling_Input_Signal,
+       t_address(0) => Dangling_Input_Signal,
+       t_address(1) => Dangling_Input_Signal,
+       t_byteenable(0) => Dangling_Input_Signal,
+       t_byteenable(1) => Dangling_Input_Signal,
+       t_byteenable(2) => Dangling_Input_Signal,
+       t_byteenable(3) => Dangling_Input_Signal,
+       t_writedata(0) => Dangling_Input_Signal,
+       t_writedata(1) => Dangling_Input_Signal,
+       t_writedata(2) => Dangling_Input_Signal,
+       t_writedata(3) => Dangling_Input_Signal,
+       t_writedata(4) => Dangling_Input_Signal,
+       t_writedata(5) => Dangling_Input_Signal,
+       t_writedata(6) => Dangling_Input_Signal,
+       t_writedata(7) => Dangling_Input_Signal,
+       t_writedata(8) => Dangling_Input_Signal,
+       t_writedata(9) => Dangling_Input_Signal,
+       t_writedata(10) => Dangling_Input_Signal,
+       t_writedata(11) => Dangling_Input_Signal,
+       t_writedata(12) => Dangling_Input_Signal,
+       t_writedata(13) => Dangling_Input_Signal,
+       t_writedata(14) => Dangling_Input_Signal,
+       t_writedata(15) => Dangling_Input_Signal,
+       t_writedata(16) => Dangling_Input_Signal,
+       t_writedata(17) => Dangling_Input_Signal,
+       t_writedata(18) => Dangling_Input_Signal,
+       t_writedata(19) => Dangling_Input_Signal,
+       t_writedata(20) => Dangling_Input_Signal,
+       t_writedata(21) => Dangling_Input_Signal,
+       t_writedata(22) => Dangling_Input_Signal,
+       t_writedata(23) => Dangling_Input_Signal,
+       t_writedata(24) => Dangling_Input_Signal,
+       t_writedata(25) => Dangling_Input_Signal,
+       t_writedata(26) => Dangling_Input_Signal,
+       t_writedata(27) => Dangling_Input_Signal,
+       t_writedata(28) => Dangling_Input_Signal,
+       t_writedata(29) => Dangling_Input_Signal,
+       t_writedata(30) => Dangling_Input_Signal,
+       t_writedata(31) => Dangling_Input_Signal,
+       clk => clk50,
+       clkx2 => clk100,
+       m_burstcount => m_burstcount( 4 downto 0 ),
+       m_burstcounter => m_burstcounter( 4 downto 0 ),
+       m_clk => clk100,
+       m_read => m_read,
+       m_readdatavalid => m_readdatavalid,
+       m_waitrequest => m_waitrequest,
+       m_write => m_write,
+       phy0_rx_dat => phy0_rx_dat,
+       phy0_rx_dv => phy0_rx_dv,
+       phy0_rx_err => phy0_rx_err,
+       phy0_smi_dio_I => Dangling_Input_Signal,
+       phy0_tx_dat => phy0_tx_dat,
+       phy0_tx_en => phy0_tx_en,
+       phy1_rx_dat => phy1_rx_dat,
+       phy1_rx_dv => phy1_rx_dv,
+       phy1_rx_err => phy1_rx_err,
+       phy1_smi_dio_I => Dangling_Input_Signal,
+       phy1_tx_dat => phy1_tx_dat,
+       phy1_tx_en => phy1_tx_en,
+       phyMii0_rx_clk => Dangling_Input_Signal,
+       phyMii0_rx_dv => Dangling_Input_Signal,
+       phyMii0_rx_err => Dangling_Input_Signal,
+       phyMii0_tx_clk => Dangling_Input_Signal,
+       phyMii1_rx_clk => Dangling_Input_Signal,
+       phyMii1_rx_dv => Dangling_Input_Signal,
+       phyMii1_rx_err => Dangling_Input_Signal,
+       phyMii1_tx_clk => Dangling_Input_Signal,
+       phy_smi_dio_I => Dangling_Input_Signal,
+       pkt_chipselect => Dangling_Input_Signal,
+       pkt_clk => Dangling_Input_Signal,
+       pkt_read => Dangling_Input_Signal,
+       pkt_write => Dangling_Input_Signal,
+       rst => reset,
+       s_address => s_address,
+       s_byteenable => s_byteenable,
+       s_chipselect => s_chipselect,
+       s_read => s_read,
+       s_readdata => s_readdata,
+       s_waitrequest => s_waitrequest,
+       s_write => s_write,
+       s_writedata => s_writedata,
+       t_chipselect => Dangling_Input_Signal,
+       t_read => Dangling_Input_Signal,
+       t_write => Dangling_Input_Signal
   );
 
-DUT2 : OpenMAC_MII
+RMII_DELAY : OpenMAC_DMAFifo
+  generic map (
+       fifo_data_width_g => 3,
+       fifo_word_size_g => 2**cRmiiDelayExp,
+       fifo_word_size_log2_g => cRmiiDelayExp
+  )
   port map(
-       Addr(0) => address(1),
-       Addr(1) => address(2),
-       Addr(2) => address(3),
-       Clk => clk50,
-       Data_In => writedata( cDatawidth-1 downto 0 ),
-       Data_Out => smiReaddata( cDatawidth-1 downto 0 ),
-       Mii_Clk => smiClk,
-       Mii_Di => smiDin,
-       Mii_Do => smiDout,
-       Mii_Doe => smiDoutEn,
-       Rst => reset,
-       Sel => selSmi,
-       nBe => nByteenable,
-       nResetOut => nPhyRst,
-       nWr => nWrite
+       aclr => reset,
+       rd_clk => clk50,
+       rd_data => fifo_rd_data( 2 downto 0 ),
+       rd_empty => fifo_rd_empty,
+       rd_req => fifo_rd_req,
+       rd_usedw => fifo_rd_usedw( cRmiiDelayExp-1 downto 0 ),
+       wr_clk => clk50,
+       wr_data => fifo_wr_data( 2 downto 0 ),
+       wr_req => fifo_wr_req
+  );
+
+TRIG_READ : edgeDet
+  port map(
+       clk => clk50,
+       din => fifo_wr_req,
+       falling => fifo_wr_req_falling,
+       rst => rst
   );
 
 U1 : clkgen
@@ -396,6 +644,15 @@ U6 : req_ack
   );
 
 ack <= NET808 or NET799;
+
+U8 : clkgen
+  generic map (
+       gPeriod => 10 ns
+  )
+  port map(
+       iDone => done,
+       oClk => clk100
+  );
 
 
 ---- Power , ground assignment ----

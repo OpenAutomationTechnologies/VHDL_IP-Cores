@@ -135,44 +135,54 @@ begin
     readFile : process(clk, rst)
         variable vLine : line;
         variable vReadString : string(1 to 50);
+        variable vDone : boolean := false;
     begin
         if rst = cActivated then
             fsm <= idle;
             stimAddress <= (others => '0');
             stimData <= (others => '0');
             oDone <= cInactivated;
+            vDone := false;
         elsif rising_edge(clk) then
             if enable = cActivated then
                 if fsm = idle then
-                    if not endfile(stimulifile) then
+                    if not endfile(stimulifile) and not vDone then
                         loop
+                            vReadString := (others => ' ');
                             readline(stimulifile, vLine);
                             read(vLine, vReadString);
-                            exit when vReadString(1) /= '#';
+                            exit when vReadString(1) /= '#'; --comments
+                            exit when vReadString(1) /= ' '; --empty line
                             exit when endfile(stimulifile);
                         end loop;
                         
-                        case vReadString(1 to 2) is
-                            when "WR" =>
-                                fsm <= write;
-                            when "RD" =>
-                                fsm <= read;
-                            when "JE" =>
-                                fsm <= jmpEq;
-                            when "NP" =>
-                                fsm <= idle;
-                            when others =>
-                        end case;
-                        
-                        stimAccess <= vReadString(3);
-                        
-                        for i in 0 to 7 loop
-                            stimAddress((8-i)*4-1 downto (7-i)*4) <= char_to_nib(vReadString(i+5));
-                        end loop;
-                        
-                        for i in 0 to 7 loop
-                            stimData((8-i)*4-1 downto (7-i)*4) <= char_to_nib(vReadString(i+14));
-                        end loop;
+                        if vReadString(1 to 4) = "HALT" then
+                            vDone := true;
+                        else
+                            
+                            case vReadString(1 to 2) is
+                                when "WR" =>
+                                    fsm <= write;
+                                when "RD" =>
+                                    fsm <= read;
+                                when "JE" =>
+                                    fsm <= jmpEq;
+                                when "NP" =>
+                                    fsm <= idle;
+                                when others =>
+                            end case;
+                            
+                            stimAccess <= vReadString(3);
+                            
+                            for i in 0 to 7 loop
+                                stimAddress((8-i)*4-1 downto (7-i)*4) <= char_to_nib(vReadString(i+5));
+                            end loop;
+                            
+                            for i in 0 to 7 loop
+                                stimData((8-i)*4-1 downto (7-i)*4) <= char_to_nib(vReadString(i+14));
+                            end loop;
+                            
+                        end if;
                         
                     else
                         oDone <= cActivated;
