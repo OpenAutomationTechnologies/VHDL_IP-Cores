@@ -49,7 +49,8 @@
 -- 2011-11-30	V0.05	zelenkaj	Added generic for DMA observer
 -- 2011-12-02	V0.06	zelenkaj	Added Dma Req Overflow
 -- 2011-12-05	V0.07	zelenkaj	Reduced Dma Req overflow 
--- 2012-03-21   V0.10   zelenkaj    Fixed 32 bit FIFO to support openMAC endian
+-- 2012-03-21   V0.10   zelenkaj   Fixed 32 bit FIFO to support openMAC endian
+-- 2012-04-17   V0.11   zelenkaj   Added forwarding of DMA read length
 --
 -------------------------------------------------------------------------------
 
@@ -88,6 +89,7 @@ entity openMAC_DMAmaster is
        rst : in std_logic;
        dma_addr : in std_logic_vector(dma_highadr_g downto 1);
        dma_dout : in std_logic_vector(15 downto 0);
+       dma_rd_len : in std_logic_vector(11 downto 0);
        m_readdata : in std_logic_vector(fifo_data_width_g-1 downto 0);
        dma_ack_rd : out std_logic;
        dma_ack_wr : out std_logic;
@@ -120,6 +122,7 @@ component dma_handler
   port (
        dma_addr : in std_logic_vector(dma_highadr_g downto 1);
        dma_clk : in std_logic;
+       dma_rd_len : in std_logic_vector(11 downto 0);
        dma_req_overflow : in std_logic;
        dma_req_rd : in std_logic;
        dma_req_wr : in std_logic;
@@ -139,7 +142,9 @@ component dma_handler
        dma_addr_out : out std_logic_vector(dma_highadr_g downto 1);
        dma_new_addr_rd : out std_logic;
        dma_new_addr_wr : out std_logic;
+       dma_new_len : out std_logic;
        dma_rd_err : out std_logic;
+       dma_rd_len_out : out std_logic_vector(11 downto 0);
        dma_wr_err : out std_logic;
        rx_aclr : out std_logic;
        rx_wr_req : out std_logic;
@@ -161,8 +166,10 @@ component master_handler
   );
   port (
        dma_addr_in : in std_logic_vector(dma_highadr_g downto 1);
+       dma_len_rd : in std_logic_vector(11 downto 0);
        dma_new_addr_rd : in std_logic;
        dma_new_addr_wr : in std_logic;
+       dma_new_len_rd : in std_logic;
        m_clk : in std_logic;
        m_readdatavalid : in std_logic;
        m_waitrequest : in std_logic;
@@ -236,8 +243,10 @@ constant rx_fifo_word_size_log2_c : natural := natural(ceil(log2(real(rx_fifo_wo
 
 signal dma_new_addr_rd : std_logic;
 signal dma_new_addr_wr : std_logic;
+signal dma_new_rd_len : std_logic;
 signal m_dma_new_addr_rd : std_logic;
 signal m_dma_new_addr_wr : std_logic;
+signal m_dma_new_rd_len : std_logic;
 signal m_mac_rx_off : std_logic;
 signal m_mac_tx_off : std_logic;
 signal rx_aclr : std_logic;
@@ -262,6 +271,7 @@ signal tx_wr_empty : std_logic;
 signal tx_wr_full : std_logic;
 signal tx_wr_req : std_logic;
 signal dma_addr_trans : std_logic_vector (dma_highadr_g downto 1);
+signal dma_rd_len_trans : std_logic_vector (11 downto 0);
 signal rd_data : std_logic_vector (fifo_data_width_g-1 downto 0);
 signal rx_rd_usedw : std_logic_vector (rx_fifo_word_size_log2_c-1 downto 0);
 signal rx_wr_usedw : std_logic_vector (rx_fifo_word_size_log2_c-1 downto 0);
@@ -291,7 +301,10 @@ THE_DMA_HANDLER : dma_handler
        dma_clk => dma_clk,
        dma_new_addr_rd => dma_new_addr_rd,
        dma_new_addr_wr => dma_new_addr_wr,
+       dma_new_len => dma_new_rd_len,
        dma_rd_err => dma_rd_err,
+       dma_rd_len => dma_rd_len,
+       dma_rd_len_out => dma_rd_len_trans,
        dma_req_overflow => dma_req_overflow,
        dma_req_rd => dma_req_rd,
        dma_req_wr => dma_req_wr,
@@ -327,8 +340,10 @@ THE_MASTER_HANDLER : master_handler
   )
   port map(
        dma_addr_in => dma_addr_trans( dma_highadr_g downto 1 ),
+       dma_len_rd => dma_rd_len_trans,
        dma_new_addr_rd => m_dma_new_addr_rd,
        dma_new_addr_wr => m_dma_new_addr_wr,
+       dma_new_len_rd => m_dma_new_rd_len,
        m_address => m_address( dma_highadr_g downto 0 ),
        m_burstcount => m_burstcount( m_burstcount_width_g-1 downto 0 ),
        m_burstcounter => m_burstcounter( m_burstcount_width_g-1 downto 0 ),
@@ -462,6 +477,16 @@ begin
          clkSrc => dma_clk,
          dataDst => m_dma_new_addr_rd,
          dataSrc => dma_new_addr_rd,
+         rstDst => rst,
+         rstSrc => rst
+    );
+  
+  sync6 : slow2fastSync
+    port map(
+         clkDst => m_clk,
+         clkSrc => dma_clk,
+         dataDst => m_dma_new_rd_len,
+         dataSrc => dma_new_rd_len,
          rstDst => rst,
          rstSrc => rst
     );

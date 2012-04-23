@@ -53,6 +53,7 @@
 -- 2011-12-05	V0.05	zelenkaj	Reduced Dma Req overflow cnt to pulse
 --									Ack done if overflow occurs
 -- 2011-12-23   V0.06   zelenkaj    Minor change of dma_ack generation
+-- 2012-04-17   V0.07   zelenkaj    Added forwarding of DMA read length
 -------------------------------------------------------------------------------
 
 library ieee;
@@ -79,6 +80,7 @@ entity dma_handler is
 		dma_addr : in std_logic_vector(dma_highadr_g downto 1);
 		dma_ack_wr : out std_logic;
 		dma_ack_rd : out std_logic;
+        dma_rd_len : in std_logic_vector(11 downto 0);
 		tx_rd_clk : in std_logic;
 		tx_rd_usedw : in std_logic_vector(tx_fifo_word_size_log2_g-1 downto 0);
 		tx_rd_empty : in std_logic;
@@ -91,8 +93,10 @@ entity dma_handler is
 		rx_aclr : out std_logic;
 		rx_wr_clk : in std_logic;
 		dma_addr_out : out std_logic_vector(dma_highadr_g downto 1);
+        dma_rd_len_out : out std_logic_vector(11 downto 0);
 		dma_new_addr_wr : out std_logic;
 		dma_new_addr_rd : out std_logic;
+        dma_new_len : out std_logic;
 		dma_req_overflow : in std_logic;
 		dma_rd_err : out std_logic;
 		dma_wr_err : out std_logic
@@ -151,6 +155,8 @@ begin
 			
 		end if;
 	end process;
+    
+    dma_rd_len_out <= dma_rd_len; --register in openMAC.vhd!
 	
 	tx_fsm_next <= 	idle when gen_tx_fifo_g = false else --hang here if generic disables tx handling
 					first when tx_fsm = idle and dma_req_rd = '1' else
@@ -187,6 +193,7 @@ begin
 	
 	dma_new_addr_wr <= '1' when rx_fsm = first else '0';
 	dma_new_addr_rd <= '1' when tx_fsm = first else '0';
+    dma_new_len <= '1' when tx_fsm = first else '0';
 	
 	process(clk, rst)
 	begin

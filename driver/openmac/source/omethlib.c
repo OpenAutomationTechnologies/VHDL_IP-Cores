@@ -233,6 +233,8 @@ static ometh_internal_typ    omethInternal;    // driver internal data
     #define OMETH_MAX_RETRY    0
 #endif
 
+#define OMETH_NO_RETRY     1
+
 //*************************************************************************************
 //    Begin of OMETH_TRANSMIT / Macro for omethTransmitXX()
 //*************************************************************************************
@@ -259,7 +261,14 @@ static ometh_internal_typ    omethInternal;    // driver internal data
     hEth->cntTxQueueIn++;                                                                           \
     hEth->pTxNext[TX_QUEUE_INDEX] = pInfo->pNext;    /* switch to next info structure    */         \
                                                                                                     \
-    pDesc->flags.byte.low    = OMETH_MAX_RETRY;                                                     \
+    if(addFlags == FLAGS1_START_TIME) /* in case of Time-Triggered TX no retry */                   \
+    {                                                                                               \
+        pDesc->flags.byte.low    = OMETH_NO_RETRY;                                                  \
+    }                                                                                               \
+    else                                                                                            \
+    {                                                                                               \
+        pDesc->flags.byte.low    = OMETH_MAX_RETRY;                                                 \
+    }                                                                                               \
     pDesc->flags.byte.high    = pInfo->flags1 | addFlags;    /* set flag to start transmitter */    \
                                                                                                     \
     return len                                                                                      \

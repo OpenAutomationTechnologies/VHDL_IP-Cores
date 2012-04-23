@@ -56,6 +56,7 @@
 -- 2011-12-05   V0.09    zelenkaj    Reduced Dma Req overflow vector
 -- 2012-01-26   V0.10    zelenkaj    Revised SMI to use one SMI with two phys
 -- 2012-03-21   V0.20    zelenkaj    redesigned endian conversion
+-- 2012-04-17   V0.21    zelenkaj    Added forwarding of DMA read length
 --
 -------------------------------------------------------------------------------
 
@@ -120,12 +121,12 @@ entity openmac_ethernet is
        t_chipselect : in std_logic;
        t_read : in std_logic;
        t_write : in std_logic;
-       m_readdata : in std_logic_vector(m_data_width_g-1 downto 0);
+       m_readdata : in std_logic_vector(m_data_width_g-1 downto 0) := (others => '0');
        phy0_rx_dat : in std_logic_vector(1 downto 0);
        phy1_rx_dat : in std_logic_vector(1 downto 0);
        phyMii0_rx_dat : in std_logic_vector(3 downto 0);
        phyMii1_rx_dat : in std_logic_vector(3 downto 0);
-       pkt_address : in std_logic_vector(iPktBufSizeLog2_g-3 downto 0);
+       pkt_address : in std_logic_vector(iPktBufSizeLog2_g-3 downto 0) := (others => '0');
        pkt_byteenable : in std_logic_vector(3 downto 0);
        pkt_writedata : in std_logic_vector(31 downto 0);
        s_address : in std_logic_vector(11 downto 0);
@@ -257,6 +258,7 @@ component OpenMAC
        Dma_Addr : out std_logic_vector(HighAdr downto 1);
        Dma_Dout : out std_logic_vector(15 downto 0);
        Dma_Rd_Done : out std_logic;
+       Dma_Rd_Len : out std_logic_vector(11 downto 0);
        Dma_Req : out std_logic;
        Dma_Req_Overflow : out std_logic;
        Dma_Rw : out std_logic;
@@ -306,6 +308,7 @@ component openMAC_DMAmaster
        dma_addr : in std_logic_vector(dma_highadr_g downto 1);
        dma_clk : in std_logic;
        dma_dout : in std_logic_vector(15 downto 0);
+       dma_rd_len : in std_logic_vector(11 downto 0);
        dma_req_overflow : in std_logic;
        dma_req_rd : in std_logic;
        dma_req_wr : in std_logic;
@@ -498,6 +501,7 @@ signal dma_din_mst : std_logic_vector (15 downto 0);
 signal dma_din_s : std_logic_vector (15 downto 0);
 signal dma_dout : std_logic_vector (15 downto 0);
 signal dma_dout_s : std_logic_vector (15 downto 0);
+signal dma_rd_len : std_logic_vector (11 downto 0);
 signal flt0_rx_dat : std_logic_vector (1 downto 0);
 signal flt0_tx_dat : std_logic_vector (1 downto 0);
 signal flt1_rx_dat : std_logic_vector (1 downto 0);
@@ -604,6 +608,7 @@ THE_OPENMAC : OpenMAC
        Dma_Din => dma_din,
        Dma_Dout => dma_dout,
        Dma_Rd_Done => mac_tx_off,
+       Dma_Rd_Len => dma_rd_len,
        Dma_Req => dma_req,
        Dma_Req_Overflow => dma_req_overflow,
        Dma_Rw => dma_rw,
@@ -1164,6 +1169,7 @@ begin
          dma_din => dma_din_mst,
          dma_dout => dma_dout,
          dma_rd_err => dma_rd_err,
+         dma_rd_len => dma_rd_len,
          dma_req_overflow => dma_req_overflow,
          dma_req_rd => dma_req_read,
          dma_req_wr => dma_req_write,

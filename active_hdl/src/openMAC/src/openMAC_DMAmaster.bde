@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 34828
+ FREEID 35454
  VARIABLES
  {
   #ARCHITECTURE="strct"
@@ -570,15 +570,15 @@ HEADER
     #GENERIC4="rx_fifo_word_size_log2_g:NATURAL:=5"
     #GENERIC5="gen_dma_observer_g:BOOLEAN:=true"
     #LANGUAGE="VHDL"
-    #MODIFIED="1323066504"
+    #MODIFIED="1334645571"
    }
   }
   PAGE "" 
   {
    PAGEHEADER
    {
-    RECT (0,-20,580,900)
-    FREEID 193
+    RECT (0,-20,580,980)
+    FREEID 199
    }
    
    BODY
@@ -589,7 +589,7 @@ HEADER
      {
       #OUTLINE_FILLING="1"
      }
-     AREA (20,-4,560,878)
+     AREA (20,-4,560,958)
     }
     TEXT  27, 0, 0
     {
@@ -798,6 +798,30 @@ HEADER
      ALIGN 4
      MARGINS (1,1)
      PARENT 190
+    }
+    TEXT  193, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,870,178,894)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 192
+    }
+    TEXT  195, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (365,870,555,894)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 194
+    }
+    TEXT  197, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (435,910,555,934)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 196
     }
     PIN  26, 0, 0
     {
@@ -1303,6 +1327,57 @@ HEADER
       POINTS ( (0,0), (20,0) )
      }
     }
+    PIN  192, 0, 0
+    {
+     COORD (0,880)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="dma_rd_len(11:0)"
+      #NUMBER="0"
+      #SIDE="left"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  194, 0, 0
+    {
+     COORD (580,880)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="dma_rd_len_out(11:0)"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (-20,0) )
+     }
+    }
+    PIN  196, 0, 0
+    {
+     COORD (580,920)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="dma_new_len"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (-20,0) )
+     }
+    }
    }
   }
  }
@@ -1324,15 +1399,15 @@ HEADER
     #GENERIC8="m_burst_wr_const_g:BOOLEAN:=true"
     #GENERIC9="fifo_data_width_g:INTEGER:=16"
     #LANGUAGE="VHDL"
-    #MODIFIED="1322639177"
+    #MODIFIED="1334645777"
    }
   }
   PAGE "" 
   {
    PAGEHEADER
    {
-    RECT (0,-20,540,820)
-    FREEID 241
+    RECT (0,-20,540,860)
+    FREEID 245
    }
    
    BODY
@@ -1343,7 +1418,7 @@ HEADER
      {
       #OUTLINE_FILLING="1"
      }
-     AREA (20,-14,520,800)
+     AREA (20,-14,520,840)
     }
     TEXT  3, 0, 0
     {
@@ -1555,6 +1630,24 @@ HEADER
      ALIGN 4
      MARGINS (1,1)
      PARENT 238
+     ORIENTATION 2
+    }
+    TEXT  241, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (362,790,515,814)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 240
+     ORIENTATION 2
+    }
+    TEXT  243, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (367,750,515,774)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 242
      ORIENTATION 2
     }
     PIN  2, 0, 0
@@ -2055,6 +2148,41 @@ HEADER
       POINTS ( (0,0), (20,0) )
      }
     }
+    PIN  240, 0, 0
+    {
+     COORD (540,800)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="dma_len_rd(11:0)"
+      #NUMBER="0"
+      #SIDE="right"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (-20,0) )
+     }
+    }
+    PIN  242, 0, 0
+    {
+     COORD (540,760)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="dma_new_len_rd"
+      #NUMBER="0"
+      #SIDE="right"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (-20,0) )
+     }
+    }
    }
   }
  }
@@ -2108,7 +2236,8 @@ PAGE ""
 "-- 2011-11-30\tV0.05\tzelenkaj\tAdded generic for DMA observer\n"+
 "-- 2011-12-02\tV0.06\tzelenkaj\tAdded Dma Req Overflow\n"+
 "-- 2011-12-05\tV0.07\tzelenkaj\tReduced Dma Req overflow \n"+
-"-- 2012-03-21   V0.10   zelenkaj    Fixed 32 bit FIFO to support openMAC endian\n"+
+"-- 2012-03-21   V0.10   zelenkaj   Fixed 32 bit FIFO to support openMAC endian\n"+
+"-- 2012-04-17   V0.11   zelenkaj   Added forwarding of DMA read length\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -2118,7 +2247,7 @@ PAGE ""
 "use ieee.std_logic_unsigned.all;\n"+
 "use ieee.math_real.log2;\n"+
 "use ieee.math_real.ceil;"
-   RECT (900,280,2380,560)
+   RECT (900,260,2380,560)
    MARGINS (20,20)
    FONT (12,0,0,400,0,0,0,"Courier New")
    MULTILINE
@@ -3868,13 +3997,13 @@ PAGE "DMA HANDLER"
     #SYMBOL="dma_handler"
    }
    COORD (1260,780)
-   VERTEXES ( (26,33894), (32,33885), (38,33901), (50,33903), (56,33899), (62,33905), (68,33896), (80,33887), (92,33889), (98,33866), (110,33868), (122,33890), (128,33870), (134,33872), (140,33880), (146,33882), (152,33892), (158,33878), (164,33874), (170,33876), (180,33914), (182,33910), (184,33912), (190,34168), (186,34237), (188,34239) )
-   PINPROP 188,"#PIN_STATE","0"
+   VERTEXES ( (26,33894), (32,33885), (38,33901), (50,33903), (56,33899), (62,33905), (68,33896), (80,33887), (92,33889), (98,33866), (110,33868), (122,33890), (128,33870), (134,33872), (140,33880), (146,33882), (152,33892), (158,33878), (164,33874), (170,33876), (180,33914), (182,33910), (184,33912), (186,34237), (188,34239), (190,34168), (192,35087), (196,35090), (194,35095) )
+   PINPROP 194,"#PIN_STATE","0"
   }
   TEXT  3052, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (1260,1680,1432,1715)
+   RECT (1260,1760,1432,1795)
    MARGINS (1,1)
    PARENT 3029
   }
@@ -3889,7 +4018,7 @@ PAGE "DMA HANDLER"
   TEXT  3054, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (1260,1716,1965,1914)
+   RECT (1260,1796,1965,1994)
    PARENT 3029
   }
   NET WIRE  3055, 0, 0
@@ -4208,16 +4337,16 @@ PAGE "DMA HANDLER"
     #REFERENCE="U7"
     #SYMBOL="buf"
    }
-   COORD (1600,1940)
-   VERTEXES ( (2,33943), (4,33945) )
+   COORD (700,1900)
+   VERTEXES ( (2,35009), (4,35011) )
   }
   TEXT  10531, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1786,1951,1884,1980)
+   RECT (886,1911,984,1940)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 33954
+   PARENT 35020
   }
   INSTANCE  10538, 0, 0
   {
@@ -4228,24 +4357,24 @@ PAGE "DMA HANDLER"
     #REFERENCE="U8"
     #SYMBOL="buf"
    }
-   COORD (1600,2020)
-   VERTEXES ( (2,33941), (4,33947) )
+   COORD (700,1980)
+   VERTEXES ( (2,35007), (4,35013) )
   }
   TEXT  10539, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1784,2030,1886,2059)
+   RECT (884,1990,986,2019)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 33955
+   PARENT 35021
   }
   TEXT  10546, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1294,1951,1386,1980)
+   RECT (394,1911,486,1940)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 33953
+   PARENT 35019
   }
   NET WIRE  10577, 0, 0
   {
@@ -4667,84 +4796,6 @@ PAGE "DMA HANDLER"
     #NAMED="1"
    }
   }
-  VTX  33941, 0, 0
-  {
-   COORD (1600,2040)
-  }
-  VTX  33942, 0, 0
-  {
-   COORD (1520,1960)
-  }
-  VTX  33943, 0, 0
-  {
-   COORD (1600,1960)
-  }
-  VTX  33944, 0, 0
-  {
-   COORD (1400,1960)
-  }
-  VTX  33945, 0, 0
-  {
-   COORD (1720,1960)
-  }
-  VTX  33946, 0, 0
-  {
-   COORD (1780,1960)
-  }
-  VTX  33947, 0, 0
-  {
-   COORD (1720,2040)
-  }
-  VTX  33948, 0, 0
-  {
-   COORD (1780,2040)
-  }
-  VTX  33949, 0, 0
-  {
-   COORD (1520,2040)
-  }
-  WIRE  33950, 0, 0
-  {
-   NET 10577
-   VTX 33941, 33949
-  }
-  WIRE  33951, 0, 0
-  {
-   NET 10577
-   VTX 33949, 33942
-  }
-  WIRE  33952, 0, 0
-  {
-   NET 10577
-   VTX 33943, 33942
-  }
-  WIRE  33953, 0, 0
-  {
-   NET 10577
-   VTX 33944, 33942
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  33954, 0, 0
-  {
-   NET 3011
-   VTX 33945, 33946
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  33955, 0, 0
-  {
-   NET 3021
-   VTX 33947, 33948
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
   INSTANCE  34145, 0, 0
   {
    VARIABLES
@@ -4846,6 +4897,185 @@ PAGE "DMA HANDLER"
   {
    NET 34203
    VTX 34239, 34240
+  }
+  INSTANCE  34985, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="BusInput"
+    #LIBRARY="#terminals"
+    #MDA_RECORD_TOKEN="OTHER"
+    #REFERENCE="dma_rd_len(11:0)"
+    #SYMBOL="BusInput"
+   }
+   COORD (960,1660)
+   VERTEXES ( (2,35088) )
+  }
+  TEXT  34986, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (677,1643,909,1678)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 34985
+  }
+  VTX  35007, 0, 0
+  {
+   COORD (700,2000)
+  }
+  VTX  35008, 0, 0
+  {
+   COORD (620,1920)
+  }
+  VTX  35009, 0, 0
+  {
+   COORD (700,1920)
+  }
+  VTX  35010, 0, 0
+  {
+   COORD (500,1920)
+  }
+  VTX  35011, 0, 0
+  {
+   COORD (820,1920)
+  }
+  VTX  35012, 0, 0
+  {
+   COORD (880,1920)
+  }
+  VTX  35013, 0, 0
+  {
+   COORD (820,2000)
+  }
+  VTX  35014, 0, 0
+  {
+   COORD (880,2000)
+  }
+  VTX  35015, 0, 0
+  {
+   COORD (620,2000)
+  }
+  WIRE  35016, 0, 0
+  {
+   NET 10577
+   VTX 35007, 35015
+  }
+  WIRE  35017, 0, 0
+  {
+   NET 10577
+   VTX 35015, 35008
+  }
+  WIRE  35018, 0, 0
+  {
+   NET 10577
+   VTX 35009, 35008
+  }
+  WIRE  35019, 0, 0
+  {
+   NET 10577
+   VTX 35010, 35008
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35020, 0, 0
+  {
+   NET 3011
+   VTX 35011, 35012
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35021, 0, 0
+  {
+   NET 3021
+   VTX 35013, 35014
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET BUS  35026, 0, 0
+  VTX  35087, 0, 0
+  {
+   COORD (1260,1660)
+  }
+  VTX  35088, 0, 0
+  {
+   COORD (960,1660)
+  }
+  BUS  35089, 0, 0
+  {
+   NET 35026
+   VTX 35087, 35088
+  }
+  VTX  35090, 0, 0
+  {
+   COORD (1840,1700)
+  }
+  VTX  35091, 0, 0
+  {
+   COORD (2320,1700)
+  }
+  WIRE  35093, 0, 0
+  {
+   NET 35105
+   VTX 35090, 35091
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  35095, 0, 0
+  {
+   COORD (1840,1660)
+  }
+  VTX  35096, 0, 0
+  {
+   COORD (2320,1660)
+  }
+  BUS  35098, 0, 0
+  {
+   NET 35100
+   VTX 35095, 35096
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET BUS  35100, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="dma_rd_len_trans(11:0)"
+   }
+  }
+  TEXT  35101, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1951,1630,2210,1659)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35098
+  }
+  NET WIRE  35105, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="dma_new_rd_len"
+   }
+  }
+  TEXT  35106, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1987,1670,2174,1699)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35093
   }
  }
  
@@ -5087,13 +5317,13 @@ PAGE "BUS MASTER HANDLER"
     #SYMBOL="master_handler"
    }
    COORD (880,760)
-   VERTEXES ( (2,32429), (8,32431), (176,32455), (182,32457), (188,32459), (194,32461), (200,32468), (206,32466), (212,32470), (238,32472), (228,32463), (232,32465), (74,32433), (98,32435), (104,32437), (164,32451), (116,32439), (122,32441), (128,32443), (140,32445), (170,32453), (152,32447), (158,32449), (236,32474), (218,32638), (220,32640) )
-   PINPROP 220,"#PIN_STATE","0"
+   VERTEXES ( (2,32429), (8,32431), (74,32433), (98,32435), (104,32437), (116,32439), (122,32441), (128,32443), (140,32445), (152,32447), (158,32449), (164,32451), (170,32453), (176,32455), (182,32457), (188,32459), (194,32461), (200,32468), (206,32466), (212,32470), (218,32638), (220,32640), (228,32463), (232,32465), (236,32474), (238,32472), (240,35274), (242,35369) )
+   PINPROP 242,"#PIN_STATE","0"
   }
   TEXT  4439, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (880,1580,1085,1615)
+   RECT (880,1620,1085,1655)
    MARGINS (1,1)
    PARENT 4414
   }
@@ -5108,7 +5338,7 @@ PAGE "BUS MASTER HANDLER"
   TEXT  4441, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (880,1616,1585,1946)
+   RECT (880,1656,1585,1986)
    PARENT 4414
   }
   NET WIRE  4442, 0, 0
@@ -5494,17 +5724,17 @@ PAGE "BUS MASTER HANDLER"
     #REFERENCE="U9"
     #SYMBOL="buf"
    }
-   COORD (1440,1980)
-   VERTEXES ( (2,23506), (4,23499) )
+   COORD (520,1760)
+   VERTEXES ( (2,35259), (4,35263) )
    PINPROP 4,"#PIN_STATE","0"
   }
   TEXT  10602, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1725,1971,1826,2000)
+   RECT (705,1751,806,1780)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 23507
+   PARENT 35272
   }
   INSTANCE  10605, 0, 0
   {
@@ -5515,103 +5745,25 @@ PAGE "BUS MASTER HANDLER"
     #REFERENCE="U10"
     #SYMBOL="buf"
    }
-   COORD (1440,2060)
-   VERTEXES ( (2,23505), (4,23501) )
+   COORD (520,1840)
+   VERTEXES ( (2,35261), (4,35265) )
    PINPROP 2,"#PIN_STATE","0"
   }
   TEXT  10608, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1726,2050,1825,2079)
+   RECT (706,1830,805,1859)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 23508
+   PARENT 35273
   }
   TEXT  10610, 0, 0
   {
    TEXT "$#NAME"
-   RECT (1063,1971,1128,2000)
+   RECT (303,1751,368,1780)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 23509
-  }
-  VTX  23499, 0, 0
-  {
-   COORD (1560,2000)
-  }
-  VTX  23500, 0, 0
-  {
-   COORD (2040,2000)
-  }
-  VTX  23501, 0, 0
-  {
-   COORD (1560,2080)
-  }
-  VTX  23502, 0, 0
-  {
-   COORD (2040,2080)
-  }
-  VTX  23503, 0, 0
-  {
-   COORD (880,2000)
-  }
-  VTX  23504, 0, 0
-  {
-   COORD (1360,2000)
-  }
-  VTX  23505, 0, 0
-  {
-   COORD (1440,2080)
-  }
-  VTX  23506, 0, 0
-  {
-   COORD (1440,2000)
-  }
-  WIRE  23507, 0, 0
-  {
-   NET 4411
-   VTX 23499, 23500
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  23508, 0, 0
-  {
-   NET 4450
-   VTX 23501, 23502
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  23509, 0, 0
-  {
-   NET 10471
-   VTX 23503, 23504
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  23510, 0, 0
-  {
-   COORD (1360,2080)
-  }
-  WIRE  23511, 0, 0
-  {
-   NET 10471
-   VTX 23505, 23510
-  }
-  WIRE  23512, 0, 0
-  {
-   NET 10471
-   VTX 23510, 23504
-  }
-  WIRE  23513, 0, 0
-  {
-   NET 10471
-   VTX 23506, 23504
+   PARENT 35271
   }
   NET BUS  26852, 0, 0
   INSTANCE  26855, 0, 0
@@ -6086,13 +6238,13 @@ PAGE "BUS MASTER HANDLER"
     #GENERATE_KIND="IF"
     #LABEL="genRxAddrSync"
    }
-   AREA (2000,700,3020,1080)
+   AREA (2000,340,3020,720)
    INSTANCES 32507
   }
   TEXT  32504, 0, 0
   {
    TEXT "@GENERATE_STATEMENT_DESCRIPTION"
-   RECT (2000,664,2599,699)
+   RECT (2000,304,2599,339)
    ALIGN 8
    MARGINS (1,1)
    PARENT 32503
@@ -6105,13 +6257,13 @@ PAGE "BUS MASTER HANDLER"
     #GENERATE_KIND="IF"
     #LABEL="genTxAddrSync"
    }
-   AREA (2000,1140,3020,1500)
-   INSTANCES 32525
+   AREA (2000,780,3020,1620)
+   INSTANCES 32525, 35313
   }
   TEXT  32506, 0, 0
   {
    TEXT "@GENERATE_STATEMENT_DESCRIPTION"
-   RECT (2000,1104,2595,1139)
+   RECT (2000,744,2595,779)
    ALIGN 8
    MARGINS (1,1)
    PARENT 32505
@@ -6125,14 +6277,14 @@ PAGE "BUS MASTER HANDLER"
     #REFERENCE="sync4"
     #SYMBOL="slow2fastSync"
    }
-   COORD (2400,760)
-   VERTEXES ( (2,32568), (6,32564), (8,32570), (10,32572), (12,32574), (4,32584) )
+   COORD (2400,400)
+   VERTEXES ( (2,35281), (6,35277), (8,35283), (10,35285), (12,35287), (4,35297) )
    PINPROP 4,"#PIN_STATE","0"
   }
   TEXT  32514, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (2400,724,2477,759)
+   RECT (2400,364,2477,399)
    ALIGN 8
    MARGINS (1,1)
    PARENT 32507
@@ -6140,49 +6292,49 @@ PAGE "BUS MASTER HANDLER"
   TEXT  32515, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (2400,1000,2587,1035)
+   RECT (2400,640,2587,675)
    MARGINS (1,1)
    PARENT 32507
   }
   TEXT  32516, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2117,771,2323,800)
+   RECT (2117,411,2323,440)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32590
+   PARENT 35303
   }
   TEXT  32518, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2284,810,2376,839)
+   RECT (2284,450,2376,479)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32588
+   PARENT 35301
   }
   TEXT  32519, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2316,850,2345,879)
+   RECT (2316,490,2345,519)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32591
+   PARENT 35304
   }
   TEXT  32521, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2298,890,2363,919)
+   RECT (2298,530,2363,559)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32592
+   PARENT 35305
   }
   TEXT  32523, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2316,930,2345,959)
+   RECT (2316,570,2345,599)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32593
+   PARENT 35306
   }
   INSTANCE  32525, 0, 0
   {
@@ -6193,14 +6345,14 @@ PAGE "BUS MASTER HANDLER"
     #REFERENCE="sync5"
     #SYMBOL="slow2fastSync"
    }
-   COORD (2400,1200)
-   VERTEXES ( (2,32576), (6,32566), (8,32578), (10,32580), (12,32582), (4,32586) )
+   COORD (2400,840)
+   VERTEXES ( (2,35289), (6,35279), (8,35291), (10,35293), (12,35295), (4,35299) )
    PINPROP 4,"#PIN_STATE","0"
   }
   TEXT  32532, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (2400,1164,2477,1199)
+   RECT (2400,804,2477,839)
    ALIGN 8
    MARGINS (1,1)
    PARENT 32525
@@ -6208,49 +6360,49 @@ PAGE "BUS MASTER HANDLER"
   TEXT  32533, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (2400,1440,2587,1475)
+   RECT (2400,1080,2587,1115)
    MARGINS (1,1)
    PARENT 32525
   }
   TEXT  32534, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2119,1211,2322,1240)
+   RECT (2119,851,2322,880)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32594
+   PARENT 35307
   }
   TEXT  32536, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2284,1250,2376,1279)
+   RECT (2284,890,2376,919)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32589
+   PARENT 35302
   }
   TEXT  32537, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2316,1290,2345,1319)
+   RECT (2316,930,2345,959)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32595
+   PARENT 35308
   }
   TEXT  32539, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2298,1330,2363,1359)
+   RECT (2298,970,2363,999)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32596
+   PARENT 35309
   }
   TEXT  32541, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2316,1370,2345,1399)
+   RECT (2316,1010,2345,1039)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32597
+   PARENT 35310
   }
   NET WIRE  32547, 0, 0
   {
@@ -6283,222 +6435,18 @@ PAGE "BUS MASTER HANDLER"
   TEXT  32562, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2671,770,2910,799)
+   RECT (2671,410,2910,439)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32598
+   PARENT 35311
   }
   TEXT  32563, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2672,1210,2908,1239)
+   RECT (2672,850,2908,879)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 32599
-  }
-  VTX  32564, 0, 0
-  {
-   COORD (2400,840)
-  }
-  VTX  32565, 0, 0
-  {
-   COORD (2260,840)
-  }
-  VTX  32566, 0, 0
-  {
-   COORD (2400,1280)
-  }
-  VTX  32567, 0, 0
-  {
-   COORD (2260,1280)
-  }
-  VTX  32568, 0, 0
-  {
-   COORD (2400,800)
-  }
-  VTX  32569, 0, 0
-  {
-   COORD (2060,800)
-  }
-  VTX  32570, 0, 0
-  {
-   COORD (2400,880)
-  }
-  VTX  32571, 0, 0
-  {
-   COORD (2260,880)
-  }
-  VTX  32572, 0, 0
-  {
-   COORD (2400,920)
-  }
-  VTX  32573, 0, 0
-  {
-   COORD (2260,920)
-  }
-  VTX  32574, 0, 0
-  {
-   COORD (2400,960)
-  }
-  VTX  32575, 0, 0
-  {
-   COORD (2260,960)
-  }
-  VTX  32576, 0, 0
-  {
-   COORD (2400,1240)
-  }
-  VTX  32577, 0, 0
-  {
-   COORD (2060,1240)
-  }
-  VTX  32578, 0, 0
-  {
-   COORD (2400,1320)
-  }
-  VTX  32579, 0, 0
-  {
-   COORD (2260,1320)
-  }
-  VTX  32580, 0, 0
-  {
-   COORD (2400,1360)
-  }
-  VTX  32581, 0, 0
-  {
-   COORD (2260,1360)
-  }
-  VTX  32582, 0, 0
-  {
-   COORD (2400,1400)
-  }
-  VTX  32583, 0, 0
-  {
-   COORD (2260,1400)
-  }
-  VTX  32584, 0, 0
-  {
-   COORD (2600,800)
-  }
-  VTX  32585, 0, 0
-  {
-   COORD (2980,800)
-  }
-  VTX  32586, 0, 0
-  {
-   COORD (2600,1240)
-  }
-  VTX  32587, 0, 0
-  {
-   COORD (2980,1240)
-  }
-  WIRE  32588, 0, 0
-  {
-   NET 32500
-   VTX 32564, 32565
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32589, 0, 0
-  {
-   NET 32500
-   VTX 32566, 32567
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32590, 0, 0
-  {
-   NET 32549
-   VTX 32568, 32569
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32591, 0, 0
-  {
-   NET 4476
-   VTX 32570, 32571
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32592, 0, 0
-  {
-   NET 10471
-   VTX 32572, 32573
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32593, 0, 0
-  {
-   NET 4476
-   VTX 32574, 32575
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32594, 0, 0
-  {
-   NET 32557
-   VTX 32576, 32577
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32595, 0, 0
-  {
-   NET 4476
-   VTX 32578, 32579
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32596, 0, 0
-  {
-   NET 10471
-   VTX 32580, 32581
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32597, 0, 0
-  {
-   NET 4476
-   VTX 32582, 32583
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32598, 0, 0
-  {
-   NET 32547
-   VTX 32584, 32585
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  32599, 0, 0
-  {
-   NET 32555
-   VTX 32586, 32587
-   VARIABLES
-   {
-    #NAMED="1"
-   }
+   PARENT 35312
   }
   TEXT  32600, 0, 0
   {
@@ -6549,6 +6497,539 @@ PAGE "BUS MASTER HANDLER"
    {
     #NAMED="1"
    }
+  }
+  NET WIRE  35112, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="dma_new_rd_len"
+   }
+  }
+  TEXT  35114, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2147,1230,2334,1259)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35339
+  }
+  NET BUS  35117, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="dma_rd_len_trans(11:0)"
+   }
+  }
+  TEXT  35119, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1531,1530,1790,1559)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35276
+  }
+  VTX  35259, 0, 0
+  {
+   COORD (520,1780)
+  }
+  VTX  35260, 0, 0
+  {
+   COORD (460,1780)
+  }
+  VTX  35261, 0, 0
+  {
+   COORD (520,1860)
+  }
+  VTX  35262, 0, 0
+  {
+   COORD (240,1780)
+  }
+  VTX  35263, 0, 0
+  {
+   COORD (640,1780)
+  }
+  VTX  35264, 0, 0
+  {
+   COORD (840,1780)
+  }
+  VTX  35265, 0, 0
+  {
+   COORD (640,1860)
+  }
+  VTX  35266, 0, 0
+  {
+   COORD (840,1860)
+  }
+  WIRE  35267, 0, 0
+  {
+   NET 10471
+   VTX 35259, 35260
+  }
+  VTX  35268, 0, 0
+  {
+   COORD (460,1860)
+  }
+  WIRE  35269, 0, 0
+  {
+   NET 10471
+   VTX 35260, 35268
+  }
+  WIRE  35270, 0, 0
+  {
+   NET 10471
+   VTX 35268, 35261
+  }
+  WIRE  35271, 0, 0
+  {
+   NET 10471
+   VTX 35262, 35260
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35272, 0, 0
+  {
+   NET 4411
+   VTX 35263, 35264
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35273, 0, 0
+  {
+   NET 4450
+   VTX 35265, 35266
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  35274, 0, 0
+  {
+   COORD (1420,1560)
+  }
+  VTX  35275, 0, 0
+  {
+   COORD (1900,1560)
+  }
+  BUS  35276, 0, 0
+  {
+   NET 35117
+   VTX 35274, 35275
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  35277, 0, 0
+  {
+   COORD (2400,480)
+  }
+  VTX  35278, 0, 0
+  {
+   COORD (2260,480)
+  }
+  VTX  35279, 0, 0
+  {
+   COORD (2400,920)
+  }
+  VTX  35280, 0, 0
+  {
+   COORD (2260,920)
+  }
+  VTX  35281, 0, 0
+  {
+   COORD (2400,440)
+  }
+  VTX  35282, 0, 0
+  {
+   COORD (2060,440)
+  }
+  VTX  35283, 0, 0
+  {
+   COORD (2400,520)
+  }
+  VTX  35284, 0, 0
+  {
+   COORD (2260,520)
+  }
+  VTX  35285, 0, 0
+  {
+   COORD (2400,560)
+  }
+  VTX  35286, 0, 0
+  {
+   COORD (2260,560)
+  }
+  VTX  35287, 0, 0
+  {
+   COORD (2400,600)
+  }
+  VTX  35288, 0, 0
+  {
+   COORD (2260,600)
+  }
+  VTX  35289, 0, 0
+  {
+   COORD (2400,880)
+  }
+  VTX  35290, 0, 0
+  {
+   COORD (2060,880)
+  }
+  VTX  35291, 0, 0
+  {
+   COORD (2400,960)
+  }
+  VTX  35292, 0, 0
+  {
+   COORD (2260,960)
+  }
+  VTX  35293, 0, 0
+  {
+   COORD (2400,1000)
+  }
+  VTX  35294, 0, 0
+  {
+   COORD (2260,1000)
+  }
+  VTX  35295, 0, 0
+  {
+   COORD (2400,1040)
+  }
+  VTX  35296, 0, 0
+  {
+   COORD (2260,1040)
+  }
+  VTX  35297, 0, 0
+  {
+   COORD (2600,440)
+  }
+  VTX  35298, 0, 0
+  {
+   COORD (2980,440)
+  }
+  VTX  35299, 0, 0
+  {
+   COORD (2600,880)
+  }
+  VTX  35300, 0, 0
+  {
+   COORD (2980,880)
+  }
+  WIRE  35301, 0, 0
+  {
+   NET 32500
+   VTX 35277, 35278
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35302, 0, 0
+  {
+   NET 32500
+   VTX 35279, 35280
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35303, 0, 0
+  {
+   NET 32549
+   VTX 35281, 35282
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35304, 0, 0
+  {
+   NET 4476
+   VTX 35283, 35284
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35305, 0, 0
+  {
+   NET 10471
+   VTX 35285, 35286
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35306, 0, 0
+  {
+   NET 4476
+   VTX 35287, 35288
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35307, 0, 0
+  {
+   NET 32557
+   VTX 35289, 35290
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35308, 0, 0
+  {
+   NET 4476
+   VTX 35291, 35292
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35309, 0, 0
+  {
+   NET 10471
+   VTX 35293, 35294
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35310, 0, 0
+  {
+   NET 4476
+   VTX 35295, 35296
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35311, 0, 0
+  {
+   NET 32547
+   VTX 35297, 35298
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  35312, 0, 0
+  {
+   NET 32555
+   VTX 35299, 35300
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  INSTANCE  35313, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="slow2fastSync"
+    #LIBRARY="#default"
+    #REFERENCE="sync6"
+    #SYMBOL="slow2fastSync"
+   }
+   COORD (2400,1220)
+   VERTEXES ( (2,35338), (4,35340), (6,35372), (8,35381), (10,35390), (12,35399) )
+   PINPROP 12,"#PIN_STATE","0"
+  }
+  TEXT  35314, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (2400,1184,2477,1219)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 35313
+  }
+  TEXT  35315, 0, 0
+  {
+   TEXT "$#COMPONENT"
+   RECT (2400,1460,2587,1495)
+   MARGINS (1,1)
+   PARENT 35313
+  }
+  VTX  35337, 0, 0
+  {
+   COORD (2060,1260)
+  }
+  VTX  35338, 0, 0
+  {
+   COORD (2400,1260)
+  }
+  WIRE  35339, 0, 0
+  {
+   NET 35112
+   VTX 35337, 35338
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  35340, 0, 0
+  {
+   COORD (2600,1260)
+  }
+  VTX  35341, 0, 0
+  {
+   COORD (2980,1260)
+  }
+  WIRE  35343, 0, 0
+  {
+   NET 35345
+   VTX 35340, 35341
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  35345, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="m_dma_new_rd_len"
+   }
+  }
+  TEXT  35346, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2680,1230,2900,1259)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35343
+  }
+  TEXT  35353, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1540,1490,1760,1519)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35371
+  }
+  VTX  35369, 0, 0
+  {
+   COORD (1420,1520)
+  }
+  VTX  35370, 0, 0
+  {
+   COORD (1900,1520)
+  }
+  WIRE  35371, 0, 0
+  {
+   NET 35345
+   VTX 35369, 35370
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  35372, 0, 0
+  {
+   COORD (2400,1300)
+  }
+  VTX  35373, 0, 0
+  {
+   COORD (2260,1300)
+  }
+  WIRE  35375, 0, 0
+  {
+   NET 32500
+   VTX 35372, 35373
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  TEXT  35377, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2284,1270,2376,1299)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35375
+  }
+  VTX  35381, 0, 0
+  {
+   COORD (2400,1340)
+  }
+  VTX  35382, 0, 0
+  {
+   COORD (2260,1340)
+  }
+  WIRE  35384, 0, 0
+  {
+   NET 4476
+   VTX 35381, 35382
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  TEXT  35386, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2316,1310,2345,1339)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35384
+  }
+  VTX  35390, 0, 0
+  {
+   COORD (2400,1380)
+  }
+  VTX  35391, 0, 0
+  {
+   COORD (2260,1380)
+  }
+  WIRE  35393, 0, 0
+  {
+   NET 10471
+   VTX 35390, 35391
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  TEXT  35395, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2298,1350,2363,1379)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35393
+  }
+  VTX  35399, 0, 0
+  {
+   COORD (2400,1420)
+  }
+  VTX  35400, 0, 0
+  {
+   COORD (2260,1420)
+  }
+  WIRE  35402, 0, 0
+  {
+   NET 4476
+   VTX 35399, 35400
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  TEXT  35404, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2316,1390,2345,1419)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35402
   }
  }
  
@@ -7904,7 +8385,7 @@ PAGE ""
  
  BODY
  {
-  TEXT  34811, 0, 0
+  TEXT  35437, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7915,7 +8396,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34812, 0, 0
+  TEXT  35438, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -7926,7 +8407,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  34813, 0, 0
+  TEXT  35439, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -7936,7 +8417,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34814, 0, 0
+  TEXT  35440, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7948,7 +8429,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  34815, 0, 0
+  TEXT  35441, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -7962,7 +8443,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  34816, 0, 0
+  TEXT  35442, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -7972,7 +8453,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34817, 0, 0
+  TEXT  35443, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -7984,7 +8465,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  34818, 0, 0
+  TEXT  35444, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -7994,7 +8475,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  34819, 0, 0
+  TEXT  35445, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -8005,7 +8486,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  34820, 0, 0
+  GROUP  35446, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -8017,7 +8498,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34821, 0, 0
+  GROUP  35447, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -8029,7 +8510,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34822, 0, 0
+  GROUP  35448, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -8041,7 +8522,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34823, 0, 0
+  GROUP  35449, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -8053,7 +8534,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34824, 0, 0
+  GROUP  35450, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -8065,7 +8546,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  34825, 0, 0
+  GROUP  35451, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -8076,14 +8557,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  34826, 0, 0
+  LINE  35452, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  34827, 0, 0
+  LINKBMPPICT  35453, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\dat\\#BR.bmp"

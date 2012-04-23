@@ -53,6 +53,9 @@
 -- 2011-12-23   V0.47   zelenkaj    Improvement of Dma Request Overflow determination
 -- 2012-02-23   V0.48   zelenkaj    Bug Fix: Dma Req Overflow generation faulty in case of hot plugging
 -- 2012-03-20   V0.50   zelenkaj    Converted openMAC to little endian
+-- 2012-04-12   V0.51   zelenkaj    Bug Fix: Dma Req Overflow generation faulty for read
+-- 2012-04-17   V0.52   zelenkaj    Added forwarding of DMA read length for efficient DMA reads
+--                                  Added collision handling for Tx_Sync to avoid 80 sec waits
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -82,6 +85,7 @@ ENTITY OpenMAC IS
            Dma_Req, Dma_Rw          : OUT   std_logic;
            Dma_Ack                  : IN    std_logic;
 		   Dma_Req_Overflow			: OUT	std_logic;
+           Dma_Rd_Len               : OUT   std_logic_vector(11 downto 0);
            Dma_Addr                 : OUT   std_logic_vector(HighAdr DOWNTO 1);
            Dma_Dout                 : OUT   std_logic_vector(15 DOWNTO 0);
            Dma_Din                  : IN    std_logic_vector(15 DOWNTO 0);
@@ -105,6 +109,7 @@ ARCHITECTURE struct OF OpenMAC IS
 	SIGNAL	Tx_Dma_Req,  Rx_Dma_Req		: std_logic;
 	SIGNAL	Tx_Dma_Ack,  Rx_Dma_Ack		: std_logic;
 	SIGNAL	Tx_Ram_Dat,  Rx_Ram_Dat		: std_logic_vector(15 DOWNTO 0);
+    SIGNAL  Tx_Dma_Len                  : std_logic_vector(11 DOWNTO 0);
 	SIGNAL	Tx_Reg,		 Rx_Reg			: std_logic_vector(15 DOWNTO 0);
 	SIGNAL	Dma_Tx_Addr, Dma_Rx_Addr	: std_logic_vector(Dma_Addr'RANGE);	
     SIGNAL  Dma_Req_s, Dma_Rw_s         : std_logic;
@@ -124,10 +129,12 @@ BEGIN
 
 	Mac_Zeit <= Zeit;
     
+    Dma_Rd_Len <= Tx_Dma_Len + 4;
+    
 b_DmaObserver : block
     signal dmaObserverCounter, dmaObserverCounterNext : std_logic_vector(2 downto 0);
-    constant cDmaObserverCounterHalf : std_logic_vector(dmaObserverCounter'range) := "111"; --every 8th cycle
-    constant cDmaObserverCounterFull : std_logic_vector(dmaObserverCounter'range) := "011"; --every 4th cycle
+    constant cDmaObserverCounterHalf : std_logic_vector(dmaObserverCounter'range) := "110"; --every 8th cycle
+    constant cDmaObserverCounterFull : std_logic_vector(dmaObserverCounter'range) := "010"; --every 4th cycle
 begin
     
     process(Clk, Rst)
@@ -142,8 +149,8 @@ begin
     Dma_Req_Overflow <= --very first TX Dma transfer
                         Dma_Req_s when Tx_Dma_Very1stOverflow = cActivated and Tx_Active = cInactivated else
                         --RX Dma transfers and TX Dma transfers without the very first
-                        Dma_Req_s when dmaObserverCounter = cDmaObserverCounterHalf and halfDuplex = cActivated else
-                        Dma_Req_s when dmaObserverCounter = cDmaObserverCounterFull and halfDuplex = cInactivated else
+                        Dma_Req_s when dmaObserverCounterNext = cDmaObserverCounterHalf and halfDuplex = cActivated else
+                        Dma_Req_s when dmaObserverCounterNext = cDmaObserverCounterFull and halfDuplex = cInactivated else
                         cInactivated;
     
     dmaObserverCounterNext <= --increment counter if DMA Read req (TX) during data and crc
@@ -422,7 +429,7 @@ BEGIN
 END PROCESS Calc;
 
 bTxDesc:	BLOCK
-	TYPE	sDESC	IS	(sIdle, sLen, sTimL, sTimH, sAdrH, sAdrL, sBegL, sBegH, sDel, sData, sStat, sColl );
+	TYPE	sDESC	IS	(sIdle, sLen, sTimL, sTimH, sAdrH, sAdrL, sReq, sBegL, sBegH, sDel, sData, sStat, sColl );
 	SIGNAL	Dsm, Tx_Dsm_Next					: sDESC;
 	SIGNAL	DescRam_Out, DescRam_In				: std_logic_vector(15 DOWNTO 0);
 	 ALIAS	TX_LEN								: std_logic_vector(11 DOWNTO 0)	IS	DescRam_Out(11 DOWNTO 0);
@@ -533,10 +540,10 @@ BEGIN
 		CASE	Dsm IS
 			WHEN sIdle	 =>	IF	Tx_On = '1' AND TX_OWN = '1' AND Retry_Cnt = 0	THEN
 								IF	(Ext_Tx = '1' AND Ext_Ack = '0') OR Tx_Wait  = '0' 	 THEN	
-														Tx_Dsm_Next <= sLen;
+														Tx_Dsm_Next <= sAdrH; --sLen;
 								END IF;
 							END IF;
-			WHEN sLen	 =>	IF	Tx_Sync = '0'	THEN	Tx_Dsm_Next <= sAdrH; 
+			WHEN sLen	 =>	IF	Tx_Sync = '0'	THEN	Tx_Dsm_Next <= sReq; --sAdrH; 
 							ELSE						Tx_Dsm_Next <= sBegH;
 							END IF;
 			WHEN sBegH	 =>								Tx_Dsm_Next <= sBegL;
@@ -546,13 +553,18 @@ BEGIN
 								elsIF Sm_Tx = R_Pre	THEN 
 														Tx_Dsm_Next <= sTimH; 
 								END IF;
-							ELSIF Tx_Beg = '1'	THEN	Tx_Dsm_Next <= sAdrH; 
+							ELSIF Tx_Sync = '1' and Tx_Beg = '1' and Tx_Half = '1' and rCrs_Dv = '1' THEN
+                                                        Tx_Dsm_Next <= sColl;
+                            ELSIF Tx_Beg = '1'	THEN	Tx_Dsm_Next <= sReq; 
 							END IF;
 			WHEN sDel	 =>	IF Tx_On = '0'  	THEN	Tx_Dsm_Next <= sIdle; --avoid FSM hang
 							ELSIF Tx_Del_End = '1' THEN Tx_Dsm_Next <= sTimH;
 							END IF;
 			WHEN sAdrH	 =>								Tx_Dsm_Next <= sAdrL;
-			WHEN sAdrL	 =>	IF    Tx_On  = '0'	THEN	Tx_Dsm_Next <= sIdle;
+            WHEN sAdrL   =>                             Tx_Dsm_Next <= sLen; --sReq;
+            --leaving sAdrL and entering sReq leads to the very first Tx_Dma_Req
+            -- this enables early dma req at the beginning of IPG (auto-resp)
+            WHEN sReq	 =>	IF    Tx_On  = '0'	THEN	Tx_Dsm_Next <= sIdle;
 							elsif Tx_Del = '1'	then	Tx_Dsm_Next <= sBegH;
 							ELSIF Tx_Sync = '0'	THEN	Tx_Dsm_Next <= sBegL;
 							ELSIF Sm_Tx = R_Bop	THEN	Tx_Dsm_Next <= sTimH;
@@ -586,7 +598,7 @@ BEGIN
 		ZeitL <= (OTHERS => '0'); Tx_Count <= (OTHERS => '0'); Tx_Ident <= "00"; 
 		Dma_Tx_Addr <= (OTHERS => '0'); Tx_Cmp_High <= (others => '0');
 		Tx_Del_Run <= '0';
-		Tx_Del <= '0'; Tx_Del_Cnt <= (others => '0');
+		Tx_Del <= '0'; Tx_Del_Cnt <= (others => '0'); Tx_Dma_Len <= (others => '0');
 	ELSIF	rising_edge( Clk ) 	THEN
 		
 		IF	TxSyncOn  = true	THEN 
@@ -617,7 +629,7 @@ BEGIN
 			OR (Tx_Col = '1' AND Ext_Tx = '1' )				
 			OR dsm = sColl	 )							THEN	Start_TxS <= '0';		
 																Auto_Coll <= Auto_Coll OR (Tx_Col AND Ext_Tx); 
-		ELSIF	Dsm = sAdrH and Tx_Del = '0'			THEN	Start_TxS <= '1';		
+		ELSIF	Dsm = sReq and Tx_Del = '0'			THEN	Start_TxS <= '1';		
 		ELSIF	Dsm = sDel and Tx_Del_End = '1'			THEN	Start_TxS <= '1';
 		ELSIF	Sm_Tx = R_Idl							THEN	Auto_Coll <= '0';
 		END IF;
@@ -625,7 +637,7 @@ BEGIN
 		IF		Dsm = sIdle		THEN	Last_Desc <= TX_LAST;	
 		END IF;
 
-		IF		Dsm = sLen		THEN	Tx_Count  <= TX_LEN;
+		IF		Dsm = sLen		THEN	Tx_Count  <= TX_LEN; Tx_Dma_Len <= TX_LEN; --add CRC
 		ELSIF   F_Val = '1'		THEN	Tx_Count  <= Tx_Count - 1; 
 		END IF;
 		

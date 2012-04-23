@@ -861,15 +861,6 @@ tEplKernel EdrvUpdateTxMsgBuffer     (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 
-//#if EDRV_DMA_OBSERVER != 0
-//    if( EdrvInstance_l.m_fDmaError == TRUE )
-//    {
-//        //provoke error to kill the node
-//        Ret = kEplEdrvInvalidParam;
-//        goto Exit;
-//    }
-//#endif
-
     if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_FILTERS)
     {
         Ret = kEplEdrvInvalidParam;
@@ -923,15 +914,6 @@ tEplKernel EdrvSendTxMsg              (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 unsigned long       ulTxLength;
-
-//#if EDRV_DMA_OBSERVER != 0
-//    if( EdrvInstance_l.m_fDmaError == TRUE )
-//    {
-//        //provoke error to kill the node
-//        Ret = kEplEdrvNoFreeBufEntry;
-//        goto Exit;
-//    }
-//#endif
 
 #ifndef EDRV_TIME_TRIG_TX
     if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)

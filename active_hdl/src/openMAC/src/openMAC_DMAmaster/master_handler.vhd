@@ -49,6 +49,7 @@
 -- 2011-11-08	V0.02	zelenkaj	Added transfer qualifiers
 -- 2011-11-30	V0.03	zelenkaj	Removed unnecessary ports
 -- 2011-12-23   V0.04   zelenkaj    Fix write hanging
+-- 2012-04-17   V0.05   zelenkaj    Added forwarding of DMA read length
 --
 -------------------------------------------------------------------------------
 
@@ -95,8 +96,10 @@ entity master_handler is
 		m_burstcount : out std_logic_vector(m_burstcount_width_g-1 downto 0);
 		m_burstcounter : out std_logic_vector(m_burstcount_width_g-1 downto 0);
 		dma_addr_in : in std_logic_vector(dma_highadr_g downto 1);
+        dma_len_rd : in std_logic_vector(11 downto 0);
 		dma_new_addr_wr : in std_logic;
-		dma_new_addr_rd : in std_logic
+		dma_new_addr_rd : in std_logic;
+        dma_new_len_rd : in std_logic
 	);
 end master_handler;
 
@@ -106,7 +109,7 @@ signal clk : std_logic;
 
 --constants
 constant tx_burst_size_c : integer := m_tx_burst_size_g; --(2**(m_burstcount_width_g-1));
-constant rx_burst_size_c : integer := m_rx_burst_size_g; --(2**(m_burstcount_width_g-1)); --todo: verify if okay!
+constant rx_burst_size_c : integer := m_rx_burst_size_g; --(2**(m_burstcount_width_g-1));
 ---used to trigger rx/tx data transfers depending on fill level and burst size
 constant tx_fifo_limit_c : integer := 2**tx_fifo_word_size_log2_g - tx_burst_size_c - 1; --fifo_size - burst size - 1
 constant rx_fifo_limit_c : integer := rx_burst_size_c + 1; --burst size
@@ -129,6 +132,9 @@ signal tx_wr_req_s, rx_rd_req_s, rx_first_rd_req : std_logic;
 --generate addresses
 signal tx_cnt, tx_cnt_next : std_logic_vector(m_address'range);
 signal rx_cnt, rx_cnt_next : std_logic_vector(m_address'range);
+
+--handle tx read transfer
+signal tx_rd_cnt, tx_rd_cnt_next : std_logic_vector(dma_len_rd'range);
 begin
 	
 	--m_clk, rx_rd_clk and tx_wr_clk are the same!
@@ -158,8 +164,8 @@ begin
 			end if;
 		end if;
 	end process;
-	
-	tx_fsm_next <= 	run when tx_fsm = idle and dma_new_addr_rd = '1' else
+    
+    tx_fsm_next <= 	run when tx_fsm = idle and dma_new_addr_rd = '1' else
 					finish when tx_fsm = run and mac_tx_off = '1' else
 					idle when tx_fsm = finish and tx_wr_empty = '1' else --stay finish as long as tx fifo is filled
 					tx_fsm;
@@ -184,6 +190,7 @@ begin
 		if rst = '1' then
 			if gen_tx_fifo_g then
 				tx_cnt <= (others => '0');
+                tx_rd_cnt <= (others => '0');
 			end if;
 			if gen_rx_fifo_g then
 				rx_cnt <= (others => '0');
@@ -191,12 +198,19 @@ begin
 		elsif clk = '1' and clk'event then
 			if gen_tx_fifo_g then
 				tx_cnt <= tx_cnt_next;
+                tx_rd_cnt <= tx_rd_cnt_next;
 			end if;
 			if gen_rx_fifo_g then
 				rx_cnt <= rx_cnt_next;
 			end if;
 		end if;
 	end process;
+    
+    tx_rd_cnt_next <=   (others => '0') when gen_tx_fifo_g = false else
+                        '0' & dma_len_rd(dma_len_rd'left downto 1) when dma_new_len_rd = '1' and fifo_data_width_g = 16 else
+                        "00" & dma_len_rd(dma_len_rd'left downto 2) when dma_new_len_rd = '1' and fifo_data_width_g = 32 else
+                        tx_rd_cnt - 1 when tx_wr_req_s = '1' and tx_rd_cnt /= 0 else
+                        tx_rd_cnt;
 	
 	tx_cnt_next <= 	(others => '0') when gen_tx_fifo_g = false else
 					tx_cnt + fifo_data_width_g/8 when tx_wr_req_s = '1' else
@@ -259,10 +273,14 @@ begin
 						--no transfer in progress
 					when run =>
 						--read transfer base address is ready
-						if tx_fifo_limit = '0' and m_read_s = '0' and m_write_s = '0' and m_burstcount_s = 0 then
+						if tx_fifo_limit = '0' and m_read_s = '0' and m_write_s = '0' and m_burstcount_s = 0 and tx_rd_cnt /= 0 then
 							--tx fifo is below defined limit -> there is place for at least one burst!
 							m_read_s <= '1';
-							m_burstcount_s <= conv_std_logic_vector(tx_burst_size_c, m_burstcount_s'length);
+                            if conv_integer(tx_rd_cnt) > tx_burst_size_c then
+							    m_burstcount_s <= conv_std_logic_vector(tx_burst_size_c, m_burstcount_s'length);
+                            else
+                                m_burstcount_s <= conv_std_logic_vector(conv_integer(tx_rd_cnt), m_burstcount_s'length);
+                            end if;
 							--a tx transfer is necessary and overrules necessary rx transfers...
 							tx_is_the_owner_v := '1';
 						elsif m_read_s = '1' and m_waitrequest = '0' then

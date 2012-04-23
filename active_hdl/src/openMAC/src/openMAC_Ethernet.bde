@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 50637
+ FREEID 51060
  VARIABLES
  {
   #ARCHITECTURE="rtl"
@@ -189,15 +189,15 @@ HEADER
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1322833523"
+    #MODIFIED="1334644175"
    }
   }
   PAGE "" 
   {
    PAGEHEADER
    {
-    RECT (0,-20,360,620)
-    FREEID 58
+    RECT (0,-20,360,680)
+    FREEID 60
    }
    
    BODY
@@ -208,7 +208,7 @@ HEADER
      {
       #OUTLINE_FILLING="1"
      }
-     AREA (20,0,340,600)
+     AREA (20,1,340,657)
     }
     TEXT  5, 0, 0
     {
@@ -425,6 +425,14 @@ HEADER
      ALIGN 6
      MARGINS (1,1)
      PARENT 56
+    }
+    TEXT  59, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (164,590,335,614)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 58
     }
     PIN  4, 0, 0
     {
@@ -867,6 +875,23 @@ HEADER
       #LENGTH="20"
       #MDA_RECORD_TOKEN="OTHER"
       #NAME="Dma_Req_Overflow"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (-20,0) )
+     }
+    }
+    PIN  58, 0, 0
+    {
+     COORD (360,600)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Dma_Rd_Len(11:0)"
       #NUMBER="0"
      }
      LINE  2, 0, 0
@@ -2809,7 +2834,7 @@ HEADER
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1332509931"
+    #MODIFIED="1334645355"
    }
   }
   PAGE "" 
@@ -2817,7 +2842,7 @@ HEADER
    PAGEHEADER
    {
     RECT (0,-20,580,700)
-    FREEID 56
+    FREEID 58
    }
    
    BODY
@@ -3036,6 +3061,14 @@ HEADER
      ALIGN 4
      MARGINS (1,1)
      PARENT 54
+    }
+    TEXT  57, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,590,178,614)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 56
     }
     PIN  2, 0, 0
     {
@@ -3439,6 +3472,23 @@ HEADER
       #LENGTH="20"
       #MDA_RECORD_TOKEN="OTHER"
       #NAME="dma_req_overflow"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  56, 0, 0
+    {
+     COORD (0,600)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="dma_rd_len(11:0)"
       #NUMBER="0"
      }
      LINE  2, 0, 0
@@ -4004,6 +4054,7 @@ PAGE "MAC"
 "-- 2011-12-05   V0.09    zelenkaj    Reduced Dma Req overflow vector\n"+
 "-- 2012-01-26   V0.10    zelenkaj    Revised SMI to use one SMI with two phys\n"+
 "-- 2012-03-21   V0.20    zelenkaj    redesigned endian conversion\n"+
+"-- 2012-04-17   V0.21    zelenkaj    Added forwarding of DMA read length\n"+
 "--\n"+
 "-------------------------------------------------------------------------------\n"+
 "\n"+
@@ -5372,8 +5423,8 @@ PAGE "MAC"
     #SYMBOL="OpenMAC"
    }
    COORD (1400,620)
-   VERTEXES ( (4,10750), (6,10719), (8,10727), (10,10730), (12,10729), (14,10732), (18,10734), (20,15114), (22,10736), (24,15123), (26,10738), (28,10764), (30,10740), (32,10758), (34,14507), (36,10748), (38,10763), (40,10746), (42,10723), (44,10752), (46,10721), (48,10724), (50,41168), (52,43684), (54,43686), (56,44981) )
-   PINPROP 56,"#PIN_STATE","0"
+   VERTEXES ( (4,10750), (6,10719), (8,10727), (10,10730), (12,10729), (14,10732), (18,10734), (20,15114), (22,10736), (24,15123), (26,10738), (28,10764), (30,10740), (32,10758), (34,14507), (36,10748), (38,10763), (40,10746), (42,10723), (44,10752), (46,10721), (48,10724), (50,41168), (52,43684), (54,43686), (56,44981), (58,50989) )
+   PINPROP 58,"#PIN_STATE","0"
   }
   TEXT  24175, 0, 0
   {
@@ -5386,14 +5437,14 @@ PAGE "MAC"
   TEXT  24179, 0, 0
   {
    TEXT "$#COMPONENT"
-   RECT (1400,1240,1536,1275)
+   RECT (1400,1300,1536,1335)
    MARGINS (1,1)
    PARENT 24174
   }
   TEXT  24183, 0, 0
   {
    TEXT "@GENERIC_ACTUAL_VALUES()"
-   RECT (1400,1276,1757,1441)
+   RECT (1400,1336,1757,1501)
    PARENT 24174
   }
   TEXT  24770, 0, 0
@@ -5643,6 +5694,40 @@ PAGE "MAC"
    ALIGN 9
    MARGINS (1,1)
    PARENT 44984
+  }
+  VTX  50989, 0, 0
+  {
+   COORD (1760,1220)
+  }
+  VTX  50990, 0, 0
+  {
+   COORD (2020,1220)
+  }
+  BUS  50992, 0, 0
+  {
+   NET 50994
+   VTX 50989, 50990
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET BUS  50994, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="dma_rd_len(11:0)"
+   }
+  }
+  TEXT  50995, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1794,1190,1986,1219)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 50992
   }
  }
  
@@ -12803,6 +12888,7 @@ PAGE "PACKET BUFFER"
    {
     #COMPONENT="BusInput"
     #DOWNTO="1"
+    #INITIAL_VALUE="(others => '0')"
     #LIBRARY="#terminals"
     #MDA_RECORD_TOKEN="OTHER"
     #REFERENCE="pkt_address(iPktBufSizeLog2_g-3:0)"
@@ -13143,7 +13229,7 @@ PAGE "PACKET BUFFER"
     #DIRECTION_LIST="36198 36200 "
     #UPDATE_SENS_LIST="1"
    }
-   LIST (  36200, 36198 )
+   LIST (  36198, 36200 )
   }
   TEXT  13062, 0, 0
   {
@@ -14598,6 +14684,7 @@ PAGE "PACKET DMA MASTER"
    {
     #COMPONENT="BusInput"
     #DOWNTO="1"
+    #INITIAL_VALUE="(others => '0')"
     #LIBRARY="#terminals"
     #MDA_RECORD_TOKEN="OTHER"
     #REFERENCE="m_readdata(m_data_width_g-1:0)"
@@ -14845,8 +14932,8 @@ PAGE "PACKET DMA MASTER"
     #SYMBOL="openMAC_DMAmaster"
    }
    COORD (1220,660)
-   VERTEXES ( (2,29579), (4,29858), (6,29581), (8,29587), (10,29583), (12,29596), (14,29606), (16,29594), (18,29608), (20,29593), (22,29610), (24,29600), (26,43622), (28,29604), (32,29598), (34,43624), (36,29602), (40,29577), (42,29589), (44,29591), (46,29612), (48,40166), (50,45048), (52,45053), (54,45012) )
-   PINPROP 52,"#PIN_STATE","0"
+   VERTEXES ( (2,29579), (4,29858), (6,29581), (8,29587), (10,29583), (12,29596), (14,29606), (16,29594), (18,29608), (20,29593), (22,29610), (24,29600), (26,43622), (28,29604), (32,29598), (34,43624), (36,29602), (40,29577), (42,29589), (44,29591), (46,29612), (48,40166), (50,45048), (52,45053), (54,45012), (56,51023) )
+   PINPROP 56,"#PIN_STATE","0"
   }
   TEXT  28213, 0, 0
   {
@@ -15587,6 +15674,40 @@ PAGE "PACKET DMA MASTER"
    ALIGN 9
    MARGINS (1,1)
    PARENT 45056
+  }
+  NET BUS  51019, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="dma_rd_len(11:0)"
+   }
+  }
+  TEXT  51021, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (994,1230,1186,1259)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 51024
+  }
+  VTX  51022, 0, 0
+  {
+   COORD (960,1260)
+  }
+  VTX  51023, 0, 0
+  {
+   COORD (1220,1260)
+  }
+  BUS  51024, 0, 0
+  {
+   NET 51019
+   VTX 51022, 51023
+   VARIABLES
+   {
+    #NAMED="1"
+   }
   }
  }
  
@@ -17884,14 +18005,14 @@ PAGE ""
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311687673"
    DESCRIPTION="bla",BOTH
-   PAGENAME="PACKET BUFFER"
-   PAGENUMBER="6"
+   PAGENAME="MAC"
+   PAGENUMBER="1"
   }
  }
  
  BODY
  {
-  TEXT  50620, 0, 0
+  TEXT  51043, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17902,7 +18023,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  50621, 0, 0
+  TEXT  51044, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -17913,7 +18034,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  50622, 0, 0
+  TEXT  51045, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -17923,7 +18044,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  50623, 0, 0
+  TEXT  51046, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17935,7 +18056,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  50624, 0, 0
+  TEXT  51047, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -17949,7 +18070,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  50625, 0, 0
+  TEXT  51048, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -17959,7 +18080,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  50626, 0, 0
+  TEXT  51049, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -17971,7 +18092,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  50627, 0, 0
+  TEXT  51050, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -17981,7 +18102,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  50628, 0, 0
+  TEXT  51051, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -17992,7 +18113,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  50629, 0, 0
+  GROUP  51052, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -18004,7 +18125,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  50630, 0, 0
+  GROUP  51053, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -18016,7 +18137,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  50631, 0, 0
+  GROUP  51054, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -18028,7 +18149,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  50632, 0, 0
+  GROUP  51055, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -18040,7 +18161,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  50633, 0, 0
+  GROUP  51056, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -18052,7 +18173,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  50634, 0, 0
+  GROUP  51057, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -18063,14 +18184,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  50635, 0, 0
+  LINE  51058, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  50636, 0, 0
+  LINKBMPPICT  51059, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
