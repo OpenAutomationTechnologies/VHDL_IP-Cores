@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 35454
+ FREEID 35750
  VARIABLES
  {
   #ARCHITECTURE="strct"
@@ -7127,7 +7127,7 @@ PAGE "32 bit FIFO"
   TEXT  25481, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2053,471,2187,500)
+   RECT (2041,471,2200,500)
    ALIGN 9
    MARGINS (1,1)
    PARENT 25665
@@ -7222,13 +7222,6 @@ PAGE "32 bit FIFO"
    {
     #DOWNTO="1"
     #NAME="tx_wr_usedw(tx_fifo_word_size_log2_c-1:0)"
-   }
-  }
-  NET WIRE  25500, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="tx_rd_empty"
    }
   }
   NET WIRE  25501, 0, 0
@@ -7865,7 +7858,7 @@ PAGE "32 bit FIFO"
   }
   WIRE  25665, 0, 0
   {
-   NET 25500
+   NET 35623
    VTX 25618, 25619
    VARIABLES
    {
@@ -8091,14 +8084,22 @@ PAGE "32 bit FIFO"
 "begin\n"+
 "\tif rst = '1' then\n"+
 "\t\ttx_rd_sel_word <= '0';\n"+
+"        tx_rd_empty_s_l <= '0';\n"+
 "\telsif rising_edge(tx_rd_clk) then\n"+
 "\t\tif mac_tx_off = '1' then\n"+
 "\t\t\ttx_rd_sel_word <= '0';\n"+
+"            tx_rd_empty_s_l <= '0';\n"+
 "\t\telsif tx_rd_req = '1' then\n"+
 "\t\t\tif tx_rd_sel_word = '0' then\n"+
 "\t\t\t\ttx_rd_sel_word <= '1';\n"+
 "\t\t\telse\n"+
 "\t\t\t\ttx_rd_sel_word <= '0';\n"+
+"                --workaround...\n"+
+"                if tx_rd_empty_s = '0' then\n"+
+"                    tx_rd_empty_s_l <= '1';\n"+
+"                else\n"+
+"                    tx_rd_empty_s_l <= '0';\n"+
+"                end if;\n"+
 "\t\t\tend if;\n"+
 "\t\tend if;\n"+
 "\tend if;\n"+
@@ -8106,8 +8107,12 @@ PAGE "32 bit FIFO"
 "\n"+
 "tx_rd_req_s <= tx_rd_req when tx_rd_sel_word = '0' else '0';\n"+
 "\n"+
+"tx_rd_empty <= tx_rd_empty_s when tx_rd_empty_s_l = '0' else '0';\n"+
+"\n"+
 "dma_din <= \trd_data(15 downto 0) when tx_rd_sel_word = '1' else\n"+
 "            rd_data(31 downto 16);\n"+
+"\n"+
+"\n"+
 "\n"+
 "\n"+
 ""
@@ -8224,10 +8229,10 @@ PAGE "32 bit FIFO"
   TEXT  26150, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2058,730,2222,759)
+   RECT (2058,690,2222,719)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 34627
+   PARENT 35629
   }
   NET BUS  26171, 0, 0
   {
@@ -8343,21 +8348,92 @@ PAGE "32 bit FIFO"
    NET 25743
    VTX 27307, 27308
   }
-  VTX  34625, 0, 0
+  NET WIRE  35623, 0, 0
   {
-   COORD (1980,760)
+   VARIABLES
+   {
+    #NAME="tx_rd_empty_s"
+   }
   }
-  VTX  34626, 0, 0
+  VTX  35627, 0, 0
   {
-   COORD (2300,760)
+   COORD (1980,720)
   }
-  WIRE  34627, 0, 0
+  VTX  35628, 0, 0
+  {
+   COORD (2300,720)
+  }
+  WIRE  35629, 0, 0
   {
    NET 26149
-   VTX 34625, 34626
+   VTX 35627, 35628
    VARIABLES
    {
     #NAMED="1"
+   }
+  }
+  TEXT  35630, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2073,730,2207,759)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35636
+  }
+  VTX  35634, 0, 0
+  {
+   COORD (1980,760)
+  }
+  VTX  35635, 0, 0
+  {
+   COORD (2300,760)
+  }
+  WIRE  35636, 0, 0
+  {
+   NET 35637
+   VTX 35634, 35635
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  35637, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="tx_rd_empty"
+   }
+  }
+  TEXT  35655, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2051,770,2229,799)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 35661
+  }
+  VTX  35659, 0, 0
+  {
+   COORD (1980,800)
+  }
+  VTX  35660, 0, 0
+  {
+   COORD (2300,800)
+  }
+  WIRE  35661, 0, 0
+  {
+   NET 35664
+   VTX 35659, 35660
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  35664, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="tx_rd_empty_s_l"
    }
   }
  }
@@ -8377,15 +8453,15 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311687673"
-   PAGENAME=""
-   PAGENUMBER="1"
+   PAGENAME="32 bit FIFO"
+   PAGENUMBER="5"
    REVISION="1.0"
   }
  }
  
  BODY
  {
-  TEXT  35437, 0, 0
+  TEXT  35733, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -8396,7 +8472,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  35438, 0, 0
+  TEXT  35734, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -8407,7 +8483,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  35439, 0, 0
+  TEXT  35735, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -8417,7 +8493,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  35440, 0, 0
+  TEXT  35736, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -8429,7 +8505,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  35441, 0, 0
+  TEXT  35737, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -8443,7 +8519,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  35442, 0, 0
+  TEXT  35738, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -8453,7 +8529,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  35443, 0, 0
+  TEXT  35739, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -8465,7 +8541,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  35444, 0, 0
+  TEXT  35740, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -8475,7 +8551,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  35445, 0, 0
+  TEXT  35741, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -8486,7 +8562,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  35446, 0, 0
+  GROUP  35742, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -8498,7 +8574,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  35447, 0, 0
+  GROUP  35743, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -8510,7 +8586,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  35448, 0, 0
+  GROUP  35744, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -8522,7 +8598,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  35449, 0, 0
+  GROUP  35745, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -8534,7 +8610,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  35450, 0, 0
+  GROUP  35746, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -8546,7 +8622,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  35451, 0, 0
+  GROUP  35747, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -8557,14 +8633,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  35452, 0, 0
+  LINE  35748, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  35453, 0, 0
+  LINKBMPPICT  35749, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\dat\\#BR.bmp"

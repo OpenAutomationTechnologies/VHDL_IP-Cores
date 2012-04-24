@@ -259,6 +259,9 @@ constant cRmiiDelayExp : integer := 20; -- 2**10
 constant cGenManCol : boolean := false; --collision with manual tx frame
 constant cGenAutoCol : boolean := false; --collision with auto tx frame
 
+constant cDmaDataWidth : integer := 32;
+constant cDmaBurstWidth : integer := 6;
+
 
 ----     Constants     -----
 constant DANGLING_INPUT_CONSTANT : std_logic := 'Z';
@@ -305,8 +308,8 @@ signal fifo_rd_data : std_logic_vector (2 downto 0);
 signal fifo_rd_usedw : std_logic_vector (cRmiiDelayExp-1 downto 0);
 signal fifo_wr_data : std_logic_vector (2 downto 0);
 signal fifo_wr_done : std_logic_vector (31 downto 0);
-signal m_burstcount : std_logic_vector (4 downto 0);
-signal m_burstcounter : std_logic_vector (4 downto 0);
+signal m_burstcount : std_logic_vector (cDmaBurstWidth-1 downto 0);
+signal m_burstcounter : std_logic_vector (cDmaBurstWidth-1 downto 0);
 signal phy0_rx_dat : std_logic_vector (1 downto 0);
 signal phy0_tx_dat : std_logic_vector (1 downto 0);
 signal phy1_rx_dat : std_logic_vector (1 downto 0);
@@ -381,9 +384,9 @@ begin
 		elsif fifo_wr_req_falling = '1' then
 			fifo_rd_req <= '1' after 1 us;
 			fifo_wr_done <= std_logic_vector(unsigned(fifo_wr_done) + 1);
-		elsif unsigned(fifo_rd_usedw) > 106 and unsigned(fifo_wr_done) = 0 then
-			fifo_rd_req <= '1'; -- after 1 us;
-			fifo_wr_done <= std_logic_vector(unsigned(fifo_wr_done) + 1);
+--		elsif unsigned(fifo_rd_usedw) > 106 and unsigned(fifo_wr_done) = 0 then
+--			fifo_rd_req <= '1'; -- after 1 us;
+--			fifo_wr_done <= std_logic_vector(unsigned(fifo_wr_done) + 1);
 		end if;
 	end if;
 end process;
@@ -403,12 +406,12 @@ DUT : openmac_ethernet
        iPktBufSizeLog2_g => 10,
        iPktBufSize_g => 1024,
        m_burstcount_const_g => true,
-       m_burstcount_width_g => 5,
-       m_data_width_g => 16,
-       m_rx_burst_size_g => 16,
-       m_rx_fifo_size_g => 32,
-       m_tx_burst_size_g => 16,
-       m_tx_fifo_size_g => 32,
+       m_burstcount_width_g => cDmaBurstWidth,
+       m_data_width_g => cDmaDataWidth,
+       m_rx_burst_size_g => 2**cDmaBurstWidth,
+       m_rx_fifo_size_g => 2*2**cDmaBurstWidth,
+       m_tx_burst_size_g => 2**cDmaBurstWidth,
+       m_tx_fifo_size_g => 2*2**cDmaBurstWidth,
        simulate => false,
        useIntPktBuf_g => false,
        useRmii_g => true,
@@ -499,8 +502,8 @@ DUT : openmac_ethernet
        t_writedata(31) => Dangling_Input_Signal,
        clk => clk50,
        clkx2 => clk100,
-       m_burstcount => m_burstcount( 4 downto 0 ),
-       m_burstcounter => m_burstcounter( 4 downto 0 ),
+       m_burstcount => m_burstcount( cDmaBurstWidth-1 downto 0 ),
+       m_burstcounter => m_burstcounter( cDmaBurstWidth-1 downto 0 ),
        m_clk => clk100,
        m_read => m_read,
        m_readdatavalid => m_readdatavalid,

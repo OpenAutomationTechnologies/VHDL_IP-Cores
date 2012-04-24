@@ -262,6 +262,8 @@ signal rx_wr_req_s : std_logic;
 signal tx_aclr : std_logic;
 signal tx_rd_clk : std_logic;
 signal tx_rd_empty : std_logic;
+signal tx_rd_empty_s : std_logic;
+signal tx_rd_empty_s_l : std_logic;
 signal tx_rd_full : std_logic;
 signal tx_rd_req : std_logic;
 signal tx_rd_req_s : std_logic;
@@ -506,7 +508,7 @@ begin
            aclr => tx_aclr,
            rd_clk => tx_rd_clk,
            rd_data => rd_data( fifo_data_width_g-1 downto 0 ),
-           rd_empty => tx_rd_empty,
+           rd_empty => tx_rd_empty_s,
            rd_full => tx_rd_full,
            rd_req => tx_rd_req_s,
            rd_usedw => tx_rd_usedw( tx_fifo_word_size_log2_c-1 downto 0 ),
@@ -522,20 +524,30 @@ begin
     begin
     	if rst = '1' then
     		tx_rd_sel_word <= '0';
+            tx_rd_empty_s_l <= '0';
     	elsif rising_edge(tx_rd_clk) then
     		if mac_tx_off = '1' then
     			tx_rd_sel_word <= '0';
+                tx_rd_empty_s_l <= '0';
     		elsif tx_rd_req = '1' then
     			if tx_rd_sel_word = '0' then
     				tx_rd_sel_word <= '1';
     			else
     				tx_rd_sel_word <= '0';
+                    --workaround...
+                    if tx_rd_empty_s = '0' then
+                        tx_rd_empty_s_l <= '1';
+                    else
+                        tx_rd_empty_s_l <= '0';
+                    end if;
     			end if;
     		end if;
     	end if;
     end process;
     
     tx_rd_req_s <= tx_rd_req when tx_rd_sel_word = '0' else '0';
+    
+    tx_rd_empty <= tx_rd_empty_s when tx_rd_empty_s_l = '0' else '0';
     
     dma_din <= 	rd_data(15 downto 0) when tx_rd_sel_word = '1' else
                 rd_data(31 downto 16);

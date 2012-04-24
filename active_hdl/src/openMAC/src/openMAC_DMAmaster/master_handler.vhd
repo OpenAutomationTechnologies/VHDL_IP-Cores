@@ -50,6 +50,7 @@
 -- 2011-11-30	V0.03	zelenkaj	Removed unnecessary ports
 -- 2011-12-23   V0.04   zelenkaj    Fix write hanging
 -- 2012-04-17   V0.05   zelenkaj    Added forwarding of DMA read length
+-- 2012-04-23   V0.06   zelenkaj    Fix read length alignment
 --
 -------------------------------------------------------------------------------
 
@@ -135,6 +136,7 @@ signal rx_cnt, rx_cnt_next : std_logic_vector(m_address'range);
 
 --handle tx read transfer
 signal tx_rd_cnt, tx_rd_cnt_next : std_logic_vector(dma_len_rd'range);
+signal dma_len_rd_s : std_logic_vector(dma_len_rd'range);
 begin
 	
 	--m_clk, rx_rd_clk and tx_wr_clk are the same!
@@ -206,9 +208,13 @@ begin
 		end if;
 	end process;
     
+    dma_len_rd_s <= dma_len_rd + 1 when fifo_data_width_g = 16 else
+                    dma_len_rd + 3 when fifo_data_width_g = 32 else
+                    dma_len_rd;
+    
     tx_rd_cnt_next <=   (others => '0') when gen_tx_fifo_g = false else
-                        '0' & dma_len_rd(dma_len_rd'left downto 1) when dma_new_len_rd = '1' and fifo_data_width_g = 16 else
-                        "00" & dma_len_rd(dma_len_rd'left downto 2) when dma_new_len_rd = '1' and fifo_data_width_g = 32 else
+                        '0' & dma_len_rd_s(dma_len_rd_s'left downto 1) when dma_new_len_rd = '1' and fifo_data_width_g = 16 else
+                        "00" & dma_len_rd_s(dma_len_rd_s'left downto 2) when dma_new_len_rd = '1' and fifo_data_width_g = 32 else
                         tx_rd_cnt - 1 when tx_wr_req_s = '1' and tx_rd_cnt /= 0 else
                         tx_rd_cnt;
 	

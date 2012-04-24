@@ -355,12 +355,12 @@ set_parameter_property macGen2ndSmi DESCRIPTION "The POWERLINK Slave allows a se
 add_parameter macTxBurstSize INTEGER 4
 set_parameter_property macTxBurstSize ALLOWED_RANGES {1 4 8 16 32 64}
 set_parameter_property macTxBurstSize DISPLAY_NAME "Number of Words per DMA Read Transfer (TX direction)"
-set_parameter_property macTxBurstSize DESCRIPTION "Sets the number of words (2 bytes) for each openMAC DMA read transfer (TX direction). A value of 1 refers to single beat transfers and disables burst transfers."
+set_parameter_property macTxBurstSize DESCRIPTION "Sets the number of words for each openMAC DMA read transfer (TX direction). A value of 1 refers to single beat transfers and disables burst transfers."
 
 add_parameter macRxBurstSize INTEGER 4
 set_parameter_property macRxBurstSize ALLOWED_RANGES {1 4 8 16 32 64}
 set_parameter_property macRxBurstSize DISPLAY_NAME "Number of Words per DMA Write Transfer (RX direction)"
-set_parameter_property macRxBurstSize DESCRIPTION "Sets the number of words (2 bytes) for each openMAC DMA write transfer (RX direction). A value of 1 refers to single beat transfers and disables burst transfers."
+set_parameter_property macRxBurstSize DESCRIPTION "Sets the number of words for each openMAC DMA write transfer (RX direction). A value of 1 refers to single beat transfers and disables burst transfers."
 
 add_parameter enDmaObserver BOOLEAN false
 set_parameter_property enDmaObserver DISPLAY_NAME "Enable packet DMA transfer monitor circuit"
