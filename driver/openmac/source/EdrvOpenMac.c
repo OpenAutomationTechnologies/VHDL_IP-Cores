@@ -651,9 +651,9 @@ tEplKernel EdrvShutdown(void)
 #if EDRV_DMA_OBSERVER != 0
     if( EdrvInstance_l.m_fDmaError == TRUE )
     {
-        //if you see this the openMAC DMA is connected to slow memory!
+        //if you see this openMAC DMA is connected to slow memory!
         // -> use embedded memory or 10 nsec SRAM!!!
-        printf("OPENMAC DMA TRANSFER ERROR\n");
+        PRINTF0("OPENMAC DMA TRANSFER ERROR\n");
     }
 #endif
 #endif
@@ -1321,6 +1321,7 @@ static void EdrvIrqHandler (void* pArg_p
     {
         EdrvInstance_l.m_fDmaError = TRUE;
         BENCHMARK_MOD_01_TOGGLE(7);
+        PRINTF0("DMA observer recognized overflow!\n");
 
         omethStop(pArg_p); //since openMAC was naughty, stop it!
     }
