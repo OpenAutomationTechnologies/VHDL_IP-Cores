@@ -304,9 +304,9 @@ signal s_write : std_logic;
 signal write : std_logic;
 signal address : std_logic_vector (cAddrwidth-1 downto 0);
 signal byteenable : std_logic_vector (cDatawidth/8-1 downto 0);
-signal fifo_rd_data : std_logic_vector (2 downto 0);
+signal fifo_rd_data : std_logic_vector (1 downto 0);
 signal fifo_rd_usedw : std_logic_vector (cRmiiDelayExp-1 downto 0);
-signal fifo_wr_data : std_logic_vector (2 downto 0);
+signal fifo_wr_data : std_logic_vector (1 downto 0);
 signal fifo_wr_done : std_logic_vector (31 downto 0);
 signal m_burstcount : std_logic_vector (cDmaBurstWidth-1 downto 0);
 signal m_burstcounter : std_logic_vector (cDmaBurstWidth-1 downto 0);
@@ -363,12 +363,12 @@ phy1_rx_dat <=
 	phy0_tx_dat after 2500 ns when cGenManCol else
 	phy0_tx_dat after 2500 ns when cGenAutoCol and unsigned(fifo_wr_done) = 1 else
 	"00";
-fifo_wr_req <= fifo_wr_data(2);
+fifo_wr_req <= phy0_tx_en;
 
 genLoop : if cEnableLoop generate
 begin
-	fifo_wr_data <= phy0_tx_en & phy0_tx_dat;
-	phy0_rx_dv <= fifo_rd_data(2);
+	fifo_wr_data <= phy0_tx_dat;
+	phy0_rx_dv <= fifo_rd_req;
 	phy0_rx_dat <= fifo_rd_data(1 downto 0);
 	phy0_rx_err <= '0';
 end generate;
@@ -408,10 +408,10 @@ DUT : openmac_ethernet
        m_burstcount_const_g => true,
        m_burstcount_width_g => cDmaBurstWidth,
        m_data_width_g => cDmaDataWidth,
-       m_rx_burst_size_g => 2**cDmaBurstWidth,
-       m_rx_fifo_size_g => 2*2**cDmaBurstWidth,
-       m_tx_burst_size_g => 2**cDmaBurstWidth,
-       m_tx_fifo_size_g => 2*2**cDmaBurstWidth,
+       m_rx_burst_size_g => 2**(cDmaBurstWidth-1),
+       m_rx_fifo_size_g => 3*2**cDmaBurstWidth,
+       m_tx_burst_size_g => 2**(cDmaBurstWidth-1),
+       m_tx_fifo_size_g => 3*2**cDmaBurstWidth,
        simulate => false,
        useIntPktBuf_g => false,
        useRmii_g => true,
@@ -550,19 +550,19 @@ DUT : openmac_ethernet
 
 RMII_DELAY : OpenMAC_DMAFifo
   generic map (
-       fifo_data_width_g => 3,
+       fifo_data_width_g => 2,
        fifo_word_size_g => 2**cRmiiDelayExp,
        fifo_word_size_log2_g => cRmiiDelayExp
   )
   port map(
        aclr => reset,
        rd_clk => clk50,
-       rd_data => fifo_rd_data( 2 downto 0 ),
+       rd_data => fifo_rd_data( 1 downto 0 ),
        rd_empty => fifo_rd_empty,
        rd_req => fifo_rd_req,
        rd_usedw => fifo_rd_usedw( cRmiiDelayExp-1 downto 0 ),
        wr_clk => clk50,
-       wr_data => fifo_wr_data( 2 downto 0 ),
+       wr_data => fifo_wr_data( 1 downto 0 ),
        wr_req => fifo_wr_req
   );
 
