@@ -1316,12 +1316,13 @@ static void EdrvIrqHandler (void* pArg_p
 #endif
 
 #if EDRV_DMA_OBSERVER != 0
+    WORD uwObserverVal = EDRV_RD16(EDRV_DOB_BASE, 0);
     //read DMA observer feature
-    if( EDRV_RD16(EDRV_DOB_BASE, 0) != 0 )
+    if( uwObserverVal != 0 )
     {
         EdrvInstance_l.m_fDmaError = TRUE;
         BENCHMARK_MOD_01_TOGGLE(7);
-        PRINTF0("DMA observer recognized overflow!\n");
+        PRINTF1("DMA observer recognized overflow! (%X)\n", uwObserverVal);
 
         omethStop(pArg_p); //since openMAC was naughty, stop it!
     }
