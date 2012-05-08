@@ -71,7 +71,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         #endif
     //
     //---------------------------------------------------------
-    #define OMETH_MAKE_NONCACHABLE(ptr)        (volatile void*)(((unsigned long)ptr)|NIOS2_BYPASS_DCACHE_MASK);
+    #define OMETH_MAKE_NONCACHABLE(ptr)        (void*)(((unsigned long)ptr)|NIOS2_BYPASS_DCACHE_MASK);
 #elif defined(__MICROBLAZE__)
 
 #include "xparameters.h"
