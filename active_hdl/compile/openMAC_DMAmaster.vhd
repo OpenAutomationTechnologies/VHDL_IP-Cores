@@ -416,7 +416,7 @@ begin
            aclr => tx_aclr,
            rd_clk => tx_rd_clk,
            rd_data => rd_data( fifo_data_width_g-1 downto 0 ),
-           rd_empty => tx_rd_empty,
+           rd_empty => tx_rd_empty_s,
            rd_full => tx_rd_full,
            rd_req => tx_rd_req,
            rd_usedw => tx_rd_usedw( tx_fifo_word_size_log2_c-1 downto 0 ),
@@ -427,6 +427,25 @@ begin
            wr_req => tx_wr_req,
            wr_usedw => tx_wr_usedw( tx_fifo_word_size_log2_c-1 downto 0 )
       );
+    tx_rd_empty_proc :
+    process(tx_aclr, tx_rd_clk)
+    begin
+        if tx_aclr = '1' then
+            tx_rd_empty_s_l <= '0';
+        elsif rising_edge(tx_rd_clk) then
+            if mac_tx_off = '1' then
+                tx_rd_empty_s_l <= '0';
+            elsif tx_rd_req = '1' then
+                if tx_rd_empty_s = '0' then
+                    tx_rd_empty_s_l <= '1';
+                else
+                    tx_rd_empty_s_l <= '0';
+                end if;
+            end if;
+        end if;
+    end process;
+    
+    tx_rd_empty <= tx_rd_empty_s when tx_rd_empty_s_l = '0' else '0';
   end generate txFifoGen;
 
   rxFifoGen : if gen_rx_fifo_g generate

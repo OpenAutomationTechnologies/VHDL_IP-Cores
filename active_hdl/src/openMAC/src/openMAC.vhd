@@ -56,6 +56,7 @@
 -- 2012-04-12   V0.51   zelenkaj    Bug Fix: Dma Req Overflow generation faulty for read
 -- 2012-04-17   V0.52   zelenkaj    Added forwarding of DMA read length for efficient DMA reads
 --                                  Added collision handling for Tx_Sync to avoid 80 sec waits
+-- 2012-05-03   V0.53   zelenkaj    Bug Fix: Dma_Wr_Done pulse is generated after last Dma_Req
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -687,7 +688,7 @@ BEGIN
 		END IF;
 
 		IF		DSM = sAdrL 
-			OR (F_Val = '1' AND H_Byte = '0')	THEN	Tx_Dma_Req  <= '1' AFTER 0 nS;
+			OR (F_Val = '1' AND H_Byte = '0')	THEN	Tx_Dma_Req  <= '1';
 		ELSIF	Tx_Dma_Ack = '1'				THEN	Tx_Dma_Req  <= '0';
 		END IF;
 
@@ -995,7 +996,28 @@ bRxDesc:	BLOCK
 
 BEGIN
 	
-    Rx_Done <= '1' when Dsm /= sIdle and Rx_Dsm_Next = sIdle else '0';
+    process(rst, clk)
+        variable doPulse : std_logic;
+    begin
+        if rst = cActivated then
+            Rx_Done <= cInactivated;
+            doPulse := cInactivated;
+        elsif rising_edge(clk) then
+            Rx_Done <= cInactivated;
+            
+            if Dsm /= sIdle and Rx_Dsm_Next = sIdle then
+                -- RX is done
+                doPulse := cActivated;
+            end if;
+            
+            if doPulse = cActivated and Rx_Dma_Req = cInactivated and Rx_Count = 0 then
+                -- RX is done and there is no dma request
+                Rx_Done <= cActivated;
+                doPulse := cInactivated;
+            end if;
+            
+        end if;
+    end process;
     
     Dma_Wr_Done <= Rx_Done;
 	
@@ -1134,7 +1156,7 @@ BEGIN
 		IF		Filt_Cmp = '0' AND Match ='0'										THEN	Rx_Dma_Req  <= '0';
 			
 		ELSIF  (Dsm = sOdd  AND Rx_Ovr = '0')	
-			OR (Dsm = sData AND Rx_Ovr = '0' AND F_Val = '1' AND Rx_Count(0) = '1')	THEN	Rx_Dma_Req  <= '1' AFTER 101 nS;
+			OR (Dsm = sData AND Rx_Ovr = '0' AND F_Val = '1' AND Rx_Count(0) = '1')	THEN	Rx_Dma_Req  <= '1';
 		ELSIF	Rx_Dma_Ack = '1'													THEN	Rx_Dma_Req  <= '0';
 		END IF;
 

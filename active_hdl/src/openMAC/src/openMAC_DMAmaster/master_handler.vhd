@@ -282,7 +282,7 @@ begin
 						if tx_fifo_limit = '0' and m_read_s = '0' and m_write_s = '0' and m_burstcount_s = 0 and tx_rd_cnt /= 0 then
 							--tx fifo is below defined limit -> there is place for at least one burst!
 							m_read_s <= '1';
-                            if conv_integer(tx_rd_cnt) > tx_burst_size_c then
+                            if tx_rd_cnt > conv_std_logic_vector(tx_burst_size_c, tx_rd_cnt'length) then
 							    m_burstcount_s <= conv_std_logic_vector(tx_burst_size_c, m_burstcount_s'length);
                             else
                                 m_burstcount_s <= conv_std_logic_vector(conv_integer(tx_rd_cnt), m_burstcount_s'length);
