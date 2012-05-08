@@ -111,6 +111,13 @@
         <tip><![CDATA[A minium size of TX message buffers of five times the MTU is recommended. The manual contains of further information.]]></tip>
     </widget>
     '>
+    <!ENTITY C_INSTANCE_ODDR2 '
+    <widget id="C_INSTANCE_ODDR2">
+        <key>C_INSTANCE_ODDR2</key>
+        <label>Instance an ODDR2 component to stabilize the phy clocks</label>
+        <tip><![CDATA[Additional clock stabilization is needed when the phy0/1_clk ports are connected over non dedicated clock pins.]]></tip>
+    </widget>
+    '>      
 
     <!-- PDI --> 
     <!ENTITY C_PDI_REVISION '
@@ -573,6 +580,7 @@
             <item>&C_NUM_SMI;</item>
             <item>&C_MAC_NUM_RX_BUFFER_USER;</item>
             <item>&C_MAC_PKT_SIZE_TX_USER;</item>
+            <item>&C_INSTANCE_ODDR2;</item>            
         </group>
         <group id="PDI">
             <display>PDI</display>

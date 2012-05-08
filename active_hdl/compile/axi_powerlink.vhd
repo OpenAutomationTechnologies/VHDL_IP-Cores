@@ -64,9 +64,16 @@ use axi_lite_ipif_v1_01_a.axi_lite_ipif;
 library axi_master_burst_v1_00_a;
 use axi_master_burst_v1_00_a.axi_master_burst;
 
+library UNISIM;
+
+use UNISIM.vcomponents.all;
+
 -- other libraries declarations
 library AXI_LITE_IPIF_V1_01_A;
 library AXI_MASTER_BURST_V1_00_A;
+library UNISIM;
+library IEEE;
+use IEEE.vital_timing.all;
 
 entity axi_powerlink is
   generic(
@@ -113,6 +120,8 @@ entity axi_powerlink is
        C_PIO_VAL_LENGTH : integer := 50;
        -- debug
        C_OBSERVER_ENABLE : boolean := false;
+       -- clock stabiliser
+       C_INSTANCE_ODDR2 : boolean := false;
        -- PDI AP AXI Slave
        C_S_AXI_PDI_AP_BASEADDR : std_logic_vector := X"00000000";
        C_S_AXI_PDI_AP_HIGHADDR : std_logic_vector := X"000FFFFF";
@@ -317,11 +326,13 @@ entity axi_powerlink is
        phy0_SMIDat_O : out std_logic;
        phy0_SMIDat_T : out std_logic;
        phy0_TxEn : out std_logic;
+       phy0_clk : out std_logic;
        phy1_Rst_n : out std_logic;
        phy1_SMIClk : out std_logic;
        phy1_SMIDat_O : out std_logic;
        phy1_SMIDat_T : out std_logic;
        phy1_TxEn : out std_logic;
+       phy1_clk : out std_logic;
        phyMii0_TxEn : out std_logic;
        phyMii0_TxEr : out std_logic;
        phyMii1_TxEn : out std_logic;
@@ -409,6 +420,10 @@ attribute SIGIS of S_AXI_SMP_PCP_ACLK : signal is "Clk";
 attribute SIGIS of S_AXI_SMP_PCP_ARESETN : signal is "Rst";
 
 attribute SIGIS of clk100 : signal is "Clk";
+
+attribute SIGIS of phy0_clk : signal is "Clk";
+
+attribute SIGIS of phy1_clk : signal is "Clk";
 
 end axi_powerlink;
 
@@ -837,6 +852,23 @@ component axi_master_burst
        md_error : out std_logic
   );
 end component;
+component ODDR2
+  generic(
+       DDR_ALIGNMENT : string := "NONE";
+       INIT : bit := '0';
+       SRTYPE : string := "SYNC"
+  );
+  port (
+       C0 : in std_ulogic;
+       C1 : in std_ulogic;
+       CE : in std_ulogic := 'H';
+       D0 : in std_ulogic;
+       D1 : in std_ulogic;
+       R : in std_ulogic := 'L';
+       S : in std_ulogic := 'L';
+       Q : out std_ulogic
+  );
+end component;
 
 ---- Architecture declarations -----
 constant C_FAMILY : string := "spartan6";
@@ -875,6 +907,7 @@ constant C_M_FIFO_SIZE_TX : integer := C_MAC_DMA_FIFO_SIZE_TX/4; --in dwords
 
 
 ----     Constants     -----
+constant VCC_CONSTANT   : std_logic := '1';
 constant GND_CONSTANT   : std_logic := '0';
 
 ---- Signal declarations used on the diagram ----
@@ -963,6 +996,8 @@ signal m_read : std_logic;
 signal m_readdatavalid : std_logic;
 signal m_waitrequest : std_logic;
 signal m_write : std_logic;
+signal NET38418 : std_ulogic;
+signal NET38470 : std_ulogic;
 signal pcp_chipselect : std_logic;
 signal pcp_read : std_logic;
 signal pcp_waitrequest : std_logic;
@@ -990,6 +1025,7 @@ signal tcp_irq_s : std_logic;
 signal tcp_read : std_logic;
 signal tcp_waitrequest : std_logic;
 signal tcp_write : std_logic;
+signal VCC : std_logic;
 signal ap_address : std_logic_vector (12 downto 0);
 signal ap_byteenable : std_logic_vector (3 downto 0);
 signal ap_readdata : std_logic_vector (31 downto 0);
@@ -1431,6 +1467,7 @@ rst <= Bus2MAC_REG_Reset;
 ---- Power , ground assignment ----
 
 GND <= GND_CONSTANT;
+VCC <= VCC_CONSTANT;
 MAC_REG2Bus_Error <= GND;
 
 ---- Terminal assignment ----
@@ -1829,5 +1866,43 @@ SMP_PCP2Bus_RdAck <= smp_chipselect and smp_read and not smp_waitrequest;
 SMP_PCP2Bus_WrAck <= smp_chipselect and smp_write and not smp_waitrequest;
 SMP_PCP2Bus_Error <= '0';
 end generate genSimpleIoSignals;
+
+oddr2_0 : if not C_INSTANCE_ODDR2 generate
+begin
+  phy0_clk <= clk50;
+  
+  phy1_clk <= clk50;
+end generate oddr2_0;
+
+oddr2_1 : if C_INSTANCE_ODDR2 generate
+begin
+  U10 : ODDR2
+    port map(
+         C0 => clk50,
+         C1 => NET38418,
+         CE => VCC,
+         D0 => VCC,
+         D1 => GND,
+         Q => phy0_clk,
+         R => GND,
+         S => GND
+    );
+  
+  U11 : ODDR2
+    port map(
+         C0 => clk50,
+         C1 => NET38470,
+         CE => VCC,
+         D0 => VCC,
+         D1 => GND,
+         Q => phy1_clk,
+         R => GND,
+         S => GND
+    );
+  
+  NET38470 <= not(clk50);
+  
+  NET38418 <= not(clk50);
+end generate oddr2_1;
 
 end struct;
