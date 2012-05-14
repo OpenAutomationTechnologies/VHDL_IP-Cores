@@ -49,6 +49,7 @@
 -- 2011-08-03  	V0.11	zelenkaj	translated comments
 -- 2011-11-18  	V0.12	zelenkaj	bypass filter by generic
 -- 2011-11-28	V0.13	zelenkaj	Changed reset level to high-active
+-- 2012-04-19   V0.20   zelenkaj    Redesign with fsm, Preamble-check improvement
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;                                                                                 
@@ -77,33 +78,22 @@ ENTITY openFILTER is
 END ENTITY openFILTER;
 
 ARCHITECTURE rtl OF openFILTER IS
-    
+
     type aRxSet is record
       RxDv : std_logic;
       RxDat: std_logic_vector(1 downto 0);
     end record;
-
+    
     type aRxSetArr is array (3 downto 0) of aRxSet;
-    
-    
-    signal Cnt_Rx_high                 : std_logic_vector(13 downto 0);
-    signal Cnt_RxHigh_ToShort          : std_logic_vector(1 downto 0);
-    signal RxHigh_ToShort              : std_logic;
-    signal RxLow_ToShort               : std_logic;
-    signal RxHigh_ToShort_temp         : std_logic;
-    signal RxLow_ToShort_temp          : std_logic;
-    signal RxLowGap_ToShort            : std_logic;
-    signal RxLowGap_ToShort_temp       : std_logic; 
-    signal RxDataValidLatch            : std_logic;  
-    signal PortIsEnable                : std_logic;
-    signal RxErrOccur                  : std_logic;
-    signal RxAnyError                  : std_logic;      
-    signal RxTxNotActive               : std_logic;
-    signal DisablePort                 : std_logic;
-    
-    signal RxDel : aRxSetArr;
-    
-                                        
+    type aFiltState is (fs_init, fs_GAP2short, fs_GAPext, fs_GAPok, fs_FRMnopre,
+                        fs_FRMpre2short, fs_FRMpreOk, fs_FRM2short, fs_FRMok, fs_FRM2long, fs_BlockAll);
+     
+    signal FiltState     : aFiltState;
+    signal RxDel         : aRxSetArr;
+    signal FrameShift    : std_logic;
+    signal LastFrameNOK  : std_logic;
+    signal StCnt         : std_logic_vector(13 downto 0);
+    signal BlockRxPort   : std_logic;
 
 BEGIN
 
@@ -117,140 +107,136 @@ end generate;
 
 enFilter : if not bypassFilter generate
 begin
-  -- IN --
-   RxDel(0).RxDv  <= RxDvIn;
-   RxDel(0).RxDat <= RxDatIn; 
-  
+    
+    -- IN --
+    RxDel(0).RxDv  <= RxDvIn;
+    RxDel(0).RxDat <= RxDatIn;
+
+    BlockRxPort <= '1' when FiltState = fs_FRMnopre or FiltState = fs_BlockAll or LastFrameNOK = '1' else '0';
 
 
-    
-    RxDvOut         <= RxDel(3).RxDv  and PortIsEnable                    when RxLowGap_ToShort = '1' else
-                       RxDel(1).RxDv  and PortIsEnable;  
-                       
-    RxDatOut        <= RxDel(3).RxDat and (PortIsEnable & PortIsEnable)   when RxLowGap_ToShort = '1' else
-                       RxDel(1).RxDat and (PortIsEnable & PortIsEnable);                         
-                                                   
-                                                         
-    
-    TxEnOut         <= TxEnIn           and PortIsEnable;
-    TxDatOut        <= TxDatIn          and (PortIsEnable & PortIsEnable);
-     
-                                                                       
-                                                                      
-    
-                                                                                  
-    
-    RxAnyError      <=  '1'     when (Cnt_Rx_high(Cnt_Rx_high'high) = '1') or (RxHigh_ToShort = '1') or (RxLow_ToShort = '1') or (RxErr = '1') or (RxErrOccur = '1') else
-                        '0';
-    RxTxNotActive   <=  '1'     when (RxDvIn = '0') and (RxDel(1).RxDv = '0') and (RxDel(2).RxDv = '0') and (TxEnIn = '0') and (TxDatIn = "00") else
-                        '0';
-    
-    -- Port is allowed to be active if RX_DV is not active
-    PortIsEnable    <= '1'  when Rst = '1' else
-                       '0'  when (RxAnyError = '1') or (DisablePort = '1') else
-                       '1';                  
+  -- OUTPUT MUX --
+    RxDvOut  <= '0'              when BlockRxPort = '1' else
+                RxDel(3).RxDv    when FrameShift = '1'  else
+                RxDel(1).RxDv;
 
-               
-do: PROCESS (Rst, Clk)
+    RxDatOut <= "00"             when BlockRxPort = '1' else
+                RxDel(3).RxDat   when FrameShift = '1'  else
+                RxDel(1).RxDat;
 
-BEGIN
-    if Rst = '1' then                                                                     
-        Cnt_RxHigh_ToShort  <= (others => '0');
-        RxHigh_ToShort      <= '0';                    RxHigh_ToShort_temp   <= '0';
-        RxLow_ToShort       <= '0';                    RxLow_ToShort_temp    <= '0';
-        RxLowGap_ToShort    <= '0';                    RxLowGap_ToShort_temp <= '0'; 
-        RxDel(3 downto 1)   <= (others => ('0',"00"));
-        RxDataValidLatch    <= '0';                          
-        Cnt_Rx_high         <= (others => '0');
-        RxErrOccur          <= '0';          
-        DisablePort         <= '0';
-        
-    elsif rising_edge(Clk) then
-        RxDel(1) <= RxDel(0);
-        RxDel(2) <= RxDel(1);
-        RxDel(3) <= RxDel(2);
-        RxDataValidLatch    <= RxDel(1).RxDv or RxDel(2).RxDv;
-        
-        
-                   
-        if    (DisablePort = '0') and (RxAnyError = '1')                            then    DisablePort <= '1';
-        elsif (DisablePort = '1') and (RxAnyError = '0') and (RxTxNotActive = '1')  then    DisablePort <= '0';
-        else                                                                                DisablePort <= DisablePort;
-        end if;
-        
-        
-        
-                                                        
- ----------------------------------------------- Pending Error: Block Port for at least 10.24 usec -----------------------------------------------        
-        if RxErrOccur = '1' then  
-            if RxErr = '1' then                                                                  -- phy error
-                Cnt_Rx_high <= (others => '0');                                                  
-            else                                                                                 -- other error
-                if Cnt_Rx_high(13) = '0' then Cnt_Rx_high <= Cnt_Rx_high + 1;                      -- wait for 163.84 usec
-                else                          RxErrOccur  <= '0';
-                                              Cnt_Rx_high <= (others => '0');
-                end if;                               
-            end if;                                   
-                                         
-                   
-                                                 
- ----------------------------------------------- Phy Error -----------------------------------------------   
-        elsif RxErr = '1' then                                                                   
-             Cnt_Rx_high    <= (others => '0');                                                  -- -> block
-             RxErrOccur     <= '1';        
-                    
-                                                                                             
-                                                                                                 
- ----------------------------------------------- RxDv = 1 -----------------------------------------------            
-        elsif RxDel(1).RxDv = '1' or RxDel(2).RxDv = '1' then                                        
-            if RxLow_ToShort_temp  = '1' then                                                               -- if previous Low Phase too short
-                RxLow_ToShort_temp  <= '0';                                                                   --> reset temp error
-                RxLow_ToShort       <= '1';                                                                   --> set RxLow_ToShort Error !!!
-            end if;                                                                    
-                             
-            if RxDataValidLatch = '0' then                                                                  -- rising_edge of RxDv    
-                Cnt_Rx_high         <= (others => '0');                                                       --> reset counter
-                RxHigh_ToShort_temp <= '1';                                                                   --> set temp error
-            else                                                                                           
-                if Cnt_Rx_high(13) = '0' then Cnt_Rx_high <= Cnt_Rx_high + 1;  end if;                      -- 163.84 usec (maximum size of frames)
-                if Cnt_Rx_high(8)  = '1' then RxHigh_ToShort_temp <= '0';      end if;                      --   5.12 usec (minimum size of frames)
-            end if;                                                                                           --> reset temp error
-                                                                                                                  
-                                                                                                                        
-            
- ----------------------------------------------- RxDv = 0 -----------------------------------------------    
-        elsif RxDel(1).RxDv = '0' or RxDel(2).RxDv = '0' then                                                      
-            if RxDataValidLatch = '1' then                                                                  -- falling_edge of RxDv
-                if RxHigh_ToShort_temp = '1' then                                                             -- if previous High Phase too short
-                    if Cnt_RxHigh_ToShort /= "11"   then    Cnt_RxHigh_ToShort  <= Cnt_RxHigh_ToShort + 1;      --> count Occations
-                                                            RxHigh_ToShort      <= '0';                         -- if less than 4 short Frames in a Row -> no error
-                    else                                    RxHigh_ToShort      <= '1';                         -- else                                 -> RxHigh_ToShort Error !! 
-                    end if;                                                                                      
-                else                                                                                          -- if no error  
-                    Cnt_RxHigh_ToShort  <= (others => '0');                                                     --> reset Short Frame Counter
-                    RxHigh_ToShort      <= '0';                      
-                end if;                                                                                           
-                RxLow_ToShort_temp  <= '1';                                                                   -- set temp error                 
-                RxHigh_ToShort_temp <= '0';                                                                   -- reset previous temp error
-                RxLowGap_ToShort    <= '0';
-                RxLowGap_ToShort_temp <= '1';
-                Cnt_Rx_high         <= "00000000000001";                                                      -- reset Counter (=Low Counter)
-            else                                                                                            -- no edge 
-                if Cnt_Rx_high(5) = '1'  then RxLow_ToShort_temp <= '0'; end if;                              --  0.64 usec (minimum size of inter frame gap) -> reset tmp error                                                                                                       
-                if Cnt_Rx_high(9) = '0'  then    Cnt_Rx_high     <= Cnt_Rx_high + 1;                          --  For 10.24 usec no Frame  
-                else                             RxHigh_ToShort  <= '0';                                      --> Reset All Errors
-                                                 RxLow_ToShort   <= '0';                                   
-                end if;                                          
-                
-                if Cnt_Rx_high(5 downto 1) = "10111" then RxLowGap_ToShort_temp <= '0'; end if;              -- 920 ns  
-                if RxLowGap_ToShort_temp = '1' and RxDvIn = '1' then RxLowGap_ToShort <= '1'; end if;        -- FrameGap > 940 ns -> Insert 2 Clks Delay to Rx                      
-                                               
-                                                    
-                
-            end if;
-        end if;                
-    end if;
+    TxEnOut  <= TxEnIn;
 
-END PROCESS do;
+    TxDatOut <= TxDatIn;
+
+
+
+fsm: PROCESS(Rst, Clk)
+  VARIABLE RstStCnt : std_logic;
+begin 
+  if Rst = '1' then
+    StCnt               <= (others => '0');
+    FiltState           <= fs_init;
+    FrameShift          <= '0';
+    RxDel(3 downto 1)   <= (others => ('0',"00"));
+    LastFrameNOK        <= '0';
+  elsif rising_edge(Clk) then
+   RxDel(3 downto 1) <= RxDel(2 downto 0);
+
+
+  -- DEFAULT --
+   RstStCnt := '0';
+
+   case FiltState is
+-------------------------------- INIT ---------------------------------------
+     when fs_init =>
+       FiltState <= fs_GAP2short; RstStCnt  := '1'; 
+
+
+
+-------------------------------- GAP 2 SHORT --------------------------------
+     when fs_GAP2short =>
+       FrameShift <= '0';
+       IF StCnt(4) = '1'              then FiltState <= fs_GAPext;                      END IF;   -- 360ns 
+       IF RxDel(0).RxDv = '1'         then FiltState <= fs_BlockAll;   RstStCnt := '1'; END IF;   -- Gap < 360 ns -> too short -> Block Filter
+
+
+-------------------------------- GAP EXTEND ---------------------------------
+     when fs_GAPext =>
+       IF StCnt(5 downto 0) = "101110"   then FiltState <= fs_GAPok;                     END IF;
+       IF RxDel(0).RxDv = '1' then                                                                -- GAP [360ns .. 960ns] -> short, but ok -> Start Frame
+            RstStCnt := '1';
+            FrameShift <= '1';
+            IF RxDel(0).RxDat = "01" then FiltState <= fs_FRMpre2short;                            -- GAP > 960ns -> OK -> Start Frame (preamble already beginning)
+            ELSE                          FiltState <= fs_FRMnopre;                                -- GAP > 960ns -> OK -> Start Frame and wait of preamble
+            END IF;
+       END IF;
+
+
+-------------------------------- GAP OK -------------------------------------
+     when fs_GAPok =>
+        IF RxDel(0).RxDv = '1' then
+            RstStCnt := '1';
+            IF RxDel(0).RxDat = "01" then FiltState <= fs_FRMpre2short;                            -- GAP > 960ns -> OK -> Start Frame (preamble already beginning)
+            ELSE                          FiltState <= fs_FRMnopre;                                -- GAP > 960ns -> OK -> Start Frame and wait of preamble
+            END IF;
+        END IF;   
+
+
+
+-------------------------------- FRAME, BUT STILL NO PREAMBLE ---------------
+     when fs_FRMnopre =>
+       IF StCnt(4) = '1' or                                                                       -- no preamble for >=340 ns     -> Block Filter
+          RxDel(0).RxDat = "11" or  RxDel(0).RxDat = "10" or                                      -- preamble wrong               -> Block Filter
+          (RxDel(0).RxDv = '0'  and RxDel(1).RxDv = '0')
+                                    then FiltState <= fs_BlockAll;     RstStCnt := '1';
+       elsif RxDel(0).RxDat = "01"  then FiltState <= fs_FRMpre2short; RstStCnt := '1';           -- preamble starts              -> Check Preamble
+       END IF;
+
+-------------------------------- FRAME CHECK PREAMBLE TOO SHORT --------------
+     when fs_FRMpre2short =>
+       IF RxDel(0).RxDat /= "01" or                                                               -- preamble wrong               -> Block Filter
+          (RxDel(0).RxDv = '0'   and RxDel(1).RxDv = '0')
+                                    then FiltState <= fs_BlockAll;     RstStCnt := '1'; 
+       ELSIF StCnt(3) = '1'         then FiltState <= fs_FRMpreOk;                      END IF;   -- preamble ok for 180 ns       -> Preamble OK
+
+
+-------------------------------- FRAME CHECK PREAMBLE OK ---------------
+     when fs_FRMpreOk => 
+       IF RxDel(0).RxDat /= "01"                  then FiltState <= fs_FRMok;                     END IF;   -- preamble done                -> Start Frame
+       IF (StCnt(5) = '1' and StCnt(2) = '1') or                                                            -- preamble to long for 740 ns  -> Block Filter
+          (RxDel(0).RxDv = '0' and RxDel(1).RxDv = '0')
+                                                  then FiltState <= fs_BlockAll; RstStCnt := '1'; END IF;
+       LastFrameNOK <= '0';                                                                                 -- preamble is OK
+
+
+-------------------------------- FRAME OK -----------------------------------
+     when fs_FRMok     =>
+       IF StCnt(13) = '1'           then FiltState <= fs_BlockAll;     RstStCnt := '1'; END IF;   -- FRAME > 163,842 us -> too long      -> Block Filter
+       IF RxDel(0).RxDv = '0' and
+          RxDel(1).RxDv = '0'       then FiltState <= fs_GAP2short;    RstStCnt := '1'; END IF;   -- FRAME [163,842 us] -> OK -> Start GAP
+
+
+-------------------------------- Block Filter -------------------------------
+     when fs_BlockAll   =>
+       IF StCnt(2) = '1'            then FiltState <= fs_GAP2short;    RstStCnt := '1'; END IF;   -- Block for 100 nsec
+       IF RxDel(0).RxDv = '1'       then                               RstStCnt := '1'; END IF;   -- RxDv != '0' -> Reset Wait Period
+       LastFrameNOK <= '1';                                                                       -- block next rx frame (until receive a valid preamble)
+
+     when others =>
+       FiltState <= fs_init;
+   end case;
+
+
+   IF RxErr = '1'                   then FiltState <= fs_BlockAll;     RstStCnt := '1'; END IF;   -- RxErr -> Block Filter
+
+
+
+  -- State Counter --
+   StCnt <= StCnt + 1;
+   if RstStCnt = '1' then StCnt <= (others => '0'); end if;
+
+  end if;
+end process;
+    
 end generate;
 END rtl;
