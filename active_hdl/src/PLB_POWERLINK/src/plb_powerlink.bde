@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 118388
+ FREEID 118405
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -9160,11 +9160,7 @@ PAGE "header"
 "use proc_common_v3_00_a.ipif_pkg.all;\n"+
 "\n"+
 "library plbv46_slave_single_v1_01_a;\n"+
-"use plbv46_slave_single_v1_01_a.plbv46_slave_single;\n"+
-"\n"+
-"library UNISIM;\n"+
-"\n"+
-"use UNISIM.vcomponents.all;"
+"use plbv46_slave_single_v1_01_a.plbv46_slave_single;"
    RECT (280,240,2000,1120)
    MARGINS (20,20)
    MULTILINE
@@ -34403,7 +34399,7 @@ PAGE ""
 {
  PAGEHEADER
  {
-  PAGESIZE (6000,3400)
+  PAGESIZE (3307,2338)
   MARGINS (200,200,200,200)
   RECT (0,0,0,0)
   VARIABLES
@@ -34412,59 +34408,59 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311684073"
-   PAGENAME="POWERLINK IP-CORE"
-   PAGENUMBER="4"
+   PAGENAME="header"
+   PAGENUMBER="1"
    REVISION="1.0"
   }
  }
  
  BODY
  {
-  TEXT  118371, 0, 0
+  TEXT  118388, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "Created:"
-   RECT (4940,2966,5057,3019)
+   RECT (2247,1904,2364,1957)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  118372, 0, 0
+  TEXT  118389, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
-   RECT (5114,2962,5784,3022)
+   RECT (2421,1900,3091,1960)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  118373, 0, 0
+  TEXT  118390, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
-   RECT (4938,3026,5009,3079)
+   RECT (2245,1964,2316,2017)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  118374, 0, 0
+  TEXT  118391, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "$TITLE"
-   RECT (5111,3022,5781,3082)
+   RECT (2418,1960,3088,2020)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  118375, 0, 0
+  TEXT  118392, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -34472,59 +34468,59 @@ PAGE ""
 "B&R Strasse 1\n"+
 "5142 Eggelsberg\n"+
 "Austria"
-   RECT (5120,2820,5808,2954)
+   RECT (2427,1758,3115,1892)
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  118376, 0, 0
+  TEXT  118393, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
-   RECT (4938,3144,5017,3197)
+   RECT (2245,2082,2324,2135)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  118377, 0, 0
+  TEXT  118394, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "$PAGENUMBER / $PAGECOUNT     $PAGENAME"
-   RECT (5110,3140,5780,3200)
+   RECT (2417,2078,3087,2138)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  118378, 0, 0
+  TEXT  118395, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
-   RECT (4936,3084,5064,3137)
+   RECT (2243,2022,2371,2075)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  118379, 0, 0
+  TEXT  118396, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
-   RECT (5110,3094,5770,3129)
+   RECT (2417,2032,3077,2067)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  118380, 0, 0
+  GROUP  118397, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,2800,5801,3200)
+   RECT (2227,1738,3108,2138)
    FREEID 1
    LINE  594, 0, 0
    {
@@ -34533,10 +34529,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  118381, 0, 0
+  GROUP  118398, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,3020,5801,3021)
+   RECT (2227,1958,3108,1959)
    FREEID 1
    LINE  578, 0, 0
    {
@@ -34545,10 +34541,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  118382, 0, 0
+  GROUP  118399, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,2960,5801,2961)
+   RECT (2227,1898,3108,1899)
    FREEID 1
    LINE  577, 0, 0
    {
@@ -34557,10 +34553,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  118383, 0, 0
+  GROUP  118400, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,3080,5801,3081)
+   RECT (2227,2018,3108,2019)
    FREEID 1
    LINE  583, 0, 0
    {
@@ -34569,10 +34565,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  118384, 0, 0
+  GROUP  118401, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,3140,5801,3141)
+   RECT (2227,2078,3108,2079)
    FREEID 1
    LINE  582, 0, 0
    {
@@ -34581,10 +34577,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  118385, 0, 0
+  GROUP  118402, 0, 0
   {
    PAGEALIGN 10
-   RECT (5100,2960,5101,3201)
+   RECT (2407,1898,2408,2139)
    FREEID 1
    LINE  579, 0, 0
    {
@@ -34592,18 +34588,18 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  118386, 0, 0
+  LINE  118403, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
-   POINTS ( (5100,2800), (5100,2960) )
+   POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  118387, 0, 0
+  LINKBMPPICT  118404, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
-   RECT (4940,2820,5080,2900)
+   RECT (2247,1758,2387,1838)
   }
  }
  

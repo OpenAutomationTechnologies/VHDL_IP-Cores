@@ -72,16 +72,17 @@ use proc_common_v3_00_a.ipif_pkg.all;
 library plbv46_slave_single_v1_01_a;
 use plbv46_slave_single_v1_01_a.plbv46_slave_single;
 
+-- standard libraries declarations
 library UNISIM;
-
 use UNISIM.vcomponents.all;
+-- pragma synthesis_off
+library IEEE;
+use IEEE.vital_timing.all;
+-- pragma synthesis_on
 
 -- other libraries declarations
 library PLBV46_MASTER_BURST_V1_01_A;
 library PLBV46_SLAVE_SINGLE_V1_01_A;
-library UNISIM;
-library IEEE;
-use IEEE.vital_timing.all;
 
 entity plb_powerlink is
   generic(
@@ -1019,23 +1020,6 @@ component plbv46_slave_single
        Sl_wrBTerm : out std_logic;
        Sl_wrComp : out std_logic;
        Sl_wrDAck : out std_logic
-  );
-end component;
-component ODDR2
-  generic(
-       DDR_ALIGNMENT : string := "NONE";
-       INIT : bit := '0';
-       SRTYPE : string := "SYNC"
-  );
-  port (
-       C0 : in std_ulogic;
-       C1 : in std_ulogic;
-       CE : in std_ulogic := 'H';
-       D0 : in std_ulogic;
-       D1 : in std_ulogic;
-       R : in std_ulogic := 'L';
-       S : in std_ulogic := 'L';
-       Q : out std_ulogic
   );
 end component;
 

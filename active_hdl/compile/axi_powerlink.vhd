@@ -64,16 +64,17 @@ use axi_lite_ipif_v1_01_a.axi_lite_ipif;
 library axi_master_burst_v1_00_a;
 use axi_master_burst_v1_00_a.axi_master_burst;
 
+-- standard libraries declarations
 library UNISIM;
-
 use UNISIM.vcomponents.all;
+-- pragma synthesis_off
+library IEEE;
+use IEEE.vital_timing.all;
+-- pragma synthesis_on
 
 -- other libraries declarations
 library AXI_LITE_IPIF_V1_01_A;
 library AXI_MASTER_BURST_V1_00_A;
-library UNISIM;
-library IEEE;
-use IEEE.vital_timing.all;
 
 entity axi_powerlink is
   generic(
@@ -852,23 +853,6 @@ component axi_master_burst
        md_error : out std_logic
   );
 end component;
-component ODDR2
-  generic(
-       DDR_ALIGNMENT : string := "NONE";
-       INIT : bit := '0';
-       SRTYPE : string := "SYNC"
-  );
-  port (
-       C0 : in std_ulogic;
-       C1 : in std_ulogic;
-       CE : in std_ulogic := 'H';
-       D0 : in std_ulogic;
-       D1 : in std_ulogic;
-       R : in std_ulogic := 'L';
-       S : in std_ulogic := 'L';
-       Q : out std_ulogic
-  );
-end component;
 
 ---- Architecture declarations -----
 constant C_FAMILY : string := "spartan6";
@@ -970,13 +954,7 @@ signal MAC_DMA2bus_mstwr_src_rdy_n : std_logic;
 signal MAC_DMA2bus_mst_lock : std_logic;
 signal MAC_DMA2bus_mst_reset : std_logic;
 signal MAC_DMA2bus_mst_type : std_logic;
-signal MAC_DMA_aclk : std_logic;
-attribute SIGIS of MAC_DMA_aclk : signal is "Clk";
-
 signal MAC_DMA_areset : std_logic;
-signal MAC_DMA_aresetn : std_logic;
-attribute SIGIS of MAC_DMA_aresetn : signal is "Rst";
-
 signal mac_irq_s : std_logic;
 signal MAC_PKT2Bus_Error : std_logic;
 signal MAC_PKT2Bus_RdAck : std_logic;
@@ -1449,7 +1427,7 @@ THE_POWERLINK_IP_CORE : powerlink
        tcp_writedata => tcp_writedata
   );
 
-MAC_DMA_areset <= not(MAC_DMA_aresetn);
+MAC_DMA_areset <= not(M_AXI_MAC_DMA_aresetn);
 
 Bus2MAC_REG_RNW_n <= not(Bus2MAC_REG_RNW);
 
@@ -1597,7 +1575,7 @@ begin
          MAC_DMA2Bus_Mst_Lock => MAC_DMA2bus_mst_lock,
          MAC_DMA2Bus_Mst_Reset => MAC_DMA2bus_mst_reset,
          MAC_DMA2Bus_Mst_Type => MAC_DMA2bus_mst_type,
-         MAC_DMA_CLK => MAC_DMA_aclk,
+         MAC_DMA_CLK => M_AXI_MAC_DMA_aclk,
          MAC_DMA_Rst => MAC_DMA_areset,
          m_address => m_address( 29 downto 0 ),
          m_burstcount => m_burstcount( C_M_BURSTCOUNT_WIDTH-1 downto 0 ),

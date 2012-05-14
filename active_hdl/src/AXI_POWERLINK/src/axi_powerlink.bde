@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 38647
+ FREEID 38683
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -8539,11 +8539,7 @@ PAGE "header"
 "use axi_lite_ipif_v1_01_a.axi_lite_ipif;\n"+
 "\n"+
 "library axi_master_burst_v1_00_a;\n"+
-"use axi_master_burst_v1_00_a.axi_master_burst;\n"+
-"\n"+
-"library UNISIM;\n"+
-"\n"+
-"use UNISIM.vcomponents.all;"
+"use axi_master_burst_v1_00_a.axi_master_burst;"
    RECT (240,240,1960,1040)
    MARGINS (20,20)
    MULTILINE
@@ -11453,7 +11449,7 @@ PAGE "MAC_DMA"
   TEXT  9052, 0, 0
   {
    TEXT "$#NAME"
-   RECT (640,392,811,419)
+   RECT (574,373,826,400)
    ALIGN 9
    PARENT 9070
   }
@@ -11467,7 +11463,7 @@ PAGE "MAC_DMA"
   }
   WIRE  9070, 0, 0
   {
-   NET 29066
+   NET 38647
    VTX 9066, 9067
    VARIABLES
    {
@@ -11506,7 +11502,7 @@ PAGE "MAC_DMA"
   TEXT  9186, 0, 0
   {
    TEXT "$#NAME"
-   RECT (336,412,544,439)
+   RECT (256,413,545,440)
    ALIGN 9
    PARENT 9195
   }
@@ -11520,7 +11516,7 @@ PAGE "MAC_DMA"
   }
   WIRE  9195, 0, 0
   {
-   NET 29068
+   NET 38648
    VTX 9193, 9194
    VARIABLES
    {
@@ -12251,27 +12247,11 @@ PAGE "MAC_DMA"
    RECT (1260,1440,2345,1638)
    PARENT 25135
   }
-  NET WIRE  29066, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="MAC_DMA_aclk"
-    %SIGIS="\"Clk\""
-   }
-  }
   NET WIRE  29067, 0, 0
   {
    VARIABLES
    {
     #NAME="MAC_DMA_areset"
-   }
-  }
-  NET WIRE  29068, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="MAC_DMA_aresetn"
-    %SIGIS="\"Rst\""
    }
   }
   NET BUS  31060, 0, 0
@@ -12420,6 +12400,22 @@ PAGE "MAC_DMA"
   {
    NET 38107
    VTX 38109, 38110
+  }
+  NET WIRE  38647, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="M_AXI_MAC_DMA_aclk"
+    %SIGIS="\"Clk\""
+   }
+  }
+  NET WIRE  38648, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="M_AXI_MAC_DMA_aresetn"
+    %SIGIS="\"Rst\""
+   }
   }
  }
  
@@ -30473,7 +30469,7 @@ PAGE ""
 {
  PAGEHEADER
  {
-  PAGESIZE (6000,3400)
+  PAGESIZE (3307,2338)
   MARGINS (200,200,200,200)
   RECT (0,0,0,0)
   VARIABLES
@@ -30482,59 +30478,59 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311684073"
-   PAGENAME="POWERLINK IP-CORE"
-   PAGENUMBER="15"
+   PAGENAME="header"
+   PAGENUMBER="1"
    REVISION="1.0"
   }
  }
  
  BODY
  {
-  TEXT  38630, 0, 0
+  TEXT  38666, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "Created:"
-   RECT (4940,2966,5057,3019)
+   RECT (2247,1904,2364,1957)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38631, 0, 0
+  TEXT  38667, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
-   RECT (5114,2962,5784,3022)
+   RECT (2421,1900,3091,1960)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  38632, 0, 0
+  TEXT  38668, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
-   RECT (4938,3026,5009,3079)
+   RECT (2245,1964,2316,2017)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38633, 0, 0
+  TEXT  38669, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "$TITLE"
-   RECT (5111,3022,5781,3082)
+   RECT (2418,1960,3088,2020)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  38634, 0, 0
+  TEXT  38670, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -30542,59 +30538,59 @@ PAGE ""
 "B&R Strasse 1\n"+
 "5142 Eggelsberg\n"+
 "Austria"
-   RECT (5120,2820,5808,2954)
+   RECT (2427,1758,3115,1892)
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  38635, 0, 0
+  TEXT  38671, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
-   RECT (4938,3144,5017,3197)
+   RECT (2245,2082,2324,2135)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38636, 0, 0
+  TEXT  38672, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "$PAGENUMBER / $PAGECOUNT     $PAGENAME"
-   RECT (5110,3140,5780,3200)
+   RECT (2417,2078,3087,2138)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  38637, 0, 0
+  TEXT  38673, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
-   RECT (4936,3084,5064,3137)
+   RECT (2243,2022,2371,2075)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38638, 0, 0
+  TEXT  38674, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
-   RECT (5110,3094,5770,3129)
+   RECT (2417,2032,3077,2067)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  38639, 0, 0
+  GROUP  38675, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,2800,5801,3200)
+   RECT (2227,1738,3108,2138)
    FREEID 1
    LINE  594, 0, 0
    {
@@ -30603,10 +30599,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38640, 0, 0
+  GROUP  38676, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,3020,5801,3021)
+   RECT (2227,1958,3108,1959)
    FREEID 1
    LINE  578, 0, 0
    {
@@ -30615,10 +30611,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38641, 0, 0
+  GROUP  38677, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,2960,5801,2961)
+   RECT (2227,1898,3108,1899)
    FREEID 1
    LINE  577, 0, 0
    {
@@ -30627,10 +30623,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38642, 0, 0
+  GROUP  38678, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,3080,5801,3081)
+   RECT (2227,2018,3108,2019)
    FREEID 1
    LINE  583, 0, 0
    {
@@ -30639,10 +30635,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38643, 0, 0
+  GROUP  38679, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,3140,5801,3141)
+   RECT (2227,2078,3108,2079)
    FREEID 1
    LINE  582, 0, 0
    {
@@ -30651,10 +30647,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38644, 0, 0
+  GROUP  38680, 0, 0
   {
    PAGEALIGN 10
-   RECT (5100,2960,5101,3201)
+   RECT (2407,1898,2408,2139)
    FREEID 1
    LINE  579, 0, 0
    {
@@ -30662,18 +30658,18 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  38645, 0, 0
+  LINE  38681, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
-   POINTS ( (5100,2800), (5100,2960) )
+   POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  38646, 0, 0
+  LINKBMPPICT  38682, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\dat\\#BR.bmp"
-   RECT (4940,2820,5080,2900)
+   RECT (2247,1758,2387,1838)
   }
  }
  
