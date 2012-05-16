@@ -152,7 +152,7 @@
     <widget id="C_PDI_TPDO_BUF_SIZE_USER">
         <key>C_PDI_TPDO_BUF_SIZE_USER</key>
         <label>TPDO buffer size</label>
-        <tip><![CDATA[16 bytes of header is automatically added to this buffer]]></tip>
+        <tip><![CDATA[Size of TPDO buffer inside the PDI. (No header is needed)]]></tip>
     </widget>
     '>
     <!ENTITY C_PDI_ASYNC_BUF_0_SIZE_USER '

@@ -797,7 +797,7 @@ proc calc_tpdo_buffer_size { param_handle} {
         #openMAC only
         return [ expr 0 ]
     } else {
-        return [ expr $param1val + 16 ]
+        return $param1val
     }
 }
 

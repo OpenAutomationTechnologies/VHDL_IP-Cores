@@ -732,14 +732,14 @@ proc my_validation_callback {} {
 	if {$asyncBuf1Size == 0} {
 		set_parameter_value genABuf1_g false
 	} else {
-		set asyncBuf1Size			[expr $asyncBuf1Size + 4]
+		set asyncBuf1Size			[expr $asyncBuf1Size + 12]
 		set_parameter_value genABuf1_g true
 	}
 	
 	if {$asyncBuf2Size == 0} {
 		set_parameter_value genABuf2_g false
 	} else {
-		set asyncBuf2Size			[expr $asyncBuf2Size + 4]
+		set asyncBuf2Size			[expr $asyncBuf2Size + 12]
 		set_parameter_value genABuf2_g true
 	}
 	
@@ -1194,21 +1194,14 @@ proc my_validation_callback {} {
     
     set_module_assignment embeddedsw.CMacro.PDITPDOBUFSIZE0         $tpdo0size
     
-    # RPDO buffer size includes +16!!!
-    # ... set zero if disabled
-    if {$rpdos >= 1} {
-        set rpdo0size   [expr $rpdo0size - 16]
-    } else {
+    # set RPDO buffer size to zero if disabled
+    if {$rpdos < 1} {
         set rpdo0size   0
     }
-    if {$rpdos >= 2} {
-        set rpdo1size   [expr $rpdo1size - 16]
-    } else {
+    if {$rpdos < 2} {
         set rpdo1size   0
     }
-    if {$rpdos >= 3} {
-        set rpdo2size   [expr $rpdo2size - 16]
-    } else {
+    if {$rpdos < 3} {
         set rpdo2size   0
     }
     
