@@ -130,6 +130,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                           supports endian correctly
     11.04.2012  zelenkaj    bugfix      - search for phys starting with addr 1
                                         - added MICREL KSZ8051RNL support
+	21.05.2012  muelhausens bugfix      - phyId on little endian==0 fix
 
 ----------------------------------------------------------------------------*/
 
@@ -556,13 +557,13 @@ static OMETH_H        omethCreateInt
 
         // get phy IDs (Reg 2 and 3) to 32Bit var phyId
         // note: big endian reads reg 2 first, otherwise reg 3 is read first
-#if OMETH_HW_MODE == 1 //little
+#if OMETH_HW_MODE == 0 //little
         omethPhyRead(hEth, 0, 3, &data);
 #else //big
         omethPhyRead(hEth, 0, 2, &data);
 #endif
         phyId = data;
-#if OMETH_HW_MODE == 1 //little
+#if OMETH_HW_MODE == 0 //little
         omethPhyRead(hEth, 0, 2, &data);
 #else //big
         omethPhyRead(hEth, 0, 3, &data);
