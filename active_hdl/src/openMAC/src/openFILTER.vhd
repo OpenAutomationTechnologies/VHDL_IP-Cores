@@ -50,6 +50,7 @@
 -- 2011-11-18  	V0.12	zelenkaj	bypass filter by generic
 -- 2011-11-28	V0.13	zelenkaj	Changed reset level to high-active
 -- 2012-04-19   V0.20   zelenkaj    Redesign with fsm, Preamble-check improvement
+-- 2012-05-21   V0.21   muelhausens changed timeout of fs_FRMnopre to 660ns
 ------------------------------------------------------------------------------------------------------------------------
 
 library ieee;                                                                                 
@@ -185,7 +186,7 @@ begin
 
 -------------------------------- FRAME, BUT STILL NO PREAMBLE ---------------
      when fs_FRMnopre =>
-       IF StCnt(4) = '1' or                                                                       -- no preamble for >=340 ns     -> Block Filter
+       IF StCnt(5) = '1' or                                                                       -- no preamble for >=660 ns     -> Block Filter
           RxDel(0).RxDat = "11" or  RxDel(0).RxDat = "10" or                                      -- preamble wrong               -> Block Filter
           (RxDel(0).RxDv = '0'  and RxDel(1).RxDv = '0')
                                     then FiltState <= fs_BlockAll;     RstStCnt := '1';
