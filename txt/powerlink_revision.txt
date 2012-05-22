@@ -43,7 +43,8 @@ Revision History
                         [TASK] relocated revision.txt also for sopc
                         [FIX] Implement Altera Enhanced Interrupt API
                         
-14.05.2012  V0.2.3      [FIX] Improved time-triggered TX feature of openMAC for POWERLINK FPGA MN / reduced memory load by openMAC DMA read
+22.05.2012  V0.2.3      [FIX] Improved time-triggered TX feature of openMAC for POWERLINK FPGA MN / reduced memory load by openMAC DMA read
                         [FIX] Add ODDR2 clock buffer to phy clocks to AXI and PLB IP-Core
                         [FIX] added print in case of DMA observer error
                         [FIX] AXI POWERLINK silent DMA
+                        [FIX] openMAC DPRAM size allocation is aligned to 32 bit
