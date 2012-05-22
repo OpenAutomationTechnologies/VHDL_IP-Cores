@@ -120,6 +120,7 @@
 #--                                 Relocation of mif files
 #--                                 Added feature to set DMA data width
 #-- 2012-04-05  V1.42   zelenkaj    Changed GUI
+#-- 2012-05-22  V1.43   zelenkaj    Fix DPRAM size allocation
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -999,6 +1000,10 @@ proc my_validation_callback {} {
 		set asyncBuf1Size 0
 		set asyncBuf2Size 0
 	}
+    
+    # align TX and RX buffer size to 32 bit
+    set txBufSize   [expr ($txBufSize + 3) & ~3]
+    set rxBufSize   [expr ($rxBufSize + 3) & ~3]
 	
 	if {$ploc == "TX and RX into DPRAM"} {
 		set macBufSize [expr $txBufSize + $rxBufSize]

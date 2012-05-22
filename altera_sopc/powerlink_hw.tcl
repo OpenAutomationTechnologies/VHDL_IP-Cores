@@ -113,6 +113,7 @@
 #-- 2012-03-07  V1.34   zelenkaj    Fix top HDL file path
 #-- 2012-03-13  V1.35   zelenkaj    Forward R/TPDO + async buffer size to system.h
 #-- 2012-04-02  V1.36   zelenkaj    vhdl file names case sensitive
+#-- 2012-05-22  V1.37   zelenkaj    Fix DPRAM size allocation
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -972,6 +973,10 @@ proc my_validation_callback {} {
 		set asyncBuf1Size 0
 		set asyncBuf2Size 0
 	}
+    
+    # align TX and RX buffer size to 32 bit
+    set txBufSize   [expr ($txBufSize + 3) & ~3]
+    set rxBufSize   [expr ($rxBufSize + 3) & ~3]
 	
 	if {$ploc == "TX and RX into DPRAM"} {
 		set macBufSize [expr $txBufSize + $rxBufSize]
