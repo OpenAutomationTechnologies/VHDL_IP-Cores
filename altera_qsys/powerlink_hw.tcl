@@ -328,15 +328,15 @@ set_parameter_property validAssertDuration DISPLAY_UNITS "ns"
 set_parameter_property validAssertDuration ENABLED false
 set_parameter_property validAssertDuration DERIVED TRUE
 
-add_parameter macTxBuf INTEGER 1514
+add_parameter macTxBuf INTEGER 7000
 set_parameter_property macTxBuf UNITS bytes
 set_parameter_property macTxBuf DISPLAY_NAME "openMAC TX Buffer Size"
-set_parameter_property macTxBuf DESCRIPTION "If \"openMAC only\" is selected, the MAC buffer size has to be set manually."
+set_parameter_property macTxBuf DESCRIPTION "If \"openMAC only\" is selected, the MAC TX buffer size has to be set manually. E.g. POWERLINK CN requires approx. 7000 bytes."
 
-add_parameter macRxBuf INTEGER 16
-set_parameter_property macRxBuf ALLOWED_RANGES 1:16
+add_parameter macRxBuf INTEGER 4
+set_parameter_property macRxBuf ALLOWED_RANGES 4:16
 set_parameter_property macRxBuf DISPLAY_NAME "openMAC Number RX Buffers (MTU = 1500 byte)"
-set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the number of MAC buffers has to be set manually (MTU = 1500 byte)."
+set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the number of MAC RX buffers has to be set manually (MTU = 1500 byte). E.g. POWERLINK CN requires 4 RX buffers (SoC, PReq, SoA and Asnd)."
 
 add_parameter hwSupportSyncIrq BOOLEAN FALSE
 set_parameter_property hwSupportSyncIrq VISIBLE true
