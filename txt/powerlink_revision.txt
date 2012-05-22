@@ -48,3 +48,5 @@ Revision History
                         [FIX] added print in case of DMA observer error
                         [FIX] AXI POWERLINK silent DMA
                         [FIX] openMAC DPRAM size allocation is aligned to 32 bit
+                        [FIX] openFILTER redesign with fsm, Preamble-check improvement
+                        [FIX] changed timeout of openFILTER for BeMicro Stick
