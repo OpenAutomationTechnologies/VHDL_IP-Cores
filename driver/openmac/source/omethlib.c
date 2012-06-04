@@ -131,11 +131,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     11.04.2012  zelenkaj    bugfix      - search for phys starting with addr 1
                                         - added MICREL KSZ8051RNL support
 	21.05.2012  muelhausens bugfix      - phyId on little endian==0 fix
+    04.06.2012  zelenkaj    feature     - added omethPhyCfgUser
+                                        - moved KSZ8051RNL for BeMicro support to
+                                          omethlib_phycfg module
 
 ----------------------------------------------------------------------------*/
 
 #include <omethlib.h>
 #include <omethlibint.h>
+#include <omethlib_phycfg.h>
 #include <string.h>                // used functions: memcpy, memset
 #include <stdlib.h>                // used functions: calloc
 #include <omethlib_target.h>       // target specific defines (BIG/LITTLE endian)
@@ -183,9 +187,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #define PHY_MICREL_REG1F_NOAUTOMDIX  0x2000
-#define PHY_MICREL_REG1F_CLK50MEG    0x0080
-
-
 
 #define SMSC_LAN8700                 0x7C0C
 
@@ -572,18 +573,6 @@ static OMETH_H        omethCreateInt
         phyId = phyId >> 4;    // remove revision number
     }
 
-
-    //MICREL KSZ8051RNL with 50 MHz clock needs special treatment
-    if(phyId==MICREL_KSZ8051RNL_PHY_ID)
-    {
-        for(i=0; i<hEth->phyCount; i++)
-        {
-            omethPhyRead(hEth, i, 0x1F, &data);
-            data |= PHY_MICREL_REG1F_CLK50MEG; //X1 is 50MHz
-            omethPhyWrite(hEth, i, 0x1F, data);
-        }
-    }
-
     // check if there is a special response IPG to be set
     i = ~0;
 
@@ -880,6 +869,12 @@ static OMETH_H        omethCreateInt
     //---------------------------------  allocate phy register memory -------------------------------
     hEth->pPhyReg = calloc(hEth->phyCount, sizeof(*hEth->pPhyReg));
     if(hEth->pPhyReg == 0) return hEth;
+
+    //--------------------------------- call user's phy cfg -----------------------------------------
+    if(omethPhyCfgUser(hEth) != 0)
+    {
+        return hEth;
+    }
 
     #if (OMETH_ENABLE_SOFT_IRQ==1)
         hEth->pFctSoftIrq = &soft_irq_dummy;    // set dummy function for Soft-IRQ
