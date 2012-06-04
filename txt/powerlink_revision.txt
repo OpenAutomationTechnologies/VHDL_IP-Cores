@@ -50,3 +50,5 @@ Revision History
                         [FIX] openMAC DPRAM size allocation is aligned to 32 bit
                         [FIX] openFILTER redesign with fsm, Preamble-check improvement
                         [FIX] changed timeout of openFILTER for BeMicro Stick
+                        
+??.??.2012  V0.2.4      [FEATURE] add omethlib_phycfg module for phy/board specific configuration
