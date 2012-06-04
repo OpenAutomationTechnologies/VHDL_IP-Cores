@@ -1331,7 +1331,9 @@ static void EdrvIrqHandler (void* pArg_p
     //handle sent packets
     while( EDRV_RD32(EDRV_IRQ_BASE, 0) & 0x1 )
     {
+        BENCHMARK_MOD_01_SET(6);
         omethTxIrqHandler(pArg_p);
+        BENCHMARK_MOD_01_RESET(6);
     }
 
 #if (defined(EDRV_2NDTXQUEUE) && defined(EDRV_TIME_TRIG_TX))
@@ -1368,7 +1370,9 @@ static void EdrvIrqHandler (void* pArg_p
     //handle received packets
     if( EDRV_RD32(EDRV_IRQ_BASE, 0) & 0x2 )
     {
+        BENCHMARK_MOD_01_SET(1);
         omethRxIrqHandler(pArg_p);
+        BENCHMARK_MOD_01_SET(1);
     }
 }
 
@@ -1428,7 +1432,6 @@ tEdrvRxBuffer       rxBuffer;
 unsigned int        uiIndex;
 tEplTgtTimeStamp    TimeStamp;
 
-    BENCHMARK_MOD_01_SET(6);
     rxBuffer.m_BufferInFrame = kEdrvBufferLastInFrame;
     rxBuffer.m_pbBuffer = (BYTE *) &pPacket->data;
     rxBuffer.m_uiRxMsgLen = pPacket->length;
@@ -1457,8 +1460,6 @@ tEplTgtTimeStamp    TimeStamp;
         }
         BENCHMARK_MOD_01_RESET(5);
     }
-
-    BENCHMARK_MOD_01_RESET(6);
 
     return 0;
 }
