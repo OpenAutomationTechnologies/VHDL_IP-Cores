@@ -209,8 +209,6 @@
     #error "Configuration is unknown!"
 #endif
 
-#define EDRV_GET_MAC_TIME()            IORD_32DIRECT(EDRV_CMP_BASE, 0)
-
 //--- set driver's MTU ---
 #define EDRV_MAX_BUFFER_SIZE        1518
 
