@@ -513,7 +513,7 @@ static OMETH_H        omethCreateInt
 
 
     // search for connected phys and count link bits
-    for(i=1 ; i < 0x20 && hEth->phyCount < OMETH_MAX_PHY_CNT ; i++)
+    for(i=0 ; i < 0x20 && hEth->phyCount < OMETH_MAX_PHY_CNT ; i++)
     {
         // do not search for this phy if list is activated and phy is not in list
         if(hEth->config.mode & OMETH_MODE_PHY_LIST)
