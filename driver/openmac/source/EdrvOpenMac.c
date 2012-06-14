@@ -127,17 +127,15 @@
     #define EDRV_CMP_SPAN                   POWERLINK_0_MAC_CMP_SPAN
     #define EDRV_PKT_LOC                    POWERLINK_0_MAC_REG_PKTLOC
     #define EDRV_PHY_NUM                    POWERLINK_0_MAC_REG_PHYCNT
-    #define EDRV_DMA_OBSERVER                POWERLINK_0_MAC_REG_DMAOBSERV
-#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT                        //TX+RX in M9K
+    #define EDRV_DMA_OBSERVER               POWERLINK_0_MAC_REG_DMAOBSERV
     #define EDRV_MAX_RX_BUFFERS             POWERLINK_0_MAC_REG_MACRXBUFFERS
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT                        //TX+RX in M9K
     #define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
     #define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT                        //TX in M9K and RX in external memory
-    #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
     #define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
     #define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT                        //TX+RX in external memory
-    #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
     #define EDRV_PKT_BASE           (void *)0 //not used
     #define EDRV_PKT_SPAN                   0 //not used
 #endif
@@ -162,16 +160,14 @@
         #define EDRV_PKT_LOC                    XPAR_PLB_POWERLINK_0_PACKET_LOCATION
         #define EDRV_PHY_NUM                    XPAR_PLB_POWERLINK_0_PHY_COUNT
         #define EDRV_DMA_OBSERVER               XPAR_PLB_POWERLINK_0_OBSERVER_ENABLE
+        #define EDRV_MAX_RX_BUFFERS             XPAR_PLB_POWERLINK_0_MAC_RX_BUFFERS
         #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
-            #define EDRV_MAX_RX_BUFFERS             XPAR_PLB_POWERLINK_0_MAC_RX_BUFFERS
             #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
             #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
         #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
-            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
             #define EDRV_PKT_BASE           (void *)0 //not used
             #define EDRV_PKT_SPAN                   0 //not used
         #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
-            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
             #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
             #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
         #endif
@@ -190,16 +186,14 @@
         #define EDRV_PKT_LOC                    XPAR_AXI_POWERLINK_0_PACKET_LOCATION
         #define EDRV_PHY_NUM                    XPAR_AXI_POWERLINK_0_PHY_COUNT
         #define EDRV_DMA_OBSERVER               XPAR_AXI_POWERLINK_0_OBSERVER_ENABLE
+        #define EDRV_MAX_RX_BUFFERS             XPAR_AXI_POWERLINK_0_MAC_RX_BUFFERS
         #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
-            #define EDRV_MAX_RX_BUFFERS             XPAR_AXI_POWERLINK_0_MAC_RX_BUFFERS
             #define EDRV_PKT_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_PKT_BASEADDR
             #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
         #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
-            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
             #define EDRV_PKT_BASE           (void *)0 //not used
             #define EDRV_PKT_SPAN                   0 //not used
         #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
-            #define EDRV_MAX_RX_BUFFERS             16 //packets are stored in heap, set depending on your needs
             #define EDRV_PKT_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_PKT_BASEADDR
             #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
         #endif
@@ -375,9 +369,9 @@ BYTE            abFilterMask[31],
 
     DEBUG_LVL_01_TRACE1("*** %s ***\n", __func__);
     DEBUG_LVL_01_TRACE1(" PHY_NUM = %d\n", EDRV_PHY_NUM);
+    DEBUG_LVL_01_TRACE1(" MAX_RX_BUFFERS = %d\n", EDRV_MAX_RX_BUFFERS);
 #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
     DEBUG_LVL_01_TRACE0(" PKT_LOC = TX+RX internal\n");
-    DEBUG_LVL_01_TRACE1(" MAX_RX_BUFFERS = %d\n", EDRV_MAX_RX_BUFFERS);
     DEBUG_LVL_01_TRACE1(" PKT_SPAN = %d byte\n", EDRV_PKT_SPAN);
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
     DEBUG_LVL_01_TRACE0(" PKT_LOC = TX internal / RX external\n");

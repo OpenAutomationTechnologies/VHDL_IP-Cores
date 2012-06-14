@@ -114,6 +114,7 @@
 #-- 2012-03-13  V1.35   zelenkaj    Forward R/TPDO + async buffer size to system.h
 #-- 2012-04-02  V1.36   zelenkaj    vhdl file names case sensitive
 #-- 2012-05-22  V1.37   zelenkaj    Fix DPRAM size allocation
+#-- 2012-06-14  V1.38   zelenkaj    RX buffer number has to be set by user for openMAC only in any case
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -808,8 +809,9 @@ proc my_validation_callback {} {
 			set_parameter_property macRxBuf VISIBLE true
 		} elseif {$ploc == "TX into DPRAM and RX over Avalon Master"} {
 			set_parameter_property macTxBuf VISIBLE true
+            set_parameter_property macRxBuf VISIBLE true
 		} elseif {$ploc == "TX and RX over Avalon Master"} {
-			#nothing to set
+			set_parameter_property macRxBuf VISIBLE true
 		} else {
 			send_message error "error 0x02"
 		}

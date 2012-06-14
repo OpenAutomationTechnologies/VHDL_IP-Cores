@@ -121,6 +121,7 @@
 #--                                 Added feature to set DMA data width
 #-- 2012-04-05  V1.42   zelenkaj    Changed GUI
 #-- 2012-05-22  V1.43   zelenkaj    Fix DPRAM size allocation
+#-- 2012-06-14  V1.44   zelenkaj    RX buffer number has to be set by user for openMAC only in any case
 #------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
@@ -829,8 +830,9 @@ proc my_validation_callback {} {
 			set_parameter_property macRxBuf VISIBLE true
 		} elseif {$ploc == "TX into DPRAM and RX over Avalon Master"} {
 			set_parameter_property macTxBuf VISIBLE true
+            set_parameter_property macRxBuf VISIBLE true
 		} elseif {$ploc == "TX and RX over Avalon Master"} {
-			#nothing to set
+            set_parameter_property macRxBuf VISIBLE true
 		} else {
 			send_message error "error 0x02"
 		}
