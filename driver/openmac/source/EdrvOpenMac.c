@@ -70,6 +70,7 @@
 #include "EplInc.h"
 #include "edrv.h"
 #include "Benchmark.h"
+#include "debug.h"
 
 #ifdef __NIOS2__
 #include "system.h"     // FPGA system definitions
@@ -372,8 +373,19 @@ int             i;
 BYTE            abFilterMask[31],
                 abFilterValue[31];
 
-#if EDRV_DMA_OBSERVER != 0
-    PRINTF0("INFO: DMA monitor circuit is enabled.\n");
+    DEBUG_LVL_01_TRACE1("*** %s ***\n", __func__);
+    DEBUG_LVL_01_TRACE1(" PHY_NUM = %d\n", EDRV_PHY_NUM);
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
+    DEBUG_LVL_01_TRACE0(" PKT_LOC = TX+RX internal\n");
+    DEBUG_LVL_01_TRACE1(" MAX_RX_BUFFERS = %d\n", EDRV_MAX_RX_BUFFERS);
+    DEBUG_LVL_01_TRACE1(" PKT_SPAN = %d byte\n", EDRV_PKT_SPAN);
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
+    DEBUG_LVL_01_TRACE0(" PKT_LOC = TX internal / RX external\n");
+    DEBUG_LVL_01_TRACE1(" PKT_SPAN = %d byte\n", EDRV_PKT_SPAN);
+    DEBUG_LVL_01_TRACE1(" DMA_OBSERVER = %d\n", EDRV_DMA_OBSERVER);
+#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
+    DEBUG_LVL_01_TRACE0(" PKT_LOC = TX+RX external\n");
+    DEBUG_LVL_01_TRACE1(" DMA_OBSERVER = %d\n", EDRV_DMA_OBSERVER);
 #endif
 
     memset(&EdrvInstance_l, 0, sizeof(EdrvInstance_l)); //reset driver struct
@@ -385,8 +397,6 @@ BYTE            abFilterMask[31],
 #endif
 
     EdrvInstance_l.m_InitParam = *pEdrvInitParam_p;
-
-    PRINTF0("initialize openMAC...");
 
     ////////////////////
     // initialize phy //
@@ -457,7 +467,7 @@ BYTE            abFilterMask[31],
     if (EdrvInstance_l.m_hOpenMac == 0)
     {
         Ret = kEplNoResource;
-        PRINTF0(" error!\n");
+        DEBUG_LVL_ERROR_TRACE1("%s: omethCreate failed\n", __func__);
         goto Exit;
     }
 
@@ -477,11 +487,9 @@ BYTE            abFilterMask[31],
         }
     }
 
-    PRINTF1("%i phy found\n", EdrvInstance_l.m_ubPhyCnt);
-
     if(EdrvInstance_l.m_ubPhyCnt != EDRV_PHY_NUM)
     {
-        PRINTF1(" -> but %i phy should be found!\n", EDRV_PHY_NUM);
+        DEBUG_LVL_ERROR_TRACE2("%s: Not all phy are found as configured (%d)!\n", __func__, EDRV_PHY_NUM);
         Ret = kEplNoResource;
         goto Exit;
     }
@@ -549,7 +557,7 @@ BYTE            abFilterMask[31],
     // start Ethernet Driver //
     ///////////////////////////
     omethStart(EdrvInstance_l.m_hOpenMac, TRUE);
-    PRINTF0("Ethernet Driver started\n");
+    DEBUG_LVL_01_TRACE0(" OPENMAC started\n");
 
     ////////////////////
     // link NIOS' irq //
@@ -619,6 +627,7 @@ tEplKernel EdrvShutdown(void)
 
 #ifdef EDRV_DEBUG
     //okay, before we destroy openMAC, observe its statistics!
+    DEBUG_LVL_ERROR_TRACE1("%s: \n", __func__);
     {
         ometh_stat_typ *pMacStat = NULL;
 
@@ -626,24 +635,24 @@ tEplKernel EdrvShutdown(void)
 
         if( pMacStat == NULL )
         {
-            PRINTF0("Serious error occurred!? Can't find the statistics!\n");
+            DEBUG_LVL_ERROR_TRACE0(" Serious error occurred!? Can't find the statistics!\n");
         }
         else
         {
-            PRINTF0("--- omethStatistics ---\n");
-            PRINTF0("----  RX           ----\n");
-            PRINTF1(" CRC ERROR = %i\n",         (int)pMacStat->rxCrcError);
-            PRINTF1(" HOOK DISABLED = %i\n",     (int)pMacStat->rxHookDisabled);
-            PRINTF1(" HOOK OVERFLOW = %i\n",     (int)pMacStat->rxHookOverflow);
-            PRINTF1(" LOST = %i\n",                 (int)pMacStat->rxLost);
-            PRINTF1(" OK = %i\n",                 (int)pMacStat->rxOk);
-            PRINTF1(" OVERSIZE = %i\n",             (int)pMacStat->rxOversize);
-            PRINTF0("----  TX           ----\n");
-            PRINTF1(" COLLISION = %i\n",         (int)pMacStat->txCollision);
-            PRINTF1(" DONE = %i\n",                 (int)pMacStat->txDone[0]);
-            PRINTF1(" SPURIOUS IRQ = %i\n",         (int)pMacStat->txSpuriousInt);
+            DEBUG_LVL_ERROR_TRACE0(" --- omethStatistics ---\n");
+            DEBUG_LVL_ERROR_TRACE0(" ----  RX           ----\n");
+            DEBUG_LVL_ERROR_TRACE1("  CRC ERROR = %i\n", (int)pMacStat->rxCrcError);
+            DEBUG_LVL_ERROR_TRACE1("  HOOK DISABLED = %i\n", (int)pMacStat->rxHookDisabled);
+            DEBUG_LVL_ERROR_TRACE1("  HOOK OVERFLOW = %i\n", (int)pMacStat->rxHookOverflow);
+            DEBUG_LVL_ERROR_TRACE1("  LOST = %i\n", (int)pMacStat->rxLost);
+            DEBUG_LVL_ERROR_TRACE1("  OK = %i\n", (int)pMacStat->rxOk);
+            DEBUG_LVL_ERROR_TRACE1("  OVERSIZE = %i\n", (int)pMacStat->rxOversize);
+            DEBUG_LVL_ERROR_TRACE0(" ----  TX           ----\n");
+            DEBUG_LVL_ERROR_TRACE1("  COLLISION = %i\n", (int)pMacStat->txCollision);
+            DEBUG_LVL_ERROR_TRACE1("  DONE = %i\n", (int)pMacStat->txDone[0]);
+            DEBUG_LVL_ERROR_TRACE1("  SPURIOUS IRQ = %i\n", (int)pMacStat->txSpuriousInt);
         }
-        PRINTF0("\n");
+        DEBUG_LVL_01_TRACE0("\n");
     }
 
 #if EDRV_DMA_OBSERVER != 0
@@ -651,18 +660,16 @@ tEplKernel EdrvShutdown(void)
     {
         //if you see this openMAC DMA is connected to slow memory!
         // -> use embedded memory or 10 nsec SRAM!!!
-        PRINTF0("OPENMAC DMA TRANSFER ERROR\n");
+        DEBUG_LVL_ERROR_TRACE1("%s: OPENMAC DMA TRANSFER ERROR\n", __func__);
     }
 #endif
 #endif
-
-    PRINTF0("Shutdown Ethernet Driver... ");
 
     if (omethDestroy(EdrvInstance_l.m_hOpenMac) != 0) {
-        PRINTF0("error\n");
+        DEBUG_LVL_ERROR_TRACE1("%s: Edrv Shutdown failed\n", __func__);
         return kEplNoResource;
     }
-    PRINTF0("done\n");
+    DEBUG_LVL_01_TRACE0("Edrv Shutdown done\n");
 
     return kEplSuccessful;
 }
@@ -701,7 +708,7 @@ ometh_packet_typ*   pPacket = NULL;
     }
 
 #ifdef EDRV_DEBUG
-    PRINTF2("%s: allocate %i bytes\n", __func__, (int)(pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length)));
+    DEBUG_LVL_01_TRACE2("%s: allocate %i bytes\n", __func__, (int)(pBuffer_p->m_uiMaxBufferLen + sizeof (pPacket->length)));
 #endif
 
 #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
@@ -746,7 +753,7 @@ ometh_packet_typ*   pPacket = NULL;
             {
                 if( (p > pBufHighAddr) || (p < pBufBaseAddr) )
                 {
-                    PRINTF0("MAC-internal buffer overflow!\n");
+                    DEBUG_LVL_ERROR_TRACE1("%s: MAC-internal buffer overflow!\n", __func__);
                     Ret = kEplEdrvNoFreeBufEntry;
                     goto Exit;
                 }
@@ -937,7 +944,7 @@ unsigned long       ulTxLength;
             //time triggered sent failed => move to 2nd tx queue
             if( (EdrvInstance_l.m_iTxQueueWr - EdrvInstance_l.m_iTxQueueRd) >= EDRV_MAX_TX_BUF2)
             {
-                PRINTF0("\n***Queue is FULL!***\n\n");
+                DEBUG_LVL_ERROR_TRACE1("%s: Edrv 2nd TX queue is full\n", __func__);
                 Ret = kEplEdrvNoFreeBufEntry;
                 goto Exit;
             }
@@ -949,7 +956,7 @@ unsigned long       ulTxLength;
                 goto Exit; //packet will be sent!
             }
 #else
-            PRINTF0("\n***No TX Descriptor available!***\n\n");
+            DEBUG_LVL_ERROR_TRACE1("%s: No TX descriptor available\n", __func__);
             Ret = kEplEdrvNoFreeBufEntry;
             goto Exit;
 #endif
@@ -1320,7 +1327,7 @@ static void EdrvIrqHandler (void* pArg_p
     {
         EdrvInstance_l.m_fDmaError = TRUE;
         BENCHMARK_MOD_01_TOGGLE(7);
-        PRINTF1("DMA observer recognized overflow! (%X)\n", uwObserverVal);
+        DEBUG_LVL_ERROR_TRACE2("%s: DMA observer recognized overflow! (%X)\n", __func__, uwObserverVal);
 
         omethStop(pArg_p); //since openMAC was naughty, stop it!
     }

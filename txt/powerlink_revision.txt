@@ -52,3 +52,4 @@ Revision History
                         [FIX] changed timeout of openFILTER for BeMicro Stick
                         
 ??.??.2012  V0.2.4      [FEATURE] add omethlib_phycfg module for phy/board specific configuration
+                        [FIX] introduced debug.h to EdrvOpenMac.c
