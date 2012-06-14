@@ -212,7 +212,8 @@ tEplKernel      Ret;
     EplTimerHighReskCompareInterruptDisable();
     EplTimerHighReskSetCompareValue( 0 );
 
-    if (alt_irq_register(HIGHRES_TIMER_IRQ, NULL, EplTimerHighReskInterruptHandler))
+    if (alt_ic_isr_register(HIGHRES_TIMER_IRQ_IC_ID, HIGHRES_TIMER_IRQ,
+            EplTimerHighReskInterruptHandler, NULL, NULL))
     {
         Ret = kEplNoResource;
     }
@@ -244,7 +245,8 @@ tEplKernel  Ret = kEplSuccessful;
     EplTimerHighReskCompareInterruptDisable();
     EplTimerHighReskSetCompareValue( 0 );
 
-    alt_irq_register(HIGHRES_TIMER_IRQ, NULL, NULL);
+    alt_ic_isr_register(HIGHRES_TIMER_IRQ_IC_ID, HIGHRES_TIMER_IRQ,
+            NULL, NULL, NULL);
 
     EPL_MEMSET(&EplTimerHighReskInstance_l, 0, sizeof (EplTimerHighReskInstance_l));
 
