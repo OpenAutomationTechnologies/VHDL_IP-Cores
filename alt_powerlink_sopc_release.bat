@@ -38,6 +38,7 @@ copy %activehdl_dir%\src\mif\*.mif                                  %release_dir
 :: delete not needed vhdls
 del %release_dir%\%ipcore_dir%\src\axi_*.vhd
 del %release_dir%\%ipcore_dir%\src\qsys_*.vhd
+del %release_dir%\%ipcore_dir%\src\*_qsys.vhd
 del %release_dir%\%ipcore_dir%\src\plb_*.vhd
 del %release_dir%\%ipcore_dir%\src\*_Xilinx.vhd
 del %release_dir%\%ipcore_dir%\src\openMAC_DMAmaster\ipif_master_handler.vhd
