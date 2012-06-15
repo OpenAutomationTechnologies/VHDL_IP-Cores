@@ -146,7 +146,7 @@ add_file "src/qsys_powerlink.vhd" {SYNTHESIS SIMULATION}
 add_file "src/powerlink.vhd" {SYNTHESIS SIMULATION}
 add_file "src/pdi.vhd" {SYNTHESIS SIMULATION}
 add_file "src/pdi_par.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi_dpr_Altera.vhd" {SYNTHESIS SIMULATION}
+add_file "src/pdi_dpr_Altera_qsys.vhd" {SYNTHESIS SIMULATION}
 add_file "src/pdi_tripleVBufLogic.vhd" {SYNTHESIS SIMULATION}
 add_file "src/pdi_apIrqGen.vhd" {SYNTHESIS SIMULATION}
 add_file "src/pdi_controlStatusReg.vhd" {SYNTHESIS SIMULATION}
@@ -159,7 +159,7 @@ add_file "src/openMAC.vhd" {SYNTHESIS SIMULATION}
 add_file "src/openMAC_Ethernet.vhd" {SYNTHESIS SIMULATION}
 add_file "src/openMAC_cmp.vhd" {SYNTHESIS SIMULATION}
 add_file "src/openMAC_phyAct.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_DPR_Altera.vhd" {SYNTHESIS SIMULATION}
+add_file "src/openMAC_DPR_Altera_qsys.vhd" {SYNTHESIS SIMULATION}
 add_file "src/openMAC_DMAFifo_Altera.vhd" {SYNTHESIS SIMULATION}
 add_file "src/openMAC_DMAmaster.vhd" {SYNTHESIS SIMULATION}
 add_file "src/openMAC_DMAmaster/dma_handler.vhd" {SYNTHESIS SIMULATION}
