@@ -533,7 +533,7 @@ int                i; //used for for loop
         goto Exit;
     }
 
-    BENCHMARK_MOD_01_SET(2);
+    BENCHMARK_MOD_01_SET(0);
 
     //get timer tick before calling TX Process
     dwMacTime1 = EDRV_GET_MAC_TIME();
@@ -572,13 +572,13 @@ int                i; //used for for loop
     // store average to instance
     EdrvCyclicInstance_l.m_dwTxProcDur = dwFltAccu / EDRVCYC_NEGSHFT_FLT_SPAN;
 
-    BENCHMARK_MOD_01_RESET(2);
+    BENCHMARK_MOD_01_RESET(0);
 
     if (EdrvCyclicInstance_l.m_pfnCbSync != NULL)
     {
-        BENCHMARK_MOD_01_SET(2);
+        BENCHMARK_MOD_01_SET(0);
         Ret = EdrvCyclicInstance_l.m_pfnCbSync();
-        BENCHMARK_MOD_01_RESET(2);
+        BENCHMARK_MOD_01_RESET(0);
     }
 
 Exit:

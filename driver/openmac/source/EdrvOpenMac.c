@@ -1330,9 +1330,9 @@ static void EdrvIrqHandler (void* pArg_p
     //handle sent packets
     while( EDRV_RD32(EDRV_IRQ_BASE, 0) & 0x1 )
     {
-        BENCHMARK_MOD_01_SET(6);
+        BENCHMARK_MOD_01_SET(1);
         omethTxIrqHandler(pArg_p);
-        BENCHMARK_MOD_01_RESET(6);
+        BENCHMARK_MOD_01_RESET(1);
     }
 
 #if (defined(EDRV_2NDTXQUEUE) && defined(EDRV_TIME_TRIG_TX))
@@ -1369,9 +1369,9 @@ static void EdrvIrqHandler (void* pArg_p
     //handle received packets
     if( EDRV_RD32(EDRV_IRQ_BASE, 0) & 0x2 )
     {
-        BENCHMARK_MOD_01_SET(1);
+        BENCHMARK_MOD_01_SET(6);
         omethRxIrqHandler(pArg_p);
-        BENCHMARK_MOD_01_SET(1);
+        BENCHMARK_MOD_01_RESET(6);
     }
 }
 
@@ -1391,7 +1391,6 @@ static void EdrvIrqHandler (void* pArg_p
 static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long time)
 {
     EdrvInstance_l.m_dwMsgFree++;
-    BENCHMARK_MOD_01_SET(1);
 
     if (arg != NULL)
     {
@@ -1402,8 +1401,6 @@ static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long ti
             pTxBuffer->m_pfnTxHandler(pTxBuffer);
         }
     }
-
-    BENCHMARK_MOD_01_RESET(1);
 }
 
 
