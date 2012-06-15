@@ -139,7 +139,7 @@ BEGIN
 		clock_enable_output_a => "BYPASS",
 		clock_enable_output_b => "BYPASS",
 		indata_reg_b => "CLOCK1",
-        init_file => "pdi_dpr.mif",
+        init_file => "../mif/pdi_dpr.mif",
 		intended_device_family => "Cyclone IV",
 		lpm_type => "altsyncram",
 		numwords_a => NUM_WORDS,
