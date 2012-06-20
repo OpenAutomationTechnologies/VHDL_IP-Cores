@@ -286,7 +286,7 @@ static ometh_internal_typ    omethInternal;    // driver internal data
 // use assert-calls
 //
 //*************************************************************************************
-#ifndef __ASSERT_H__    // if assert.h is not defined ...
+#ifndef assert    // if assert.h is not defined ...
 //    #define assert(x)    do{(x);}while(0)
     #define assert(x)
 #endif
