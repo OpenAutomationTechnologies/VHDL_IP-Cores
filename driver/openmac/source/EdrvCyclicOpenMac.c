@@ -333,8 +333,6 @@ unsigned int    uiNextTxBufferList;
         goto Exit;
     }
 
-    //BENCHMARK_MOD_01_TOGGLE(3);
-
     EPL_MEMCPY(&EdrvCyclicInstance_l.m_paTxBufferList[uiNextTxBufferList], apTxBuffer_p, sizeof (*apTxBuffer_p) * uiTxBufferCount_p);
 
 Exit:
@@ -647,8 +645,6 @@ DWORD            udwCycleMax = 0; //absolute maximum cycle time
 DWORD            udwNextOffNs = 0; //next earliest tx time
 DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000UL; //time of next timer irq
 
-    //BENCHMARK_MOD_01_SET(0);
-
     if( EdrvCyclicInstance_l.m_fNextCycleValid == FALSE )
     {
         //use current time + negative shift to set a valid next cycle
@@ -806,7 +802,6 @@ Exit:
             Ret = EdrvCyclicInstance_l.m_pfnCbError(Ret, pTxBuffer);
         }
     }
-    //BENCHMARK_MOD_01_RESET(0);
     return Ret;
 }
 
