@@ -81,15 +81,40 @@
 #include "system.h"
 #include "omethlib.h"
 #include <io.h>
-#ifdef __POWERLINK
-#define EDRVCYC_TIMER_BASE          (void*)POWERLINK_0_MAC_CMP_BASE
-#elif defined(__OPENMAC)
-#define EDRVCYC_TIMER_BASE          (void*)OPENMAC_0_CMP_BASE
+
+//--- set the system's base addresses ---
+#if defined(__NIOS2__)
+
+//POWERLINK IP-Core in "pcp_0" subsystem
+#if defined(PCP_0_POWERLINK_0_MAC_REG_BASE)
+#include "EdrvOpenMac_qsys.h"
+
+//POWERLINK IP-Core in SOPC
+#elif defined(POWERLINK_0_MAC_REG_BASE)
+#include "EdrvOpenMac_sopc.h"
+
+#else
+#error "POWERLINK IP-Core is not found in Nios II (sub-)system!"
+#endif
+
+#elif defined(__MICROBLAZE__)
+
+//POWERLINK IP-Core with PLB
+#if defined(POWERLINK_USES_PLB_BUS)
+#include "EdrvOpenMac_plb.h"
+
+#elif defined(POWERLINK_USES_AXI_BUS)
+#include "EdrvOpenMac_axi.h"
+
+#else
+#error "POWERLINK IP-Core is not found in Microblaze system!"
+#endif
+
 #else
 #error "Configuration unknown!"
 #endif
 
-#define EDRV_GET_MAC_TIME()            IORD_32DIRECT(EDRVCYC_TIMER_BASE, 0)
+#define EDRV_GET_MAC_TIME()            IORD_32DIRECT(EDRV_CMP_BASE, 0)
 
 //define to shift timer interrupt before cycle
 #define EDRVCYC_POS_SHIFT_US        50U //us (duration of ProcessTxBufferList)

@@ -101,14 +101,34 @@
 #define TIMERCMP_REG_OFF_STATUS     4
 #define TIMERCMP_REG_OFF_TIME_VAL   0
 
-#ifdef __POWERLINK
-#define HIGHRES_TIMER_IRQ           POWERLINK_0_MAC_CMP_IRQ
-#define HIGHRES_TIMER_IRQ_IC_ID     POWERLINK_0_MAC_CMP_IRQ_INTERRUPT_CONTROLLER_ID
-#define HIGHRES_TIMER_BASE          POWERLINK_0_MAC_CMP_BASE
-#elif defined(__OPENMAC)
-#define HIGHRES_TIMER_IRQ           OPENMAC_0_CMP_IRQ
-#define HIGHRES_TIMER_IRQ_IC_ID     OPENMAC_0_CMP_IRQ_INTERRUPT_CONTROLLER_ID
-#define HIGHRES_TIMER_BASE          OPENMAC_0_CMP_BASE
+//--- set the system's base addresses ---
+#if defined(__NIOS2__)
+
+//POWERLINK IP-Core in "pcp_0" subsystem
+#if defined(PCP_0_POWERLINK_0_MAC_REG_BASE)
+#include "EdrvOpenMac_qsys.h"
+
+//POWERLINK IP-Core in SOPC
+#elif defined(POWERLINK_0_MAC_REG_BASE)
+#include "EdrvOpenMac_sopc.h"
+
+#else
+#error "POWERLINK IP-Core is not found in Nios II (sub-)system!"
+#endif
+
+#elif defined(__MICROBLAZE__)
+
+//POWERLINK IP-Core with PLB
+#if defined(POWERLINK_USES_PLB_BUS)
+#include "EdrvOpenMac_plb.h"
+
+#elif defined(POWERLINK_USES_AXI_BUS)
+#include "EdrvOpenMac_axi.h"
+
+#else
+#error "POWERLINK IP-Core is not found in Microblaze system!"
+#endif
+
 #else
 #error "Configuration unknown!"
 #endif

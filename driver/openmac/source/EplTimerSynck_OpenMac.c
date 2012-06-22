@@ -111,42 +111,38 @@
 #define EPL_TIMER_SYNC_SECOND_LOSS_OF_SYNC      FALSE
 #endif
 
-#ifdef __NIOS2__
-#ifdef __POWERLINK
-#define EPL_TIMER_SYNC_BASE         POWERLINK_0_MAC_CMP_BASE //from system.h
-#define EPL_TIMER_SYNC_IRQ          POWERLINK_0_MAC_CMP_IRQ
-#define EPL_TIMER_SYNC_IRQ_IC_ID    POWERLINK_0_MAC_CMP_IRQ_INTERRUPT_CONTROLLER_ID
-#if POWERLINK_0_MAC_CMP_TIMESYNCHW != FALSE
-    #define EPL_TIMER_USE_COMPARE_PDI_INT
-#endif
-#elif defined(__OPENMAC)
-    #error "Not supported! Please change to POWERLINK IP-core!"
+//--- set the system's base addresses ---
+#if defined(__NIOS2__)
+
+//POWERLINK IP-Core in "pcp_0" subsystem
+#if defined(PCP_0_POWERLINK_0_MAC_REG_BASE)
+#include "EdrvOpenMac_qsys.h"
+
+//POWERLINK IP-Core in SOPC
+#elif defined(POWERLINK_0_MAC_REG_BASE)
+#include "EdrvOpenMac_sopc.h"
+
 #else
-    #error "Configuration unknown!"
+#error "POWERLINK IP-Core is not found in Nios II (sub-)system!"
 #endif
+
 #elif defined(__MICROBLAZE__)
-    #ifdef POWERLINK_USES_PLB_BUS
-        #define EPL_TIMER_INTC_BASE        XPAR_PCP_INTC_BASEADDR
-        #define EPL_TIMER_SYNC_BASE        XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
-        #define EPL_TIMER_SYNC_IRQ         XPAR_PCP_INTC_PLB_POWERLINK_0_TCP_IRQ_INTR
-        #define EPL_TIMER_SYNC_IRQ_MASK    XPAR_PLB_POWERLINK_0_TCP_IRQ_MASK
-        #if XPAR_PLB_POWERLINK_0_PDI_GEN_TIME_SYNC != FALSE
-            #define EPL_TIMER_USE_COMPARE_PDI_INT
-        #endif
-    #elif defined(POWERLINK_USES_AXI_BUS)
-        #define EPL_TIMER_INTC_BASE        XPAR_PCP_INTC_BASEADDR
-        #define EPL_TIMER_SYNC_BASE        XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG1_BASEADDR
-        #define EPL_TIMER_SYNC_IRQ         XPAR_PCP_INTC_AXI_POWERLINK_0_TCP_IRQ_INTR
-        #define EPL_TIMER_SYNC_IRQ_MASK    XPAR_AXI_POWERLINK_0_TCP_IRQ_MASK
-        #if XPAR_AXI_POWERLINK_0_PDI_GEN_TIME_SYNC != FALSE
-            #define EPL_TIMER_USE_COMPARE_PDI_INT
-        #endif
-    #else
-        #error "The used bus system is unknown! (Should be PLB or AXI)"
-    #endif
+
+//POWERLINK IP-Core with PLB
+#if defined(POWERLINK_USES_PLB_BUS)
+#include "EdrvOpenMac_plb.h"
+
+#elif defined(POWERLINK_USES_AXI_BUS)
+#include "EdrvOpenMac_axi.h"
+
+#else
+#error "POWERLINK IP-Core is not found in Microblaze system!"
+#endif
+
 #else
 #error "Configuration unknown!"
 #endif
+
 
 /***************************************************************************/
 /*                                                                         */

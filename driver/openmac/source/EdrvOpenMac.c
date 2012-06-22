@@ -107,101 +107,36 @@
 #define EDRV_PHY_RST_PULSE_US        10000 //length of reset pulse (rst_n = 0)
 #define EDRV_PHY_RST_READY_US         5000 //time after phy is ready to operate
 
-//--- packet location definitions ---
-#define EDRV_PKT_LOC_TX_RX_INT                0
-#define EDRV_PKT_LOC_TX_INT_RX_EXT            1
-#define EDRV_PKT_LOC_TX_RX_EXT                2
-
 //--- set the system's base addresses ---
-#ifdef __NIOS2__
-#ifdef __POWERLINK //POWERLINK IP-core used
-    #define EDRV_MAC_BASE           (void *)POWERLINK_0_MAC_REG_BASE
-    #define EDRV_MAC_SPAN                   POWERLINK_0_MAC_REG_SPAN
-    #define EDRV_MAC_IRQ                    POWERLINK_0_MAC_REG_IRQ
-    #define EDRV_MAC_IRQ_IC_ID              POWERLINK_0_MAC_REG_IRQ_INTERRUPT_CONTROLLER_ID
-    #define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
-    #define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
-    #define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
-    #define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
-    #define EDRV_CMP_BASE           (void *)POWERLINK_0_MAC_CMP_BASE
-    #define EDRV_CMP_SPAN                   POWERLINK_0_MAC_CMP_SPAN
-    #define EDRV_PKT_LOC                    POWERLINK_0_MAC_REG_PKTLOC
-    #define EDRV_PHY_NUM                    POWERLINK_0_MAC_REG_PHYCNT
-    #define EDRV_DMA_OBSERVER               POWERLINK_0_MAC_REG_DMAOBSERV
-    #define EDRV_MAX_RX_BUFFERS             POWERLINK_0_MAC_REG_MACRXBUFFERS
-#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT                        //TX+RX in M9K
-    #define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
-    #define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
-#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT                        //TX in M9K and RX in external memory
-    #define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
-    #define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
-#elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT                        //TX+RX in external memory
-    #define EDRV_PKT_BASE           (void *)0 //not used
-    #define EDRV_PKT_SPAN                   0 //not used
-#endif
-#elif defined(__OPENMAC) //OPENMAC IP-core used
-    #error "Not supported! Please change to POWERLINK IP-core!"
+#if defined(__NIOS2__)
+
+//POWERLINK IP-Core in "pcp_0" subsystem
+#if defined(PCP_0_POWERLINK_0_MAC_REG_BASE)
+#include "EdrvOpenMac_qsys.h"
+
+//POWERLINK IP-Core in SOPC
+#elif defined(POWERLINK_0_MAC_REG_BASE)
+#include "EdrvOpenMac_sopc.h"
+
 #else
-    #error "Configuration is unknown!"
+#error "POWERLINK IP-Core is not found in Nios II (sub-)system!"
 #endif
+
 #elif defined(__MICROBLAZE__)
-    #ifdef POWERLINK_USES_PLB_BUS
-        #define EDRV_INTC_BASE                  XPAR_PCP_INTC_BASEADDR
-        #define EDRV_MAC_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_REG_BASEADDR
-        #define EDRV_MAC_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_REG_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_REG_BASEADDR+1)
-        #define EDRV_MAC_IRQ                    XPAR_PCP_INTC_PLB_POWERLINK_0_MAC_IRQ_INTR
-        #define EDRV_MAC_IRQ_MASK               XPAR_PLB_POWERLINK_0_MAC_IRQ_MASK
-        #define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
-        #define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
-        #define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
-        #define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
-        #define EDRV_CMP_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR
-        #define EDRV_CMP_SPAN                   (XPAR_PLB_POWERLINK_0_MAC_CMP_HIGHADDR-XPAR_PLB_POWERLINK_0_MAC_CMP_BASEADDR+1)
-        #define EDRV_PKT_LOC                    XPAR_PLB_POWERLINK_0_PACKET_LOCATION
-        #define EDRV_PHY_NUM                    XPAR_PLB_POWERLINK_0_PHY_COUNT
-        #define EDRV_DMA_OBSERVER               XPAR_PLB_POWERLINK_0_OBSERVER_ENABLE
-        #define EDRV_MAX_RX_BUFFERS             XPAR_PLB_POWERLINK_0_MAC_RX_BUFFERS
-        #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
-            #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
-            #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
-        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
-            #define EDRV_PKT_BASE           (void *)0 //not used
-            #define EDRV_PKT_SPAN                   0 //not used
-        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
-            #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
-            #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
-        #endif
-    #elif defined(POWERLINK_USES_AXI_BUS)
-        #define EDRV_INTC_BASE                  XPAR_PCP_INTC_BASEADDR
-        #define EDRV_MAC_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_BASEADDR
-        #define EDRV_MAC_SPAN                   (XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_HIGHADDR-XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG0_BASEADDR+1)
-        #define EDRV_MAC_IRQ                    XPAR_PCP_INTC_AXI_POWERLINK_0_MAC_IRQ_INTR
-        #define EDRV_MAC_IRQ_MASK               XPAR_AXI_POWERLINK_0_MAC_IRQ_MASK
-        #define EDRV_RAM_BASE           (void *)(EDRV_MAC_BASE + 0x0800)
-        #define EDRV_MII_BASE           (void *)(EDRV_MAC_BASE + 0x1000)
-        #define EDRV_IRQ_BASE           (void *)(EDRV_MAC_BASE + 0x1010)
-        #define EDRV_DOB_BASE           (void *)(EDRV_MAC_BASE + 0x1020)
-        #define EDRV_CMP_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG1_BASEADDR
-        #define EDRV_CMP_SPAN                   (XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG1_HIGHADDR-XPAR_AXI_POWERLINK_0_S_AXI_MAC_REG_RNG1_BASEADDR+1)
-        #define EDRV_PKT_LOC                    XPAR_AXI_POWERLINK_0_PACKET_LOCATION
-        #define EDRV_PHY_NUM                    XPAR_AXI_POWERLINK_0_PHY_COUNT
-        #define EDRV_DMA_OBSERVER               XPAR_AXI_POWERLINK_0_OBSERVER_ENABLE
-        #define EDRV_MAX_RX_BUFFERS             XPAR_AXI_POWERLINK_0_MAC_RX_BUFFERS
-        #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
-            #define EDRV_PKT_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_PKT_BASEADDR
-            #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
-        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
-            #define EDRV_PKT_BASE           (void *)0 //not used
-            #define EDRV_PKT_SPAN                   0 //not used
-        #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
-            #define EDRV_PKT_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_PKT_BASEADDR
-            #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
-        #endif
-    #else
-        #error "The used bus system is unknown! (Should be PLB or AXI)"
-    #endif
+
+//POWERLINK IP-Core with PLB
+#if defined(POWERLINK_USES_PLB_BUS)
+#include "EdrvOpenMac_plb.h"
+
+#elif defined(POWERLINK_USES_AXI_BUS)
+#include "EdrvOpenMac_axi.h"
+
 #else
-    #error "Configuration is unknown!"
+#error "POWERLINK IP-Core is not found in Microblaze system!"
+#endif
+
+#else
+#error "Configuration unknown!"
 #endif
 
 //--- set driver's MTU ---
