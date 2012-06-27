@@ -117,16 +117,15 @@
 #define EDRV_GET_MAC_TIME()            IORD_32DIRECT(EDRV_CMP_BASE, 0)
 
 //define to shift timer interrupt before cycle
-#define EDRVCYC_POS_SHIFT_US        50U //us (duration of ProcessTxBufferList)
 #define EDRVCYC_NEG_SHIFT_US        100U //us (timer irq before next cycle)
 
 #if (EDRVCYC_NEG_SHIFT_US < 50U)
 #error "Set EDRVCYC_NEG_SHIFT larger 50 us!"
 #endif
 
-#if (EDRVCYC_POS_SHIFT_US < 30U)
-#error "Set EDRVCYC_NEG_SHIFT larger 30 us!"
-#endif
+//defines for cycle preparation call
+#define EDRVCYC_POS_SHIFT_US        50U //us (duration of ProcessTxBufferList)
+#define EDRVCYC_MIN_SHIFT_US        10U //us (minimum time of ISR call before SoC)
 
 //define for negative shift filter
 #define EDRVCYC_NEGSHFT_FLT_SPAN    8U
@@ -180,6 +179,7 @@ static tEplKernel EdrvCyclicCbTimerCycle(tEplTimerEventArg* pEventArg_p);
 
 static tEplKernel EdrvCyclicProcessTxBufferList(void);
 
+static tEplKernel EdrvCyclicCycleTimeViolation(DWORD udwNextTimerIrqNs_p);
 
 
 //---------------------------------------------------------------------------
@@ -605,6 +605,7 @@ int                i; //used for for loop
     }
 
 Exit:
+    BENCHMARK_MOD_01_RESET(0);
     if (Ret != kEplSuccessful)
     {
 
@@ -653,6 +654,8 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
         //next timer IRQ correction
         udwNextTimerIrqNs -= OMETH_TICKS_2_NS(EdrvCyclicInstance_l.m_dwTxProcDur);
 
+        EdrvCyclicInstance_l.m_fNextCycleValid = TRUE;
+
     }
     else
     {
@@ -666,15 +669,11 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
 
         if( udwDiff & 0x80000000UL )
         {
-            PRINTF0("\nTX of first cycle packet is in the past!\n");
-            PRINTF4(" %s entry: 0x%08X\n SoC TX time: 0x%08X\n Diff: 0x%08X\n",
-                    __func__,
-                    (int)udwMacTimeEntry,
-                    (int)EdrvCyclicInstance_l.m_dwNextCycleTime,
-                    (int)udwDiff);
-
-            Ret = kEplEdrvNoFreeBufEntry;
-            goto Exit;
+            udwDiff = udwMacTimeEntry - EdrvCyclicInstance_l.m_dwNextCycleTime;
+            udwDiffNs = OMETH_TICKS_2_NS(udwDiff);
+            udwNextTimerIrqNs -= (EDRVCYC_NEG_SHIFT_US * 1000UL + udwDiffNs);
+            Ret = EdrvCyclicCycleTimeViolation(udwNextTimerIrqNs);
+            goto CycleDone;
         }
 
         //substract TX buffer list processing from cycle time
@@ -687,10 +686,17 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
             //time difference is larger negative shift
             udwNextTimerIrqNs += (udwDiffNs - EDRVCYC_NEG_SHIFT_US * 1000UL);
         }
+        else if( udwDiffNs > (EDRVCYC_MIN_SHIFT_US * 1000UL) )
+        {
+            //time difference is shorter than negative shift but larger than minimum
+            udwNextTimerIrqNs -= (EDRVCYC_NEG_SHIFT_US * 1000UL - udwDiffNs);
+        }
         else
         {
-            //time difference is shorter than negative shift
+            //time difference is too short => cycle violation!
             udwNextTimerIrqNs -= (EDRVCYC_NEG_SHIFT_US * 1000UL - udwDiffNs);
+            Ret = EdrvCyclicCycleTimeViolation(udwNextTimerIrqNs);
+            goto CycleDone;
         }
     }
 
@@ -722,16 +728,8 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
         if( (udwAbsTime - udwCycleMin) > (udwCycleMax - udwCycleMin) )
         {
             //packet is outside of the window
-            BENCHMARK_MOD_01_TOGGLE(7);
-            BENCHMARK_MOD_01_TOGGLE(7);
-            BENCHMARK_MOD_01_TOGGLE(7);
-            BENCHMARK_MOD_01_TOGGLE(7);
-
-            PRINTF2("\n%s: TimeOffsetUs = %i\n", __func__, (int)pTxBuffer->m_dwTimeOffsetNs/1000U);
-            PRINTF3(" min=0x%08X max=0x%08X abs=0x%08X\n", (int)udwCycleMin, (int)udwCycleMax, (int)udwAbsTime);
-
-            Ret = kEplEdrvNoFreeBufEntry;
-            goto Exit;
+            Ret = EdrvCyclicCycleTimeViolation(udwNextTimerIrqNs);
+            goto CycleDone;
         }
 
         //pTxBuffer->m_dwTimeOffsetNs = udwAbsTime | 1; //lowest bit enables time triggered send
@@ -741,14 +739,6 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
         Ret = EdrvSendTxMsg(pTxBuffer);
         if (Ret != kEplSuccessful)
         {
-            int i;
-
-            PRINTF2("\n%s: EdrvSendTxMsg ret=0x%X\n", __func__, Ret);
-            for(i=0; i<8; i++)
-            {
-                PRINTF1("%i ", (int)EdrvCyclicInstance_l.m_aTxProcFlt[i]);
-            }
-            PRINTF1("\n %i\n", (int)EdrvCyclicInstance_l.m_dwTxProcDur);
             goto Exit;
         }
 
@@ -774,11 +764,6 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
         EdrvCyclicInstance_l.m_uiCurTxBufferEntry++;
     }
 
-    //so, we're done with this cycle
-
-    //calculate next cycle
-    EdrvCyclicInstance_l.m_dwNextCycleTime += OMETH_US_2_TICKS(EdrvCyclicInstance_l.m_dwCycleLenUs);
-
     //set up next timer interrupt
     Ret = EplTimerHighReskModifyTimerNs(&EdrvCyclicInstance_l.m_TimerHdlCycle,
         udwNextTimerIrqNs,
@@ -792,16 +777,48 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
         goto Exit;
     }
 
-Exit:
-    if (Ret != kEplSuccessful)
-    {
-        BENCHMARK_MOD_01_TOGGLE(7);
+CycleDone:
+    //calculate next cycle
+    EdrvCyclicInstance_l.m_dwNextCycleTime += OMETH_US_2_TICKS(EdrvCyclicInstance_l.m_dwCycleLenUs);
 
-        if (EdrvCyclicInstance_l.m_pfnCbError != NULL)
-        {
-            Ret = EdrvCyclicInstance_l.m_pfnCbError(Ret, pTxBuffer);
-        }
-    }
+Exit:
     return Ret;
 }
 
+//---------------------------------------------------------------------------
+//
+// Function:    EdrvCyclicCycleTimeViolation()
+//
+// Description: posts cycle time violation
+//
+// Parameters:  void
+//
+// Returns:     tEplKernel              = error code
+//
+//
+// State:
+//
+//---------------------------------------------------------------------------
+
+static tEplKernel EdrvCyclicCycleTimeViolation(DWORD udwNextTimerIrqNs_p)
+{
+tEplKernel      Ret;
+
+    //set up next timer interrupt
+    Ret = EplTimerHighReskModifyTimerNs(&EdrvCyclicInstance_l.m_TimerHdlCycle,
+        udwNextTimerIrqNs_p,
+        EdrvCyclicCbTimerCycle,
+        0L,
+        FALSE);
+
+    if (Ret != kEplSuccessful)
+    {
+        PRINTF2("%s: EplTimerHighReskModifyTimerNs ret=0x%X\n", __func__, Ret);
+        goto Exit;
+    }
+
+    //post error to generate EPL_DLL_ERR_MN_CYCTIMEEXCEED in EplDllkCbCyclicError()
+    Ret = kEplEdrvTxListNotFinishedYet;
+Exit:
+    return Ret;
+}
