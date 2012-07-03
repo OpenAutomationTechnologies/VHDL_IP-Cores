@@ -78,9 +78,15 @@
 #error "EdrvCyclic needs EPL_TIMER_USE_HIGHRES = TRUE"
 #endif
 
-#include "system.h"
 #include "omethlib.h"
+#if defined(__NIOS2__)
+#include "system.h"
 #include <io.h>
+#elif defined(__MICROBLAZE__)
+#include "xparameters.h"
+#include "mb_interface.h"
+#include "xil_io.h"
+#endif
 
 //--- set the system's base addresses ---
 #if defined(__NIOS2__)
@@ -114,7 +120,17 @@
 #error "Configuration unknown!"
 #endif
 
-#define EDRV_GET_MAC_TIME()            IORD_32DIRECT(EDRV_CMP_BASE, 0)
+#ifdef __NIOS2__
+#define EDRVC_RD32(base, offset)        IORD_32DIRECT(base, offset)
+#define EDRVC_RD16(base, offset)        IORD_16DIRECT(base, offset)
+#elif defined(__MICROBLAZE__)
+#define EDRVC_RD32(base, offset)        Xil_In32((base+offset))
+#define EDRVC_RD16(base, offset)        Xil_In16((base+offset))
+#else
+#error "Configuration unknown!"
+#endif
+
+#define EDRV_GET_MAC_TIME()            EDRVC_RD32(EDRV_CMP_BASE, 0)
 
 //define to shift timer interrupt before cycle
 #define EDRVCYC_NEG_SHIFT_US        100U //us (timer irq before next cycle)

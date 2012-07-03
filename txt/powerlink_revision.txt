@@ -51,6 +51,8 @@ Revision History
                         [FIX] openFILTER redesign with fsm, Preamble-check improvement
                         [FIX] changed timeout of openFILTER for BeMicro Stick
                         
-??.??.2012  V0.2.4      [FEATURE] add omethlib_phycfg module for phy/board specific configuration
+03.07.2012  V0.2.4      [FEATURE] add omethlib_phycfg module for phy/board specific configuration
                         [FIX] introduced debug.h to EdrvOpenMac.c
                         [FIX] reverted phy search to address ZERO as well
+                        [FIX] zero jitter fix and cycle time violation is noticed in EdrvCyclicOpenMac and forwarded to error handling correctly
+                        [FIX] X: support EdrvCyclic and TimerHighResk
