@@ -56,3 +56,6 @@ Revision History
                         [FIX] reverted phy search to address ZERO as well
                         [FIX] zero jitter fix and cycle time violation is noticed in EdrvCyclicOpenMac and forwarded to error handling correctly
                         [FIX] X: support EdrvCyclic and TimerHighResk
+                        
+??.??.????  V0.2.5      [FIX] confusion of EDRV_MAX_AUTO_RESPONSES and EDRV_MAX_FILTERS
+                        

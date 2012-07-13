@@ -89,10 +89,6 @@
 
 #include "EplTgtTimeStamp_openMac.h"
 
-#ifdef CPU_UTIL
-#include "cpuUtil.h"
-#endif
-
 //comment the following lines to disable feature
 //#define EDRV_DEBUG        //debugging information forwarded to stdout
 //#define EDRV_2NDTXQUEUE    //use additional TX queue for MN
@@ -160,14 +156,23 @@
 #define EDRV_MAX_RX_BUFFERS 6
 #endif
 
-#if (EDRV_AUTO_RESPONSE == FALSE && !defined(EDRV_TIME_TRIG_TX))
+#if (EDRV_AUTO_RESPONSE == FALSE)
+    #undef EDRV_MAX_AUTO_RESPONSES
+    #define EDRV_MAX_AUTO_RESPONSES 0 //no auto-response used
+#endif
+
+#ifndef EDRV_TIME_TRIG_TX
+#define EDRV_TIME_TRIG_TX FALSE
+#endif
+
+#if (EDRV_AUTO_RESPONSE == FALSE && EDRV_TIME_TRIG_TX == FALSE)
     #error "Please enable EDRV_AUTO_RESPONSE in EplCfg.h to use openMAC for CN!"
 #endif
-#if (EDRV_AUTO_RESPONSE != FALSE && defined(EDRV_TIME_TRIG_TX))
+#if (EDRV_AUTO_RESPONSE != FALSE && EDRV_TIME_TRIG_TX != FALSE)
 #error "Please disable EDRV_AUTO_RESPONSE in EplCfg.h to use openMAC for MN!"
 #endif
 
-#if (defined(EDRV_2NDTXQUEUE) && !defined(EDRV_TIME_TRIG_TX))
+#if (defined(EDRV_2NDTXQUEUE) && EDRV_TIME_TRIG_TX == FALSE)
     #undef EDRV_2NDTXQUEUE //2nd TX queue makes no sense here..
     #undef EDRV_MAX_TX_BUF2
 #endif
@@ -211,9 +216,10 @@ typedef struct _tEdrvInstance
 
     phy_reg_typ*             m_pPhy[EDRV_PHY_NUM];
     BYTE                     m_ubPhyCnt;
-
+#if EDRV_MAX_AUTO_RESPONSES == 0
     // auto-response Tx buffers
-    tEdrvTxBuffer*           m_apTxBuffer[EDRV_MAX_FILTERS];
+    tEdrvTxBuffer*           m_apTxBuffer[EDRV_MAX_AUTO_RESPONSES];
+#endif
 
     //tx msg counter
     DWORD                    m_dwMsgFree;
@@ -446,7 +452,7 @@ BYTE            abFilterMask[31],
         }
 
         omethFilterDisable(EdrvInstance_l.m_ahFilter[i]);
-#if (EDRV_AUTO_RESPONSE == TRUE)
+
         if (i < EDRV_MAX_AUTO_RESPONSES)
         {
             int iRet;
@@ -462,7 +468,6 @@ BYTE            abFilterMask[31],
             // ... but disable it
             omethResponseDisable(EdrvInstance_l.m_ahFilter[i]);
         }
-#endif
     }
 
     //moved following lines here, since omethHookCreate may change tx buffer base!
@@ -742,7 +747,7 @@ tEplKernel EdrvReleaseTxMsgBuffer     (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 
-    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
+    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_AUTO_RESPONSES)
     {
         // disable auto-response
         omethResponseDisable(EdrvInstance_l.m_ahFilter[pBuffer_p->m_BufferNumber.m_dwVal]);
@@ -793,9 +798,10 @@ Exit:
 tEplKernel EdrvUpdateTxMsgBuffer     (tEdrvTxBuffer * pBuffer_p)
 {
 tEplKernel          Ret = kEplSuccessful;
+#if EDRV_MAX_AUTO_RESPONSES > 0
 ometh_packet_typ*   pPacket = NULL;
 
-    if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_FILTERS)
+    if (pBuffer_p->m_BufferNumber.m_dwVal >= EDRV_MAX_AUTO_RESPONSES)
     {
         Ret = kEplEdrvInvalidParam;
         goto Exit;
@@ -824,6 +830,10 @@ ometh_packet_typ*   pPacket = NULL;
     }
 
 Exit:
+#else
+    //invalid call, since auto-resp is deactivated for MN support
+    Ret = kEplEdrvInvalidParam;
+#endif
     return Ret;
 }
 
@@ -849,18 +859,16 @@ tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 unsigned long       ulTxLength;
 
-#ifndef EDRV_TIME_TRIG_TX
-    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_FILTERS)
+    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_AUTO_RESPONSES)
     {
         Ret = kEplEdrvInvalidParam;
         goto Exit;
     }
-#endif
 
     pPacket = GET_TYPE_BASE(ometh_packet_typ, data, pBuffer_p->m_pbBuffer);
 
     pPacket->length = pBuffer_p->m_uiTxMsgLen;
-#ifdef EDRV_TIME_TRIG_TX
+#if EDRV_TIME_TRIG_TX != FALSE
     if( (pBuffer_p->m_dwTimeOffsetAbsTk & 1) == 1)
     {
         //free tx descriptors available
@@ -896,7 +904,7 @@ unsigned long       ulTxLength;
 #endif
         ulTxLength = omethTransmitArg(EdrvInstance_l.m_hOpenMac, pPacket,
                             EdrvCbSendAck, pBuffer_p);
-#ifdef EDRV_TIME_TRIG_TX
+#if EDRV_TIME_TRIG_TX != FALSE
     }
 #endif
 
@@ -961,7 +969,7 @@ unsigned int    uiIndex;
 unsigned int    uiEntry;
 
     if (((uiCount_p != 0) && (pFilter_p == NULL))
-        || (uiCount_p >= EDRV_MAX_AUTO_RESPONSES))
+        || (uiCount_p >= EDRV_MAX_FILTERS))
     {
         Ret = kEplEdrvInvalidParam;
         goto Exit;
@@ -991,7 +999,7 @@ unsigned int    uiEntry;
                                        uiIndex,
                                        pFilter_p[uiEntry].m_abFilterMask[uiIndex]);
             }
-
+#if EDRV_MAX_AUTO_RESPONSES > 0
             // set auto response
             if (pFilter_p[uiEntry].m_pTxBuffer != NULL)
             {
@@ -1029,6 +1037,7 @@ unsigned int    uiEntry;
                 }
 #endif
             }
+#endif
 
             if (pFilter_p[uiEntry].m_fEnable != FALSE)
             {   // enable the filter
@@ -1245,10 +1254,6 @@ static void EdrvIrqHandler (void* pArg_p
         )
 {
 
-#ifdef CPU_UTIL
-    isrcall_cpuutil();
-#endif
-
 #if EDRV_DMA_OBSERVER != 0
     WORD uwObserverVal = EDRV_RD16(EDRV_DOB_BASE, 0);
     //read DMA observer feature
@@ -1270,7 +1275,7 @@ static void EdrvIrqHandler (void* pArg_p
         BENCHMARK_MOD_01_RESET(1);
     }
 
-#if (defined(EDRV_2NDTXQUEUE) && defined(EDRV_TIME_TRIG_TX))
+#if (defined(EDRV_2NDTXQUEUE) && (EDRV_TIME_TRIG_TX != FALSE))
     //observe additional TX queue and send packet if necessary
     while( (EdrvInstance_l.m_iTxQueueWr - EdrvInstance_l.m_iTxQueueRd) &&
         (omethTransmitPending(EdrvInstance_l.m_hOpenMac) < 16U) )
@@ -1360,7 +1365,9 @@ static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long ti
 static int EdrvRxHook(void *arg, ometh_packet_typ  *pPacket, OMETH_BUF_FREE_FCT  *pFct)
 {
 tEdrvRxBuffer       rxBuffer;
+#if EDRV_MAX_AUTO_RESPONSES > 0
 unsigned int        uiIndex;
+#endif
 tEplTgtTimeStamp    TimeStamp;
 
     rxBuffer.m_BufferInFrame = kEdrvBufferLastInFrame;
@@ -1378,7 +1385,7 @@ tEplTgtTimeStamp    TimeStamp;
 #endif
 
     EdrvInstance_l.m_InitParam.m_pfnRxHandler(&rxBuffer); //pass frame to Powerlink Stack
-
+#if EDRV_MAX_AUTO_RESPONSES > 0
     uiIndex = (unsigned int) arg;
 
     if (EdrvInstance_l.m_apTxBuffer[uiIndex] != NULL)
@@ -1391,6 +1398,7 @@ tEplTgtTimeStamp    TimeStamp;
         }
         BENCHMARK_MOD_01_RESET(5);
     }
+#endif
 
     return 0;
 }

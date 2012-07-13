@@ -523,10 +523,6 @@ static void EplTimerHighReskInterruptHandler (void* pArg_p
 
     BENCHMARK_MOD_24_SET(4);
 
-#ifdef CPU_UTIL
-    isrcall_cpuutil();
-#endif
-
     EplTimerHighReskSetCompareValue(0);
     EplTimerHighReskCompareInterruptDisable();
 
