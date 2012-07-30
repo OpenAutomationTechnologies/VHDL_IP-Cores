@@ -48,6 +48,7 @@
 -- 2011-07-26  	V0.01	zelenkaj    First version
 -- 2011-11-29	V0.02	zelenkaj	omitted out reset
 -- 2011-12-12	V0.03	zelenkaj	reduced to one FF
+-- 2012-07-30   V0.04   zelenkaj    reverted to two FFs to reduce glitch
 --
 -------------------------------------------------------------------------------
 
@@ -68,17 +69,18 @@ ENTITY edgeDet IS
 END ENTITY edgeDet;
 
 ARCHITECTURE rtl OF edgeDet IS
-	signal RegDin : std_logic;
+	signal RegDin, RegDinL : std_logic;
 BEGIN
 	
-	any <= RegDin xor din;
-	falling <= RegDin and not din;
-	rising <= not RegDin and din;
+	any <= RegDinL xor RegDin;
+	falling <= RegDinL and not RegDin;
+	rising <= not RegDinL and RegDin;
 	
 	process(clk)
 	begin
 		if rising_edge(clk) then
-			RegDin <= din after 10 ns;
+			RegDin <= din;
+            RegDinL <= RegDin;
 		end if;
 	end process;
 	

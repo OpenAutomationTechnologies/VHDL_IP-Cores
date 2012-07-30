@@ -54,8 +54,7 @@ USE ieee.std_logic_unsigned.all;
 entity pdi_par is
 	generic (
 		papDataWidth_g				:		integer := 8;
-		--16bit data is big endian if true
-		papBigEnd_g					:		boolean := false;
+		papBigEnd_g					:		boolean := false; --deprecated
 		papGenIoBuf_g				:		boolean := true
 	);
 			
@@ -109,6 +108,12 @@ architecture rtl of pdi_par is
 	--data tri state buffer
 	signal pap_doe_s					:		std_logic;
 	signal tsb_cnt, tsb_cnt_next		:		std_logic_vector(1 downto 0);
+	
+	signal ap_address_write, ap_address_write_l : std_logic_vector(ap_address'range);
+	signal ap_byteenable_write, ap_byteenable_write_l : std_logic_vector(ap_byteenable'range);
+	signal ap_address_read : std_logic_vector(ap_address'range);
+	signal ap_byteenable_read : std_logic_vector(ap_byteenable'range);
+    
 begin
 	
 	--reserved for further features not yet defined
@@ -133,26 +138,54 @@ begin
 	pap_data_T <= not pap_doe_s; --'1' = In, '0' = Out
 	
 	-- write data register
-	-- latches data at falling edge of pap_wr if pap_cs is set
+	-- latches data at falling edge of pap_wr
 	theWrDataReg : process(pap_wr, ap_reset)
 	begin
 		if ap_reset = '1' then
 			writeRegister <= (others => '0');
 		elsif pap_wr = '0' and pap_wr'event then
-			if pap_cs = '1' then
 				if papGenIoBuf_g then
 					writeRegister <= pap_data;
 				else
 					writeRegister <= pap_data_I;
 				end if;
-			end if;
 		end if;
 	end process;
 	--
 	-------------------------------------------------------------------------------------
+    
+    -------------------------------------------------------------------------------------
+    -- store addr and be for write access
+    -- note: this reduces the address hold time to zero
+	--
+	addrStore : process(ap_clk, ap_reset)
+	begin
+		if ap_reset = '1' then
+			ap_address_write_l <= (others => '0');
+			ap_byteenable_write_l <= (others => '0');
+			ap_address_write <= (others => '0');
+			ap_byteenable_write <= (others => '0');
+		elsif ap_clk = '1' and ap_clk'event then
+			if pap_cs_s = '1' then
+				ap_address_write_l <= pap_addr_s(ap_address'left+2 downto 2);
+				ap_byteenable_write_l <= ap_byteenable_s;
+			end if;
+			ap_address_write <= ap_address_write_l;
+			ap_byteenable_write <= ap_byteenable_write_l;
+		end if;
+	end process;
 	
-	ap_address <= pap_addr_s(ap_address'left+2 downto 2);
+	ap_address_read <= pap_addr_s(ap_address'left+2 downto 2);
+	ap_byteenable_read <= ap_byteenable_s;
 	
+	ap_address <= 	ap_address_write when ap_write_s = '1' else
+						ap_address_read;
+	
+	ap_byteenable <= ap_byteenable_write when ap_write_s = '1' else
+						ap_byteenable_read;
+    --
+    -------------------------------------------------------------------------------------
+    
 	-------------------------------------------------------------------------------------
 	-- generate write and read strobes and chipselect
 	-- note: pap_cs_s is already and'd with pap_rd_s and pap_wr_s
@@ -170,9 +203,9 @@ begin
 	ap_write <= ap_write_s;
 	
 	--use the timeout counter highest bit
-	ap_read <= pap_rd_s;
+	ap_read <= pap_rd_s and not ap_write_s;
 	
-	ap_chipselect <= pap_cs_s;
+	ap_chipselect <= (pap_cs_s and pap_rd_s) or ap_write_s;
 	--
 	-------------------------------------------------------------------------------------
 	
@@ -206,19 +239,11 @@ begin
 	-- generate 8 or 16 bit signals
 	gen8bitSigs : if papDataWidth_g = 8 generate
 		
-		ap_byteenable_s <= 	--little endian
-							"0001" when pap_addr_s(1 downto 0) = "00" and papBigEnd_g = false else
-							"0010" when pap_addr_s(1 downto 0) = "01" and papBigEnd_g = false else
-							"0100" when pap_addr_s(1 downto 0) = "10" and papBigEnd_g = false else
-							"1000" when pap_addr_s(1 downto 0) = "11" and papBigEnd_g = false else
-							--big endian
-							"0001" when pap_addr_s(1 downto 0) = "11" and papBigEnd_g = true else
-							"0010" when pap_addr_s(1 downto 0) = "10" and papBigEnd_g = true else
-							"0100" when pap_addr_s(1 downto 0) = "01" and papBigEnd_g = true else
-							"1000" when pap_addr_s(1 downto 0) = "00" and papBigEnd_g = true else
+		ap_byteenable_s <= 	"0001" when pap_addr_s(1 downto 0) = "00" else
+							"0010" when pap_addr_s(1 downto 0) = "01" else
+							"0100" when pap_addr_s(1 downto 0) = "10" else
+							"1000" when pap_addr_s(1 downto 0) = "11" else
 							(others => '0');
-		
-		ap_byteenable <= 	ap_byteenable_s;
 		
 		ap_writedata <=		pap_wrdata_s & pap_wrdata_s & pap_wrdata_s & pap_wrdata_s;
 		
@@ -232,26 +257,16 @@ begin
 	
 	genBeSigs16bit : if papDataWidth_g = 16 generate
 		
-		ap_byteenable_s <=	--little endian
-							"0001" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "01" and papBigEnd_g = false else
-							"0010" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "10" and papBigEnd_g = false else
-							"0011" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "11" and papBigEnd_g = false else
-							"0100" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "01" and papBigEnd_g = false else
-							"1000" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "10" and papBigEnd_g = false else
-							"1100" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "11" and papBigEnd_g = false else
-							--big endian
-							"0001" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "10" and papBigEnd_g = true else
-							"0010" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "01" and papBigEnd_g = true else
-							"0011" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "00" and papBigEnd_g = true else
-							"0100" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "10" and papBigEnd_g = true else
-							"1000" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "01" and papBigEnd_g = true else
-							"1100" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "00" and papBigEnd_g = true else
+		ap_byteenable_s <=	"0001" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "01" else
+							"0010" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "10" else
+							"0011" when pap_addr_s(1 downto 1) = "0" and pap_be_s = "11" else
+							"0100" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "01" else
+							"1000" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "10" else
+							"1100" when pap_addr_s(1 downto 1) = "1" and pap_be_s = "11" else
 							(others => '0');
 		
-		ap_byteenable <= 	ap_byteenable_s;
-		
-		pap_wrdata_ss <=	pap_wrdata_s when papBigEnd_g = false else
-							pap_wrdata_s(7 downto 0) & pap_wrdata_s(15 downto 8);
+--		ap_byteenable <= 	ap_byteenable_s;
+		pap_wrdata_ss <=	pap_wrdata_s;
 		
 		ap_writedata <=		pap_wrdata_ss & pap_wrdata_ss;
 		
@@ -263,8 +278,7 @@ begin
 							ap_readdata(31 downto 16) when ap_byteenable_s = "1100" else
 							(others => '0');
 		
-		pap_rddata_s <=		pap_rddata_ss when papBigEnd_g = false else
-							pap_rddata_ss(7 downto 0) & pap_rddata_ss(15 downto 8);
+		pap_rddata_s <=		pap_rddata_ss;
 		
 	end generate genBeSigs16bit;
 	--
@@ -331,7 +345,7 @@ begin
 				clk => ap_clk,
 				rst => ap_reset
 			);
-		pap_wr_s <= pap_wr_tmp and pap_cs_tmp;
+        pap_wr_s <= pap_wr_tmp;
 		
 	end block;
 	--

@@ -8,7 +8,7 @@ use ieee.std_logic_arith.all;
 entity pdi_par_tb is
 	-- Generic declarations of the tested unit
 		generic(
-		papDataWidth_g : INTEGER := 8;
+		papDataWidth_g : INTEGER := 16;
 		papBigEnd_g : BOOLEAN := false );
 end pdi_par_tb;
 
@@ -59,6 +59,70 @@ architecture TB_ARCHITECTURE of pdi_par_tb is
 	signal ap_writedata : STD_LOGIC_VECTOR(31 downto 0);
 
 	-- Add your code here ...
+    --timing constants
+    constant cTper : time := 20 ns; --reference clock
+    constant cTsc : time := 0 ns; --cs to wr/rd
+    constant cTpwr : time := 20 ns; --wr pulse
+    constant cTsd : time := 10 ns; --data setupt
+    constant cThd : time := 10 ns; --data hold
+    constant cTiwr : time := 20 ns; --idle after write
+    constant cTaa : time := 60 ns; --address to read access
+    constant cToha : time := 20 ns; --output hold
+    constant cThc : time := 0 ns; --chipselect hold
+    constant cTird : time := 40 ns; --idle after read
+    
+    procedure doAccess
+    (
+        accType : in string;
+        accAddr : in integer;
+        accData : in integer;
+        signal cs : out std_logic;
+        signal rd : out std_logic;
+        signal wr : out std_logic;
+        signal be : out std_logic_vector(pap_be'range);
+        signal addr : out std_logic_vector(pap_addr'range);
+        signal data : inout std_logic_vector(pap_data'range)
+    ) is
+        
+    begin
+        if accType = "write" then
+            --write access
+            cs <= '1';
+            wait for cTsc;
+            rd <= '0';
+            wr <= '1';
+            be <= (others => '1');
+            addr <= conv_std_logic_vector(accAddr, pap_addr'length);
+            wait for (cTpwr - cTsd);
+            data <= conv_std_logic_vector(accData, pap_data'length);
+            wait for cTsd;
+            wr <= '0';
+            cs <= '0';
+            be <= (others => '0');
+            addr <= conv_std_logic_vector(16#0#, pap_addr'length);
+            wait for cThd;
+            data <= (others => 'Z');
+            wait for (cTiwr - cThd);
+        else
+            --read access
+            cs <= '1';
+            wait for cTsc;
+            rd <= '1';
+            wr <= '0';
+            be <= (others => '1');
+            addr <= conv_std_logic_vector(accAddr, pap_addr'length);
+            data <= (others => 'Z');
+            wait for cTaa;
+            wait for cTper; --wait one period
+            rd <= '0';
+            be <= (others => '0');
+            addr <= conv_std_logic_vector(16#0#, pap_addr'length);
+            wait for cThc;
+            cs <= '0';
+            wait for (cToha - cThc);
+            wait for (cTird - cToha - cThc);
+        end if;
+    end doAccess;    
 
 begin
 
@@ -96,9 +160,9 @@ begin
 process
 begin
 	ap_clk <= '0';
-	wait for 10 ns;
+	wait for cTper/2;
 	ap_clk <= not ap_clk;
-	wait for 10 ns;
+	wait for cTper/2;
 end process;
 
 process
@@ -124,79 +188,29 @@ begin
 	pap_data <= (others => 'Z');
 	wait until ap_reset = '0';
 	wait for 100 ns;
-	wait until ap_clk = '0' and ap_clk'event;
-	wait for 10 ns;
-	
-	--write
-	pap_cs <= '1';
-	wait for 20 ns;
-	pap_rd <= '0';
-	pap_wr <= '1';
-	pap_be <= (others => '1');
-	pap_addr <= conv_std_logic_vector(16#1234#, pap_addr'length);
-	pap_data <= conv_std_logic_vector(16#A5#, pap_data'length);
-	--pap_data <= (others => 'Z');
-	wait for 20 ns;
-	pap_wr <= '0';
-	wait for 40 ns;
-	
-	pap_cs <= '0';
-	pap_rd <= '0';
-	pap_wr <= '0';
-	pap_be <= (others => '0');
-	pap_addr <= conv_std_logic_vector(16#0#, pap_addr'length);
-	pap_data <= (others => 'Z');
-	wait for 80 ns;
-	
-	--read
-	pap_cs <= '1';
-	pap_rd <= '1';
-	pap_wr <= '0';
-	pap_be <= (others => '1');
-	pap_addr <= conv_std_logic_vector(16#1234#, pap_addr'length);
-	--pap_data <= conv_std_logic_vector(16#A5#, pap_data'length);
-	pap_data <= (others => 'Z');
-	wait for 80 ns;
-	
-	--done
-	pap_cs <= '0';
-	pap_rd <= '0';
-	pap_wr <= '0';
-	pap_be <= (others => '0');
-	pap_addr <= conv_std_logic_vector(16#0#, pap_addr'length);
-	pap_data <= (others => 'Z');
-	wait for 40 ns;
-	
-	--write
-	pap_cs <= '1';
-	pap_rd <= '0';
-	pap_wr <= '1';
-	pap_be <= (others => '1');
-	pap_addr <= conv_std_logic_vector(16#0010#, pap_addr'length);
-	pap_data <= conv_std_logic_vector(16#01#, pap_data'length);
-	--pap_data <= (others => 'Z');
-	wait for 20 ns;
-	pap_wr <= '0';
-	wait for 40 ns;
-	
-	--read
-	pap_cs <= '1';
-	pap_rd <= '1';
-	pap_wr <= '0';
-	pap_be <= (others => '1');
-	pap_addr <= conv_std_logic_vector(16#0020#, pap_addr'length);
-	--pap_data <= conv_std_logic_vector(16#A5#, pap_data'length);
-	pap_data <= (others => 'Z');
-	wait for 80 ns;
-	
-	--done
-	pap_cs <= '0';
-	pap_rd <= '0';
-	pap_wr <= '0';
-	pap_be <= (others => '0');
-	pap_addr <= conv_std_logic_vector(16#0#, pap_addr'length);
-	pap_data <= (others => 'Z');
-	wait for 40 ns;
+	wait until ap_clk = '0' and ap_clk'event; --sync on falling edge
+    
+    doAccess("write", 16#0010#, 16#1234#, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    
+    doAccess("read", 16#0020#, 0, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    
+    doAccess("write", 16#0030#, 16#5678#, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    
+    doAccess("read", 16#0040#, 0, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    
+    wait for 100 ns;
+    
+    doAccess("write", 16#0030#, 16#0101#, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    doAccess("write", 16#0032#, 16#0202#, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    doAccess("write", 16#0034#, 16#0303#, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    doAccess("write", 16#0036#, 16#0404#, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    
+    wait for 100 ns;
+    
+    doAccess("read", 16#0040#, 0, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    doAccess("read", 16#0042#, 0, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    doAccess("read", 16#0044#, 0, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
+    doAccess("read", 16#0046#, 0, pap_cs, pap_rd, pap_wr, pap_be, pap_addr, pap_data);
 	
 	wait;
 end process;
