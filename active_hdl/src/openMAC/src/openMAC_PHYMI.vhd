@@ -39,6 +39,7 @@
 -- 2009-09-07  	V0.02	zelenkaj	Changed tristate port to In/Out and enable (Xilinx XPS doesn't like IO Ports...)
 -- 2009-09-18  	V0.03	zelenkaj	Deleted NodeNr - isn't used by anyone...
 -- 2011-11-28	V0.04	zelenkaj	Changed reset level to high-active
+-- 2012-07-30   V0.05   zelenkaj    Omit internal tbuf
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -56,7 +57,6 @@ ENTITY OpenMAC_MII IS
 			Data_In		: IN	std_logic_vector(15 DOWNTO 0);	
 			Data_Out	: OUT	std_logic_vector(15 DOWNTO 0);	
 			Mii_Clk		: OUT	std_logic;
---			Mii_Dio		: InOut	std_logic;
 			Mii_Di : IN std_logic;
 			Mii_Do : out std_logic;
 			Mii_Doe : out std_logic; --'1' ... Input / '0' ... Output!!!
@@ -79,8 +79,7 @@ BEGIN
 				   ShiftReg(15 DOWNTO 0);
 
 	Mii_Clk		<= iMiiClk;
---	Mii_Dio		<= M_Dout	WHEN M_Oe = '1'	ELSE 'Z';
-	Mii_Do		<= M_Dout	WHEN M_Oe = '1'	ELSE 'Z';
+	Mii_Do		<= M_Dout;
 	Mii_Doe 		<= not M_Oe;
 	
 	nresetout	<= nReset;	
