@@ -210,7 +210,7 @@ proc create_cnapi_header { drv_handle ip_core_mode big_endian async_buf_count} {
     
     set used_bus "AP_USES_PLB_BUS"
 
-    my_xdefine_include_file $drv_handle "cnApiCfg.h" "libCnApi" 1 $ip_core_mode $endianes $used_bus $num_rpdos $num_tpdos $pdi_rev $sys_id $time_sync_hw $async_buf_count
+    my_xdefine_include_file $drv_handle "cnApiCfg.h" "libCnApi" 1 $ip_core_mode $endianes $num_rpdos $num_tpdos $pdi_rev $sys_id $time_sync_hw $async_buf_count
 }
 
 proc my_xdefine_include_file {drv_handle file_name drv_string non_driver args} {
