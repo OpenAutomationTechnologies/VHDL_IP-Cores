@@ -216,7 +216,7 @@ typedef struct _tEdrvInstance
 
     phy_reg_typ*             m_pPhy[EDRV_PHY_NUM];
     BYTE                     m_ubPhyCnt;
-#if EDRV_MAX_AUTO_RESPONSES == 0
+#if EDRV_MAX_AUTO_RESPONSES != 0
     // auto-response Tx buffers
     tEdrvTxBuffer*           m_apTxBuffer[EDRV_MAX_AUTO_RESPONSES];
 #endif
