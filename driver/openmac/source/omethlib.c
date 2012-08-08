@@ -130,7 +130,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                                           supports endian correctly
     11.04.2012  zelenkaj    bugfix      - search for phys starting with addr 1
                                         - added MICREL KSZ8051RNL support
-	21.05.2012  muelhausens bugfix      - phyId on little endian==0 fix
+    21.05.2012  muelhausens bugfix      - phyId on little endian==0 fix
     04.06.2012  zelenkaj    feature     - added omethPhyCfgUser
                                         - moved KSZ8051RNL for BeMicro support to
                                           omethlib_phycfg module

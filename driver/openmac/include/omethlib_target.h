@@ -77,15 +77,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xparameters.h"
 
 #ifndef XPAR_MICROBLAZE_ENDIANNESS
-	#error "XPAR_MICROBLAZE_ENDIANNESS not defined in xparameters.h!"
+    #error "XPAR_MICROBLAZE_ENDIANNESS not defined in xparameters.h!"
 #endif
 
 #if XPAR_MICROBLAZE_ENDIANNESS == 0
-	// Microblaze is big endian (with PLB)
+    // Microblaze is big endian (with PLB)
     #define OMETH_HW_MODE                    1
 #else
-	// Microblaze is little endian (with AXI)
-	#define OMETH_HW_MODE					 0
+    // Microblaze is little endian (with AXI)
+    #define OMETH_HW_MODE                     0
 #endif
     #define OMETH_MAKE_NONCACHABLE(ptr)     (ptr)
 #else
