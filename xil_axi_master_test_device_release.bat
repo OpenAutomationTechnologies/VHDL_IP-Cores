@@ -5,7 +5,7 @@ set ipcore_name=axi_master_test_device
 set activehdl_dir=active_hdl
 set xilinxxps_dir=xilinx_xps
 set docu_dir=
-set release_dir=release\xilinx_xps\ip_core_repo
+set release_dir=release\xilinx_xps\ipcore
 set ipcore_dir=hpmn\pcores\%ipcore_name%_v1_00_a
 
 :: delete directory

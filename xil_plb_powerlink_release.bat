@@ -5,7 +5,7 @@ set ipcore_name=plb_powerlink
 set activehdl_dir=active_hdl
 set xilinxxps_dir=xilinx_xps
 set docu_dir=documentation
-set release_dir=release\xilinx_xps\ip_core_repo
+set release_dir=release\xilinx_xps\ipcore
 set ipcore_dir=powerlink\pcores\%ipcore_name%_v1_00_a
 set txt_dir=txt
 

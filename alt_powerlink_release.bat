@@ -6,7 +6,7 @@ set activehdl_dir=active_hdl
 set alterasopc_dir=altera_qsys
 set docu_dir=documentation
 set release_dir=release\altera_qsys
-set ipcore_dir=POWERLINK
+set ipcore_dir=powerlink
 set txt_dir=txt
 
 :: delete directory
