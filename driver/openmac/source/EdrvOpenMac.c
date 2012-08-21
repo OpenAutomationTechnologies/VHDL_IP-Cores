@@ -70,7 +70,7 @@
 #include "EplInc.h"
 #include "edrv.h"
 #include "Benchmark.h"
-#include "debug.h"
+#include "Debug.h"
 
 #ifdef __NIOS2__
 #include "system.h"     // FPGA system definitions
@@ -858,12 +858,6 @@ tEplKernel EdrvSendTxMsg              (tEdrvTxBuffer * pBuffer_p)
 tEplKernel          Ret = kEplSuccessful;
 ometh_packet_typ*   pPacket = NULL;
 unsigned long       ulTxLength;
-
-    if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_AUTO_RESPONSES)
-    {
-        Ret = kEplEdrvInvalidParam;
-        goto Exit;
-    }
 
     pPacket = GET_TYPE_BASE(ometh_packet_typ, data, pBuffer_p->m_pbBuffer);
 
