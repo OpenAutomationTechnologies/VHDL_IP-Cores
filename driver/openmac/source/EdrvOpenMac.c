@@ -912,7 +912,9 @@ unsigned long       ulTxLength;
         Ret = kEplEdrvNoFreeBufEntry;
     }
 
+#if EDRV_TIME_TRIG_TX != FALSE
 Exit:
+#endif
     if( Ret != kEplSuccessful )
     {
         BENCHMARK_MOD_01_TOGGLE(7);
