@@ -48,6 +48,7 @@ copy %alterasopc_dir%\%ipcore_name%_hw.tcl                          %release_dir
 copy %alterasopc_dir%\*.sdc                                         %release_dir%\%ipcore_dir%\sdc
 copy images\*.*                                                     %release_dir%\%ipcore_dir%\img
 copy %txt_dir%\powerlink_revision.txt                               %release_dir%\%ipcore_dir%
+copy %alterasopc_dir%\*.ipx                                         %release_dir%
 
 ::rename txt
 rename %release_dir%\%ipcore_dir%\powerlink_revision.txt            revision.txt
