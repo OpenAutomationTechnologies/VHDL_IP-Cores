@@ -88,6 +88,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Cn API header files */
 #include "cnApiPdiSpi.h"
 #include "cnApiDebug.h"
+#include "cnApi.h"
 
 /***************************************************************************************
  * LOCAL DEFINES
