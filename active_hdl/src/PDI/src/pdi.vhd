@@ -67,6 +67,7 @@
 -- 2011-11-28	V0.33	zelenkaj	added waitrequest signals
 -- 2011-11-29	V0.34	zelenkaj	event support is optional
 -- 2011-12-20	V0.35	zelenkaj	changed 2xbuf switch source to AP
+-- 2012-08-03   V0.36   zelenkaj    add pcp sys id
 ------------------------------------------------------------------------------------------------------------------------
 
 LIBRARY ieee;
@@ -81,6 +82,7 @@ entity pdi is
 	generic (
 			genOnePdiClkDomain_g		:		boolean := false;
 			iPdiRev_g					:		integer := 0; --for HW/SW match verification (0..65535)
+            pcpSysId                    :       integer := 0; --for HW/SW match verification (0..65535)
 			iRpdos_g					:		integer := 3;
 			iTpdos_g					:		integer := 1;
 			genABuf1_g					:		boolean := true; --if false iABuf1_g must be set to 0!
@@ -199,6 +201,7 @@ constant	dprAddrWidth_c				: integer := integer(ceil(log2(real(dprSize_c))));
 ---other constants
 constant	magicNumber_c				: integer := 16#50435000#;
 constant	pdiRev_c					: integer := iPdiRev_g;
+constant    pcpSysId_c                  : integer := pcpSysId;
 														
 ------------------------------------------------------------------------------------------------------------------------
 --signals
@@ -476,6 +479,7 @@ begin
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
 			pdiRev						=> conv_std_logic_vector(pdiRev_c, 16),
+            pcpSysId				    => conv_std_logic_vector(pcpSysId_c, 16),
 			tPdoBuffer					=> conv_std_logic_vector(extTpdoBuf_c.base, 16) & 
 											conv_std_logic_vector(extTpdoBuf_c.span, 16),
 			rPdo0Buffer					=> conv_std_logic_vector(extRpdo0Buf_c.base, 16) & 
@@ -584,6 +588,7 @@ begin
 			---constant values
 			magicNumber					=> conv_std_logic_vector(magicNumber_c, 32),
 			pdiRev						=> conv_std_logic_vector(pdiRev_c, 16),
+            pcpSysId				    => conv_std_logic_vector(pcpSysId_c, 16),
 			tPdoBuffer					=> conv_std_logic_vector(extTpdoBuf_c.base, 16) & 
 											conv_std_logic_vector(extTpdoBuf_c.span, 16),
 			rPdo0Buffer					=> conv_std_logic_vector(extRpdo0Buf_c.base, 16) & 

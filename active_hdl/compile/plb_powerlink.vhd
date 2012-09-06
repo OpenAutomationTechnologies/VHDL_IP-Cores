@@ -54,6 +54,7 @@
 -- 2012-01-27   V0.20   zelenkaj    Incremented PdiRev
 -- 2012-02-01   V0.21   zelenkaj    Added attributes and RMII clk out
 -- 2012-03-23   V0.22   zelenkaj    fixed to/downto issue
+-- 2012-08-03   V0.23   zelenkaj    add pcp sys id
 --
 -------------------------------------------------------------------------------
 
@@ -102,6 +103,8 @@ entity plb_powerlink is
        C_USE_2ND_PHY : boolean := true;
        C_NUM_SMI : integer range 1 to 2 := 2;
        --pdi
+       C_PDI_REV : integer := 0;
+       C_PCP_SYS_ID : integer := 0;
        C_PDI_GEN_ASYNC_BUF_0 : boolean := true;
        C_PDI_ASYNC_BUF_0 : integer := 50;
        C_PDI_GEN_ASYNC_BUF_1 : boolean := true;
@@ -706,6 +709,7 @@ component powerlink
        papBigEnd_g : boolean := false;
        papDataWidth_g : integer := 8;
        papLowAct_g : boolean := false;
+       pcpSysId : integer := 1;
        pioValLen_g : integer := 50;
        spiBigEnd_g : boolean := false;
        spiCPHA_g : boolean := false;
@@ -1457,7 +1461,7 @@ THE_POWERLINK_IP_CORE : powerlink
        iAsyBuf2Size_g => C_PDI_ASYNC_BUF_1,
        iBufSizeLOG2_g => C_MAC_PKT_SIZE_LOG2,
        iBufSize_g => C_MAC_PKT_SIZE,
-       iPdiRev_g => 2,
+       iPdiRev_g => C_PDI_REV,
        iRpdo0BufSize_g => C_RPDO_0_BUF_SIZE,
        iRpdo1BufSize_g => C_RPDO_1_BUF_SIZE,
        iRpdo2BufSize_g => C_RPDO_2_BUF_SIZE,
@@ -1474,6 +1478,7 @@ THE_POWERLINK_IP_CORE : powerlink
        papBigEnd_g => false,
        papDataWidth_g => C_PAP_DATA_WIDTH,
        papLowAct_g => C_PAP_LOW_ACT,
+       pcpSysId => C_PCP_SYS_ID,
        pioValLen_g => C_PIO_VAL_LENGTH,
        spiBigEnd_g => false,
        spiCPHA_g => C_SPI_CPHA,

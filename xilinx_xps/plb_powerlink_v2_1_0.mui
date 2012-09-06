@@ -46,6 +46,13 @@
 <!DOCTYPE doc SYSTEM "$XILINX_EDK\hw\XilinxProcessorIPLib\pcores\ipdialog.dtd" [
     <!-- -->
     <!-- General -->
+    <!ENTITY C_PLK_CORE_REV '
+    <widget id="C_PLK_CORE_REV">
+        <key>C_PLK_CORE_REV</key>
+        <label>Core Revision</label>
+        <tip><![CDATA[Core Revision is used to find HW/SW mismatch.]]></tip>		
+    </widget>
+    '>	
     <!ENTITY C_IP_CORE_MODE '
     <widget id="C_IP_CORE_MODE">
         <key>C_IP_CORE_MODE</key>
@@ -121,9 +128,16 @@
     '>    
 
     <!-- PDI --> 
-    <!ENTITY C_PDI_REVISION '
-    <widget id="C_PDI_REVISION">
-        <key>C_PDI_REVISION</key>
+    <!ENTITY C_PCP_SYS_ID '
+    <widget id="C_PCP_SYS_ID">
+        <key>C_PCP_SYS_ID</key>
+        <label>PCP SYSTEM ID to verify AP and PCP software</label>
+        <tip><![CDATA[User option to prevent incompatibility between AP software and PCP system.]]></tip>
+    </widget>
+    '>    	
+    <!ENTITY C_PDI_REV '
+    <widget id="C_PDI_REV">
+        <key>C_PDI_REV</key>
         <label>PDI revision number</label>
         <tip><![CDATA[This number is incremented each time the PDI layout changes]]></tip>
     </widget>
@@ -611,6 +625,7 @@
         <display>User</display>
         <group id="General">
             <display>General</display>
+            <item>&C_PLK_CORE_REV;</item>
             <item>&C_IP_CORE_MODE;</item>
         </group>
         <group id="openMAC">
@@ -625,7 +640,8 @@
         </group>
         <group id="PDI">
             <display>PDI</display>
-            <item>&C_PDI_REVISION;</item>
+            <item>&C_PCP_SYS_ID;</item>
+            <item>&C_PDI_REV;</item>
             <item>&C_PDI_NUM_RPDO_USER;</item>
             <item>&C_PDI_RPDO_BUF_SIZE_USER;</item>
             <item>&C_PDI_NUM_TPDO_USER;</item>

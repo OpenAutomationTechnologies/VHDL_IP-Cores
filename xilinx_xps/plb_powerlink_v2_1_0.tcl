@@ -101,10 +101,10 @@ proc generate {drv_handle} {
         puts "POWERLINK IP-Core in Direct IO mode!"
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_SMP_PCP_BASEADDR" "C_SMP_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_SMP_PCP_BASEADDR" "C_SMP_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_SMP_PCP_BASEADDR" "C_SMP_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_SMP_PCP_BASEADDR" "C_SMP_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV"
         }
     } elseif { $ip_core_mode == 1} {
         # PDI with pap
@@ -124,10 +124,10 @@ proc generate {drv_handle} {
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
         }
     } elseif { $ip_core_mode == 3} {
         # PDI with spi
@@ -140,10 +140,10 @@ proc generate {drv_handle} {
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
         }
     } elseif { $ip_core_mode == 4} {
         # PDI with plb interface
@@ -156,20 +156,20 @@ proc generate {drv_handle} {
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PLK_CORE_REV" "C_PDI_REV"
         }
     } elseif { $ip_core_mode == 5} {
         # PDI with pap
         puts "POWERLINK IP-Core in openMAC only mode!"
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_PLK_CORE_REV"
         }
     } else {
          error "Invalid Powerlink IP-Core mode $ip_core_mode!" "" "mdd_error"
@@ -196,10 +196,11 @@ proc create_cnapi_header { drv_handle ip_core_mode big_endian async_buf_count} {
     set num_rpdos "PCP_PDI_RPDO_CHANNELS $num_rpdos"
     set num_tpdos "PCP_PDI_TPDO_CHANNELS $num_tpdos"
     
-    set pdi_rev [xget_param_value $periph "C_PDI_REVISION"]
+    set pdi_rev [xget_param_value $periph "C_PDI_REV"]
     set pdi_rev "PCP_PDI_REVISION $pdi_rev"
-    
-    set sys_id "PCP_FPGA_SYSID_ID 0u"
+
+    set sys_id [xget_param_value $periph "C_PCP_SYS_ID"]
+    set sys_id "PCP_SYSTEM_ID $sys_id"
     
     set time_sync_hw [xget_param_value $periph "C_PDI_GEN_TIME_SYNC"]
     if { $time_sync_hw } {
