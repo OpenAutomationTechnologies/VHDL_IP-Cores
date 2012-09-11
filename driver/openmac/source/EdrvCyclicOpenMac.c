@@ -133,7 +133,9 @@
 #define EDRV_GET_MAC_TIME()            EDRVC_RD32(EDRV_CMP_BASE, 0)
 
 //define to shift timer interrupt before cycle
+#ifndef EDRVCYC_NEG_SHIFT_US
 #define EDRVCYC_NEG_SHIFT_US        100U //us (timer irq before next cycle)
+#endif
 
 #if (EDRVCYC_NEG_SHIFT_US < 50U)
 #error "Set EDRVCYC_NEG_SHIFT larger 50 us!"
