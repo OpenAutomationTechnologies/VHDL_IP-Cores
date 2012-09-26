@@ -64,3 +64,6 @@ Revision History
                         [FEATURE] add macro for placing functions in fast memory
                         [TASK] add PCP SYS ID and IP core revision number
                         [FIX] EDRVCYC_NEG_SHIFT_US can be set in EplCfg.h
+
+??.??.????  V0.2.7      [FIX] Inconsistent PDI memory when DPR larger than 2 kB
+

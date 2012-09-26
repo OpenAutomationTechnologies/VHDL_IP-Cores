@@ -361,7 +361,7 @@ begin
 		q_b				=>		dprOut.ap
 		);
 	
-	pcp_addrRes <= '0' & pcp_address(dprAddrWidth_c-2-1 downto 0) + dpr.pcp.addrOff;
+	pcp_addrRes <= '0' & pcp_address(extLog2MaxOneSpan-2-1 downto 0) + dpr.pcp.addrOff;
 	
 	dpr.pcp	<=	dprCntStReg_s.pcp	when	selCntStReg_s.pcp = '1'	else
 				dprABuf1Tx_s.pcp	when	selABuf1Tx_s.pcp  = '1' else
@@ -375,7 +375,8 @@ begin
 				((others => '0'), (others => '0'), (others => '0'), (others => '0'), '0');
 				
 				
-	ap_addrRes <= '0' & ap_address(dprAddrWidth_c-2-1 downto 0) + dpr.ap.addrOff;
+	
+    ap_addrRes <= '0' & ap_address(extLog2MaxOneSpan-2-1 downto 0) + dpr.ap.addrOff;
 	
 	dpr.ap	<=	dprCntStReg_s.ap	when	selCntStReg_s.ap = '1'	else
 				dprABuf1Tx_s.ap 	when	selABuf1Tx_s.ap   = '1' else
