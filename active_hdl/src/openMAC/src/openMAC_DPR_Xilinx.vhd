@@ -50,7 +50,6 @@ use ieee.std_logic_arith.all;
 entity dc_dpr is
 	generic (
 		WIDTH      	: integer := 16;
-		SIZE       	: integer := 128;
 		ADDRWIDTH  	: integer := 7
 	);
 	
@@ -72,18 +71,8 @@ end dc_dpr;
 
 architecture xilinx of dc_dpr is
 
-  function log2 (val: INTEGER) return natural is
-    variable res : natural;
-  begin
-        for i in 0 to 31 loop
-            if (val <= (2**i)) then
-                res := i;
-                exit;
-            end if;
-        end loop;
-        return res;
-  end function Log2;
-
+  constant SIZE : natural := 2**ADDRWIDTH;
+  
   type ramType is array (0 to SIZE-1) of std_logic_vector(WIDTH-1 downto 0);
   shared variable ram : ramType := (others => (others => '0'));
   
@@ -131,7 +120,6 @@ entity dc_dpr_be is
 	generic (
         gDoInit       : boolean := false; -- if dpr is used in pdi init state field with invalid state
         WIDTH      	  : integer := 16;
-		SIZE       	  : integer := 128;
 		ADDRWIDTH  	  : integer := 7
 	);
 	
@@ -154,18 +142,8 @@ entity dc_dpr_be is
 end dc_dpr_be;
 
 architecture xilinx of dc_dpr_be is
-
-  function log2 (val: INTEGER) return natural is
-    variable res : natural;
-  begin
-        for i in 0 to 31 loop
-            if (val <= (2**i)) then
-                res := i;
-                exit;
-            end if;
-        end loop;
-        return res;
-  end function Log2;
+  
+  constant SIZE : natural := 2**ADDRWIDTH;
   
   type ramType is array (0 to SIZE-1) of std_logic_vector(WIDTH-1 downto 0);
   
@@ -259,7 +237,6 @@ begin
 	generic map (
         gDoInit => false,
 		WIDTH => 16,
-		SIZE => 2**AddrA'length,
 		ADDRWIDTH => AddrA'length
 	)
 	port map (
@@ -304,7 +281,6 @@ begin
 	generic map (
         gDoInit => false,
 		WIDTH => 32,
-		SIZE => 2**AddrB'length,
 		ADDRWIDTH => AddrB'length
 	)
 	port map (
@@ -370,7 +346,6 @@ begin
 	generic map (
         gDoInit => false,
 		WIDTH => 32,
-		SIZE => memSize_g/4,
 		ADDRWIDTH => memSizeLOG2_g-2
 	)
 	port map (

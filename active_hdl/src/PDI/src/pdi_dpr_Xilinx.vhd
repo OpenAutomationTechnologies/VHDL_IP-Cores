@@ -73,7 +73,6 @@ begin
 	generic map (
         gDoInit => true,
         WIDTH => data_a'length,
-		SIZE => NUM_WORDS,
 		ADDRWIDTH => LOG2_NUM_WORDS
 	)
 	port map (

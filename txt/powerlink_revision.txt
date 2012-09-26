@@ -66,4 +66,4 @@ Revision History
                         [FIX] EDRVCYC_NEG_SHIFT_US can be set in EplCfg.h
 
 ??.??.????  V0.2.7      [FIX] Inconsistent PDI memory when DPR larger than 2 kB
-
+                        [FIX] X: BRAM size has to be power of 2
