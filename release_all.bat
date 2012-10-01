@@ -13,6 +13,5 @@ call xil_plb_powerlink_release
 
 :: call driver release
 call driver_openmac_release
-call driver_spi_release
 
 @echo on
