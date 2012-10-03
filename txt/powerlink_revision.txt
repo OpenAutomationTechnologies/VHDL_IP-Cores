@@ -67,3 +67,4 @@ Revision History
 
 ??.??.????  V0.2.7      [FIX] Inconsistent PDI memory when DPR larger than 2 kB
                         [FIX] X: BRAM size has to be power of 2
+                        [FIX] address offset calculator in pdi.vhd uses EXT() function

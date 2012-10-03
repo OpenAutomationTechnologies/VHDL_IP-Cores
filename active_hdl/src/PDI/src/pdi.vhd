@@ -361,7 +361,7 @@ begin
 		q_b				=>		dprOut.ap
 		);
 	
-	pcp_addrRes <= '0' & pcp_address(extLog2MaxOneSpan-2-1 downto 0) + dpr.pcp.addrOff;
+	pcp_addrRes <= EXT('0' & pcp_address(extLog2MaxOneSpan-2-1 downto 0) + dpr.pcp.addrOff, pcp_addrRes'length);
 	
 	dpr.pcp	<=	dprCntStReg_s.pcp	when	selCntStReg_s.pcp = '1'	else
 				dprABuf1Tx_s.pcp	when	selABuf1Tx_s.pcp  = '1' else
@@ -376,7 +376,7 @@ begin
 				
 				
 	
-    ap_addrRes <= '0' & ap_address(extLog2MaxOneSpan-2-1 downto 0) + dpr.ap.addrOff;
+    ap_addrRes <= EXT('0' & ap_address(extLog2MaxOneSpan-2-1 downto 0) + dpr.ap.addrOff, ap_addrRes'length);
 	
 	dpr.ap	<=	dprCntStReg_s.ap	when	selCntStReg_s.ap = '1'	else
 				dprABuf1Tx_s.ap 	when	selABuf1Tx_s.ap   = '1' else
