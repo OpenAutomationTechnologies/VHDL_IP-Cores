@@ -2535,7 +2535,8 @@ int                omethDestroy
         freePtr(hEth->pRxBufBase);    // free allocated rx-buffers
     }
     freePtr(hEth->pRxInfo);        // free rx/tx info list
-    freePtr(hEth->pTxInfo);
+    freePtr(hEth->pTxInfo[0]);
+    freePtr(hEth->pTxInfo[1]);
     freePtr(hEth);                // free instance
 
     return 0;
