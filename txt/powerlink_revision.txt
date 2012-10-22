@@ -69,3 +69,4 @@ Revision History
                         [FIX] X: BRAM size has to be power of 2
                         [FIX] address offset calculator in pdi.vhd uses EXT() function
                         [FIX] Memory leak in omethlib
+                        [FIX] timesync hang when using windows MN
