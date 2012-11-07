@@ -136,6 +136,7 @@ begin
         variable vLine : line;
         variable vReadString : string(1 to 50);
         variable vDone : boolean := false;
+        variable vDoJmp : std_logic;
     begin
         if rst = cActivated then
             fsm <= idle;
@@ -194,9 +195,21 @@ begin
                 elsif fsm = jmpEq then
                     if iAck = cActivated then
                         fsm <= jmpEq_wait;
-                        if stimData(stimData'left downto stimData'left-(gDataWidth-1)) = iReaddata then
+                        vDoJmp := cActivated;
+                        for i in iReaddata'range loop
+                            if byteenable(i/8) = cActivated then
+                                if stimData(i) = iReaddata(i) then
+                                    vDoJmp := vDoJmp and cActivated;
+                                else
+                                    vDoJmp := vDoJmp and cnActivated;
+                                end if;
+                            end if;
+                        end loop;
+                        
+                        if vDoJmp = cActivated then
                             fsm <= idle;
                         end if;
+                        
                     end if;
                 elsif fsm = jmpEq_wait then
                     fsm <= jmpEq;

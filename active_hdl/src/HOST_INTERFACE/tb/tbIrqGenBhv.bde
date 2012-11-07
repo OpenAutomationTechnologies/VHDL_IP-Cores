@@ -1,0 +1,1159 @@
+SCHM0103
+
+HEADER
+{
+ FREEID 386
+ VARIABLES
+ {
+  #ARCHITECTURE="Bhv"
+  #ENTITY="tbIrqGen"
+  #LANGUAGE="VHDL"
+  AUTHOR="ATSALZ137"
+  COMPANY="Bernecker + Rainer"
+  CREATIONDATE="9/17/2012"
+  PAGECOUNT="1"
+  TITLE="tbIrqGenBhv"
+ }
+ SYMBOL "#default" "irqGen" "irqGen"
+ {
+  HEADER
+  {
+   VARIABLES
+   {
+    #DESCRIPTION=""
+    #GENERIC0="gIrqSourceCount:NATURAL:=3"
+    #HDL_ENTRIES=
+"library STD,IEEE;\n"+
+"use STD.STANDARD.all,ieee.std_logic_1164.all;"
+    #LANGUAGE="VHDL"
+    #MODIFIED="1347880435"
+   }
+  }
+  PAGE "" 
+  {
+   PAGEHEADER
+   {
+    RECT (0,-20,400,340)
+    FREEID 20
+   }
+   
+   BODY
+   {
+    RECT  1, -1, 0
+    {
+     VARIABLES
+     {
+      #OUTLINE_FILLING="1"
+     }
+     AREA (20,0,380,320)
+    }
+    TEXT  3, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,30,58,54)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 2
+    }
+    TEXT  5, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (339,30,375,54)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 4
+    }
+    TEXT  7, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,70,60,94)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 6
+    }
+    TEXT  9, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (96,70,375,94)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 8
+    }
+    TEXT  11, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,110,73,134)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 10
+    }
+    TEXT  13, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,150,288,174)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 12
+    }
+    TEXT  15, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,190,170,214)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 14
+    }
+    TEXT  17, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,230,347,254)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 16
+    }
+    TEXT  19, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,270,341,294)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 18
+    }
+    PIN  2, 0, 0
+    {
+     COORD (0,40)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iClk"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  4, 0, 0
+    {
+     COORD (400,40)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="oIrq"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  6, 0, 0
+    {
+     COORD (0,80)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iRst"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  8, 0, 0
+    {
+     COORD (400,80)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="oIrgPending(gIrqSourceCount:0)"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  10, 0, 0
+    {
+     COORD (0,120)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iSync"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  12, 0, 0
+    {
+     COORD (0,160)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iIrqSource(gIrqSourceCount:1)"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  14, 0, 0
+    {
+     COORD (0,200)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iIrqMasterEnable"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  16, 0, 0
+    {
+     COORD (0,240)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iIrqSourceEnable(gIrqSourceCount:0)"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  18, 0, 0
+    {
+     COORD (0,280)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iIrqAcknowledge(gIrqSourceCount:0)"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+   }
+  }
+ }
+ SYMBOL "#default" "clkgen" "clkgen"
+ {
+  HEADER
+  {
+   VARIABLES
+   {
+    #DESCRIPTION=""
+    #GENERIC0="gPeriod:TIME:=20 ns"
+    #HDL_ENTRIES=
+"library STD,IEEE;\n"+
+"use STD.STANDARD.all,ieee.std_logic_1164.all;"
+    #LANGUAGE="VHDL"
+    #MODIFIED="1332148104"
+   }
+  }
+  PAGE "" 
+  {
+   PAGEHEADER
+   {
+    RECT (0,-20,160,140)
+    FREEID 12
+   }
+   
+   BODY
+   {
+    RECT  1, -1, 0
+    {
+     VARIABLES
+     {
+      #OUTLINE_FILLING="1"
+     }
+     AREA (20,0,140,120)
+    }
+    TEXT  9, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (95,70,135,94)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 8
+    }
+    TEXT  11, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,50,77,74)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 10
+    }
+    PIN  8, 0, 0
+    {
+     COORD (160,80)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="oClk"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (-20,0) )
+     }
+    }
+    PIN  10, 0, 0
+    {
+     COORD (0,60)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iDone"
+      #NUMBER="0"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+   }
+  }
+ }
+ SYMBOL "#default" "enableGen" "enableGen"
+ {
+  HEADER
+  {
+   VARIABLES
+   {
+    #DESCRIPTION=""
+    #GENERIC0="gEnableDelay:TIME:=100 ns"
+    #HDL_ENTRIES=
+"library STD,IEEE;\n"+
+"use STD.STANDARD.all,ieee.std_logic_1164.all;"
+    #LANGUAGE="VHDL"
+    #MODIFIED="1332143967"
+   }
+  }
+  PAGE "" 
+  {
+   PAGEHEADER
+   {
+    RECT (0,0,200,120)
+    FREEID 8
+   }
+   
+   BODY
+   {
+    RECT  1, -1, 0
+    {
+     VARIABLES
+     {
+      #OUTLINE_FILLING="1"
+     }
+     AREA (20,0,180,120)
+    }
+    TEXT  3, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,30,82,54)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 2
+    }
+    TEXT  5, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (103,30,175,54)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 4
+    }
+    TEXT  7, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (93,70,175,94)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 6
+    }
+    PIN  2, 0, 0
+    {
+     COORD (0,40)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iReset"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  4, 0, 0
+    {
+     COORD (200,40)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="oEnable"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  6, 0, 0
+    {
+     COORD (200,80)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="onEnable"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+   }
+  }
+ }
+}
+
+PAGE ""
+{
+ PAGEHEADER
+ {
+  PAGESIZE (4400,3400)
+  MARGINS (200,200,200,200)
+  RECT (0,0,0,0)
+ }
+ 
+ BODY
+ {
+  INSTANCE  1, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="irqGen"
+    #GENERIC0="gIrqSourceCount : NATURAL := cIrqSourceCount"
+    #LIBRARY="#default"
+    #NO_CONF="1"
+    #PRAGMED_GENERICS=""
+    #REFERENCE="DUT"
+    #SYMBOL="irqGen"
+   }
+   COORD (1520,840)
+   VERTEXES ( (2,285), (4,323), (6,287), (8,325), (10,289), (12,291), (14,293), (16,297), (18,295) )
+   PINPROP 8,"#PIN_STATE","0"
+  }
+  TEXT  2, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (1520,784,1583,819)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 1
+  }
+  TEXT  6, 0, 0
+  {
+   TEXT "$#COMPONENT"
+   RECT (1520,1180,1610,1215)
+   MARGINS (1,1)
+   PARENT 1
+  }
+  INSTANCE  10, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="clkgen"
+    #LIBRARY="#default"
+    #REFERENCE="U1"
+    #SYMBOL="clkgen"
+   }
+   COORD (440,400)
+   VERTEXES ( (10,98), (8,108) )
+   PINPROP 8,"#PIN_STATE","0"
+  }
+  TEXT  11, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (440,344,479,379)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 10
+  }
+  TEXT  15, 0, 0
+  {
+   TEXT "$#COMPONENT"
+   RECT (440,540,526,575)
+   MARGINS (1,1)
+   PARENT 10
+  }
+  INSTANCE  19, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="enableGen"
+    #LIBRARY="#default"
+    #REFERENCE="U2"
+    #SYMBOL="enableGen"
+   }
+   COORD (440,700)
+   VERTEXES ( (2,33), (6,40) )
+   PINPROP 6,"#PIN_STATE","0"
+  }
+  TEXT  20, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (440,664,479,699)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 19
+  }
+  TEXT  24, 0, 0
+  {
+   TEXT "$#COMPONENT"
+   RECT (440,820,584,855)
+   MARGINS (1,1)
+   PARENT 19
+  }
+  INSTANCE  28, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Ground"
+    #LIBRARY="#connectors"
+    #REFERENCE="GND"
+    #SYMBOL="Ground"
+   }
+   COORD (340,780)
+   VERTEXES ( (2,34) )
+  }
+  TEXT  29, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (362,793,429,828)
+   ALIGN 4
+   MARGINS (1,1)
+   PARENT 28
+  }
+  VTX  33, 0, 0
+  {
+   COORD (440,740)
+  }
+  VTX  34, 0, 0
+  {
+   COORD (340,780)
+  }
+  VTX  36, 0, 0
+  {
+   COORD (340,740)
+  }
+  WIRE  37, 0, 0
+  {
+   NET 39
+   VTX 33, 36
+  }
+  WIRE  38, 0, 0
+  {
+   NET 39
+   VTX 36, 34
+  }
+  NET WIRE  39, 0, 0
+  VTX  40, 0, 0
+  {
+   COORD (640,780)
+  }
+  VTX  41, 0, 0
+  {
+   COORD (840,780)
+  }
+  WIRE  43, 0, 0
+  {
+   NET 122
+   VTX 40, 41
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  TEXT  46, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (726,750,755,779)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 43
+  }
+  VTX  98, 0, 0
+  {
+   COORD (440,460)
+  }
+  VTX  99, 0, 0
+  {
+   COORD (280,460)
+  }
+  WIRE  101, 0, 0
+  {
+   NET 103
+   VTX 98, 99
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  103, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="done"
+   }
+  }
+  TEXT  104, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (332,430,388,459)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 101
+  }
+  VTX  108, 0, 0
+  {
+   COORD (600,480)
+  }
+  VTX  109, 0, 0
+  {
+   COORD (860,480)
+  }
+  WIRE  111, 0, 0
+  {
+   NET 113
+   VTX 108, 109
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  113, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="clk"
+   }
+  }
+  TEXT  114, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (714,450,746,479)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 111
+  }
+  TEXT  118, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1274,850,1306,879)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 298
+  }
+  NET WIRE  122, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="rst"
+   }
+  }
+  TEXT  123, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1276,890,1305,919)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 299
+  }
+  SIGNALASSIGN  127, 0, 0
+  {
+   LABEL "SignalAssignments_1"
+   TEXT 
+"process(clk)\n"+
+"begin\n"+
+"\n"+
+"\tif rising_edge(clk) then\n"+
+"\n"+
+"\t\tif rst = cActivated then\n"+
+"\t\t\tcounter <= (others => cInactivated);\n"+
+"\t\t\tstateCounter <= (others => cInactivated);\n"+
+"\t\telse\n"+
+"\t\t\tcounter <= std_logic_vector(\n"+
+"\t\t\t\tunsigned(counter) + 1);\n"+
+"\n"+
+"\t\t\tif counter(cCounterSel) = cActivated then\n"+
+"\t\t\t\tstateCounter <= std_logic_vector(\n"+
+"\t\t\t\t\tunsigned(stateCounter) + 1);\n"+
+"\t\t\t\tcounter <= (others => cInactivated);\n"+
+"\t\t\tend if;\n"+
+"\t\tend if;\n"+
+"\n"+
+"\tend if;\n"+
+"\n"+
+"end process;"
+   RECT (2480,2300,3480,3160)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   CORNER 10
+  }
+  NET BUS  132, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="counter(7:0)"
+   }
+  }
+  TEXT  133, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (3684,2570,3816,2599)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 382
+  }
+  TEXT  138, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1174,930,1406,959)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 300
+  }
+  TEXT  148, 0, 0
+  {
+   TEXT "@GENERIC_ACTUAL_VALUES()"
+   RECT (1520,1216,2005,1249)
+   PARENT 1
+  }
+  ARCHITECTUREDECLARATIONS  152, 0, 0
+  {
+   LABEL "Architecture declarations"
+   TEXT 
+"constant cCounterSel : natural := 4;\n"+
+"constant cIrqSourceCount : natural := 4;"
+   RECT (1260,220,2760,540)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   CORNER 10
+  }
+  TEXT  154, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1129,970,1451,999)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 301
+  }
+  NET BUS  158, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="irqSource(cIrqSourceCount:1)"
+   }
+  }
+  NET WIRE  159, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="irqMasterEnable"
+   }
+  }
+  TEXT  160, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1202,1010,1379,1039)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 302
+  }
+  NET BUS  164, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="irqSourceEnable(cIrqSourceCount:0)"
+   }
+  }
+  TEXT  165, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1091,1050,1489,1079)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 304
+  }
+  TEXT  170, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1148,1090,1433,1119)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 303
+  }
+  TEXT  175, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1962,890,2298,919)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 328
+  }
+  VTX  284, 0, 0
+  {
+   COORD (1060,880)
+  }
+  VTX  285, 0, 0
+  {
+   COORD (1520,880)
+  }
+  VTX  286, 0, 0
+  {
+   COORD (1060,920)
+  }
+  VTX  287, 0, 0
+  {
+   COORD (1520,920)
+  }
+  VTX  288, 0, 0
+  {
+   COORD (1060,960)
+  }
+  VTX  289, 0, 0
+  {
+   COORD (1520,960)
+  }
+  VTX  290, 0, 0
+  {
+   COORD (1060,1000)
+  }
+  VTX  291, 0, 0
+  {
+   COORD (1520,1000)
+  }
+  VTX  292, 0, 0
+  {
+   COORD (1060,1040)
+  }
+  VTX  293, 0, 0
+  {
+   COORD (1520,1040)
+  }
+  VTX  294, 0, 0
+  {
+   COORD (1060,1120)
+  }
+  VTX  295, 0, 0
+  {
+   COORD (1520,1120)
+  }
+  VTX  296, 0, 0
+  {
+   COORD (1060,1080)
+  }
+  VTX  297, 0, 0
+  {
+   COORD (1520,1080)
+  }
+  WIRE  298, 0, 0
+  {
+   NET 113
+   VTX 284, 285
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  299, 0, 0
+  {
+   NET 122
+   VTX 286, 287
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  300, 0, 0
+  {
+   NET 349
+   VTX 288, 289
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  301, 0, 0
+  {
+   NET 158
+   VTX 290, 291
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  WIRE  302, 0, 0
+  {
+   NET 159
+   VTX 292, 293
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  303, 0, 0
+  {
+   NET 384
+   VTX 294, 295
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  304, 0, 0
+  {
+   NET 164
+   VTX 296, 297
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  323, 0, 0
+  {
+   COORD (1920,880)
+  }
+  VTX  324, 0, 0
+  {
+   COORD (2340,880)
+  }
+  VTX  325, 0, 0
+  {
+   COORD (1920,920)
+  }
+  VTX  326, 0, 0
+  {
+   COORD (2340,920)
+  }
+  WIRE  327, 0, 0
+  {
+   NET 329
+   VTX 323, 324
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  328, 0, 0
+  {
+   NET 385
+   VTX 325, 326
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  329, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="irq"
+   }
+  }
+  TEXT  330, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (2116,850,2145,879)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 327
+  }
+  NET WIRE  349, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="counter(cCounterSel)"
+   }
+  }
+  NET BUS  354, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="stateCounter(31:0)"
+   }
+  }
+  TEXT  355, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (3649,2630,3851,2659)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 383
+  }
+  SIGNALASSIGN  365, 0, 0
+  {
+   LABEL "SignalAssignments_2"
+   TEXT 
+"--\n"+
+"done <= cActivated when unsigned (stateCounter) > 40 else \n"+
+"\t\t\tcInactivated;\n"+
+"\n"+
+"--\n"+
+"irqMasterEnable <= cActivated when (unsigned(stateCounter) > 1 and\n"+
+"\t\t\t\t\t\t\t\t\t\t\t\tunsigned(statecounter) < 30) else\n"+
+"\t\t\t\t\t\tcInactivated;\n"+
+"\n"+
+"--\n"+
+"irqSourceEnable <= \"11110\" when (unsigned(stateCounter) > 1 and\n"+
+"\t\t\t\t\t\t\t\t\t\t\t\tunsigned(statecounter) < 15) else\n"+
+"\t\t\t\t\t\t\"00001\" when (unsigned(stateCounter) > 15 and\n"+
+"\t\t\t\t\t\t\t\t\t\t\t\tunsigned(stateCounter) < 28) else\n"+
+"\t\t\t\t\t\t\"00000\";\n"+
+"\n"+
+"--\n"+
+"irqSource <= \"0001\" when (unsigned(stateCounter) = 3 and\n"+
+"\t\t\t\t\t\t\t\t\t\t\t\tunsigned(counter) = 4) else\n"+
+"\t\t\t\t\"0101\" when (unsigned(stateCounter) = 6 and\n"+
+"\t\t\t\t\t\t\t\t\t\t\t\tunsigned(counter) = 4) else\n"+
+"\t\t\t\t\"1000\" when (unsigned(stateCounter) = 20 and unsigned(counter) = 4) else\n"+
+"\t\t\t\t\t\t\"0000\";\n"+
+"\n"+
+"--\n"+
+"irqAck <= \"00010\" when (unsigned(stateCounter) = 5 and\n"+
+"\t\t\t\t\t\t\t\t\t\t\t\tunsigned(counter) =4) else\n"+
+"\t\t\t\t\"01000\" when (unsigned(stateCounter) = 8 and unsigned(counter) = 4 ) else\n"+
+"\t\t\t\t\"00010\" when (unsigned(stateCounter) = 10 and unsigned(counter) = 4) else\n"+
+"\t\t\t\t\"10001\" when (unsigned(stateCounter) = 25 and unsigned(counter) = 4) else\n"+
+"\t\t\t\t\"00001\" when (unsigned(stateCounter) > 15 and unsigned(stateCounter) < 28 and\n"+
+"\t\t\t\t\t\t\t\t\tunsigned(counter) = 4) else\n"+
+"\t\t\t\t\t\t\"00000\";"
+   RECT (420,1360,2080,3100)
+   MARGINS (20,20)
+   MULTILINE
+   SYNTAXCOLORED
+   SHOWLABEL
+   SHOWTEXT
+   CORNER 10
+  }
+  VTX  378, 0, 0
+  {
+   COORD (3540,2600)
+  }
+  VTX  379, 0, 0
+  {
+   COORD (3960,2600)
+  }
+  VTX  380, 0, 0
+  {
+   COORD (3540,2660)
+  }
+  VTX  381, 0, 0
+  {
+   COORD (3960,2660)
+  }
+  BUS  382, 0, 0
+  {
+   NET 132
+   VTX 378, 379
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  BUS  383, 0, 0
+  {
+   NET 354
+   VTX 380, 381
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET BUS  384, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="irqAck(cIrqSourceCount:0)"
+   }
+  }
+  NET BUS  385, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="irqPending(cIrqSourceCount:0)"
+   }
+  }
+ }
+ 
+}
+
