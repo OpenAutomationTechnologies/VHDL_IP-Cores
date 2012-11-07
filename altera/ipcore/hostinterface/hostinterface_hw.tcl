@@ -64,18 +64,18 @@ set_module_property ALLOW_GREYBOX_GENERATION false
 add_fileset QUARTUS_SYNTH QUARTUS_SYNTH generation_callback ""
 set_fileset_property QUARTUS_SYNTH        TOP_LEVEL hostInterface
 set_fileset_property QUARTUS_SYNTH        ENABLE_RELATIVE_INCLUDE_PATHS false
-add_fileset_file hostInterfacePkg.vhd     VHDL PATH hdl/hostInterfacePkg.vhd
-add_fileset_file hostInterfaceRtl.vhd     VHDL PATH hdl/hostInterfaceRtl.vhd
-add_fileset_file irqGenRtl.vhd            VHDL PATH hdl/irqGenRtl.vhd
-add_fileset_file magicBridgeRtl.vhd       VHDL PATH hdl/magicBridgeRtl.vhd
-add_fileset_file statusControlRegRtl.vhd  VHDL PATH hdl/statusControlRegRtl.vhd
-add_fileset_file addr_decoder.vhd         VHDL PATH hdl/lib/addr_decoder.vhd
-add_fileset_file binaryEncoderRtl.vhd     VHDL PATH hdl/lib/binaryEncoderRtl.vhd
-add_fileset_file edgedet.vhd              VHDL PATH hdl/lib/edgedet.vhd
-add_fileset_file global.vhd               VHDL PATH hdl/lib/global.vhd
-add_fileset_file lutFileRtl.vhd           VHDL PATH hdl/lib/lutFileRtl.vhd
-add_fileset_file registerFileRtl.vhd      VHDL PATH hdl/lib/registerFileRtl.vhd
-add_fileset_file sync.vhd                 VHDL PATH hdl/lib/sync.vhd
+add_fileset_file hostInterfacePkg.vhd     VHDL PATH ../../../common/hostinterface/src/hostInterfacePkg.vhd
+add_fileset_file hostInterfaceRtl.vhd     VHDL PATH ../../../common/hostinterface/src/hostInterfaceRtl.vhd
+add_fileset_file irqGenRtl.vhd            VHDL PATH ../../../common/hostinterface/src/irqGenRtl.vhd
+add_fileset_file magicBridgeRtl.vhd       VHDL PATH ../../../common/hostinterface/src/magicBridgeRtl.vhd
+add_fileset_file statusControlRegRtl.vhd  VHDL PATH ../../../common/hostinterface/src/statusControlRegRtl.vhd
+add_fileset_file addr_decoder.vhd         VHDL PATH ../../../common/lib/src/addr_decoder.vhd
+add_fileset_file binaryEncoderRtl.vhd     VHDL PATH ../../../common/lib/src/binaryEncoderRtl.vhd
+add_fileset_file edgedet.vhd              VHDL PATH ../../../common/lib/src/edgedet.vhd
+add_fileset_file global.vhd               VHDL PATH ../../../common/lib/src/global.vhd
+add_fileset_file lutFileRtl.vhd           VHDL PATH ../../../common/lib/src/lutFileRtl.vhd
+add_fileset_file registerFileRtl.vhd      VHDL PATH ../../../common/lib/src/registerFileRtl.vhd
+add_fileset_file sync.vhd                 VHDL PATH ../../../common/lib/src/sync.vhd
 
 
 # -----------------------------------------------------------------------------

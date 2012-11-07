@@ -8,6 +8,7 @@ set docu_dir=documentation
 set release_dir=release\xilinx_xps\ipcore
 set ipcore_dir=powerlink\pcores\%ipcore_name%_v1_00_a
 set txt_dir=txt
+set common_dir=common
 
 :: delete directory
 del %release_dir%\%ipcore_dir% /S /Q
@@ -21,7 +22,7 @@ mkdir %release_dir%\%ipcore_dir%\data
 mkdir %release_dir%\%ipcore_dir%\doc
 
 :: copy vhdls
-copy %activehdl_dir%\src\lib\src\*.vhd                              %release_dir%\%ipcore_dir%\hdl\vhdl\lib
+copy %common_dir%\lib\src\*.vhd                                     %release_dir%\%ipcore_dir%\hdl\vhdl\lib
 copy %activehdl_dir%\src\openMAC\src\*.vhd                          %release_dir%\%ipcore_dir%\hdl\vhdl
 copy %activehdl_dir%\src\openMAC\src\openMAC_DMAmaster\*.vhd        %release_dir%\%ipcore_dir%\hdl\vhdl\openMAC_DMAmaster
 copy %activehdl_dir%\src\openMAC\src\openMAC_DMAFifo_Xilinx\*.vhd   %release_dir%\%ipcore_dir%\hdl\vhdl\openMAC_DMAFifo_Xilinx

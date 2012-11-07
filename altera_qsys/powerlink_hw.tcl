@@ -127,12 +127,12 @@
 package require -exact sopc 10.1
 
 set_module_property DESCRIPTION "POWERLINK IP-core"
-set_module_property NAME powerlink
+set_module_property NAME qsys_powerlink
 set_module_property VERSION 0.2.6
 set_module_property INTERNAL false
 set_module_property GROUP "Interface Protocols/Ethernet"
-set_module_property AUTHOR "Joerg Zelenka"
-set_module_property DISPLAY_NAME "POWERLINK"
+set_module_property AUTHOR "B&R"
+set_module_property DISPLAY_NAME "QSYS POWERLINK"
 set_module_property TOP_LEVEL_HDL_FILE "src/qsys_powerlink.vhd"
 set_module_property TOP_LEVEL_HDL_MODULE qsys_powerlink
 set_module_property INSTANTIATE_IN_SYSTEM_MODULE true

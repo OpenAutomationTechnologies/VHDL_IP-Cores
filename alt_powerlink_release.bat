@@ -6,8 +6,9 @@ set activehdl_dir=active_hdl
 set alterasopc_dir=altera_qsys
 set docu_dir=documentation
 set release_dir=release\altera_qsys
-set ipcore_dir=powerlink
+set ipcore_dir=qsys_powerlink
 set txt_dir=txt
+set common_dir=common
 
 :: delete directory
 del %release_dir%\%ipcore_dir% /S /Q
@@ -21,7 +22,7 @@ mkdir %release_dir%\%ipcore_dir%\img
 mkdir %release_dir%\%ipcore_dir%\doc
 
 :: copy vhdls
-copy %activehdl_dir%\src\lib\src\*.vhd                              %release_dir%\%ipcore_dir%\src\lib
+copy %common_dir%\lib\src\*.vhd                                     %release_dir%\%ipcore_dir%\src\lib
 copy %activehdl_dir%\src\openMAC\src\*.vhd                          %release_dir%\%ipcore_dir%\src
 copy %activehdl_dir%\src\openMAC\src\*.mif                          %release_dir%\%ipcore_dir%\src
 copy %activehdl_dir%\src\openMAC\src\openMAC_DMAmaster\*.vhd        %release_dir%\%ipcore_dir%\src\openMAC_DMAmaster
