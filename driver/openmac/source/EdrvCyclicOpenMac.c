@@ -92,7 +92,7 @@
 #if defined(__NIOS2__)
 
 //POWERLINK IP-Core in "pcp_0" subsystem
-#if defined(PCP_0_POWERLINK_0_MAC_REG_BASE)
+#if defined(PCP_0_QSYS_POWERLINK_0_MAC_REG_BASE)
 #include "EdrvOpenMac_qsys.h"
 
 //POWERLINK IP-Core in SOPC
@@ -791,7 +791,7 @@ DWORD            udwNextTimerIrqNs = EdrvCyclicInstance_l.m_dwCycleLenUs * 1000U
 
     if (Ret != kEplSuccessful)
     {
-        PRINTF2("%s: EplTimerHighReskModifyTimerNs ret=0x%X\n", __func__, Ret);
+        PRINTF("%s: EplTimerHighReskModifyTimerNs ret=0x%X\n", __func__, Ret);
         goto Exit;
     }
 
@@ -831,7 +831,7 @@ tEplKernel      Ret;
 
     if (Ret != kEplSuccessful)
     {
-        PRINTF2("%s: EplTimerHighReskModifyTimerNs ret=0x%X\n", __func__, Ret);
+        PRINTF("%s: EplTimerHighReskModifyTimerNs ret=0x%X\n", __func__, Ret);
         goto Exit;
     }
 
