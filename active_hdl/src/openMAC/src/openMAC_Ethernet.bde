@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 51060
+ FREEID 51094
  VARIABLES
  {
   #ARCHITECTURE="rtl"
@@ -14638,9 +14638,10 @@ PAGE "PACKET DMA MASTER"
    VARIABLES
    {
     #COMPONENT="BusOutput"
+    #DOWNTO="1"
     #LIBRARY="#terminals"
     #MDA_RECORD_TOKEN="OTHER"
-    #REFERENCE="m_address(29:0)"
+    #REFERENCE="m_address(dma_highadr_g:0)"
     #SYMBOL="BusOutput"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
@@ -14650,7 +14651,7 @@ PAGE "PACKET DMA MASTER"
   TEXT  14545, 0, 0
   {
    TEXT "$#REFERENCE"
-   RECT (1972,923,2195,958)
+   RECT (1972,923,2365,958)
    ALIGN 4
    MARGINS (1,1)
    PARENT 14544
@@ -18005,14 +18006,14 @@ PAGE ""
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311687673"
    DESCRIPTION="bla",BOTH
-   PAGENAME="MAC"
-   PAGENUMBER="1"
+   PAGENAME="PACKET DMA MASTER"
+   PAGENUMBER="7"
   }
  }
  
  BODY
  {
-  TEXT  51043, 0, 0
+  TEXT  51077, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -18023,7 +18024,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  51044, 0, 0
+  TEXT  51078, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -18034,7 +18035,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  51045, 0, 0
+  TEXT  51079, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -18044,7 +18045,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  51046, 0, 0
+  TEXT  51080, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -18056,7 +18057,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  51047, 0, 0
+  TEXT  51081, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -18070,7 +18071,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  51048, 0, 0
+  TEXT  51082, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -18080,7 +18081,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  51049, 0, 0
+  TEXT  51083, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -18092,7 +18093,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  51050, 0, 0
+  TEXT  51084, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -18102,7 +18103,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  51051, 0, 0
+  TEXT  51085, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -18113,7 +18114,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  51052, 0, 0
+  GROUP  51086, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -18125,7 +18126,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  51053, 0, 0
+  GROUP  51087, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -18137,7 +18138,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  51054, 0, 0
+  GROUP  51088, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -18149,7 +18150,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  51055, 0, 0
+  GROUP  51089, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -18161,7 +18162,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  51056, 0, 0
+  GROUP  51090, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -18173,7 +18174,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  51057, 0, 0
+  GROUP  51091, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -18184,14 +18185,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  51058, 0, 0
+  LINE  51092, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  51059, 0, 0
+  LINKBMPPICT  51093, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"

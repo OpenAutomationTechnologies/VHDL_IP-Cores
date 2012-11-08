@@ -225,7 +225,7 @@ entity qsys_powerlink is
        led_opt : out std_logic_vector(1 downto 0);
        led_phyAct : out std_logic_vector(1 downto 0);
        led_phyLink : out std_logic_vector(1 downto 0);
-       m_address : out std_logic_vector(29 downto 0);
+       m_address : out std_logic_vector(31 downto 0);
        m_burstcount : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_burstcounter : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_byteenable : out std_logic_vector(m_data_width_g/8-1 downto 0);
@@ -418,7 +418,7 @@ component powerlink
        led_phyAct : out std_logic_vector(1 downto 0) := (others => '0');
        led_phyLink : out std_logic_vector(1 downto 0) := (others => '0');
        led_status : out std_logic := '0';
-       m_address : out std_logic_vector(29 downto 0) := (others => '0');
+       m_address : out std_logic_vector(31 downto 0) := (others => '0');
        m_burstcount : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_burstcounter : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_byteenable : out std_logic_vector(m_data_width_g/8-1 downto 0) := (others => '0');

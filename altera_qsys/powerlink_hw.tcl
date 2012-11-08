@@ -128,7 +128,7 @@ package require -exact sopc 10.1
 
 set_module_property DESCRIPTION "POWERLINK IP-core"
 set_module_property NAME qsys_powerlink
-set_module_property VERSION 0.2.6
+set_module_property VERSION 0.2.7
 set_module_property INTERNAL false
 set_module_property GROUP "Interface Protocols/Ethernet"
 set_module_property AUTHOR "B&R"
@@ -1472,7 +1472,7 @@ set_interface_property MAC_DMA ENABLED false
 add_interface_port MAC_DMA m_read read Output 1
 add_interface_port MAC_DMA m_write write Output 1
 add_interface_port MAC_DMA m_byteenable byteenable Output 2
-add_interface_port MAC_DMA m_address address Output 30
+add_interface_port MAC_DMA m_address address Output 32
 add_interface_port MAC_DMA m_writedata writedata Output 16
 add_interface_port MAC_DMA m_readdata readdata Input 16
 add_interface_port MAC_DMA m_waitrequest waitrequest Input 1

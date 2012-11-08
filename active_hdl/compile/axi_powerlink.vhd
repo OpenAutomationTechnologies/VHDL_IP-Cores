@@ -677,7 +677,7 @@ component powerlink
        led_phyAct : out std_logic_vector(1 downto 0) := (others => '0');
        led_phyLink : out std_logic_vector(1 downto 0) := (others => '0');
        led_status : out std_logic := '0';
-       m_address : out std_logic_vector(29 downto 0) := (others => '0');
+       m_address : out std_logic_vector(31 downto 0) := (others => '0');
        m_burstcount : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_burstcounter : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_byteenable : out std_logic_vector(m_data_width_g/8-1 downto 0) := (others => '0');
@@ -1052,7 +1052,7 @@ signal mbf_address : std_logic_vector (C_MAC_PKT_SIZE_LOG2-3 downto 0);
 signal mbf_byteenable : std_logic_vector (3 downto 0);
 signal mbf_readdata : std_logic_vector (31 downto 0);
 signal mbf_writedata : std_logic_vector (31 downto 0);
-signal m_address : std_logic_vector (29 downto 0);
+signal m_address : std_logic_vector (31 downto 0);
 signal m_burstcount : std_logic_vector (C_M_BURSTCOUNT_WIDTH-1 downto 0);
 signal m_burstcounter : std_logic_vector (C_M_BURSTCOUNT_WIDTH-1 downto 0);
 signal m_byteenable : std_logic_vector (3 downto 0);
@@ -1143,7 +1143,7 @@ test_port(MAC_DMA2Bus_Mst_Length'length+120-1 downto 120) <= MAC_DMA2Bus_Mst_Len
 
 test_port(m_burstcount'length+110-1 downto 110) <= m_burstcount;
 test_port(m_burstcounter'length+96-1 downto 96) <= m_burstcounter;
-test_port(95 downto 64) <= "00" & m_address;
+test_port(95 downto 64) <= m_address;
 test_port(63 downto 32) <= m_writedata;
 test_port(31 downto 0) <= m_readdata;
 
@@ -1582,7 +1582,7 @@ begin
          MAC_DMA2Bus_Mst_Type => MAC_DMA2bus_mst_type,
          MAC_DMA_CLK => M_AXI_MAC_DMA_aclk,
          MAC_DMA_Rst => MAC_DMA_areset,
-         m_address => m_address( 29 downto 0 ),
+         m_address => m_address( 31 downto 0 ),
          m_burstcount => m_burstcount( C_M_BURSTCOUNT_WIDTH-1 downto 0 ),
          m_burstcounter => m_burstcounter( C_M_BURSTCOUNT_WIDTH-1 downto 0 ),
          m_byteenable => m_byteenable,

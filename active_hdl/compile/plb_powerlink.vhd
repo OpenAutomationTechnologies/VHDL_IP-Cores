@@ -820,7 +820,7 @@ component powerlink
        led_phyAct : out std_logic_vector(1 downto 0) := (others => '0');
        led_phyLink : out std_logic_vector(1 downto 0) := (others => '0');
        led_status : out std_logic := '0';
-       m_address : out std_logic_vector(29 downto 0) := (others => '0');
+       m_address : out std_logic_vector(31 downto 0) := (others => '0');
        m_burstcount : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_burstcounter : out std_logic_vector(m_burstcount_width_g-1 downto 0);
        m_byteenable : out std_logic_vector(m_data_width_g/8-1 downto 0) := (others => '0');
@@ -1214,7 +1214,7 @@ signal mbf_address : std_logic_vector (C_MAC_PKT_SIZE_LOG2-3 downto 0);
 signal mbf_byteenable : std_logic_vector (3 downto 0);
 signal mbf_readdata : std_logic_vector (31 downto 0);
 signal mbf_writedata : std_logic_vector (31 downto 0);
-signal m_address : std_logic_vector (31 downto 0) := (others => '0');
+signal m_address : std_logic_vector (31 downto 0);
 signal m_burstcount : std_logic_vector (C_M_BURSTCOUNT_WIDTH-1 downto 0);
 signal m_burstcounter : std_logic_vector (C_M_BURSTCOUNT_WIDTH-1 downto 0);
 signal m_byteenable : std_logic_vector (3 downto 0);
@@ -1502,36 +1502,6 @@ THE_POWERLINK_IP_CORE : powerlink
        mac_address(9) => mac_address(9),
        mac_address(10) => mac_address(10),
        mac_address(11) => mac_address(11),
-       m_address(0) => m_address(0),
-       m_address(1) => m_address(1),
-       m_address(2) => m_address(2),
-       m_address(3) => m_address(3),
-       m_address(4) => m_address(4),
-       m_address(5) => m_address(5),
-       m_address(6) => m_address(6),
-       m_address(7) => m_address(7),
-       m_address(8) => m_address(8),
-       m_address(9) => m_address(9),
-       m_address(10) => m_address(10),
-       m_address(11) => m_address(11),
-       m_address(12) => m_address(12),
-       m_address(13) => m_address(13),
-       m_address(14) => m_address(14),
-       m_address(15) => m_address(15),
-       m_address(16) => m_address(16),
-       m_address(17) => m_address(17),
-       m_address(18) => m_address(18),
-       m_address(19) => m_address(19),
-       m_address(20) => m_address(20),
-       m_address(21) => m_address(21),
-       m_address(22) => m_address(22),
-       m_address(23) => m_address(23),
-       m_address(24) => m_address(24),
-       m_address(25) => m_address(25),
-       m_address(26) => m_address(26),
-       m_address(27) => m_address(27),
-       m_address(28) => m_address(28),
-       m_address(29) => m_address(29),
        ap_address => ap_address,
        ap_asyncIrq => ap_asyncIrq,
        ap_asyncIrq_n => ap_asyncIrq_n,
@@ -1554,6 +1524,7 @@ THE_POWERLINK_IP_CORE : powerlink
        led_phyAct => led_phyAct,
        led_phyLink => led_phyLink,
        led_status => led_status,
+       m_address => m_address,
        m_burstcount => m_burstcount( C_M_BURSTCOUNT_WIDTH-1 downto 0 ),
        m_burstcounter => m_burstcounter( C_M_BURSTCOUNT_WIDTH-1 downto 0 ),
        m_byteenable => m_byteenable( 3 downto 0 ),

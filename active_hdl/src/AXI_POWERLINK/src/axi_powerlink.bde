@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 38717
+ FREEID 38770
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -4111,7 +4111,7 @@ HEADER
 "library STD,IEEE;\n"+
 "use STD.STANDARD.all,ieee.std_logic_1164.all;"
     #LANGUAGE="VHDL"
-    #MODIFIED="1343995447"
+    #MODIFIED="1350044463"
    }
   }
   PAGE "" 
@@ -5909,7 +5909,7 @@ HEADER
       #INITIAL_VALUE="(others => '0')"
       #LENGTH="20"
       #MDA_RECORD_TOKEN="OTHER"
-      #NAME="m_address(29:0)"
+      #NAME="m_address(31:0)"
       #NUMBER="0"
       #SIDE="left"
      }
@@ -11603,15 +11603,6 @@ PAGE "MAC_DMA"
    MARGINS (1,1)
    PARENT 28624
   }
-  NET BUS  24891, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #MDA_RECORD_TOKEN="OTHER"
-    #NAME="m_address(29:0)"
-   }
-  }
   INSTANCE  25135, 0, 0
   {
    VARIABLES
@@ -11824,7 +11815,7 @@ PAGE "MAC_DMA"
   }
   BUS  28624, 0, 0
   {
-   NET 24891
+   NET 38718
    VTX 28600, 28601
    VARIABLES
    {
@@ -12353,10 +12344,10 @@ PAGE "MAC_DMA"
 "\n"+
 "test_port(m_burstcount'length+110-1 downto 110) <= m_burstcount;\n"+
 "test_port(m_burstcounter'length+96-1 downto 96) <= m_burstcounter;\n"+
-"test_port(95 downto 64) <= \"00\" & m_address;\n"+
+"test_port(95 downto 64) <= m_address;\n"+
 "test_port(63 downto 32) <= m_writedata;\n"+
 "test_port(31 downto 0) <= m_readdata;"
-   RECT (220,1800,1740,2060)
+   RECT (220,1800,1740,2100)
    MARGINS (20,20)
    MULTILINE
    SYNTAXCOLORED
@@ -12417,6 +12408,15 @@ PAGE "MAC_DMA"
    {
     #NAME="M_AXI_MAC_DMA_aresetn"
     %SIGIS="\"Rst\""
+   }
+  }
+  NET BUS  38718, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="m_address(31:0)"
    }
   }
  }
@@ -25902,15 +25902,6 @@ PAGE "POWERLINK IP-CORE"
     #NAME="mac_write"
    }
   }
-  NET BUS  35353, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #MDA_RECORD_TOKEN="OTHER"
-    #NAME="m_address(29:0)"
-   }
-  }
   NET BUS  35355, 0, 0
   {
    VARIABLES
@@ -29033,7 +29024,7 @@ PAGE "POWERLINK IP-CORE"
   }
   BUS  37788, 0, 0
   {
-   NET 35353
+   NET 38717
    VTX 37563, 37564
    VARIABLES
    {
@@ -30466,6 +30457,15 @@ PAGE "POWERLINK IP-CORE"
    NET 19560
    VTX 38610, 38539
   }
+  NET BUS  38717, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="m_address(31:0)"
+   }
+  }
  }
  
 }
@@ -30483,15 +30483,15 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311684073"
-   PAGENAME="header"
-   PAGENUMBER="1"
+   PAGENAME="MAC_DMA"
+   PAGENUMBER="3"
    REVISION="1.0"
   }
  }
  
  BODY
  {
-  TEXT  38700, 0, 0
+  TEXT  38753, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -30502,7 +30502,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38701, 0, 0
+  TEXT  38754, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
@@ -30513,7 +30513,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  38702, 0, 0
+  TEXT  38755, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
@@ -30523,7 +30523,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38703, 0, 0
+  TEXT  38756, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -30535,7 +30535,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  38704, 0, 0
+  TEXT  38757, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -30549,7 +30549,7 @@ PAGE ""
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  38705, 0, 0
+  TEXT  38758, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
@@ -30559,7 +30559,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38706, 0, 0
+  TEXT  38759, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
@@ -30571,7 +30571,7 @@ PAGE ""
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  38707, 0, 0
+  TEXT  38760, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
@@ -30581,7 +30581,7 @@ PAGE ""
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  38708, 0, 0
+  TEXT  38761, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
@@ -30592,7 +30592,7 @@ PAGE ""
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  38709, 0, 0
+  GROUP  38762, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1738,3108,2138)
@@ -30604,7 +30604,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38710, 0, 0
+  GROUP  38763, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1958,3108,1959)
@@ -30616,7 +30616,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38711, 0, 0
+  GROUP  38764, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,1898,3108,1899)
@@ -30628,7 +30628,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38712, 0, 0
+  GROUP  38765, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2018,3108,2019)
@@ -30640,7 +30640,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38713, 0, 0
+  GROUP  38766, 0, 0
   {
    PAGEALIGN 10
    RECT (2227,2078,3108,2079)
@@ -30652,7 +30652,7 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  38714, 0, 0
+  GROUP  38767, 0, 0
   {
    PAGEALIGN 10
    RECT (2407,1898,2408,2139)
@@ -30663,14 +30663,14 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  38715, 0, 0
+  LINE  38768, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
    POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  38716, 0, 0
+  LINKBMPPICT  38769, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\dat\\#BR.bmp"

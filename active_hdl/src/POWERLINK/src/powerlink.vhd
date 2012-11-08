@@ -188,7 +188,7 @@ entity powerlink is
 		m_read						: OUT   STD_LOGIC := '0';
 		m_write						: OUT   STD_LOGIC := '0';
 		m_byteenable	            : OUT   STD_LOGIC_VECTOR(m_data_width_g/8-1 DOWNTO 0) := (others => '0');
-        m_address                   : OUT   STD_LOGIC_VECTOR(29 DOWNTO 0) := (others => '0');
+        m_address                   : OUT   STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
         m_writedata                 : OUT   STD_LOGIC_VECTOR(m_data_width_g-1 DOWNTO 0) := (others => '0');
         m_readdata                  : IN    STD_LOGIC_VECTOR(m_data_width_g-1 DOWNTO 0) := (others => '0');
         m_waitrequest               : IN    STD_LOGIC;
