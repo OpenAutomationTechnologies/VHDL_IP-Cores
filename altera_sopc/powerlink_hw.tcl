@@ -602,7 +602,7 @@ set_parameter_property pioValLen_g DERIVED TRUE
 proc my_validation_callback {} {
 # REVISION NUMBERS #
     set PDI_REV_VAL 3
-    set PLK_REV_VAL \"0.2.6\"
+    set PLK_REV_VAL \"[get_module_property VERSION]\"
 # REVISION NUMBERS #
     
 #do some preparation stuff
