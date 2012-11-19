@@ -46,13 +46,6 @@
 <!DOCTYPE doc SYSTEM "$XILINX_EDK\hw\XilinxProcessorIPLib\pcores\ipdialog.dtd" [
     <!-- -->
     <!-- General -->
-    <!ENTITY C_PLK_CORE_REV '
-    <widget id="C_PLK_CORE_REV">
-        <key>C_PLK_CORE_REV</key>
-        <label>Core Revision</label>
-        <tip><![CDATA[Core Revision is used to find HW/SW mismatch.]]></tip>		
-    </widget>
-    '>
     <!ENTITY C_IP_CORE_MODE '
     <widget id="C_IP_CORE_MODE">
         <key>C_IP_CORE_MODE</key>
@@ -585,7 +578,6 @@
         <display>User</display>
         <group id="General">
             <display>General</display>
-            <item>&C_PLK_CORE_REV;</item>
             <item>&C_IP_CORE_MODE;</item>
         </group>
         <group id="openMAC">
