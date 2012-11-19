@@ -128,7 +128,7 @@ package require -exact sopc 10.1
 
 set_module_property DESCRIPTION "POWERLINK IP-core"
 set_module_property NAME qsys_powerlink
-set_module_property VERSION 0.2.7
+set_module_property VERSION 0.2.8
 set_module_property INTERNAL false
 set_module_property GROUP "Interface Protocols/Ethernet"
 set_module_property AUTHOR "B&R"
