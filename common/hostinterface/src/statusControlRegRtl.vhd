@@ -454,8 +454,9 @@ begin
                 oHostReaddata(0) <= regSynchron.irqMasterEnable;
                 
                 if iHostWrite = cActivated then
-                    regSynchron_next.irqMasterEnable <= 
-                    iHostWritedata(0) and iHostByteenable(0);
+                    if iHostByteenable(0) = cActivated then
+                        regSynchron_next.irqMasterEnable <= iHostWritedata(0);
+                    end if;
                     
                     for i in cDword-1 downto cWord loop
                         if iHostByteenable(i/cByte) = cActivated and 
