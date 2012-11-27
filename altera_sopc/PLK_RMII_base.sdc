@@ -9,10 +9,10 @@
 ##  (under "Compilation Report" - "TimeQuest Timing Analyzer" - "Clocks")
 set ext_clk		EXT_CLK
 set clk50 		inst|the_altpll_0|sd1|pll7|clk[0]
-set clk100		inst|the_altpll_0|sd1|pll7|clk[2]
 set clkPcp		inst|the_altpll_0|sd1|pll7|clk[1]
-set clkAp		inst|the_altpll_0|sd1|pll7|clk[3]
-set clk25		inst|the_altpll_0|sd1|pll7|clk[4]
+set clk100		inst|the_altpll_0|sd1|pll7|clk[2]
+set clk25		inst|the_altpll_0|sd1|pll7|clk[3]
+set clkAp		inst|the_altpll_0|sd1|pll7|clk[4]
 
 ## define which clock drives SRAM controller
 set clkSRAM		$clkPcp
