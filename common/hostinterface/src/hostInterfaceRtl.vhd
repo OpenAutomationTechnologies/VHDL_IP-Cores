@@ -148,11 +148,7 @@ entity hostInterface is
         --! POWERLINK Error LED
         coe_PlkLed_lederr : out std_logic;
         --! POWERLINK Status LED
-        coe_PlkLed_ledst : out std_logic;
-        --! General Purpose Inputs
-        coe_Gpio_gpin : in std_logic_vector(15 downto 0);
-        --! General Purpose Outputs
-        coe_Gpio_gpout : out std_logic_vector(15 downto 0)
+        coe_PlkLed_ledst : out std_logic
         );
 end hostInterface;
 
@@ -219,8 +215,6 @@ architecture Rtl of hostInterface is
             oExtSyncConfig : out STD_LOGIC_VECTOR(cExtSyncEdgeConfigWidth-1 downto 0);
             iNodeId : in STD_LOGIC_VECTOR(cByte-1 downto 0);
             oPLed : out STD_LOGIC_VECTOR(1 downto 0);
-            iGpin : in STD_LOGIC_VECTOR(cWord-1 downto 0);
-            oGpout : out STD_LOGIC_VECTOR(cWord-1 downto 0);
             oBridgeEnable : out STD_LOGIC);
     end component;
     
@@ -570,8 +564,6 @@ begin
         oExtSyncConfig          => extSyncConfig,
         iNodeId                 => coe_NodeId_nodeid,
         oPLed                   => statCtrlLed,
-        iGpin                   => coe_Gpio_gpin,
-        oGpout                  => coe_Gpio_gpout,
         oBridgeEnable           => bridgeEnable
         );
     

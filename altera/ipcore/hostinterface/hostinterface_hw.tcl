@@ -670,17 +670,3 @@ set_interface_property irqOut associatedReset r0
 set_interface_property irqOut ENABLED true
 
 add_interface_port irqOut ins_irqOut_irq irq Output 1
-
-
-# connection point GPIO
-add_interface GPIO conduit end
-set_interface_property GPIO associatedClock ""
-set_interface_property GPIO associatedReset ""
-set_interface_property GPIO ENABLED true
-
-add_interface_port GPIO coe_ExtSync_exsync export Input 1
-add_interface_port GPIO coe_NodeId_nodeid export Input 8
-add_interface_port GPIO coe_PlkLed_lederr export Output 1
-add_interface_port GPIO coe_PlkLed_ledst export Output 1
-add_interface_port GPIO coe_Gpio_gpin export Input 16
-add_interface_port GPIO coe_Gpio_gpout export Output 16

@@ -5,8 +5,6 @@
 --
 --! @details The host interface status/control registers provide memory mapped
 --! control of the interrupt generator (irqGen) and bridge (magicBridge).
---! Besides some general purpose IOs can be controlled from host side (e.g.
---! POWERLINK LED, Node ID, 16 GPIN and 16 GPOUT) and also read by PCP.
 --
 -------------------------------------------------------------------------------
 --
@@ -139,10 +137,6 @@ entity statusControlReg is
         iNodeId : in std_logic_vector(cByte-1 downto 0);
         --! LED
         oPLed : out std_logic_vector(1 downto 0);
-        --! GPIN
-        iGpin : in std_logic_vector(cWord-1 downto 0);
-        --! GPOUT
-        oGpout : out std_logic_vector(cWord-1 downto 0);
         --! bridge activates
         oBridgeEnable : out std_logic
         );
@@ -169,12 +163,8 @@ architecture Rtl of statusControlReg is
     constant cBaseError                 : natural :=    16#0208#;
     --! node id in base
     constant cBaseNodeIdIn              : natural :=    16#020C#;
-    --! gpin base
-    constant cBaseGpin                  : natural :=    16#020E#;
     --! led control base
     constant cBaseLedControl            : natural :=    16#0210#;
-    --! gpout base
-    constant cBaseGpout                 : natural :=    16#0212#;
     --! irq enable base
     constant cBaseIrqEnable             : natural :=    16#0300#;
     --! irq pending base
@@ -195,9 +185,6 @@ architecture Rtl of statusControlReg is
     --! LED count
     constant cLedCount                  : natural range 1 to 16 := 2;
     --! General Purpose Inputs
-    constant cGpinCount                 : natural range 1 to 16 := 16;
-    --! General Purpose Outputs
-    constant cGpoutCount                : natural range 1 to 16 := 16;
     
     --! type base registers (stored content)
     type tRegisterInfo is record
@@ -214,12 +201,12 @@ architecture Rtl of statusControlReg is
         state               : std_logic_vector(cWord-1 downto 0);
         error               : std_logic_vector(cWord-1 downto 0);
         led                 : std_logic_vector(cLedCount-1 downto 0);
-        gpout               : std_logic_vector(cGpoutCount-1 downto 0);
     end record;
     
     --! type synchronization register (stored content)
     type tRegisterSynchronization is record
-        irqSourceEnable           : std_logic_vector(gIrqSourceCount downto 0);
+        irqSrcEnableHost    : std_logic_vector(gIrqSourceCount downto 0);
+        irqSrcEnablePcp     : std_logic_vector(gIrqSourceCount downto 0);
         irqMasterEnable     : std_logic;
         syncConfig          : std_logic_vector(cExtSyncConfigWidth-1 downto 0);
     end record;
@@ -242,8 +229,7 @@ architecture Rtl of statusControlReg is
     command => (others => cInactivated),
     state   => (others => cInactivated),
     error   => (others => cInactivated),
-    led     => (others => cInactivated),
-    gpout   => (others => cInactivated)
+    led     => (others => cInactivated)
     );
     
     --! synchronization register
@@ -251,7 +237,8 @@ architecture Rtl of statusControlReg is
     
     --! synchronization register initialisation
     constant cRegSynchronInit : tRegisterSynchronization := (
-    irqSourceEnable => (others => cInactivated),
+    irqSrcEnableHost => (others => cInactivated),
+    irqSrcEnablePcp => (others => cInactivated),
     irqMasterEnable => cInactivated,
     syncConfig      => (others => cInactivated)
     );
@@ -293,11 +280,10 @@ begin
     oPcpWaitrequest <= not(iPcpWrite or iPcpRead);
     
     oIrqMasterEnable <= regSynchron.irqMasterEnable;
-    oIrqSourceEnable <= regSynchron.irqSourceEnable;
+    oIrqSourceEnable <= regSynchron.irqSrcEnableHost and regSynchron.irqSrcEnablePcp;
     oExtSyncEnable <= regSynchron.syncConfig(0);
     oExtSyncConfig <= regSynchron.syncConfig(2 downto 1);
     oPLed <= regControl.led;
-    oGpout <= regControl.gpout;
     oBridgeEnable <= regControl.bridgeEnable;
     
     -- pcp overrules host!
@@ -317,7 +303,7 @@ begin
     regAcc : process(
         iHostWrite, iHostByteenable, iHostAddress, iHostWritedata,
         iPcpWrite, iPcpByteenable, iPcpAddress, iPcpWritedata,
-        iGpin, iNodeId,
+        iNodeId,
         regInfo, regControl, regSynchron,
         iIrqPending, iBaseSetData)
         
@@ -400,27 +386,15 @@ begin
                 
                 --error is RO
             
-            when cBaseGpin | cBaseNodeIdIn =>
-                oHostReaddata(cWord+cGpinCount-1 downto cWord) <= iGpin;
+            when cBaseNodeIdIn =>
                 oHostReaddata(iNodeId'length-1 downto 0) <= iNodeId;
                 
-                --gpin and node id are RO
+                --node id are RO
             
-            when cBaseGpout | cBaseLedControl =>
-                oHostReaddata(cWord+cGpoutCount-1 downto cWord) <= 
-                regControl.gpout;
+            when cBaseLedControl =>
                 oHostReaddata(cLedCount-1 downto 0) <= regControl.led;
                 
                 if iHostWrite = cActivated then
-                    for i in cDword-1 downto cWord loop
-                        if iHostByteenable(i/cByte) = cActivated and 
-                            (i-cWord) < cGpoutCount then
-                            
-                            regControl_next.gpout(i-cWord) <= iHostWritedata(i);
-                            
-                        end if;
-                    end loop;
-                    
                     for i in cWord-1 downto 0 loop
                         if iHostByteenable(i/cByte) = cActivated and 
                             i < cLedCount then
@@ -435,14 +409,14 @@ begin
                 oHostReaddata(cWord+gIrqSourceCount downto cWord) <= 
                 iIrqPending;
                 oHostReaddata(gIrqSourceCount downto 0) <= 
-                regSynchron.irqSourceEnable;
+                regSynchron.irqSrcEnableHost;
                 
                 if iHostWrite = cActivated then
                     for i in cWord-1 downto 0 loop
                         if iHostByteenable(i/cByte) = cActivated and 
                             i <= gIrqSourceCount then
                             
-                            regSynchron_next.irqSourceEnable(i) <= 
+                            regSynchron_next.irqSrcEnableHost(i) <= 
                             iHostWritedata(i);
                             
                         end if;
@@ -575,19 +549,28 @@ begin
                     end loop;
                 end if;
             
-            when cBaseGpin | cBaseNodeIdIn =>
-                oPcpReaddata(cWord+cGpinCount-1 downto cWord) <= iGpin;
+            when cBaseNodeIdIn =>
                 oPcpReaddata(iNodeId'length-1 downto 0) <= iNodeId;
             
-            when cBaseGpout | cBaseLedControl =>
-                oPcpReaddata(cWord+cGpoutCount-1 downto cWord) <= 
-                regControl.gpout;
+            when cBaseLedControl =>
                 oPcpReaddata(cLedCount-1 downto 0) <= regControl.led;
             
             when cBaseIrqPending | cBaseIrqEnable =>
                 oPcpReaddata(cWord+gIrqSourceCount downto cWord) <= iIrqPending;
                 oPcpReaddata(gIrqSourceCount downto 0) <= 
-                regSynchron.irqSourceEnable;
+                regSynchron.irqSrcEnablePcp;
+                
+                if iPcpWrite = cActivated then
+                    for i in cWord-1 downto 0 loop
+                        if iPcpByteenable(i/cByte) = cActivated and 
+                            i <= gIrqSourceCount then
+                            
+                            regSynchron_next.irqSrcEnablePcp(i) <= 
+                            iPcpWritedata(i);
+                            
+                        end if;
+                    end loop;
+                end if;
             
             when cBaseIrqSet | cBaseIrqMasterEnable =>
                 -- irq set is self-clearing
