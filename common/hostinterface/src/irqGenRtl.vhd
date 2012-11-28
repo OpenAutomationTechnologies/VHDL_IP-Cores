@@ -135,7 +135,7 @@ begin
     combIrqRegCont : process(
         iIrqSource, iIrqAcknowledge,
         irqRegLatch, irqSourceStore,
-        syncRising)
+        syncRising, iIrqSourceEnable(iIrqSourceEnable'right))
         
     begin
         --default
@@ -167,8 +167,10 @@ begin
                 irqRegLatch_next(i) <=  irqSourceStore(i);
             end loop;
             
-            -- activate sync irq
-            irqRegLatch_next(irqRegLatch'right) <= cActivated;
+            -- activate sync irq if it is enabled 
+            -- (sync irqs in the past are not of interest!)
+            irqRegLatch_next(irqRegLatch'right) <= 
+            iIrqSourceEnable(iIrqSourceEnable'right);
         end if;
     end process;
     
