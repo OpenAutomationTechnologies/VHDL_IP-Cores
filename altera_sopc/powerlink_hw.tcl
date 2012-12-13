@@ -134,7 +134,7 @@ set_module_property INSTANTIATE_IN_SYSTEM_MODULE true
 set_module_property EDITABLE FALSE
 set_module_property ANALYZE_HDL TRUE
 set_module_property ICON_PATH "img/br.png"
-add_documentation_link "POWERLINK IP-Core Documentation" "doc/POWERLINK-IP-Core_Altera.pdf"
+add_documentation_link "POWERLINK IP-Core Documentation" "doc/01_POWERLINK-IP-Core_Altera.pdf"
 
 #files
 add_file "src/powerlink.vhd" {SYNTHESIS SIMULATION}

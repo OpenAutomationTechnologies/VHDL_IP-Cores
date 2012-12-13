@@ -48,6 +48,6 @@ rename %release_dir%\%ipcore_dir%\powerlink_revision.txt            revision.txt
 :: copy documentation
 copy %docu_dir%\*_Generic.pdf                                       %release_dir%\%ipcore_dir%\doc
 copy %docu_dir%\*_Xilinx.pdf                                        %release_dir%\%ipcore_dir%\doc
-copy %docu_dir%\OpenMAC.pdf                                         %release_dir%\%ipcore_dir%\doc
+copy %docu_dir%\*OpenMAC.pdf                                         %release_dir%\%ipcore_dir%\doc
 
 @echo off
