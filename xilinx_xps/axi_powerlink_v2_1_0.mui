@@ -58,8 +58,8 @@
     <!ENTITY C_PACKET_LOCATION '
     <widget id="C_PACKET_LOCATION">
         <key>C_PACKET_LOCATION</key>
-        <label>Packet buffer location</label>
-        <tip></tip>
+        <label>Packet Buffer Location</label>
+        <tip><![CDATA[Changes the location of the MAC internal RX/TX buffers from FPGA internal memory (BRAM) to external memory (DDRx/SRAM).]]></tip>
     </widget>
     '>
     <!ENTITY C_USE_2ND_PHY '
