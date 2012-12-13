@@ -185,6 +185,8 @@ set_parameter_property iPdiRev_g HDL_PARAMETER true
 set_parameter_property iPdiRev_g ALLOWED_RANGES 0:65535
 set_parameter_property iPdiRev_g VISIBLE false
 set_parameter_property iPdiRev_g DERIVED TRUE
+set_parameter_property iPdiRev_g DISPLAY_NAME "PDI revision number"
+set_parameter_property iPdiRev_g DESCRIPTION "Version of the PDI layout."
 
 #PCP SYSTEM ID
 add_parameter pcpSysId INTEGER 1
@@ -661,12 +663,14 @@ proc my_validation_callback {} {
     	set macRxBurstSize [get_parameter_value macRxBurstSize]
         set pcpSysId [get_parameter_value pcpSysId]
         set_parameter_property plkCoreRev VISIBLE true
+        set_parameter_property iPdiRev_g  VISIBLE true
     } else {
         #no expert mode set them to one per default
         set macTxBurstSize 1
         set macRxBurstSize 1
         set pcpSysId 1
         set_parameter_property plkCoreRev VISIBLE false
+        set_parameter_property iPdiRev_g VISIBLE  false
     }
 	
 	#burst size setting allowed?!
@@ -825,6 +829,7 @@ proc my_validation_callback {} {
 	set_parameter_property hwSupportSyncIrq VISIBLE false
 	set_parameter_property enDmaObserver VISIBLE false
     set_parameter_property pcpSysId VISIBLE false
+    set_parameter_property iPdiRev_g VISIBLE  false
 	
 	set_parameter_property mac2phys VISIBLE true
     set_parameter_property macGen2ndSmi VISIBLE false
@@ -882,6 +887,7 @@ proc my_validation_callback {} {
 		set_parameter_property genLedGadget VISIBLE true
         if {$expert} {
             #in case of expert mode event hw support can be set
+            set_parameter_property iPdiRev_g VISIBLE true
 		    set_parameter_property genEvent VISIBLE true
             set_parameter_value genEvent_g $genEvent
             set_parameter_property pcpSysId VISIBLE true
@@ -1256,6 +1262,7 @@ add_display_item "Block Diagram" id0 icon img/block_diagram.png
 add_display_item "General Settings" expertMode PARAMETER
 add_display_item "General Settings" plkCoreRev PARAMETER
 add_display_item "General Settings" configPowerlink PARAMETER
+add_display_item "Process Data Interface Settings" iPdiRev_g  PARAMETER
 add_display_item "Process Data Interface Settings" configApInterface PARAMETER
 add_display_item "Process Data Interface Settings" configApParallelInterface PARAMETER
 add_display_item "Process Data Interface Settings" configApParOutSigs PARAMETER
