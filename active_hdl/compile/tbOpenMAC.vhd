@@ -310,6 +310,8 @@ signal fifo_wr_data : std_logic_vector (1 downto 0);
 signal fifo_wr_done : std_logic_vector (31 downto 0);
 signal m_burstcount : std_logic_vector (cDmaBurstWidth-1 downto 0);
 signal m_burstcounter : std_logic_vector (cDmaBurstWidth-1 downto 0);
+signal m_readdata : std_logic_vector (cDmaDataWidth-1 downto 0);
+signal m_readdata_half : std_logic_vector (cDmaDataWidth/2-1 downto 0);
 signal phy0_rx_dat : std_logic_vector (1 downto 0);
 signal phy0_tx_dat : std_logic_vector (1 downto 0);
 signal phy1_rx_dat : std_logic_vector (1 downto 0);
@@ -363,6 +365,19 @@ phy1_rx_dat <=
 	phy0_tx_dat after 2500 ns when cGenManCol else
 	phy0_tx_dat after 2500 ns when cGenAutoCol and unsigned(fifo_wr_done) = 1 else
 	"00";
+
+process(clk100, reset)
+begin
+    if reset = '1' then
+        m_readdata_half <= (others => '0');
+    elsif rising_edge(clk100) then
+        if m_readdatavalid = '1' then
+            m_readdata_half <= std_logic_vector(unsigned(m_readdata_half) + 1);
+        end if;
+    end if;
+end process;
+
+m_readdata <= m_readdata_half & m_readdata_half;
 fifo_wr_req <= phy0_tx_en;
 
 genLoop : if cEnableLoop generate
@@ -506,6 +521,7 @@ DUT : openmac_ethernet
        m_burstcounter => m_burstcounter( cDmaBurstWidth-1 downto 0 ),
        m_clk => clk100,
        m_read => m_read,
+       m_readdata => m_readdata( cDmaDataWidth-1 downto 0 ),
        m_readdatavalid => m_readdatavalid,
        m_waitrequest => m_waitrequest,
        m_write => m_write,

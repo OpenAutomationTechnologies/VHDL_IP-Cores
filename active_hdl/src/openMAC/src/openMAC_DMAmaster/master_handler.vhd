@@ -285,7 +285,7 @@ begin
                             if tx_rd_cnt > conv_std_logic_vector(tx_burst_size_c, tx_rd_cnt'length) then
 							    m_burstcount_s <= conv_std_logic_vector(tx_burst_size_c, m_burstcount_s'length);
                             else
-                                m_burstcount_s <= conv_std_logic_vector(conv_integer(tx_rd_cnt), m_burstcount_s'length);
+                                m_burstcount_s <= EXT(tx_rd_cnt, m_burstcount_s'length);
                             end if;
 							--a tx transfer is necessary and overrules necessary rx transfers...
 							tx_is_the_owner_v := '1';
@@ -349,16 +349,16 @@ begin
 							--rx fifo has some data left
 							m_write_s <= '1';
 							--verify how many patterns are left in the fifo
-							if conv_integer(rx_rd_usedw) < rx_burst_size_c then
+							if rx_rd_usedw < conv_std_logic_vector(rx_burst_size_c, rx_rd_usedw'length) then
 								--start the smaller burst write transfer
-								m_burstcount_s <= conv_std_logic_vector(conv_integer(rx_rd_usedw), m_burstcount_s'length);
+								m_burstcount_s <= EXT(rx_rd_usedw, m_burstcount_s'length);
 								if m_burst_wr_const_g then
-									m_burstcount_latch <= conv_std_logic_vector(conv_integer(rx_rd_usedw), m_burstcount_latch'length);
+									m_burstcount_latch <= EXT(rx_rd_usedw, m_burstcount_latch'length);
 									m_address_latch <= rx_cnt;
 								end if;
                                 
                                 --workaround: fifo is not empty but word level is zero => set to one
-                                if conv_integer(rx_rd_usedw) = 0 then
+                                if rx_rd_usedw = 0 then
                                     m_burstcount_s <= conv_std_logic_vector(1, m_burstcount_s'length);
                                     m_burstcount_latch <= conv_std_logic_vector(1, m_burstcount_latch'length);
                                 end if;

@@ -607,6 +607,10 @@ begin
     		rx_wr_req_s <= '0';
     		
     		if mac_rx_off = '1' then
+                if toggle = '1' then
+                    rx_wr_req_s <= '1';
+                end if;
+                
     			toggle := '0';
     		elsif rx_wr_req = '1' then
     			if toggle = '0' then
