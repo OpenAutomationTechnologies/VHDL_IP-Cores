@@ -9,6 +9,7 @@ rmdir release /q /s
 :: create dir structure
 mkdir release\altera\components
 mkdir release\altera\components\img
+mkdir release\altera\components\doc
 mkdir release\altera\openmac\src
 mkdir release\altera\pdi\src
 mkdir release\common\lib\src
@@ -33,6 +34,7 @@ copy doc\02_POWERLINK-IP-Core_Generic.pdf           release\doc
 copy doc\03_OpenMAC.pdf                             release\doc
 
 :: copy Altera POWERLINK
+copy altera\components\doc\index.pdf                release\altera\components\doc
 copy altera\components\img\*.*                      release\altera\components\img
 copy altera\components\powerlink_hw.tcl             release\altera\components
 copy altera\openmac\src\dpr_16_16.mif               release\altera\openmac\src
@@ -122,6 +124,7 @@ copy xilinx\library\pcores\axi_powerlink_vX_YY_Z\data\axi_powerlink_v2_1_0.mpd  
 copy xilinx\library\pcores\axi_powerlink_vX_YY_Z\data\axi_powerlink_v2_1_0.mui     release\xilinx\library\pcores\%DIR_AXI_POWERLINK%\data
 copy xilinx\library\pcores\axi_powerlink_vX_YY_Z\data\axi_powerlink_v2_1_0.pao     release\xilinx\library\pcores\%DIR_AXI_POWERLINK%\data
 copy xilinx\library\pcores\axi_powerlink_vX_YY_Z\data\axi_powerlink_v2_1_0.tcl     release\xilinx\library\pcores\%DIR_AXI_POWERLINK%\data
+copy xilinx\library\pcores\axi_powerlink_vX_YY_Z\doc\index.pdf                     release\xilinx\library\pcores\%DIR_AXI_POWERLINK%\doc
 copy xilinx\library\pcores\axi_powerlink_vX_YY_Z\hdl\vhdl\axi_powerlink.vhd        release\xilinx\library\pcores\%DIR_AXI_POWERLINK%\hdl\vhdl
 
 :: copy Xilinx PLB POWERLINK
@@ -171,6 +174,7 @@ copy xilinx\library\pcores\plb_powerlink_vX_YY_Z\data\plb_powerlink_v2_1_0.mpd  
 copy xilinx\library\pcores\plb_powerlink_vX_YY_Z\data\plb_powerlink_v2_1_0.mui     release\xilinx\library\pcores\%DIR_PLB_POWERLINK%\data
 copy xilinx\library\pcores\plb_powerlink_vX_YY_Z\data\plb_powerlink_v2_1_0.pao     release\xilinx\library\pcores\%DIR_PLB_POWERLINK%\data
 copy xilinx\library\pcores\plb_powerlink_vX_YY_Z\data\plb_powerlink_v2_1_0.tcl     release\xilinx\library\pcores\%DIR_PLB_POWERLINK%\data
+copy xilinx\library\pcores\plb_powerlink_vX_YY_Z\doc\index.pdf                     release\xilinx\library\pcores\%DIR_PLB_POWERLINK%\doc
 copy xilinx\library\pcores\plb_powerlink_vX_YY_Z\hdl\vhdl\plb_powerlink.vhd        release\xilinx\library\pcores\%DIR_PLB_POWERLINK%\hdl\vhdl
 
 
