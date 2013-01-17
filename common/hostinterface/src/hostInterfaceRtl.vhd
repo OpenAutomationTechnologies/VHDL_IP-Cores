@@ -361,7 +361,7 @@ architecture Rtl of hostInterface is
     signal extSync_sync : std_logic;
     
     --! external sync signal
-    signal extSync, extSyncEnable : std_logic;
+    signal extSyncEnable : std_logic;
     
     --! external sync config
     signal extSyncConfig : std_logic_vector(cExtSyncEdgeConfigWidth-1 downto 0);
@@ -411,14 +411,11 @@ begin
     (others => cInactivated);
     
     --! select external sync if enabled, otherwise rx irq signal
-    syncSig <= extSync when extSyncEnable = cActivated else inr_irqSync_irq;
-    
-    --! select ext sync depending on config
-    with extSyncConfig select
-    extSync <= extSync_rising when cExtSyncEdgeRis,
-    extSync_falling when cExtSyncEdgeFal,
-    extSync_any when cExtSyncEdgeAny,
-    cInactivated when others;
+    syncSig <= inr_irqSync_irq when extSyncEnable /= cActivated else
+                extSync_rising when extSyncConfig = cExtSyncEdgeRis else
+                extSync_falling when extSyncConfig = cExtSyncEdgeFal else
+                extSync_any when extSyncConfig = cExtSyncEdgeAny else
+                cInactivated;
     
     --! The synchronizer which protects us from crazy effects!
     theSynchronizer : sync
