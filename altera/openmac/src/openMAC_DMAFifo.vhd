@@ -68,7 +68,7 @@ entity openMAC_DMAfifo is
 		wr_full		: out std_logic;
 		wr_usedw	: out std_logic_vector(fifo_word_size_log2_g-1 downto 0)
 	);
-end openmac_dmafifo;
+end openMAC_DMAfifo;
 
 
 architecture struct of openMAC_DMAfifo is
