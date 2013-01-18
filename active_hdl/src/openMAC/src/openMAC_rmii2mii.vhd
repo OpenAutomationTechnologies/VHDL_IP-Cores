@@ -85,10 +85,10 @@ begin
 		--fifo size must not be larger than 2**5
 		constant FIFO_NIBBLES_LOG2 : integer := 5;
 		
-		signal fifo_half, fifo_full, fifo_empty, fifo_valid, fifo_wrempty : std_logic;
+		signal fifo_half, fifo_full, fifo_empty, fifo_valid, fifo_valid_l, fifo_wrempty : std_logic;
 		signal fifo_wr, fifo_rd : std_logic;
 		signal fifo_din : std_logic_vector(NIBBLE_SIZE-1 downto 0);
-		signal fifo_dout : std_logic_vector(NIBBLE_SIZE-1 downto 0);
+		signal fifo_dout, fifo_dout_l : std_logic_vector(NIBBLE_SIZE-1 downto 0);
 		signal fifo_rdUsedWord : std_logic_vector (FIFO_NIBBLES_LOG2-1 downto 0);
 		signal fifo_wrUsedWord : std_logic_vector (FIFO_NIBBLES_LOG2-1 downto 0);
 		--necessary for clr fifo
@@ -120,17 +120,22 @@ begin
 			end if;
 		end process;
 		
-		mTxDat <= fifo_dout; --brauch ma net... when fifo_valid = '1' else (others => '0');
-		mTxEn <= fifo_valid;
-		
 		fifo_half <= fifo_rdUsedWord(fifo_rdUsedWord'left);
+		
+		mTxDat <= fifo_dout_l;
+		mTxEn <= fifo_valid_l;
 		
 		process(mTxClk, rst)
 		begin
 			if rst = '1' then
 				fifo_rd <= '0';
 				fifo_valid <= '0';
+				fifo_dout_l <= (others => '0');
+				fifo_valid_l <= '0';
 			elsif mTxClk = '1' and mTxClk'event then
+				fifo_dout_l <= fifo_dout;
+				fifo_valid_l <= fifo_valid;
+				
 				if fifo_rd = '0' and fifo_half = '1' then
 					fifo_rd <= '1';
 				elsif fifo_rd = '1' and fifo_empty = '1' then
@@ -205,8 +210,17 @@ begin
 		signal fifo_rd_s : std_logic;
 	begin
 		
-		fifo_din <= mRxDat;
-		fifo_wr <= mRxDv and not mRxEr;
+		
+        process(mRxClk, rst)
+        begin
+            if rst = '1' then
+                fifo_din <= (others => '0');
+                fifo_wr <= '0';
+            elsif mRxClk = '1' and mRxClk'event then
+                fifo_din <= mRxDat;
+                fifo_wr <= mRxDv and not mRxEr;
+            end if;
+        end process;
 		
 		rRxDat <= 	fifo_dout(fifo_dout'right+1 downto 0) when sel_dibit = '1' else
 					fifo_dout(fifo_dout'left downto fifo_dout'left-1);
