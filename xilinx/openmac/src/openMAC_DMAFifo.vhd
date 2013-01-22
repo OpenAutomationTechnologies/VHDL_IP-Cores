@@ -101,7 +101,6 @@ end component;
 component dc_dpr
   generic(
        ADDRWIDTH : integer := 7;
-       SIZE : integer := 128;
        WIDTH : integer := 16
   );
   port (
@@ -168,7 +167,6 @@ THE_FIFO_CONTROL : async_fifo_ctrl
 THE_FIFO_DPR : dc_dpr
   generic map (
        ADDRWIDTH => fifo_word_size_log2_g,
-       SIZE => fifo_word_size_g,
        WIDTH => fifo_data_width_g
   )
   port map(
