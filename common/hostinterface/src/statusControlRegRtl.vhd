@@ -161,6 +161,8 @@ architecture Rtl of statusControlReg is
     constant cBaseState                 : natural :=    16#0206#;
     --! error base
     constant cBaseError                 : natural :=    16#0208#;
+    --! heart beat
+    constant cBaseHeartBeat             : natural :=    16#020A#;
     --! node id in base
     constant cBaseNodeIdIn              : natural :=    16#020C#;
     --! led control base
@@ -200,6 +202,7 @@ architecture Rtl of statusControlReg is
         command             : std_logic_vector(cWord-1 downto 0);
         state               : std_logic_vector(cWord-1 downto 0);
         error               : std_logic_vector(cWord-1 downto 0);
+        heartBeat           : std_logic_vector(cWord-1 downto 0);
         led                 : std_logic_vector(cLedCount-1 downto 0);
     end record;
     
@@ -226,10 +229,11 @@ architecture Rtl of statusControlReg is
     --! control register initialisation
     constant cRegControlInit : tRegisterControl := (
     bridgeEnable => cInactivated,
-    command => (others => cInactivated),
-    state   => (others => cInactivated),
-    error   => (others => cInactivated),
-    led     => (others => cInactivated)
+    command   => (others => cInactivated),
+    state     => (others => cInactivated),
+    error     => (others => cInactivated),
+    heartBeat => (others => cInactivated),
+    led       => (others => cInactivated)
     );
     
     --! synchronization register
@@ -381,10 +385,10 @@ begin
                     end if;
                 end if;
             
-            when cBaseError =>
-                oHostReaddata(cWord-1 downto 0) <= regControl.error;
+            when cBaseHeartBeat | cBaseError =>
+                oHostReaddata <= regControl.heartBeat & regControl.error;
                 
-                --error is RO
+                --heartbeat and error are RO
             
             when cBaseNodeIdIn =>
                 oHostReaddata(iNodeId'length-1 downto 0) <= iNodeId;
@@ -537,10 +541,15 @@ begin
                     end loop;
                 end if;
             
-            when cBaseError =>
-                oPcpReaddata(cWord-1 downto 0) <= regControl.error;
+            when cBaseHeartBeat | cBaseError =>
+                oPcpReaddata <= regControl.heartBeat & regControl.error;
                 
                 if iPcpWrite = cActivated then
+                    for i in cDword-1 downto cWord loop
+                        if iPcpByteenable(i/cByte) = cActivated then
+                            regControl_next.heartBeat(i-cWord) <= iPcpWritedata(i);
+                        end if;
+                    end loop;
                     for i in cWord-1 downto 0 loop
                         if iPcpByteenable(i/cByte) = cActivated then
                             regControl_next.error(i) <= 
