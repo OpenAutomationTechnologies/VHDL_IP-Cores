@@ -56,6 +56,7 @@ set_module_property ELABORATION_CALLBACK elaboration_callback
 set_module_property ANALYZE_HDL AUTO
 set_module_property REPORT_TO_TALKBACK false
 set_module_property ALLOW_GREYBOX_GENERATION false
+set_module_property ICON_PATH "img/br.png"
 
 
 # -----------------------------------------------------------------------------
@@ -241,94 +242,119 @@ set_parameter_property  sys_uniqueId        HDL_PARAMETER       FALSE
 set_parameter_property  sys_uniqueId        DERIVED             TRUE
 set_parameter_property  sys_uniqueId        SYSTEM_INFO         GENERATION_ID
 set_parameter_property  sys_uniqueId        ENABLED             FALSE
+set_parameter_property  sys_uniqueId        VISIBLE             FALSE
 
 # -----------------------------------------------------------------------------
 # GUI parameters
 # -----------------------------------------------------------------------------
+add_parameter           gui_interfaceTyp    NATURAL             1
+set_parameter_property  gui_interfaceTyp    DEFAULT_VALUE       1
+set_parameter_property  gui_interfaceTyp    TYPE                NATURAL
+set_parameter_property  gui_interfaceTyp    DISPLAY_NAME        "Host Interface Configuration"
+set_parameter_property  gui_interfaceTyp    ALLOWED_RANGES      {1:Avalon 2:Parallel}
+set_parameter_property  gui_interfaceTyp    DISPLAY_HINT        RADIO
+
+add_parameter           gui_parallelMltplx  NATURAL             1
+set_parameter_property  gui_parallelMltplx  DEFAULT_VALUE       1
+set_parameter_property  gui_parallelMltplx  TYPE                NATURAL
+set_parameter_property  gui_parallelMltplx  DISPLAY_NAME        "Address-/Data-Bus Multiplexing"
+set_parameter_property  gui_parallelMltplx  ALLOWED_RANGES      {1:Demultiplexed 2:Multiplexed}
+set_parameter_property  gui_parallelMltplx  DISPLAY_HINT        RADIO
+
+add_parameter           gui_parallelDwidth  NATURAL             16
+set_parameter_property  gui_parallelDwidth  DEFAULT_VALUE       16
+set_parameter_property  gui_parallelDwidth  TYPE                NATURAL
+set_parameter_property  gui_parallelDwidth  DISPLAY_NAME        "Data Width"
+set_parameter_property  gui_parallelDwidth  ALLOWED_RANGES      {16 32}
+set_parameter_property  gui_parallelDwidth  UNITS               "Bits"
+
 add_parameter           gui_sizeDynBuf0     NATURAL             2
 set_parameter_property  gui_sizeDynBuf0     DEFAULT_VALUE       2
 set_parameter_property  gui_sizeDynBuf0     TYPE                NATURAL
 set_parameter_property  gui_sizeDynBuf0     DISPLAY_NAME        "Dynamic Buffer for RX Virtual Ethernet Queue"
-set_parameter_property  gui_sizeDynBuf0     DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeDynBuf0     UNITS               "Kilobytes"
+set_parameter_property  gui_sizeDynBuf0     ALLOWED_RANGES      {2}
 
 add_parameter           gui_sizeDynBuf1     NATURAL             2
 set_parameter_property  gui_sizeDynBuf1     DEFAULT_VALUE       2
 set_parameter_property  gui_sizeDynBuf1     TYPE                NATURAL
 set_parameter_property  gui_sizeDynBuf1     DISPLAY_NAME        "Dynamic Buffer for Kernel-to-User Queue"
-set_parameter_property  gui_sizeDynBuf1     DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeDynBuf1     UNITS               "Kilobytes"
+set_parameter_property  gui_sizeDynBuf1     ALLOWED_RANGES      {2}
 
-add_parameter           gui_sizeErrorCnter  NATURAL             4
-set_parameter_property  gui_sizeErrorCnter  DEFAULT_VALUE       4
+add_parameter           gui_sizeErrorCnter  NATURAL             3108
+set_parameter_property  gui_sizeErrorCnter  DEFAULT_VALUE       3108
 set_parameter_property  gui_sizeErrorCnter  TYPE                NATURAL
 set_parameter_property  gui_sizeErrorCnter  DISPLAY_NAME        "Error Counter"
-set_parameter_property  gui_sizeErrorCnter  DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeErrorCnter  UNITS               "Bytes"
+set_parameter_property  gui_sizeErrorCnter  ALLOWED_RANGES      {36:CN 3108:MN 1024 2048 4096 8192}
 
-add_parameter           gui_sizeTxNmtQ      NATURAL             4
-set_parameter_property  gui_sizeTxNmtQ      DEFAULT_VALUE       4
+add_parameter           gui_sizeTxNmtQ      NATURAL             2
+set_parameter_property  gui_sizeTxNmtQ      DEFAULT_VALUE       2
 set_parameter_property  gui_sizeTxNmtQ      TYPE                NATURAL
 set_parameter_property  gui_sizeTxNmtQ      DISPLAY_NAME        "TX NMT Queue"
-set_parameter_property  gui_sizeTxNmtQ      DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeTxNmtQ      UNITS               "Kilobytes"
 set_parameter_property  gui_sizeTxNmtQ      ALLOWED_RANGES      {1 2 4 8 16 32 64}
 
-add_parameter           gui_sizeTxGenQ      NATURAL             4
-set_parameter_property  gui_sizeTxGenQ      DEFAULT_VALUE       4
+add_parameter           gui_sizeTxGenQ      NATURAL             2
+set_parameter_property  gui_sizeTxGenQ      DEFAULT_VALUE       2
 set_parameter_property  gui_sizeTxGenQ      TYPE                NATURAL
 set_parameter_property  gui_sizeTxGenQ      DISPLAY_NAME        "TX Generic Queue"
-set_parameter_property  gui_sizeTxGenQ      DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeTxGenQ      UNITS               "Kilobytes"
 set_parameter_property  gui_sizeTxGenQ      ALLOWED_RANGES      {1 2 4 8 16 32 64}
 
-add_parameter           gui_sizeTxSyncQ     NATURAL             4
-set_parameter_property  gui_sizeTxSyncQ     DEFAULT_VALUE       4
+add_parameter           gui_sizeTxSyncQ     NATURAL             2
+set_parameter_property  gui_sizeTxSyncQ     DEFAULT_VALUE       2
 set_parameter_property  gui_sizeTxSyncQ     TYPE                NATURAL
 set_parameter_property  gui_sizeTxSyncQ     DISPLAY_NAME        "TX Sync Queue"
-set_parameter_property  gui_sizeTxSyncQ     DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeTxSyncQ     UNITS               "Kilobytes"
 set_parameter_property  gui_sizeTxSyncQ     ALLOWED_RANGES      {1 2 4 8 16 32 64}
 
-add_parameter           gui_sizeTxVethQ     NATURAL             4
-set_parameter_property  gui_sizeTxVethQ     DEFAULT_VALUE       4
+add_parameter           gui_sizeTxVethQ     NATURAL             2
+set_parameter_property  gui_sizeTxVethQ     DEFAULT_VALUE       2
 set_parameter_property  gui_sizeTxVethQ     TYPE                NATURAL
 set_parameter_property  gui_sizeTxVethQ     DISPLAY_NAME        "TX Virtual Ethernet Queue"
-set_parameter_property  gui_sizeTxVethQ     DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeTxVethQ     UNITS               "Kilobytes"
 set_parameter_property  gui_sizeTxVethQ     ALLOWED_RANGES      {1 2 4 8 16 32 64}
 
-add_parameter           gui_sizeRxVethQ     NATURAL             4
-set_parameter_property  gui_sizeRxVethQ     DEFAULT_VALUE       4
+add_parameter           gui_sizeRxVethQ     NATURAL             1
+set_parameter_property  gui_sizeRxVethQ     DEFAULT_VALUE       1
 set_parameter_property  gui_sizeRxVethQ     TYPE                NATURAL
 set_parameter_property  gui_sizeRxVethQ     DISPLAY_NAME        "RX Virtual Ethernet Queue"
-set_parameter_property  gui_sizeRxVethQ     DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeRxVethQ     UNITS               "Kilobytes"
 set_parameter_property  gui_sizeRxVethQ     ALLOWED_RANGES      {1 2 4 8 16 32 64}
 
 add_parameter           gui_sizeK2UQ        NATURAL             8
 set_parameter_property  gui_sizeK2UQ        DEFAULT_VALUE       8
 set_parameter_property  gui_sizeK2UQ        TYPE                NATURAL
 set_parameter_property  gui_sizeK2UQ        DISPLAY_NAME        "Kernel-to-User Queue"
-set_parameter_property  gui_sizeK2UQ        DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeK2UQ        UNITS               "Kilobytes"
 set_parameter_property  gui_sizeK2UQ        ALLOWED_RANGES      {1 2 4 8 16 32 64}
 
 add_parameter           gui_sizeU2KQ        NATURAL             8
 set_parameter_property  gui_sizeU2KQ        DEFAULT_VALUE       8
 set_parameter_property  gui_sizeU2KQ        TYPE                NATURAL
 set_parameter_property  gui_sizeU2KQ        DISPLAY_NAME        "User-to-Kernel Queue"
-set_parameter_property  gui_sizeU2KQ        DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeU2KQ        UNITS               "Kilobytes"
 set_parameter_property  gui_sizeU2KQ        ALLOWED_RANGES      {1 2 4 8 16 32 64}
 
-add_parameter           gui_sizeTpdo        NATURAL             12
-set_parameter_property  gui_sizeTpdo        DEFAULT_VALUE       12
+add_parameter           gui_sizeTpdo        NATURAL             12288
+set_parameter_property  gui_sizeTpdo        DEFAULT_VALUE       12288
 set_parameter_property  gui_sizeTpdo        TYPE                NATURAL
 set_parameter_property  gui_sizeTpdo        DISPLAY_NAME        "Transmit Process Data Objects (TPDO)"
-set_parameter_property  gui_sizeTpdo        DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeTpdo        UNITS               "Bytes"
 
-add_parameter           gui_sizeRpdo        NATURAL             24
-set_parameter_property  gui_sizeRpdo        DEFAULT_VALUE       24
+add_parameter           gui_sizeRpdo        NATURAL             24576
+set_parameter_property  gui_sizeRpdo        DEFAULT_VALUE       24576
 set_parameter_property  gui_sizeRpdo        TYPE                NATURAL
 set_parameter_property  gui_sizeRpdo        DISPLAY_NAME        "Receive Process Data Objects (RPDO)"
-set_parameter_property  gui_sizeRpdo        DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeRpdo        UNITS               "Bytes"
 
-add_parameter           gui_sizeTotal       NATURAL             48
-set_parameter_property  gui_sizeTotal       DEFAULT_VALUE       48
+add_parameter           gui_sizeTotal       NATURAL             49152
+set_parameter_property  gui_sizeTotal       DEFAULT_VALUE       49152
 set_parameter_property  gui_sizeTotal       TYPE                NATURAL
 set_parameter_property  gui_sizeTotal       DISPLAY_NAME        "Total Memory Size"
-set_parameter_property  gui_sizeTotal       DISPLAY_UNITS       "Kilobytes"
+set_parameter_property  gui_sizeTotal       UNITS               "Bytes"
 set_parameter_property  gui_sizeTotal       DERIVED             TRUE
 
 add_parameter           gui_baseAddrTblName STRING_LIST
@@ -344,34 +370,50 @@ set_parameter_property  gui_baseAddrTblVal  DISPLAY_HINT        "HEXADECIMAL"
 # -----------------------------------------------------------------------------
 # GUI configuration
 # -----------------------------------------------------------------------------
-add_display_item        ""                  "Buffer Configuration" GROUP TAB
-add_display_item        "Buffer Configuration" gui_sizeDynBuf0  PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeDynBuf1  PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeErrorCnter PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeTxNmtQ   PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeTxGenQ   PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeTxSyncQ  PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeTxVethQ  PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeRxVethQ  PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeK2UQ     PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeU2KQ     PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeTpdo     PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeRpdo     PARAMETER
-add_display_item        "Buffer Configuration" gui_sizeTotal    PARAMETER
+add_display_item        "" "General"                            GROUP TAB
+add_display_item        "General"           gui_interfaceTyp    PARAMETER
+add_display_item        "General"           "Avalon"            GROUP
+add_display_item        "General"           "Parallel Interface" GROUP
+add_display_item        "Parallel Interface" gui_parallelDwidth PARAMETER
+add_display_item        "Parallel Interface" gui_parallelMltplx PARAMETER
 
-add_display_item        ""                  "Memory Mapping"    GROUP TAB
-add_display_item        "Memory Mapping"    baseAddrTbl         GROUP TABLE
+add_display_item        "" "Buffer Configuration"               GROUP TAB
+add_display_item        "Buffer Configuration" "Queues"         GROUP
+add_display_item        "Buffer Configuration" "Pdo"            GROUP
+add_display_item        "Buffer Configuration" "Others"         GROUP
+add_display_item        "Others"            gui_sizeDynBuf0     PARAMETER
+add_display_item        "Others"            gui_sizeDynBuf1     PARAMETER
+add_display_item        "Others"            gui_sizeErrorCnter  PARAMETER
+add_display_item        "Queues"            gui_sizeTxNmtQ      PARAMETER
+add_display_item        "Queues"            gui_sizeTxGenQ      PARAMETER
+add_display_item        "Queues"            gui_sizeTxSyncQ     PARAMETER
+add_display_item        "Queues"            gui_sizeTxVethQ     PARAMETER
+add_display_item        "Queues"            gui_sizeRxVethQ     PARAMETER
+add_display_item        "Queues"            gui_sizeK2UQ        PARAMETER
+add_display_item        "Queues"            gui_sizeU2KQ        PARAMETER
+add_display_item        "Pdo"               gui_sizeTpdo        PARAMETER
+add_display_item        "Pdo"               gui_sizeRpdo        PARAMETER
+
+add_display_item        "" "Information"                        GROUP TAB
+add_display_item        "Information"       "Memory Map"        GROUP
+add_display_item        "Memory Map"        gui_sizeTotal       PARAMETER
+add_display_item        "Memory Map"        baseAddrTbl         GROUP TABLE
 add_display_item        baseAddrTbl         gui_baseAddrTblName PARAMETER
 add_display_item        baseAddrTbl         gui_baseAddrTblVal  PARAMETER
 
 # -----------------------------------------------------------------------------
 # callbacks
 # -----------------------------------------------------------------------------
+
 proc elaboration_callback {} {
 
-    generate_version
+    #control GUI
+    display_parallelInterface
 
+    #generate HDL generics and C macros
+    generate_version
     generate_memory_mapping
+    generate_hostInterface
 
 }
 
@@ -382,7 +424,62 @@ proc generation_callback { entityname } {
 # -----------------------------------------------------------------------------
 # internal functions
 # -----------------------------------------------------------------------------
-# generate parameter functions
+
+# -----------------------------------------------------------------------------
+# display control
+proc display_parallelInterface {} {
+    set_display_item_property "Avalon" VISIBLE FALSE
+    set_display_item_property "Parallel Interface" VISIBLE FALSE
+
+    set ifCfg [get_interfaceConfiguration]
+
+    switch $ifCfg {
+        1 {
+            set_display_item_property "Avalon" VISIBLE TRUE
+        }
+        2 {
+            set_display_item_property "Parallel Interface" VISIBLE TRUE
+        }
+        default {
+
+        }
+    }
+}
+
+# -----------------------------------------------------------------------------
+# generate
+proc generate_hostInterface {} {
+    # check if Avalon or parallel interface is selected
+    if {[get_interfaceConfiguration] == 1} {
+        #enable Avalon host
+        set_interface_property host ENABLED TRUE
+
+        #disable parallel host
+        #TODO!
+
+        #set HDL generics
+        #TODO!
+
+        #set CMACROS
+        #TODO!
+
+    } else {
+        #enable parallel host
+        #TODO!
+
+        #disable Avalon host
+        set_interface_property host ENABLED FALSE
+
+        #set HDL generics
+        #TODO!
+
+        #set CMACROS
+        #TODO!
+
+        send_message ERROR "parallel interface not yet supported!"
+    }
+}
+
 proc generate_version {} {
     set listVersionParam [list "gVersionMajor" "gVersionMinor" "gVersionRevision" "gVersionCount"]
     set listVersionCmacro [list "VERSION_MAJOR" "VERSION_MINOR" "VERSION_REVISION" "VERSION_COUNT"]
@@ -407,8 +504,8 @@ proc generate_memory_mapping {} {
     set memorySpanKb 128
 
     #get sizes from GUI
-    set listSize [get_gui_size $listSizeGuiParam]
-    
+    set listSize [get_gui_size $listSizeGuiParam ]
+
     #add size for header
     set listSize [add_value_to_list $listSize $listSizeGuiHeaders]
 
@@ -425,7 +522,7 @@ proc generate_memory_mapping {} {
     #get required memory span
     set memorySpan [get_required_memory_span $listBase]
 
-    set_parameter_value gui_sizeTotal [expr $memorySpan / 1024]
+    set_parameter_value gui_sizeTotal $memorySpan
 
     #test memory mapping
     set ret [check_memory_mapping $listBase $memorySpanKb]
@@ -455,20 +552,36 @@ proc get_version_count { value maxvalue } {
     if {$maxvalue == 0} {
         set maxvalue 1
     }
-    
+
     # get positive remainder of the division to limit returned value
     set value [expr abs(int(fmod($value, $maxvalue)))]
 
     return $value
 }
 
-#functions for generate_memory_mapping
+# functions for generate_memory_mapping
 proc get_gui_size { listParam } {
-    set listSizeKilobytes [get_list_param $listParam]
     set listSize ""
 
-    foreach kb $listSizeKilobytes {
-        set listSize [concat $listSize [expr int($kb * 1024)]]
+    foreach param $listParam {
+        set unit [get_parameter_property $param UNITS]
+        set val [get_parameter_value $param]
+
+        switch $unit {
+            "Bytes" {
+                set fact 1
+                if {[expr $val % 4] != 0} {
+                    send_message Error "[get_parameter_property $param DISPLAY_NAME] is not 32-bit-aligned!"
+                }
+            }
+            "Kilobytes" {
+                set fact 1024
+            }
+            default {
+                send_message Error "Unknown unit!"
+            }
+        }
+        set listSize [concat $listSize [expr int($val * $fact)]]
     }
 
     return $listSize
@@ -481,7 +594,7 @@ proc add_value_to_list { listParam listValue } {
 
         set listRet [concat $listRet [expr $param + $adder]]
     }
-    
+
     return $listRet
 }
 
@@ -514,6 +627,26 @@ proc check_memory_mapping { listBase memorySpanKb } {
     }
 
     return $ret
+}
+
+# functions for reading/checking GUI parameters
+proc get_interfaceConfiguration { } {
+    set param "gui_interfaceTyp"
+    set val [get_parameter_value $param]
+
+    switch $val  {
+        1 {
+        #Avalon
+        }
+        2 {
+        #Parallel
+        }
+        default {
+            send_message Error "Set [get_parameter_property $param DISPLAY_NAME]"
+        }
+    }
+
+    return $val
 }
 
 # utilities
@@ -575,7 +708,7 @@ set_interface_property host readWaitTime 1
 set_interface_property host setupTime 0
 set_interface_property host timingUnits Cycles
 set_interface_property host writeWaitTime 0
-set_interface_property host ENABLED true
+set_interface_property host ENABLED FALSE
 
 add_interface_port host avs_host_address address Input 15
 add_interface_port host avs_host_byteenable byteenable Input 4
