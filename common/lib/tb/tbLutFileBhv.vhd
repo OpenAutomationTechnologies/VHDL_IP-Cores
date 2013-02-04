@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 --! @file tbLutFileBhv.vhd
 --
---! @brief 
+--! @brief Testbench for Look-up table file
 --
 -------------------------------------------------------------------------------
 --
@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 use work.global.all;
 
 
-entity tbLutFile is 
+entity tbLutFile is
 end tbLutFile;
 
 architecture Bhv of tbLutFile is
@@ -93,19 +93,19 @@ begin
 
 ---- User Signal Assignments ----
 process(clk)
-	variable vCnt : std_logic_vector(LogDualis(cLutCounts) downto 0) := (others => '0');
+    variable vCnt : std_logic_vector(LogDualis(cLutCounts) downto 0) := (others => '0');
 begin
-	if rising_edge(clk) then
-		assert (valid = '1') report "LUT value incorrect address=" & integer'IMAGE(to_integer(unsigned(vCnt))) severity error;
-		vCnt := std_logic_vector(unsigned(vCnt) + 1);
-	end if;
-	address <= vCnt(address'range);
-	done <= vCnt(vCnt'left);
+    if rising_edge(clk) then
+        assert (valid = '1') report "LUT value incorrect address=" & integer'IMAGE(to_integer(unsigned(vCnt))) severity error;
+        vCnt := std_logic_vector(unsigned(vCnt) + 1);
+    end if;
+    address <= vCnt(address'range);
+    done <= vCnt(vCnt'left);
 end process;
 
 valid <= '1' when address(0) = '0' and data = cLutInitA else
-			'1' when address(0) = '1' and data = cLutInitB else
-			'0';
+            '1' when address(0) = '1' and data = cLutInitB else
+            '0';
 
 ----  Component instantiations  ----
 

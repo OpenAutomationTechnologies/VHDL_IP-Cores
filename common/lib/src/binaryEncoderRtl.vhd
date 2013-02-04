@@ -3,8 +3,8 @@
 --
 --! @brief Generic Binary Encoder with reduced or-operation
 --
---! @details This generic binary encoder can be configured to any width, 
---! however, mind base 2 values. In order to reduce the complexity of the 
+--! @details This generic binary encoder can be configured to any width,
+--! however, mind base 2 values. In order to reduce the complexity of the
 --! synthesized circuit the reduced or-operation is applied.
 --! (Borrowed from academic.csuohio.edu/chu_p and applied coding styles)
 -------------------------------------------------------------------------------
@@ -58,13 +58,13 @@ entity binaryEncoder is
 end binaryEncoder;
 
 architecture Rtl of binaryEncoder is
-    
-    type tMaskArray is 
-    array(LogDualis(gDataWidth)-1 downto 0) of 
+
+    type tMaskArray is
+    array(LogDualis(gDataWidth)-1 downto 0) of
     std_logic_vector(gDataWidth-1 downto 0);
-    
+
     signal mask : tMaskArray;
-    
+
     function genOrMask return tMaskArray is
         variable vOrMask: tMaskArray;
     begin
@@ -79,11 +79,11 @@ architecture Rtl of binaryEncoder is
         end loop;
         return vOrMask;
     end function;
-    
+
 begin
-    
+
     mask <= genOrMask;
-    
+
     process(mask, iOneHot)
         variable rowVector : std_logic_vector(gDataWidth-1 downto 0);
         variable tempBit : std_logic;
@@ -98,5 +98,5 @@ begin
             oBinary(i) <= tempBit;
         end loop;
     end process;
-    
+
 end Rtl;

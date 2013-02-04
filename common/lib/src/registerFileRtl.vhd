@@ -1,5 +1,10 @@
 -------------------------------------------------------------------------------
--- Entity : registerFile
+--! @file registerFileRtl.vhd
+--
+--! @brief Register table file implementation
+--
+--! @details This implementation is a simple dual ported memory implemented in
+--! using register resources.
 -------------------------------------------------------------------------------
 --
 --    (c) B&R, 2012
@@ -59,13 +64,13 @@ entity registerFile is
 end registerFile;
 
 architecture Rtl of registerFile is
-    type tRegSet is 
+    type tRegSet is
     array (natural range <>) of std_logic_vector(iWritedataA'range);
-    
+
     signal regFile, regFile_next : tRegSet(gRegCount-1 downto 0);
-    
+
 begin
-    
+
     --register set
     reg : process(iClk)
     begin
@@ -78,7 +83,7 @@ begin
             end if;
         end if;
     end process;
-    
+
     --write data into Register File with respect to address
     --note: a overrules b
     regFileWrite : process(
@@ -86,14 +91,14 @@ begin
     begin
         --default
         regFile_next <= regFile;
-        
+
         if iWriteB = cActivated then
             --write to address
             for i in regFile'range loop
                 regFile_next(to_integer(unsigned(iAddrB))) <= iWritedataB;
             end loop;
         end if;
-        
+
         if iWriteA = cActivated then
             --write to address
             for i in regFile'range loop
@@ -101,7 +106,7 @@ begin
             end loop;
         end if;
     end process;
-    
+
     --read data from Register File with respect to iAddrRead
     regFileRead : process(iAddrA, iAddrB, regFile)
     begin
@@ -109,5 +114,5 @@ begin
         oReaddataA <= regFile(to_integer(unsigned(iAddrA)));
         oReaddataB <= regFile(to_integer(unsigned(iAddrB)));
     end process;
-    
+
 end Rtl;

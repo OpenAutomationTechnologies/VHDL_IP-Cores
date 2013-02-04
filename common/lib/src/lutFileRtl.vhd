@@ -1,5 +1,10 @@
 -------------------------------------------------------------------------------
--- Entity : lutFile
+--! @file lutFileRtl.vhd
+--
+--! @brief Look-up table file implementation
+--
+--! @details This look-up table file stores initialization values (generics)
+--! in LUT resources.
 -------------------------------------------------------------------------------
 --
 --    (c) B&R, 2012
@@ -44,7 +49,7 @@ entity lutFile is
     generic (
         gLutCount       : natural := 4;
         gLutWidth       : natural := 32;
-        gLutInitValue   : std_logic_vector := 
+        gLutInitValue   : std_logic_vector :=
         x"1111_1111" & x"2222_2222" & x"3333_3333" & x"4444_4444"
         );
     port (
@@ -56,25 +61,25 @@ end lutFile;
 architecture Rtl of lutFile is
     constant cLutFile : std_logic_vector(gLutCount*gLutWidth-1 downto 0) :=
     gLutInitValue;
-    
+
     signal lutOutput : std_logic_vector(gLutWidth-1 downto 0);
 begin
-    
-    --Lut File is a bitstream that is blockwise (gLutWidth) read with 
+
+    --Lut File is a bitstream that is blockwise (gLutWidth) read with
     --respect to iAddrRead.
     bitSelect : process(iAddrRead)
     begin
         --default
         lutOutput <= (others => '0');
-        
+
         for i in gLutWidth-1 downto 0 loop
             --assign selected bits in Lut File to output
             lutOutput(i) <= cLutFile
             ( (gLutCount-1-to_integer(unsigned(iAddrRead)))*gLutWidth + i );
         end loop;
     end process;
-    
+
     --! downscale lut width to output
     oData <= lutOutput(oData'range);
-    
+
 end Rtl;

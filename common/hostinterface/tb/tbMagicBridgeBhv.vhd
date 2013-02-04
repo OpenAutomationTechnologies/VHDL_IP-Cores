@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 --! @file tbMagicBridgeBhv.vhd
 --
---! @brief 
+--! @brief
 --
 -------------------------------------------------------------------------------
 --
@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 use work.global.all;
 use work.hostInterfacePkg.all;
 
-entity tbMagicBridge is 
+entity tbMagicBridge is
 end tbMagicBridge;
 
 architecture Bhv of tbMagicBridge is
@@ -117,7 +117,7 @@ end component;
 constant cInAddressWidth : natural := 16;
 constant cOutAddressWidth : natural := 30;
 
-constant cAddressArray : tArrayStd32 := 
+constant cAddressArray : tArrayStd32 :=
 x"0000_1000" & x"0000_2000" & x"0000_3000" & x"0000_3100";
 
 constant cAddressSpaceCount : natural := 3;

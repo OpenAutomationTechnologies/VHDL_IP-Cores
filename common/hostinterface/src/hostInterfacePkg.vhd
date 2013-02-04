@@ -49,10 +49,10 @@ package hostInterfacePkg is
     constant cByte                      : natural :=    8;
     --! nible size
     constant cNibble                    : natural :=    4;
-    
+
     --! size of 32 bit std_logic_vector array
     constant cArrayStd32ElementSize : natural := 32;
-    
+
     --! external synchronization config
     constant cExtSyncConfigWidth : natural := 3;
     constant cExtSyncEdgeConfigWidth : natural := 2;
@@ -62,43 +62,43 @@ package hostInterfacePkg is
     (cExtSyncEdgeConfigWidth-1 downto 0)            := "10";
     constant cExtSyncEdgeAny : std_logic_vector
     (cExtSyncEdgeConfigWidth-1 downto 0)            := "11";
-    
+
     -- type
     --! 32 bit std_logic_vector array type
-    type tArrayStd32 is 
+    type tArrayStd32 is
     array (natural range <>) of std_logic_vector
     (cArrayStd32ElementSize-1 downto 0);
-    
+
     -- function
     --! convert arrayIn into std_logic_vector stream
-    function CONV_STDLOGICVECTOR (arrayIn : tArrayStd32; arrayLength : natural) 
+    function CONV_STDLOGICVECTOR (arrayIn : tArrayStd32; arrayLength : natural)
     return std_logic_vector;
-    
+
 end hostInterfacePkg;
 
 package body hostInterfacePkg is
-    
+
     -- function
-    function CONV_STDLOGICVECTOR (arrayIn : tArrayStd32; arrayLength : natural) 
+    function CONV_STDLOGICVECTOR (arrayIn : tArrayStd32; arrayLength : natural)
         return std_logic_vector is
         variable vTmpStream : std_logic_vector
         (arrayLength*cArrayStd32ElementSize-1 downto 0);
         variable vTmpElement : std_logic_vector
         (cArrayStd32ElementSize-1 downto 0);
     begin
-        
+
         for i in arrayLength downto 1 loop
             --get current element
             vTmpElement := arrayIn(arrayLength-i);
-            
+
             --write element into stream
             vTmpStream
-            (i*cArrayStd32ElementSize-1 downto (i-1)*cArrayStd32ElementSize) := 
+            (i*cArrayStd32ElementSize-1 downto (i-1)*cArrayStd32ElementSize) :=
             vTmpElement;
         end loop;
-        
+
         return vTmpStream;
-        
+
     end function;
-    
+
 end package body;

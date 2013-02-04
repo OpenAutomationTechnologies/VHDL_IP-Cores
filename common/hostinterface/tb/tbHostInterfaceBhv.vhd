@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 --! @file tbHostInterfaceBhv.vhd
 --
---! @brief 
+--! @brief Testbench for Hostinterface ipcore
 --
 -------------------------------------------------------------------------------
 --
@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 use work.global.all;
 
 
-entity tbHostInterface is 
+entity tbHostInterface is
 end tbHostInterface;
 
 architecture Bhv of tbHostInterface is
@@ -253,16 +253,16 @@ begin
 process(clk)
 begin
 
-	if rising_edge(clk) then
+    if rising_edge(clk) then
 
-		if rst = cActivated then
-			counter <= (others => cInactivated);
-		else
-			counter <= std_logic_vector(
-				unsigned(counter) + 1);
-		end if;
+        if rst = cActivated then
+            counter <= (others => cInactivated);
+        else
+            counter <= std_logic_vector(
+                unsigned(counter) + 1);
+        end if;
 
-	end if;
+    end if;
 
 end process;
 

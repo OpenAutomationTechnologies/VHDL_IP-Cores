@@ -3,7 +3,7 @@
 --
 --! @brief toplevel of host interface
 --
---! @details The toplevel instantiates the necessary components for the 
+--! @details The toplevel instantiates the necessary components for the
 --! host interface like the Magic Bridge and the Status-/Control Registers.
 --
 -------------------------------------------------------------------------------
@@ -153,7 +153,7 @@ entity hostInterface is
 end hostInterface;
 
 architecture Rtl of hostInterface is
-    
+
     --! The Magic Bridge
     component magicBridge
         generic(
@@ -172,8 +172,8 @@ architecture Rtl of hostInterface is
             iBaseSetData : in STD_LOGIC_VECTOR;
             oBaseSetData : out STD_LOGIC_VECTOR);
     end component;
-    
-    
+
+
     --! The Status-/Control Registers
     component statusControlReg
         generic(
@@ -217,8 +217,8 @@ architecture Rtl of hostInterface is
             oPLed : out STD_LOGIC_VECTOR(1 downto 0);
             oBridgeEnable : out STD_LOGIC);
     end component;
-    
-    
+
+
     --! The Irq Generator
     component irqGen
         generic(
@@ -234,8 +234,8 @@ architecture Rtl of hostInterface is
             iIrqAcknowledge : in std_logic_vector(gIrqSourceCount downto 0);
             oIrgPending : out std_logic_vector(gIrqSourceCount downto 0));
     end component;
-    
-    
+
+
     --! An Edge Detector
     component edgeDet
         port(
@@ -246,8 +246,8 @@ architecture Rtl of hostInterface is
             clk : in std_logic;
             rst : in std_logic);
     end component;
-    
-    
+
+
     --! A Synchronizer
     component sync
         generic(
@@ -258,165 +258,165 @@ architecture Rtl of hostInterface is
             din : in STD_LOGIC;
             dout : out STD_LOGIC);
     end component;
-    
-    
-    
+
+
+
     --! Magic
     constant cMagic : natural := 16#504C4B00#;
-    
+
     --! Base address array
     constant cBaseAddressArray : tArrayStd32 :=
     (
-    std_logic_vector(to_unsigned(gBaseDynBuf0,  cArrayStd32ElementSize)) , 
+    std_logic_vector(to_unsigned(gBaseDynBuf0,  cArrayStd32ElementSize)) ,
     std_logic_vector(to_unsigned(gBaseDynBuf1,  cArrayStd32ElementSize)) ,
-    std_logic_vector(to_unsigned(gBaseErrCntr,  cArrayStd32ElementSize)) , 
-    std_logic_vector(to_unsigned(gBaseTxNmtQ,   cArrayStd32ElementSize)) , 
-    std_logic_vector(to_unsigned(gBaseTxGenQ,   cArrayStd32ElementSize)) , 
-    std_logic_vector(to_unsigned(gBaseTxSynQ,   cArrayStd32ElementSize)) , 
-    std_logic_vector(to_unsigned(gBaseTxVetQ,   cArrayStd32ElementSize)) , 
-    std_logic_vector(to_unsigned(gBaseRxVetQ,   cArrayStd32ElementSize)) , 
-    std_logic_vector(to_unsigned(gBaseK2UQ,     cArrayStd32ElementSize)) , 
-    std_logic_vector(to_unsigned(gBaseU2KQ,     cArrayStd32ElementSize)) , 
-    std_logic_vector(to_unsigned(gBaseTpdo,     cArrayStd32ElementSize)) , 
-    std_logic_vector(to_unsigned(gBaseRpdo,     cArrayStd32ElementSize)) , 
+    std_logic_vector(to_unsigned(gBaseErrCntr,  cArrayStd32ElementSize)) ,
+    std_logic_vector(to_unsigned(gBaseTxNmtQ,   cArrayStd32ElementSize)) ,
+    std_logic_vector(to_unsigned(gBaseTxGenQ,   cArrayStd32ElementSize)) ,
+    std_logic_vector(to_unsigned(gBaseTxSynQ,   cArrayStd32ElementSize)) ,
+    std_logic_vector(to_unsigned(gBaseTxVetQ,   cArrayStd32ElementSize)) ,
+    std_logic_vector(to_unsigned(gBaseRxVetQ,   cArrayStd32ElementSize)) ,
+    std_logic_vector(to_unsigned(gBaseK2UQ,     cArrayStd32ElementSize)) ,
+    std_logic_vector(to_unsigned(gBaseU2KQ,     cArrayStd32ElementSize)) ,
+    std_logic_vector(to_unsigned(gBaseTpdo,     cArrayStd32ElementSize)) ,
+    std_logic_vector(to_unsigned(gBaseRpdo,     cArrayStd32ElementSize)) ,
     std_logic_vector(to_unsigned(gBaseRes,      cArrayStd32ElementSize))
     );
-    
+
     --! Base address array count
     constant cBaseAddressArrayCount : natural := cBaseAddressArray'length;
-    
+
     --! Base address set by host
     constant cBaseAddressHostCount : natural := 2;
-    
+
     --! Base address set by pcp
     constant cBaseAddressPcpCount : natural :=
     cBaseAddressArrayCount-cBaseAddressHostCount;
-    
+
     --! Number of interrupt sources (sync not included)
     constant cIrqSourceCount : natural := 3;
-    
+
     --! select the bridge logic
     signal bridgeSel : std_logic;
-    
+
     --! invalid address range selected
     signal invalidSel : std_logic;
-    
+
     --! select the status control registers
     signal statCtrlSel : std_logic;
     signal statCtrlWrite : std_logic;
     signal statCtrlRead : std_logic;
-    
+
     --! waitrequest from status/control
     signal statCtrlWaitrequest : std_logic;
-    
+
     --! readdata from status/control
     signal statCtrlReaddata : std_logic_vector(avs_host_readdata'range);
-    
+
     --! bridge select output
     signal bridgeSelOut : std_logic;
-    
+
     --! LED from status/control registers
     signal statCtrlLed : std_logic_vector(1 downto 0);
-    
+
     --! Avalon master needs byte addresses - localy dword is used
     signal avm_hostBridge_address_dword : std_logic_vector
     (avm_hostBridge_address'length-1 downto 2);
-    
+
     -- base set signals
     --! BaseSet Write
     signal baseSetWrite : std_logic;
-    
+
     --! BaseSet Writedata
     signal baseSetWritedata : std_logic_vector
     (avm_hostBridge_address_dword'range);
-    
+
     --! BaseSet Readdata
     signal baseSetReaddata : std_logic_vector
     (avm_hostBridge_address_dword'range);
-    
+
     --! BaseSet Address
     signal baseSetAddress : std_logic_vector
     (LogDualis(cBaseAddressArrayCount)-1 downto 0);
-    
+
     -- interrupt signals
     --! Irq master enable
     signal irqMasterEnable : std_logic;
-    
+
     --! Irq source enable
     signal irqSourceEnable : std_logic_vector(cIrqSourceCount downto 0);
-    
+
     --! Irq acknowledge
     signal irqAcknowledge : std_logic_vector(cIrqSourceCount downto 0);
-    
+
     --! Irq source pending
     signal irqSourcePending : std_logic_vector(cIrqSourceCount downto 0);
-    
+
     --! Irq source set (no sync!)
     signal irqSourceSet : std_logic_vector(cIrqSourceCount downto 1);
-    
+
     --! sync signal
     signal syncSig : std_logic;
-    
+
     --! synchronized ext sync
     signal extSync_sync : std_logic;
-    
+
     --! external sync signal
     signal extSyncEnable : std_logic;
-    
+
     --! external sync config
     signal extSyncConfig : std_logic_vector(cExtSyncEdgeConfigWidth-1 downto 0);
-    
+
     --! external sync signal detected edge pulse
     signal extSync_rising, extSync_falling, extSync_any : std_logic;
-    
+
     --! Bridge enable control
     signal bridgeEnable : std_logic;
-    
+
     --! bridge read path
     signal bridgeReady : std_logic;
     signal bridgeReaddata : std_logic_vector(avm_hostBridge_readdata'range);
-    
+
 begin
-    
+
     --! select status/control registers if host address is below 2 kB
-    statCtrlSel <= cActivated when avs_host_address < cBaseAddressArray(0)(avs_host_address'range) else 
+    statCtrlSel <= cActivated when avs_host_address < cBaseAddressArray(0)(avs_host_address'range) else
     cInactivated;
-    
+
     --! select invalid address
-    invalidSel <= cActivated when avs_host_address >= 
+    invalidSel <= cActivated when avs_host_address >=
     cBaseAddressArray(cBaseAddressArrayCount-1)(avs_host_address'range) else
     cInactivated;
-    
+
     --! bridge is selected if status/control registers are not accessed
     bridgeSel <= cInactivated when bridgeEnable = cInactivated else
     cInactivated when invalidSel = cActivated else
     cInactivated when statCtrlSel = cActivated else
     cActivated;
-    
+
     --! create write and read strobe for status/control registers
     statCtrlWrite <= avs_host_write and statCtrlSel;
     statCtrlRead <= avs_host_read and statCtrlSel;
-    
+
     --! host waitrequest from status/control, bridge or invalid
-    avs_host_waitrequest <= 
+    avs_host_waitrequest <=
     statCtrlWaitrequest when statCtrlSel = cActivated else
     cInactivated when bridgeEnable = cInactivated else
     not bridgeReady when bridgeSel = cActivated else
     not invalidSel;
-    
+
     --! host readdata from status/control or bridge
-    avs_host_readdata <= 
+    avs_host_readdata <=
     bridgeReaddata when bridgeSel = cActivated else
     statCtrlReaddata when statCtrlSel = cActivated else
     (others => cInactivated);
-    
+
     --! select external sync if enabled, otherwise rx irq signal
     syncSig <= inr_irqSync_irq when extSyncEnable /= cActivated else
                 extSync_rising when extSyncConfig = cExtSyncEdgeRis else
                 extSync_falling when extSyncConfig = cExtSyncEdgeFal else
                 extSync_any when extSyncConfig = cExtSyncEdgeAny else
                 cInactivated;
-    
+
     --! The synchronizer which protects us from crazy effects!
     theSynchronizer : sync
     port map(
@@ -425,7 +425,7 @@ begin
         din => coe_ExtSync_exsync,
         dout => extSync_sync
         );
-    
+
     --! The Edge Detector for external sync
     theExtSyncEdgeDet : edgeDet
     port map(
@@ -436,8 +436,8 @@ begin
         clk => csi_c0_clock,
         rst => rsi_r0_reset
         );
-    
-    --! The Magic Bridge        
+
+    --! The Magic Bridge
     theMagicBridge : magicBridge
     generic map(
         gAddressSpaceCount      => cBaseAddressArrayCount-1,
@@ -456,7 +456,7 @@ begin
         iBaseSetData            => baseSetWritedata,
         oBaseSetData            => baseSetReaddata
         );
-    
+
     process(csi_c0_clock)
     begin
         if rising_edge(csi_c0_clock) then
@@ -470,8 +470,8 @@ begin
                 bridgeReady <= cInactivated;
             else
                 --! generate hostBridge write and read strobes
-                if bridgeSelOut = cActivated and 
-                    avm_hostBridge_waitrequest = cActivated and 
+                if bridgeSelOut = cActivated and
+                    avm_hostBridge_waitrequest = cActivated and
                     bridgeReady = cInactivated then
                     --! if bridge is busy forward requests
                     avm_hostBridge_write <= avs_host_write;
@@ -480,27 +480,27 @@ begin
                     avm_hostBridge_write <= cInactivated;
                     avm_hostBridge_read <= cInactivated;
                 end if;
-                
+
                 --! bridge writedata from host
                 avm_hostBridge_writedata <= avs_host_writedata;
-                
+
                 --! bridge byteenable from host
                 avm_hostBridge_byteenable <= avs_host_byteenable;
-                
+
                 --! bridge byte addressing
                 avm_hostBridge_address <= avm_hostBridge_address_dword & "00";
-                
+
                 --! bridge readdata
                 bridgeReaddata <= avm_hostBridge_readdata;
-                
+
                 --! bridge waitrequest
                 bridgeReady <= not avm_hostBridge_waitrequest;
-                
+
             end if;
         end if;
     end process;
-    
-    
+
+
     --! The Irq Generator
     theIrqGen : irqGen
     generic map(
@@ -517,8 +517,8 @@ begin
         iIrqAcknowledge         => irqAcknowledge,
         oIrgPending             => irqSourcePending
         );
-    
-    
+
+
     --! The Status-/Control Registers
     theStCtrlReg : statusControlReg
     generic map(
@@ -563,9 +563,9 @@ begin
         oPLed                   => statCtrlLed,
         oBridgeEnable           => bridgeEnable
         );
-    
+
     coe_PlkLed_ledst <= statCtrlLed(0);
-    
+
     coe_PlkLed_lederr <= statCtrlLed(1);
-    
+
 end Rtl;

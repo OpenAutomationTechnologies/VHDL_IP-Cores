@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 --! @file tbIrqGenBhv.vhd
 --
---! @brief 
+--! @brief Testbench for Interrupt request generator component
 --
 -------------------------------------------------------------------------------
 --
@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 use work.global.all;
 
 
-entity tbIrqGen is 
+entity tbIrqGen is
 end tbIrqGen;
 
 architecture Bhv of tbIrqGen is
@@ -116,58 +116,52 @@ begin
 process(clk)
 begin
 
-	if rising_edge(clk) then
+    if rising_edge(clk) then
 
-		if rst = cActivated then
-			counter <= (others => cInactivated);
-			stateCounter <= (others => cInactivated);
-		else
-			counter <= std_logic_vector(
-				unsigned(counter) + 1);
+        if rst = cActivated then
+            counter <= (others => cInactivated);
+            stateCounter <= (others => cInactivated);
+        else
+            counter <= std_logic_vector(
+                unsigned(counter) + 1);
 
-			if counter(cCounterSel) = cActivated then
-				stateCounter <= std_logic_vector(
-					unsigned(stateCounter) + 1);
-				counter <= (others => cInactivated);
-			end if;
-		end if;
+            if counter(cCounterSel) = cActivated then
+                stateCounter <= std_logic_vector(
+                    unsigned(stateCounter) + 1);
+                counter <= (others => cInactivated);
+            end if;
+        end if;
 
-	end if;
+    end if;
 
 end process;
 --
-done <= cActivated when unsigned (stateCounter) > 40 else 
-			cInactivated;
+done <= cActivated when unsigned (stateCounter) > 40 else
+        cInactivated;
 
 --
-irqMasterEnable <= cActivated when (unsigned(stateCounter) > 1 and
-												unsigned(statecounter) < 30) else
-						cInactivated;
+irqMasterEnable <= cActivated when (unsigned(stateCounter) > 1 and unsigned(statecounter) < 30) else
+                   cInactivated;
 
 --
-irqSourceEnable <= "11110" when (unsigned(stateCounter) > 1 and
-												unsigned(statecounter) < 15) else
-						"00001" when (unsigned(stateCounter) > 15 and
-												unsigned(stateCounter) < 28) else
-						"00000";
+irqSourceEnable <= "11110" when (unsigned(stateCounter) > 1 and unsigned(statecounter) < 15) else
+                   "00001" when (unsigned(stateCounter) > 15 and unsigned(stateCounter) < 28) else
+                   "00000";
 
 --
-irqSource <= "0001" when (unsigned(stateCounter) = 3 and
-												unsigned(counter) = 4) else
-				"0101" when (unsigned(stateCounter) = 6 and
-												unsigned(counter) = 4) else
-				"1000" when (unsigned(stateCounter) = 20 and unsigned(counter) = 4) else
-						"0000";
+irqSource <= "0001" when (unsigned(stateCounter) = 3 and unsigned(counter) = 4) else
+             "0101" when (unsigned(stateCounter) = 6 and unsigned(counter) = 4) else
+             "1000" when (unsigned(stateCounter) = 20 and unsigned(counter) = 4) else
+             "0000";
 
 --
-irqAck <= "00010" when (unsigned(stateCounter) = 5 and
-												unsigned(counter) =4) else
-				"01000" when (unsigned(stateCounter) = 8 and unsigned(counter) = 4 ) else
-				"00010" when (unsigned(stateCounter) = 10 and unsigned(counter) = 4) else
-				"10001" when (unsigned(stateCounter) = 25 and unsigned(counter) = 4) else
-				"00001" when (unsigned(stateCounter) > 15 and unsigned(stateCounter) < 28 and
-									unsigned(counter) = 4) else
-						"00000";
+irqAck <= "00010" when (unsigned(stateCounter) = 5 and unsigned(counter) =4) else
+          "01000" when (unsigned(stateCounter) = 8 and unsigned(counter) = 4 ) else
+          "00010" when (unsigned(stateCounter) = 10 and unsigned(counter) = 4) else
+          "10001" when (unsigned(stateCounter) = 25 and unsigned(counter) = 4) else
+          "00001" when (unsigned(stateCounter) > 15 and unsigned(stateCounter) < 28
+                                                    and unsigned(counter) = 4) else
+          "00000";
 
 ----  Component instantiations  ----
 

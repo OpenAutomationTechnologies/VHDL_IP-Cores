@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 --! @file tbRegisterFileBhv.vhd
 --
---! @brief 
+--! @brief Testbench for Register file
 --
 -------------------------------------------------------------------------------
 --
@@ -44,7 +44,7 @@ use ieee.numeric_std.all;
 use work.global.all;
 
 
-entity tbRegisterFile is 
+entity tbRegisterFile is
 end tbRegisterFile;
 
 architecture Bhv of tbRegisterFile is

@@ -14,11 +14,11 @@ proc generationCallback { instName tgtDir bspDir } {
     puts " HOSTINTERFACE script for $instName instance "
     puts " (Version field = [getIpcoreVersion $::listVersionCmacro])"
     puts ""
-    
+
     set headerFile "hostiflib-mem.h"
     puts "  -> generate $headerFile file"
     createHostifMemFile "$LIB_HOSTIF_path/$headerFile"
-    
+
     puts "***********************************************************"
     puts ""
 

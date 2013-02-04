@@ -3,7 +3,7 @@
 --
 --! @brief Magic Bridge for translating static to dynamic memory spaces
 --
---! @details The Magic Bridge component translates a static memory mapping 
+--! @details The Magic Bridge component translates a static memory mapping
 --! into a dynamic memory map that can be changed during runtime.
 --! This enhances the functionality of an ordinary memory mapped bridge logic.
 --! Additionally several memory spaces can be configured (compilation).
@@ -58,7 +58,7 @@ use work.hostInterfacePkg.all;
 --! @details
 --! The magic bridge has an input port with a fixed (before runtime) memory
 --! mapping, which is translated to a flexible address space mapping.
---! The flexible address space can be changed during runtime in order to 
+--! The flexible address space can be changed during runtime in order to
 --! redirect accesses from the input to other locations.
 --! The base addresses for the static port are set by generic gBaseAddressArray.
 --! The base addresses for the dynamic port are set through the BaseSet port
@@ -68,7 +68,7 @@ entity magicBridge is
         --! number of static address spaces
         gAddressSpaceCount      : natural := 2;
         --! base addresses in static address space (note: last-1 = high address)
-        gBaseAddressArray       : tArrayStd32 := 
+        gBaseAddressArray       : tArrayStd32 :=
         (x"0000_1000" , x"0000_2000" , x"0000_3000")
         );
     port (
@@ -103,18 +103,18 @@ entity magicBridge is
 end magicBridge;
 
 -------------------------------------------------------------------------------
---! @brief Register Transfer Level of Magic Bridge device 
+--! @brief Register Transfer Level of Magic Bridge device
 -------------------------------------------------------------------------------
---! @details 
---! The magic bridge rtl applies generated address decoders 
+--! @details
+--! The magic bridge rtl applies generated address decoders
 --! to generate select signals for the static address spaces.
---! The select signals are forwarded register file holding the base address 
---! offsets in the dynamic memory space. The input address is manipulated with 
---! arithmetic operators to gain the output address. The lut file holds the 
+--! The select signals are forwarded register file holding the base address
+--! offsets in the dynamic memory space. The input address is manipulated with
+--! arithmetic operators to gain the output address. The lut file holds the
 --! base addresses in the static memory space.
 -------------------------------------------------------------------------------
 architecture Rtl of magicBridge is
-    
+
     --! address decoder
     component addr_decoder
         generic(
@@ -126,7 +126,7 @@ architecture Rtl of magicBridge is
             addr : in std_logic_vector(addrWidth_g-1 downto 0);
             selout : out std_logic);
     end component;
-    
+
     --! binary encoder
     component binaryEncoder
         generic(
@@ -135,8 +135,8 @@ architecture Rtl of magicBridge is
             iOneHot : in STD_LOGIC_VECTOR(gDataWidth-1 downto 0);
             oBinary : out STD_LOGIC_VECTOR(LogDualis(gDataWidth)-1 downto 0));
     end component;
-    
-    
+
+
     --! register file
     component registerFile
         generic(
@@ -153,25 +153,25 @@ architecture Rtl of magicBridge is
             iWritedataB : in STD_LOGIC_VECTOR;
             oReaddataB : out STD_LOGIC_VECTOR);
     end component;
-    
-    
-    --lut file
-	component lutFile
-	generic(
-		gLutCount : NATURAL := 4;
-		gLutWidth : NATURAL := 32;
-		gLutInitValue : STD_LOGIC_VECTOR := x"1111_1111"&x"2222_2222"&x"3333_3333"&x"4444_4444");
-	port(
-		iAddrRead : in STD_LOGIC_VECTOR(LogDualis(gLutCount)-1 downto 0);
-		oData : out STD_LOGIC_VECTOR);
-	end component;
 
-    
+
+    --lut file
+    component lutFile
+    generic(
+        gLutCount : NATURAL := 4;
+        gLutWidth : NATURAL := 32;
+        gLutInitValue : STD_LOGIC_VECTOR := x"1111_1111"&x"2222_2222"&x"3333_3333"&x"4444_4444");
+    port(
+        iAddrRead : in STD_LOGIC_VECTOR(LogDualis(gLutCount)-1 downto 0);
+        oData : out STD_LOGIC_VECTOR);
+    end component;
+
+
     constant cBaseAddressArrayStd   : std_logic_vector
     ((gAddressSpaceCount+1)*cArrayStd32ElementSize-1 downto 0) :=
     CONV_STDLOGICVECTOR(gBaseAddressArray, gBaseAddressArray'length);
     --! convert address array into stream
-    
+
     signal addrDecSelOneHot         : std_logic_vector
     (gAddressSpaceCount-1 downto 0);
     --! address decoder select signals one hot coded
@@ -186,9 +186,9 @@ architecture Rtl of magicBridge is
     --! selected dynamic register file base offset
     signal translateAddress         : std_logic_vector
     (MAX(iBridgeAddress'high, oBridgeAddress'high) downto iBridgeAddress'low);
-    
+
 begin
-    
+
     --! Generate Address Decoders
     genAddressDecoder : for i in 0 to gAddressSpaceCount-1 generate
         insAddressDecoder : addr_decoder
@@ -205,13 +205,13 @@ begin
             selout => addrDecSelOneHot(i)
             );
     end generate;
-    
+
     --! export one hot code
     oBridgeSelect <= addrDecSelOneHot;
-    
+
     --! export or'd one hot code
     oBridgeSelectAny <= OR_REDUCE(addrDecSelOneHot);
-    
+
     --! Convert one hot from address decoder to binary
     insBinaryEncoder : binaryEncoder
     generic map(
@@ -221,7 +221,7 @@ begin
         iOneHot => addrDecSelOneHot,
         oBinary => addrDecSelBinary
         );
-    
+
     --! select static base address in lut file
     insLutFile : lutFile
     generic map(
@@ -235,11 +235,11 @@ begin
         iAddrRead => addrDecSelBinary,
         oData => lutFileBase
         );
-    
+
     --! calculate address offset within static space
     addrSpaceOffset <= std_logic_vector(
     unsigned(iBridgeAddress) - unsigned(lutFileBase));
-    
+
     --! select dynamic base address in register file
     insRegFile : registerFile
     generic map(
@@ -257,10 +257,10 @@ begin
         iWritedataB => iBaseSetData, --! write port B unused
         oReaddataB => registerFileBase
         );
-    
+
     --! calculate translated address offset in dynamic space
     oBridgeAddress <= translateAddress(oBridgeAddress'range);
     translateAddress <= std_logic_vector(
     unsigned(registerFileBase) + unsigned(addrSpaceOffset));
-    
+
 end Rtl;
