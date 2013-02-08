@@ -348,10 +348,10 @@ set_parameter_property macTxBuf UNITS bytes
 set_parameter_property macTxBuf DISPLAY_NAME "openMAC TX Buffer Size"
 set_parameter_property macTxBuf DESCRIPTION "If \"openMAC only\" is selected, the MAC TX buffer size has to be set manually. E.g. POWERLINK CN requires approx. 7000 bytes."
 
-add_parameter macRxBuf INTEGER 4
+add_parameter macRxBuf INTEGER 10
 set_parameter_property macRxBuf ALLOWED_RANGES 4:16
 set_parameter_property macRxBuf DISPLAY_NAME "openMAC Number RX Buffers (MTU = 1500 byte)"
-set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the number of MAC RX buffers has to be set manually (MTU = 1500 byte). E.g. POWERLINK CN requires 4 RX buffers (SoC, PReq, SoA and Asnd)."
+set_parameter_property macRxBuf DESCRIPTION "If \"openMAC only\" is selected, the number of MAC RX buffers has to be set manually (MTU = 1500 byte). E.g. POWERLINK CN requires 10 RX buffers (SoC, PReq, SoA and Asnd (7 times))."
 
 add_parameter hwSupportSyncIrq BOOLEAN FALSE
 set_parameter_property hwSupportSyncIrq VISIBLE true
@@ -859,18 +859,22 @@ proc my_validation_callback {} {
 			set rpdo0size [expr 4 + 16]
 			set rpdo1size 0
 			set rpdo2size 0
-			set macRxBuffers 4
+			set macRxBuffers 3
 		} elseif {$rpdos == 2} {
 			set rpdo0size [expr 4 + 16]
 			set rpdo1size [expr 4 + 16]
 			set rpdo2size 0
-			set macRxBuffers 5
+			set macRxBuffers 4
 		} elseif {$rpdos == 3} {
 			set rpdo0size [expr 4 + 16]
 			set rpdo1size [expr 4 + 16]
 			set rpdo2size [expr 4 + 16]
-			set macRxBuffers 6
+			set macRxBuffers 5
 		}
+
+		# add additional buffers for asnd (masnd supports 7 multi asnd slots!)
+		incr macRxBuffers 7
+
 		#and fix tpdo size
 		set tpdo0size 4
 		
@@ -915,18 +919,22 @@ proc my_validation_callback {} {
 			set_parameter_property rpdo0size VISIBLE true
 			set rpdo1size 0
 			set rpdo2size 0
-			set macRxBuffers 4
+			set macRxBuffers 3
 			set memRpdo [expr ($rpdo0size)*3]
 		} elseif {$rpdos == 2} {
 			set_parameter_property rpdo0size VISIBLE true
 			set rpdo2size 0
-			set macRxBuffers 5
+			set macRxBuffers 4
 			set memRpdo [expr ($rpdo0size + $rpdo1size)*3]
 		} elseif {$rpdos == 3} {
 			set_parameter_property rpdo0size VISIBLE true
-			set macRxBuffers 6
+			set macRxBuffers 5
 			set memRpdo [expr ($rpdo0size + $rpdo1size + $rpdo2size )*3]
 		}
+
+		# add additional buffers for asnd (masnd supports 7 multi asnd slots!)
+		incr macRxBuffers 7
+
 		set_parameter_property tpdo0size VISIBLE true
 		set memTpdo [expr ($tpdo0size)*3]
 		

@@ -87,15 +87,17 @@
 #define EDRV_PKT_LOC                    PCP_0_QSYS_POWERLINK_0_MAC_REG_PKTLOC
 #define EDRV_PHY_NUM                    PCP_0_QSYS_POWERLINK_0_MAC_REG_PHYCNT
 #define EDRV_DMA_OBSERVER               PCP_0_QSYS_POWERLINK_0_MAC_REG_DMAOBSERV
-#define EDRV_MAX_RX_BUFFERS             PCP_0_QSYS_POWERLINK_0_MAC_REG_MACRXBUFFERS
 
 #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT                        //TX+RX in M9K
+    #define EDRV_MAX_RX_BUFFERS             PCP_0_QSYS_POWERLINK_0_MAC_REG_MACRXBUFFERS
     #define EDRV_PKT_BASE           (void *)PCP_0_QSYS_POWERLINK_0_MAC_BUF_BASE
     #define EDRV_PKT_SPAN                   PCP_0_QSYS_POWERLINK_0_MAC_BUF_MACBUFSIZE
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT                        //TX in M9K and RX in external memory
+    #define EDRV_MAX_RX_BUFFERS             16
     #define EDRV_PKT_BASE           (void *)PCP_0_QSYS_POWERLINK_0_MAC_BUF_BASE
     #define EDRV_PKT_SPAN                   PCP_0_QSYS_POWERLINK_0_MAC_BUF_MACBUFSIZE
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT                        //TX+RX in external memory
+    #define EDRV_MAX_RX_BUFFERS             16
     #define EDRV_PKT_BASE           (void *)0 //not used
     #define EDRV_PKT_SPAN                   0 //not used
 #endif

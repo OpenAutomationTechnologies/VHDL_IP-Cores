@@ -809,16 +809,24 @@ proc calc_mac_rx_buffers { param_handle } {
     set mhsinst      [xget_hw_parent_handle $param_handle]
 
     if { $rpdo_count == 1 } {
-        set macRxBuffers 4
+        #Soc, Preq, Soa
+        set macRxBuffers 3
     } elseif { $rpdo_count == 2 } {
-        set macRxBuffers 5
+        #Soc, Preq (2x), Soa
+        set macRxBuffers 4
     } elseif { $rpdo_count == 3 } {
-        set macRxBuffers 6
+        #Soc, Preq (3x), Soa
+        set macRxBuffers 5
     } elseif { $rpdo_count == 0 } {
         # openMAC only has no RPDO definition and therefore the user has to give us the info
         set macRxBuffers [ xget_hw_parameter_value $mhsinst "C_MAC_NUM_RX_BUFFER_USER" ]
     } else {
         error "Number of Rpdos invalid!"
+    }
+
+    if {$rpdo_count != 0} {
+        # Add additional Rx buffers for Asnd frames
+        incr macRxBuffers 7
     }
 
     return $macRxBuffers

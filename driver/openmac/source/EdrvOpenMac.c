@@ -153,7 +153,7 @@
 #elif (EDRV_MAX_RX_BUFFERS == 0)
 #warning "Rx buffers set to zero -> set value by yourself!"
 #undef EDRV_MAX_RX_BUFFERS
-#define EDRV_MAX_RX_BUFFERS 6
+#define EDRV_MAX_RX_BUFFERS 16
 #endif
 
 #if (EDRV_AUTO_RESPONSE == FALSE)

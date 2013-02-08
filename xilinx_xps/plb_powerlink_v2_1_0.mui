@@ -100,16 +100,16 @@
     <!ENTITY C_MAC_NUM_RX_BUFFER_USER '
     <widget id="C_MAC_NUM_RX_BUFFER_USER">
         <key>C_MAC_NUM_RX_BUFFER_USER</key>
-        <label>Number of RX buffers (MTU = 1500bytes) for openMAC only mode</label>
-        <tip><![CDATA[For example a POWERLINK Slave always needes RX buffers for the following frames: SoC, RPDO0, Soa, Asnd (RPDO1 and RPDO2 are optional)]]></tip>
+        <label>Number of RX buffers (1558bytes for each buffer, MTU 1500) for openMAC only mode</label>
+        <tip><![CDATA[For example a POWERLINK Slave always needes RX buffers for the following frames: SoC, RPDO0, Soa, 7xAsnd (RPDO1 and RPDO2 are optional)]]></tip>
     </widget>
     '>
     <!ENTITY C_MAC_PKT_SIZE_TX_USER '
     <widget id="C_MAC_PKT_SIZE_TX_USER">
         <key>C_MAC_PKT_SIZE_TX_USER</key>
         <label>Size of the MAC TX packet buffer for openMAC only mode</label>
-        <tip><![CDATA[For example a POWERLINK Slave always needes two TX buffers for the following frames: TPDO (1500bytes), Asnd (1500bytes), IdentResponse (64bytes), StatusResponse (180bytes), NMTRequest (76bytes) and SyncResponse (64bytes).
-                      Therefore a minimum size of: (1500 + 1500 + 64 + 180 + 76 + 64) * 2 ~= 7000 bytes is needed!]]></tip>
+        <tip><![CDATA[For example a POWERLINK Slave always needes two TX buffers for the following frames: TPDO (1518bytes), Asnd (1518bytes), IdentResponse (180bytes), StatusResponse (64bytes), NMTRequest (64bytes) and SyncResponse (76bytes).
+                      Therefore a minimum size of: (1518 + 1518 + 64 + 180 + 76 + 64) * 2 ~= 7000 bytes is needed!]]></tip>
     </widget>
     '>
     <!ENTITY C_INSTANCE_ODDR2 '

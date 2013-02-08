@@ -88,14 +88,17 @@
 #define EDRV_PKT_LOC                    XPAR_PLB_POWERLINK_0_PACKET_LOCATION
 #define EDRV_PHY_NUM                    XPAR_PLB_POWERLINK_0_PHY_COUNT
 #define EDRV_DMA_OBSERVER               XPAR_PLB_POWERLINK_0_OBSERVER_ENABLE
-#define EDRV_MAX_RX_BUFFERS             XPAR_PLB_POWERLINK_0_MAC_RX_BUFFERS
+
 #if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT
+    #define EDRV_MAX_RX_BUFFERS             XPAR_PLB_POWERLINK_0_MAC_RX_BUFFERS
     #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
     #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
+    #define EDRV_MAX_RX_BUFFERS             16
     #define EDRV_PKT_BASE           (void *)0 //not used
     #define EDRV_PKT_SPAN                   0 //not used
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
+    #define EDRV_MAX_RX_BUFFERS             16
     #define EDRV_PKT_BASE           (void *)XPAR_PLB_POWERLINK_0_MAC_PKT_BASEADDR
     #define EDRV_PKT_SPAN                   XPAR_PLB_POWERLINK_0_MAC_PKT_SIZE
 #endif
