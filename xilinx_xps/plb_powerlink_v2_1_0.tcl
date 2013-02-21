@@ -64,6 +64,8 @@ proc generate {drv_handle} {
     set dma_observer [xget_param_value $periph "C_OBSERVER_ENABLE"]
     set gen_timesync [xget_param_value $periph "C_PDI_GEN_TIME_SYNC"]
     set async_buf_1_size [xget_param_value $periph "C_PDI_ASYNC_BUF_1"]
+    set gen_event [ xget_param_value $periph "C_PDI_GEN_EVENT"]
+    set gen_led [ xget_param_value $periph "C_PDI_GEN_LED"]
 
     # calc new phy count value
     if { $second_phy } {
@@ -77,6 +79,20 @@ proc generate {drv_handle} {
           set C_OBSERVER_ENABLE {C_OBSERVER_ENABLE 1}
     } else {
           set C_OBSERVER_ENABLE {C_OBSERVER_ENABLE 0}
+    }
+
+    # calc new event module state
+    if { $gen_event} {
+          set C_PDI_GEN_EVENT {C_PDI_GEN_EVENT 1}
+    } else {
+          set C_PDI_GEN_EVENT {C_PDI_GEN_EVENT 0}
+    }
+
+    # calc new led module state
+    if { $gen_led} {
+          set C_PDI_GEN_LED {C_PDI_GEN_LED 1}
+    } else {
+          set C_PDI_GEN_LED {C_PDI_GEN_LED 0}
     }
 
     # calc new timesync value
@@ -114,47 +130,47 @@ proc generate {drv_handle} {
         
         #create cnApiCfg header file
         if { $pap_width == 8 } {
-            create_cnapi_header $drv_handle "CN_API_USING_8BIT" $async_buf_count
+            create_cnapi_header $drv_handle "CN_API_USING_8BIT" $async_buf_count $gen_event $gen_led
         } elseif { $pap_width == 16 } {
-            create_cnapi_header $drv_handle "CN_API_USING_16BIT" $async_buf_count
+            create_cnapi_header $drv_handle "CN_API_USING_16BIT" $async_buf_count $gen_event $gen_led
         } else {
             error "Wrong PAP width selected. Just 8 and 16 bit is possible!" "" "mdd_error"
         }
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
         }
     } elseif { $ip_core_mode == 3} {
         # PDI with spi
         puts "POWERLINK IP-Core in PDI mode with SPI interface!"
 
         #create cnApiCfg header file
-        create_cnapi_header $drv_handle "CN_API_USING_SPI" $async_buf_count
+        create_cnapi_header $drv_handle "CN_API_USING_SPI" $async_buf_count $gen_event $gen_led
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
         }
     } elseif { $ip_core_mode == 4} {
         # PDI with plb interface
         puts "POWERLINK IP-Core in PDI mode with PLB interface!"
         
         #create cnApiCfg header file
-        create_cnapi_header $drv_handle "CN_API_INT_PLB" $async_buf_count
+        create_cnapi_header $drv_handle "CN_API_INT_PLB" $async_buf_count $gen_event $gen_led
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV"
+            my_xdefine_include_file $drv_handle "xparameters.h" "plb_powerlink" 0 "C_MAC_REG_BASEADDR" "C_MAC_REG_HIGHADDR" "C_MAC_CMP_BASEADDR" "C_MAC_CMP_HIGHADDR" "C_MAC_PKT_BASEADDR" "C_MAC_PKT_HIGHADDR" "C_PDI_PCP_BASEADDR" "C_PDI_PCP_HIGHADDR" "C_PDI_AP_BASEADDR" "C_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
         }
     } elseif { $ip_core_mode == 5} {
         # PDI with pap
@@ -176,7 +192,7 @@ proc generate {drv_handle} {
 ###################################################
 ## internal procedures
 ###################################################
-proc create_cnapi_header { drv_handle ip_core_mode async_buf_count} { 
+proc create_cnapi_header { drv_handle ip_core_mode async_buf_count gen_event gen_led} {
     set periph [xget_periphs $drv_handle]
     
     set num_rpdos [xget_param_value $periph "C_NUM_RPDO"]
@@ -200,7 +216,19 @@ proc create_cnapi_header { drv_handle ip_core_mode async_buf_count} {
     
     set used_bus "AP_USES_PLB_BUS"
 
-    my_xdefine_include_file $drv_handle "cnApiCfg.h" "libCnApi" 1 $ip_core_mode $num_rpdos $num_tpdos $pdi_rev $sys_id $time_sync_hw $async_buf_count
+    if { $gen_event } {
+        set event_mod_en "PCP_EVENT_MOD_ENABLE 1"
+    } else {
+        set event_mod_en "PCP_EVENT_MOD_ENABLE 0"
+    }
+
+    if { $gen_led } {
+        set led_mod_en "PCP_LED_MOD_ENABLE 1"
+    } else {
+        set led_mod_en "PCP_LED_MOD_ENABLE 0"
+    }
+
+    my_xdefine_include_file $drv_handle "cnApiCfg.h" "libCnApi" 1 $ip_core_mode $num_rpdos $num_tpdos $pdi_rev $sys_id $time_sync_hw $async_buf_count $event_mod_en $led_mod_en
 }
 
 proc my_xdefine_include_file {drv_handle file_name drv_string non_driver args} {
