@@ -253,11 +253,6 @@ set_parameter_property configApParOutSigs DISPLAY_NAME "Active State of Output S
 set_parameter_property configApParOutSigs ALLOWED_RANGES {"High Active" "Low Active"}
 set_parameter_property configApParOutSigs DESCRIPTION "Set the active states of the parallel interface output signals. Optionally you can add inverters in the top-level design which instantiates the SOPC block."
 
-add_parameter configApEndian STRING "Little"
-set_parameter_property configApEndian VISIBLE false
-set_parameter_property configApEndian DISPLAY_NAME "Endianness of AP"
-set_parameter_property configApEndian ALLOWED_RANGES {"Little" "Big"}
-
 add_parameter configApSpi_CPOL STRING "0"
 set_parameter_property configApSpi_CPOL VISIBLE false
 set_parameter_property configApSpi_CPOL DISPLAY_NAME "SPI CPOL"
@@ -584,11 +579,6 @@ set_parameter_property papLowAct_g HDL_PARAMETER true
 set_parameter_property papLowAct_g VISIBLE false
 set_parameter_property papLowAct_g DERIVED TRUE
 
-add_parameter papBigEnd_g BOOLEAN false
-set_parameter_property papBigEnd_g HDL_PARAMETER true
-set_parameter_property papBigEnd_g VISIBLE false
-set_parameter_property papBigEnd_g DERIVED TRUE
-
 #parameters for SPI
 add_parameter spiCPOL_g BOOLEAN false
 set_parameter_property spiCPOL_g HDL_PARAMETER true
@@ -599,11 +589,6 @@ add_parameter spiCPHA_g BOOLEAN false
 set_parameter_property spiCPHA_g HDL_PARAMETER true
 set_parameter_property spiCPHA_g VISIBLE false
 set_parameter_property spiCPHA_g DERIVED TRUE
-
-add_parameter spiBigEnd_g BOOLEAN false
-set_parameter_property spiBigEnd_g HDL_PARAMETER true
-set_parameter_property spiBigEnd_g VISIBLE false
-set_parameter_property spiBigEnd_g DERIVED TRUE
 
 #parameters for portio
 add_parameter pioValLen_g INTEGER 50
@@ -822,7 +807,6 @@ proc my_validation_callback {} {
 	set_parameter_property configApParallelInterface VISIBLE false
 	set_parameter_property configApParSigs VISIBLE false
 	set_parameter_property configApParOutSigs VISIBLE false
-	set_parameter_property configApEndian VISIBLE false
 	set_parameter_property configApSpi_CPOL VISIBLE false
 	set_parameter_property configApSpi_CPHA VISIBLE false
 	set_parameter_property configApSpi_IRQ VISIBLE false
@@ -917,7 +901,6 @@ proc my_validation_callback {} {
             set_parameter_property pcpSysId VISIBLE false
         }
 		#AP can be big or little endian - allow choice
-		set_parameter_property configApEndian VISIBLE true
         set_parameter_property hwSupportSyncIrq VISIBLE true
 		
 		#set the led gadget enable generic
@@ -1102,16 +1085,7 @@ proc my_validation_callback {} {
 	} else {
 		set_parameter_value papDataWidth_g	16
 	}
-	if {[get_parameter_value configApEndian] == "Little"} {
-		set_parameter_value papBigEnd_g	false
-		set_parameter_value spiBigEnd_g	false
-	} else {
-#		big/little endian conversion is considered by software, THX Michael!
-#		set_parameter_value papBigEnd_g	true
-#		set_parameter_value spiBigEnd_g	true
-		set_parameter_value papBigEnd_g	false
-		set_parameter_value spiBigEnd_g	false
-	}
+
 	if {[get_parameter_value configApParSigs] == "Low Active"} {
 		set_parameter_value papLowAct_g	true
 	} else {
@@ -1226,15 +1200,7 @@ proc my_validation_callback {} {
 																	#openMAC only
 		set_module_assignment embeddedsw.CMacro.CONFIG				5
 	}
-	
-	if {[get_parameter_value configApEndian] == "Little"} {
-																	#little endian
-		set_module_assignment embeddedsw.CMacro.CONFIGAPENDIAN		0
-	} else {
-																	#big endian
-		set_module_assignment embeddedsw.CMacro.CONFIGAPENDIAN		1
-	}
-	
+
 	if {$ploc == "TX and RX into embedded memory (M9K)"} {			#all packets stored in openMAC DPRAM
 		set_module_assignment embeddedsw.CMacro.PKTLOC				0
 	} elseif {$ploc == "TX into embedded memory (M9K) and RX over Avalon Master"} {	#Rx packets stored in heap

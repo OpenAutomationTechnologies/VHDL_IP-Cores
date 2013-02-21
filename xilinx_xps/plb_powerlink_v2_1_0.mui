@@ -214,21 +214,8 @@
         <tip></tip>
     </widget>
     '>
-    <!ENTITY C_PAP_BIG_END '
-    <widget id="C_PAP_BIG_END">
-        <key>C_PAP_BIG_END</key>
-        <label>Parallel interface endianness</label>
-        <tip><![CDATA[Sets the endianness of the AP. Conversions are done pure in software]]></tip>
-    </widget>
-    '>
+
     <!-- SPI interface -->
-    <!ENTITY C_SPI_BIG_END '
-    <widget id="C_SPI_BIG_END">
-        <key>C_SPI_BIG_END</key>
-        <label>SPI interface endianness</label>
-        <tip><![CDATA[Sets the endianness of the AP. Conversions are done pure in software]]></tip>
-    </widget>
-    '>
     <!ENTITY C_SPI_CPHA '
     <widget id="C_SPI_CPHA">
         <key>C_SPI_CPHA</key>
@@ -648,11 +635,9 @@
             <display>Parallel interface</display>
             <item>&C_PAP_LOW_ACT;</item>
             <item>&C_PAP_DATA_WIDTH;</item>
-            <item>&C_PAP_BIG_END;</item>
         </group>
         <group id="SPI_IF">
             <display>SPI interface</display>
-            <item>&C_SPI_BIG_END;</item>
             <item>&C_SPI_CPHA;</item>
             <item>&C_SPI_CPOL;</item>
         </group>

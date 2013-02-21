@@ -111,13 +111,12 @@ proc generate {drv_handle} {
         puts "POWERLINK IP-Core in PDI mode with parallel interface!"
 
         set pap_width [xget_param_value $periph "C_PAP_DATA_WIDTH"]
-        set big_endian [xget_param_value $periph "C_PAP_BIG_END"]
         
         #create cnApiCfg header file
         if { $pap_width == 8 } {
-            create_cnapi_header $drv_handle "CN_API_USING_8BIT" $big_endian $async_buf_count
+            create_cnapi_header $drv_handle "CN_API_USING_8BIT" $async_buf_count
         } elseif { $pap_width == 16 } {
-            create_cnapi_header $drv_handle "CN_API_USING_16BIT" $big_endian $async_buf_count
+            create_cnapi_header $drv_handle "CN_API_USING_16BIT" $async_buf_count
         } else {
             error "Wrong PAP width selected. Just 8 and 16 bit is possible!" "" "mdd_error"
         }
@@ -133,10 +132,8 @@ proc generate {drv_handle} {
         # PDI with spi
         puts "POWERLINK IP-Core in PDI mode with SPI interface!"
 
-        set big_endian [xget_param_value $periph "C_SPI_BIG_END"]
-        
         #create cnApiCfg header file
-        create_cnapi_header $drv_handle "CN_API_USING_SPI" $big_endian $async_buf_count
+        create_cnapi_header $drv_handle "CN_API_USING_SPI" $async_buf_count
 
         if { $pack_lock == 2 } {
             # all packets are external
@@ -149,10 +146,8 @@ proc generate {drv_handle} {
         # PDI with plb interface
         puts "POWERLINK IP-Core in PDI mode with PLB interface!"
         
-        set big_endian true
-
         #create cnApiCfg header file
-        create_cnapi_header $drv_handle "CN_API_INT_PLB" $big_endian $async_buf_count
+        create_cnapi_header $drv_handle "CN_API_INT_PLB" $async_buf_count
 
         if { $pack_lock == 2 } {
             # all packets are external
@@ -181,14 +176,8 @@ proc generate {drv_handle} {
 ###################################################
 ## internal procedures
 ###################################################
-proc create_cnapi_header { drv_handle ip_core_mode big_endian async_buf_count} { 
+proc create_cnapi_header { drv_handle ip_core_mode async_buf_count} { 
     set periph [xget_periphs $drv_handle]
-    
-    if { $big_endian } {
-        set endianes "AP_IS_BIG_ENDIAN"
-    } else {
-        set endianes "AP_IS_LITTLE_ENDIAN"
-    }
     
     set num_rpdos [xget_param_value $periph "C_NUM_RPDO"]
     set num_tpdos [xget_param_value $periph "C_NUM_TPDO"]
@@ -211,7 +200,7 @@ proc create_cnapi_header { drv_handle ip_core_mode big_endian async_buf_count} {
     
     set used_bus "AP_USES_PLB_BUS"
 
-    my_xdefine_include_file $drv_handle "cnApiCfg.h" "libCnApi" 1 $ip_core_mode $endianes $num_rpdos $num_tpdos $pdi_rev $sys_id $time_sync_hw $async_buf_count
+    my_xdefine_include_file $drv_handle "cnApiCfg.h" "libCnApi" 1 $ip_core_mode $num_rpdos $num_tpdos $pdi_rev $sys_id $time_sync_hw $async_buf_count
 }
 
 proc my_xdefine_include_file {drv_handle file_name drv_string non_driver args} {
