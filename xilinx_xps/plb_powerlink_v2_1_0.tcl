@@ -539,19 +539,6 @@ proc drc_check_mac_reg_clk_freq { param_handle } {
     }
 }
 
-proc drc_check_if_event_is_active { param_handle } {
-    set event_support [ xget_hw_value $param_handle ]
-
-    puts $event_support
-
-    if { $event_support }  {
-         return 0;
-    } else {
-         puts  "WARNING: Deactivating C_PDI_GEN_EVENT is currently not supported by the software. Nevertheless this feature can be deactivated to save resources."
-         return 0;
-    }
-}
-
 ###################################################
 ## IP-Core mode calculation
 ###################################################

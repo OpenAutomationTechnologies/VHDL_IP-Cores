@@ -543,17 +543,6 @@ proc drc_mac_pkt_base_addr { param_handle } {
 
 }
 
-proc drc_check_if_event_is_active { param_handle } {
-    set event_support [ xget_hw_value $param_handle ]
-
-    if { $event_support }  {
-         return 0;
-    } else {
-         puts  "WARNING: Deactivating C_PDI_GEN_EVENT is currently not supported by the software. Nevertheless this feature can be deactivated to save resources."
-         return 0;
-    }
-}
-
 proc drc_mac_reg_aclk_freq { param_handle } {
     set aclk_freq [ xget_hw_value $param_handle ]
 
