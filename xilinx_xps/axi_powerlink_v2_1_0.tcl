@@ -116,10 +116,14 @@ proc generate {drv_handle} {
         puts "POWERLINK IP-Core in Direct IO mode!"
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_SMP_PCP_BASEADDR" "C_S_AXI_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" \
+            "C_S_AXI_SMP_PCP_BASEADDR" "C_S_AXI_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_RX_QUEUE_1_SIZE" "C_RX_QUEUE_2_SIZE" \
+            "C_RX_QUEUE_3_SIZE" "C_RX_QUEUE_4_SIZE" "C_RX_QUEUE_5_SIZE"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_SMP_PCP_BASEADDR" "C_S_AXI_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" \
+            "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_SMP_PCP_BASEADDR" "C_S_AXI_SMP_PCP_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" \
+            "C_RX_QUEUE_1_SIZE" "C_RX_QUEUE_2_SIZE" "C_RX_QUEUE_3_SIZE" "C_RX_QUEUE_4_SIZE" "C_RX_QUEUE_5_SIZE"
         }
     } elseif { $ip_core_mode == 1} {
         # PDI with pap
@@ -138,10 +142,16 @@ proc generate {drv_handle} {
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" \
+            "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" \
+            $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT "C_RX_QUEUE_1_SIZE" "C_RX_QUEUE_2_SIZE" "C_RX_QUEUE_3_SIZE" "C_RX_QUEUE_4_SIZE" \
+            "C_RX_QUEUE_5_SIZE"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" \
+            "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE \
+            "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT "C_RX_QUEUE_1_SIZE" \
+            "C_RX_QUEUE_2_SIZE" "C_RX_QUEUE_3_SIZE" "C_RX_QUEUE_4_SIZE" "C_RX_QUEUE_5_SIZE"
         }
     } elseif { $ip_core_mode == 3} {
         # PDI with spi
@@ -152,10 +162,16 @@ proc generate {drv_handle} {
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" \
+            "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" \
+            $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT "C_RX_QUEUE_1_SIZE" "C_RX_QUEUE_2_SIZE" "C_RX_QUEUE_3_SIZE" "C_RX_QUEUE_4_SIZE" \
+            "C_RX_QUEUE_5_SIZE"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" \
+            "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE \
+            "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT "C_RX_QUEUE_1_SIZE" \
+            "C_RX_QUEUE_2_SIZE" "C_RX_QUEUE_3_SIZE" "C_RX_QUEUE_4_SIZE" "C_RX_QUEUE_5_SIZE"
         }
     } elseif { $ip_core_mode == 4} {
         # PDI with axi interface
@@ -166,20 +182,29 @@ proc generate {drv_handle} {
 
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_S_AXI_PDI_AP_BASEADDR" "C_S_AXI_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" \
+            "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_S_AXI_PDI_AP_BASEADDR" "C_S_AXI_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE \
+            "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT "C_RX_QUEUE_1_SIZE" \
+            "C_RX_QUEUE_2_SIZE" "C_RX_QUEUE_3_SIZE" "C_RX_QUEUE_4_SIZE" "C_RX_QUEUE_5_SIZE"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_S_AXI_PDI_AP_BASEADDR" "C_S_AXI_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" $C_PDI_GEN_LED $C_PDI_GEN_EVENT
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" \
+            "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_S_AXI_PDI_PCP_BASEADDR" "C_S_AXI_PDI_PCP_HIGHADDR" "C_S_AXI_PDI_AP_BASEADDR" "C_S_AXI_PDI_AP_HIGHADDR" "C_RPDO_0_BUF_SIZE" "C_TPDO_BUF_SIZE" \
+            "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_NUM_RPDO" "C_NUM_TPDO" $C_PDI_GEN_TIME_SYNC $C_PDI_ASYNC_BUF_COUNT "C_PCP_SYS_ID" "C_PDI_REV" \
+            $C_PDI_GEN_LED $C_PDI_GEN_EVENT "C_RX_QUEUE_1_SIZE" "C_RX_QUEUE_2_SIZE" "C_RX_QUEUE_3_SIZE" "C_RX_QUEUE_4_SIZE" "C_RX_QUEUE_5_SIZE"
         }
     } elseif { $ip_core_mode == 5} {
         # PDI with pap
         puts "POWERLINK IP-Core in openMAC only mode!"
         if { $pack_lock == 2 } {
             # all packets are external
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" \
+            "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_RX_QUEUE_1_SIZE" "C_RX_QUEUE_2_SIZE" "C_RX_QUEUE_3_SIZE" "C_RX_QUEUE_4_SIZE" "C_RX_QUEUE_5_SIZE"
         } else {
             # there are internal packets
-            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS"
+            my_xdefine_include_file $drv_handle "xparameters.h" "axi_powerlink" 0 "C_S_AXI_MAC_REG_RNG0_BASEADDR" "C_S_AXI_MAC_REG_RNG0_HIGHADDR" "C_S_AXI_MAC_REG_RNG1_BASEADDR" "C_S_AXI_MAC_REG_RNG1_HIGHADDR" \
+            "C_S_AXI_MAC_PKT_BASEADDR" "C_S_AXI_MAC_PKT_HIGHADDR" "C_PACKET_LOCATION" $C_PHY_COUNT $C_OBSERVER_ENABLE "C_MAC_PKT_SIZE" "C_MAC_RX_BUFFERS" "C_RX_QUEUE_1_SIZE" "C_RX_QUEUE_2_SIZE" \
+            "C_RX_QUEUE_3_SIZE" "C_RX_QUEUE_4_SIZE" "C_RX_QUEUE_5_SIZE"
         }
     } else {
          error "Invalid Powerlink IP-Core mode $ip_core_mode!" "" "mdd_error"
@@ -332,6 +357,13 @@ proc calc_rx_buffer_size { param_handle } {
     set crc                4
 
     set macRxBuffers [ calc_mac_rx_buffers $param_handle ]
+
+    # add addition receive queues
+    incr macRxBuffers [ calc_rx_queue_size_1 $param_handle ]
+    incr macRxBuffers [ calc_rx_queue_size_2 $param_handle ]
+    incr macRxBuffers [ calc_rx_queue_size_3 $param_handle ]
+    incr macRxBuffers [ calc_rx_queue_size_4 $param_handle ]
+    incr macRxBuffers [ calc_rx_queue_size_5 $param_handle ]
 
     #calculate rx buffer size out of packets per cycle
     set rxBufSize [expr $ethHd + $mtu + $crc + $macRxHd]
@@ -1038,5 +1070,73 @@ proc calc_mac_dma_max_burst_len { param_handle } {
     } else {
         # both internal and therefore return a valid value (it will be optimized away anyway)
         return 16;
+    }
+}
+
+###################################################
+## calculate the queue size depending on C_RX_QUEUE_COUNT
+###################################################
+proc calc_rx_queue_size_1 { param_handle } {
+    set mhsinst         [xget_hw_parent_handle $param_handle]
+    set rx_queue_count  [xget_hw_parameter_value $mhsinst "C_RX_QUEUE_COUNT"]
+    set rx_queue_size   [xget_hw_parameter_value $mhsinst "C_RX_QUEUE_1_SIZE_USER"]
+    set pack_loc        [xget_hw_parameter_value $mhsinst "C_PACKET_LOCATION"]
+
+    if {$rx_queue_count >= 1 && $pack_loc == 0 } {
+        return $rx_queue_size
+    } else {
+        return 0
+    }
+}
+
+proc calc_rx_queue_size_2 { param_handle } {
+    set mhsinst         [xget_hw_parent_handle $param_handle]
+    set rx_queue_count  [xget_hw_parameter_value $mhsinst "C_RX_QUEUE_COUNT"]
+    set rx_queue_size   [xget_hw_parameter_value $mhsinst "C_RX_QUEUE_2_SIZE_USER"]
+    set pack_loc        [xget_hw_parameter_value $mhsinst "C_PACKET_LOCATION"]
+
+    if {$rx_queue_count >= 2 && $pack_loc == 0 } {
+        return $rx_queue_size
+    } else {
+        return 0
+    }
+}
+
+proc calc_rx_queue_size_3 { param_handle } {
+    set mhsinst         [xget_hw_parent_handle $param_handle]
+    set rx_queue_count  [xget_hw_parameter_value $mhsinst "C_RX_QUEUE_COUNT"]
+    set rx_queue_size   [xget_hw_parameter_value $mhsinst "C_RX_QUEUE_3_SIZE_USER"]
+    set pack_loc        [xget_hw_parameter_value $mhsinst "C_PACKET_LOCATION"]
+
+    if {$rx_queue_count >= 3 && $pack_loc == 0 } {
+        return $rx_queue_size;
+    } else {
+        return 0
+    }
+}
+
+proc calc_rx_queue_size_4 { param_handle } {
+    set mhsinst         [xget_hw_parent_handle $param_handle]
+    set rx_queue_count  [xget_hw_parameter_value $mhsinst "C_RX_QUEUE_COUNT"]
+    set rx_queue_size   [xget_hw_parameter_value $mhsinst "C_RX_QUEUE_4_SIZE_USER"]
+    set pack_loc        [xget_hw_parameter_value $mhsinst "C_PACKET_LOCATION"]
+
+    if {$rx_queue_count >= 4 && $pack_loc == 0 } {
+        return $rx_queue_size
+    } else {
+        return 0
+    }
+}
+
+proc calc_rx_queue_size_5 { param_handle } {
+    set mhsinst         [xget_hw_parent_handle $param_handle]
+    set rx_queue_count  [xget_hw_parameter_value $mhsinst "C_RX_QUEUE_COUNT"]
+    set rx_queue_size   [xget_hw_parameter_value $mhsinst "C_RX_QUEUE_5_SIZE_USER"]
+    set pack_loc        [xget_hw_parameter_value $mhsinst "C_PACKET_LOCATION"]
+
+    if {$rx_queue_count >= 5 && $pack_loc == 0 } {
+        return $rx_queue_size
+    } else {
+        return 0
     }
 }

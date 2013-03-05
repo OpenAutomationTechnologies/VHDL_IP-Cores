@@ -126,6 +126,48 @@
         <tip><![CDATA[Additional clock stabilization is needed when the phy0/1_clk ports are connected over non dedicated clock pins.]]></tip>
     </widget>
     '>
+    <!ENTITY C_RX_QUEUE_COUNT '
+    <widget id="C_RX_QUEUE_COUNT">
+        <key>C_RX_QUEUE_COUNT</key>
+        <label>Number of additional Rx queues</label>
+        <tip><![CDATA[An additional receive queue can be used for the defered release feature of the POWERLINK stack. It enables to queue special types of packets in a seperate queue!]]></tip>
+    </widget>
+    '>
+    <!ENTITY C_RX_QUEUE_1_SIZE_USER '
+    <widget id="C_RX_QUEUE_1_SIZE_USER">
+        <key>C_RX_QUEUE_1_SIZE_USER</key>
+        <label>Size of receive queue number 1</label>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_RX_QUEUE_2_SIZE_USER '
+    <widget id="C_RX_QUEUE_2_SIZE_USER">
+        <key>C_RX_QUEUE_2_SIZE_USER</key>
+        <label>Size of receive queue number 2</label>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_RX_QUEUE_3_SIZE_USER '
+    <widget id="C_RX_QUEUE_3_SIZE_USER">
+        <key>C_RX_QUEUE_3_SIZE_USER</key>
+        <label>Size of receive queue number 3</label>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_RX_QUEUE_4_SIZE_USER '
+    <widget id="C_RX_QUEUE_4_SIZE_USER">
+        <key>C_RX_QUEUE_4_SIZE_USER</key>
+        <label>Size of receive queue number 4</label>
+        <tip></tip>
+    </widget>
+    '>
+    <!ENTITY C_RX_QUEUE_5_SIZE_USER '
+    <widget id="C_RX_QUEUE_5_SIZE_USER">
+        <key>C_RX_QUEUE_5_SIZE_USER</key>
+        <label>Size of receive queue number 5</label>
+        <tip></tip>
+    </widget>
+    '>
 
     <!-- PDI --> 
     <!ENTITY C_PCP_SYS_ID '
@@ -576,6 +618,12 @@
             <item>&C_MAC_PKT_SIZE_TX_USER;</item>
             <item>&C_MAC_GEN_SECOND_TIMER;</item>
             <item>&C_INSTANCE_ODDR2;</item>
+            <item>&C_RX_QUEUE_COUNT;</item>
+            <item>&C_RX_QUEUE_1_SIZE_USER;</item>
+            <item>&C_RX_QUEUE_2_SIZE_USER;</item>
+            <item>&C_RX_QUEUE_3_SIZE_USER;</item>
+            <item>&C_RX_QUEUE_4_SIZE_USER;</item>
+            <item>&C_RX_QUEUE_5_SIZE_USER;</item>
         </group>
         <group id="PDI">
             <display>PDI</display>
