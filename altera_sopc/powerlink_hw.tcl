@@ -377,6 +377,42 @@ add_parameter enDmaObserver BOOLEAN false
 set_parameter_property enDmaObserver DISPLAY_NAME "Enable packet DMA transfer monitor circuit"
 set_parameter_property enDmaObserver DESCRIPTION "The DMA monitor verifies the error-free Ethernet packet data transfer to/from the memory."
 
+add_parameter macRxQueueNum INTEGER 2
+set_parameter_property macRxQueueNum ALLOWED_RANGES 0:5
+set_parameter_property macRxQueueNum DISPLAY_NAME "Number of additional Rx queues"
+set_parameter_property macRxQueueNum DESCRIPTION "An additional receive queue can be used for the defered release feature of the POWERLINK stack. It enables to queue special types of packets in a seperate queue!"
+set_parameter_property macRxQueueNum VISIBLE false
+
+add_parameter macRxQueue1Size INTEGER 5
+set_parameter_property macRxQueue1Size ALLOWED_RANGES 0:10
+set_parameter_property macRxQueue1Size DISPLAY_NAME "Size of receive queue number 1"
+set_parameter_property macRxQueue1Size DESCRIPTION "This parameter enables to adjust the size of the additional receive queue."
+set_parameter_property macRxQueue1Size VISIBLE false
+
+add_parameter macRxQueue2Size INTEGER 5
+set_parameter_property macRxQueue2Size ALLOWED_RANGES 0:10
+set_parameter_property macRxQueue2Size DISPLAY_NAME "Size of receive queue number 2"
+set_parameter_property macRxQueue2Size DESCRIPTION "This parameter enables to adjust the size of the additional receive queue."
+set_parameter_property macRxQueue2Size VISIBLE false
+
+add_parameter macRxQueue3Size INTEGER 5
+set_parameter_property macRxQueue3Size ALLOWED_RANGES 0:10
+set_parameter_property macRxQueue3Size DISPLAY_NAME "Size of receive queue number 3"
+set_parameter_property macRxQueue3Size DESCRIPTION "This parameter enables to adjust the size of the additional receive queue."
+set_parameter_property macRxQueue3Size VISIBLE false
+
+add_parameter macRxQueue4Size INTEGER 5
+set_parameter_property macRxQueue4Size ALLOWED_RANGES 0:10
+set_parameter_property macRxQueue4Size DISPLAY_NAME "Size of receive queue number 4"
+set_parameter_property macRxQueue4Size DESCRIPTION "This parameter enables to adjust the size of the additional receive queue."
+set_parameter_property macRxQueue4Size VISIBLE false
+
+add_parameter macRxQueue5Size INTEGER 5
+set_parameter_property macRxQueue5Size ALLOWED_RANGES 0:10
+set_parameter_property macRxQueue5Size DISPLAY_NAME "Size of receive queue number 5"
+set_parameter_property macRxQueue5Size DESCRIPTION "This parameter enables to adjust the size of the additional receive queue."
+set_parameter_property macRxQueue5Size VISIBLE false
+
 #parameters for PDI HDL
 add_parameter genOnePdiClkDomain_g BOOLEAN false
 set_parameter_property genOnePdiClkDomain_g HDL_PARAMETER true
@@ -630,6 +666,21 @@ proc my_validation_callback {} {
     set genEvent                    [get_parameter_value genEvent]
 
     set expert                      [get_parameter_value expertMode]
+    set macrxqueuenum               [get_parameter_value macRxQueueNum]
+
+    set macRxQueueSize1             0
+    set macRxQueueSize2             0
+    set macRxQueueSize3             0
+    set macRxQueueSize4             0
+    set macRxQueueSize5             0
+
+    set_parameter_property macRxQueueNum VISIBLE false
+
+    set_parameter_property macRxQueue1Size VISIBLE false
+    set_parameter_property macRxQueue2Size VISIBLE false
+    set_parameter_property macRxQueue3Size VISIBLE false
+    set_parameter_property macRxQueue4Size VISIBLE false
+    set_parameter_property macRxQueue5Size VISIBLE false
 
     if {$mii == "RMII"} {
         set_parameter_value useRmii_g true
@@ -641,6 +692,31 @@ proc my_validation_callback {} {
     if {$ploc == "TX and RX into embedded memory (M9K)"} {
         set_parameter_value useIntPacketBuf_g true
         set_parameter_value useRxIntPacketBuf_g true
+
+        # handle additional receive queue
+        set_parameter_property macRxQueueNum VISIBLE true
+
+        if { $macrxqueuenum >= 1} {
+            set_parameter_property macRxQueue1Size VISIBLE true
+            set macRxQueueSize1 [get_parameter_value macRxQueue1Size]
+        }
+        if { $macrxqueuenum >= 2} {
+            set_parameter_property macRxQueue2Size VISIBLE true
+            set macRxQueueSize2 [get_parameter_value macRxQueue2Size]
+        }
+        if { $macrxqueuenum >= 3} {
+            set_parameter_property macRxQueue3Size VISIBLE true
+            set macRxQueueSize3 [get_parameter_value macRxQueue3Size]
+        }
+        if { $macrxqueuenum >= 4} {
+            set_parameter_property macRxQueue4Size VISIBLE true
+            set macRxQueueSize4 [get_parameter_value macRxQueue4Size]
+        }
+        if { $macrxqueuenum >= 5} {
+            set_parameter_property macRxQueue5Size VISIBLE true
+            set macRxQueueSize5 [get_parameter_value macRxQueue5Size]
+        }
+
     } elseif {$ploc == "TX into embedded memory (M9K) and RX over Avalon Master" } {
         set_parameter_value useIntPacketBuf_g true
         set_parameter_value useRxIntPacketBuf_g false
@@ -677,6 +753,7 @@ proc my_validation_callback {} {
         #no bursts...
         set macTxBurstSize 0
         set macRxBurstSize 0
+
     } else {
         #yes!
 
@@ -992,14 +1069,17 @@ proc my_validation_callback {} {
     #calculate rx buffer size out of packets per cycle
     set rxBufSize [expr $ethHd + $mtu + $crc + $macRxHd]
     set rxBufSize [expr ($rxBufSize + 3) & ~3]
-    set rxBufSize [expr $macRxBuffers * $rxBufSize]
+    set rxBufSize [expr ($macRxBuffers + $macRxQueueSize1 + $macRxQueueSize2 +\
+                  $macRxQueueSize3 + $macRxQueueSize4 + $macRxQueueSize5) * $rxBufSize]
 
     if {$configPowerlink == "openMAC only"} {
         #overwrite done calulations
         # for tx
         set txBufSize $macTxBuf
         # for rx using MTU and number of buffers...
-        set rxBufSize [expr $macRxBuf * ($ethHd + $mtu + $crc + $macRxHd)]
+        set rxBufSize [expr ($macRxBuf + $macRxQueueSize1 + $macRxQueueSize2 +\
+                  $macRxQueueSize3 + $macRxQueueSize4 + $macRxQueueSize5) * ($ethHd \
+                  + $mtu + $crc + $macRxHd)]
 
         # forward number of RX buffers
         set macRxBuffers $macRxBuf
@@ -1246,6 +1326,12 @@ proc my_validation_callback {} {
     set_module_assignment embeddedsw.CMacro.PDIRPDOBUFSIZE1         $rpdo1size
     set_module_assignment embeddedsw.CMacro.PDIRPDOBUFSIZE2         $rpdo2size
 
+    set_module_assignment embeddedsw.CMacro.MACRXQUEUE1SIZE         $macRxQueueSize1
+    set_module_assignment embeddedsw.CMacro.MACRXQUEUE2SIZE         $macRxQueueSize2
+    set_module_assignment embeddedsw.CMacro.MACRXQUEUE3SIZE         $macRxQueueSize3
+    set_module_assignment embeddedsw.CMacro.MACRXQUEUE4SIZE         $macRxQueueSize4
+    set_module_assignment embeddedsw.CMacro.MACRXQUEUE5SIZE         $macRxQueueSize5
+
 }
 
 #display
@@ -1283,6 +1369,13 @@ add_display_item "openMAC" macTxBurstSize  PARAMETER
 add_display_item "openMAC" macRxBurstSize  PARAMETER
 add_display_item "openMAC" macTxBuf  PARAMETER
 add_display_item "openMAC" macRxBuf  PARAMETER
+add_display_item "openMAC" macRxQueueNum  PARAMETER
+add_display_item "openMAC" macRxQueue1Size  PARAMETER
+add_display_item "openMAC" macRxQueue2Size  PARAMETER
+add_display_item "openMAC" macRxQueue3Size  PARAMETER
+add_display_item "openMAC" macRxQueue4Size  PARAMETER
+add_display_item "openMAC" macRxQueue5Size  PARAMETER
+
 
 #INTERFACES
 
