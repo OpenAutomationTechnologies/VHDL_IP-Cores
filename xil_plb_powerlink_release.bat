@@ -6,7 +6,7 @@ set activehdl_dir=active_hdl
 set xilinxxps_dir=xilinx_xps
 set docu_dir=documentation
 set release_dir=release\xilinx_xps\ipcore
-set ipcore_dir=powerlink\pcores\%ipcore_name%_v0_29_a
+set ipcore_dir=powerlink\pcores\%ipcore_name%_v0_30_a
 set txt_dir=txt
 set common_dir=common
 
