@@ -123,7 +123,7 @@ package require -exact sopc 10.1
 
 set_module_property DESCRIPTION "POWERLINK IP-core"
 set_module_property NAME powerlink
-set_module_property VERSION 0.2.8
+set_module_property VERSION 0.2.9
 set_module_property INTERNAL false
 set_module_property GROUP "Interface Protocols/Ethernet"
 set_module_property AUTHOR "Michael Hogger and Joerg Zelenka"
