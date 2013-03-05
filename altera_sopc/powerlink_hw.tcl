@@ -960,28 +960,28 @@ proc my_validation_callback {} {
         set_parameter_property configApInterface VISIBLE true
         set_parameter_property asyncBuf1Size VISIBLE true
         set_parameter_property asyncBuf2Size VISIBLE true
-        set_parameter_property genLedGadget VISIBLE true
         if {$expert} {
             #in case of expert mode event hw support can be set
             set_parameter_property iPdiRev_g VISIBLE true
-            set_parameter_property genEvent VISIBLE true
-            set_parameter_value genEvent_g $genEvent
             set_parameter_property pcpSysId VISIBLE true
-            if {$genEvent} {
-            } else {
-                send_message warning "Event Hardware Support is mandatory for CN API library!"
-            }
+
+            #set the led gadget enable generic
+            set_parameter_property genLedGadget VISIBLE true
+            set_parameter_value genLedGadget_g $ledGadgetEn
         } else {
             #no expert mode => TRUE!
-            set_parameter_property genEvent VISIBLE false
-            set_parameter_value genEvent_g true
             set_parameter_property pcpSysId VISIBLE false
+
+            #set the led gadget enable generic
+            set_parameter_property genLedGadget VISIBLE false
+            set_parameter_value genLedGadget_g true
         }
+
+        set_parameter_property genEvent VISIBLE true
+        set_parameter_value genEvent_g $genEvent
+
         #AP can be big or little endian - allow choice
         set_parameter_property hwSupportSyncIrq VISIBLE true
-
-        #set the led gadget enable generic
-        set_parameter_value genLedGadget_g $ledGadgetEn
 
         set genPdi true
 
