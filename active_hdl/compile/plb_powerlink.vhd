@@ -87,6 +87,7 @@ library PLBV46_SLAVE_SINGLE_V1_01_A;
 
 entity plb_powerlink is
   generic(
+       C_FAMILY : string := "spartan6";
        -- general
        C_GEN_PDI : boolean := false;
        C_GEN_PAR_IF : boolean := false;
@@ -1028,7 +1029,6 @@ component plbv46_slave_single
 end component;
 
 ---- Architecture declarations -----
-constant C_FAMILY : string := "spartan6";
 constant C_ADDR_PAD_ZERO : std_logic_vector(31 downto 0) := (others => '0');
 -- openMAC REG PLB Slave
 constant C_MAC_REG_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_MAC_REG_BASEADDR;

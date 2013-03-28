@@ -2,7 +2,7 @@ SCHM0103
 
 HEADER
 {
- FREEID 118491
+ FREEID 118508
  VARIABLES
  {
   #ARCHITECTURE="struct"
@@ -15,3063 +15,6 @@ HEADER
   CREATIONDATE="9/13/2011"
   PAGECOUNT="16"
   TITLE="plb_powerlink"
- }
- SYMBOL "plbv46_master_burst_v1_01_a" "plbv46_master_burst" "plbv46_master_burst"
- {
-  HEADER
-  {
-   VARIABLES
-   {
-    #DESCRIPTION=""
-    #GENERIC0="C_MPLB_AWIDTH:INTEGER range 32 to 36:=32"
-    #GENERIC1="C_MPLB_DWIDTH:INTEGER range 32 to 128:=32"
-    #GENERIC2="C_MPLB_NATIVE_DWIDTH:INTEGER range 32 to 128:=32"
-    #GENERIC3="C_MPLB_SMALLEST_SLAVE:INTEGER range 32 to 128:=32"
-    #GENERIC4="C_INHIBIT_CC_BLE_INCLUSION:INTEGER range 0 to 1:=0"
-    #GENERIC5="C_FAMILY:STRING:=\"virtex5\""
-    #HDL_ENTRIES=
-"library STD,IEEE;\n"+
-"use STD.STANDARD.all,ieee.std_logic_1164.all;"
-    #LANGUAGE="VHDL"
-    #MODIFIED="1315919447"
-   }
-  }
-  PAGE "" 
-  {
-   PAGEHEADER
-   {
-    RECT (0,0,840,1320)
-    FREEID 126
-   }
-   
-   BODY
-   {
-    RECT  1, -1, 0
-    {
-     VARIABLES
-     {
-      #OUTLINE_FILLING="1"
-     }
-     AREA (20,0,820,1320)
-    }
-    TEXT  3, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,30,117,54)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 2
-    }
-    TEXT  5, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (731,30,815,54)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 4
-    }
-    TEXT  7, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,70,119,94)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 6
-    }
-    TEXT  9, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (723,70,815,94)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 8
-    }
-    TEXT  11, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,110,163,134)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 10
-    }
-    TEXT  13, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (692,110,815,134)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 12
-    }
-    TEXT  15, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,150,179,174)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 14
-    }
-    TEXT  17, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (715,150,815,174)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 16
-    }
-    TEXT  19, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,190,183,214)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 18
-    }
-    TEXT  21, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (741,190,815,214)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 20
-    }
-    TEXT  23, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,230,159,254)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 22
-    }
-    TEXT  25, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (522,230,815,254)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 24
-    }
-    TEXT  27, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,270,140,294)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 26
-    }
-    TEXT  29, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (696,270,815,294)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 28
-    }
-    TEXT  31, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,310,140,334)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 30
-    }
-    TEXT  33, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (714,310,815,334)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 32
-    }
-    TEXT  35, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,350,373,374)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 34
-    }
-    TEXT  37, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (712,350,815,374)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 36
-    }
-    TEXT  39, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,390,161,414)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 38
-    }
-    TEXT  41, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (691,390,815,414)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 40
-    }
-    TEXT  43, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,430,173,454)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 42
-    }
-    TEXT  45, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (724,430,815,454)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 44
-    }
-    TEXT  47, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,470,161,494)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 46
-    }
-    TEXT  49, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (726,470,815,494)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 48
-    }
-    TEXT  51, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,510,173,534)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 50
-    }
-    TEXT  53, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (510,510,815,534)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 52
-    }
-    TEXT  55, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,550,132,574)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 54
-    }
-    TEXT  57, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (655,550,815,574)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 56
-    }
-    TEXT  59, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,590,125,614)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 58
-    }
-    TEXT  61, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (728,590,815,614)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 60
-    }
-    TEXT  63, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,630,225,654)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 62
-    }
-    TEXT  65, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (744,630,815,654)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 64
-    }
-    TEXT  67, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,670,203,694)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 66
-    }
-    TEXT  69, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (678,670,815,694)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 68
-    }
-    TEXT  71, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,710,203,734)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 70
-    }
-    TEXT  73, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (625,710,815,734)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 72
-    }
-    TEXT  75, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,750,393,774)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 74
-    }
-    TEXT  77, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (648,750,815,774)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 76
-    }
-    TEXT  79, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,790,250,814)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 78
-    }
-    TEXT  81, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (656,790,815,814)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 80
-    }
-    TEXT  83, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,830,488,854)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 82
-    }
-    TEXT  85, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (605,830,815,854)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 84
-    }
-    TEXT  87, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,870,185,894)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 86
-    }
-    TEXT  89, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (577,870,815,894)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 88
-    }
-    TEXT  91, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,910,183,934)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 90
-    }
-    TEXT  93, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (370,910,815,934)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 92
-    }
-    TEXT  95, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,950,193,974)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 94
-    }
-    TEXT  97, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (320,950,815,974)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 96
-    }
-    TEXT  99, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,990,251,1014)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 98
-    }
-    TEXT  101, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (625,990,815,1014)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 100
-    }
-    TEXT  103, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1030,256,1054)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 102
-    }
-    TEXT  105, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (624,1030,815,1054)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 104
-    }
-    TEXT  107, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1070,470,1094)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 106
-    }
-    TEXT  109, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (589,1070,815,1094)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 108
-    }
-    TEXT  111, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1110,520,1134)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 110
-    }
-    TEXT  113, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (584,1110,815,1134)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 112
-    }
-    TEXT  115, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1150,215,1174)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 114
-    }
-    TEXT  117, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (589,1150,815,1174)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 116
-    }
-    TEXT  119, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1190,216,1214)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 118
-    }
-    TEXT  121, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (584,1190,815,1214)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 120
-    }
-    TEXT  123, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1230,251,1254)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 122
-    }
-    TEXT  125, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1270,256,1294)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 124
-    }
-    PIN  2, 0, 0
-    {
-     COORD (0,40)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="MPLB_Clk"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  4, 0, 0
-    {
-     COORD (840,40)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="MD_Error"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  6, 0, 0
-    {
-     COORD (0,80)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="MPLB_Rst"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  8, 0, 0
-    {
-     COORD (840,80)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_request"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  10, 0, 0
-    {
-     COORD (0,120)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MAddrAck"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  12, 0, 0
-    {
-     COORD (840,120)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_priority(0:1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  14, 0, 0
-    {
-     COORD (0,160)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MSSize(0:1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  16, 0, 0
-    {
-     COORD (840,160)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_busLock"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  18, 0, 0
-    {
-     COORD (0,200)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MRearbitrate"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  20, 0, 0
-    {
-     COORD (840,200)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_RNW"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  22, 0, 0
-    {
-     COORD (0,240)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MTimeout"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  24, 0, 0
-    {
-     COORD (840,240)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_BE(0:(C_MPLB_DWIDTH/8)-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  26, 0, 0
-    {
-     COORD (0,280)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MRdErr"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  28, 0, 0
-    {
-     COORD (840,280)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_MSize(0:1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  30, 0, 0
-    {
-     COORD (0,320)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MWrErr"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  32, 0, 0
-    {
-     COORD (840,320)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_size(0:3)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  34, 0, 0
-    {
-     COORD (0,360)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MRdDBus(0:C_MPLB_DWIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  36, 0, 0
-    {
-     COORD (840,360)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_type(0:2)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  38, 0, 0
-    {
-     COORD (0,400)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MRdDAck"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  40, 0, 0
-    {
-     COORD (840,400)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_ABus(0:31)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  42, 0, 0
-    {
-     COORD (0,440)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MRdBTerm"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  44, 0, 0
-    {
-     COORD (840,440)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_wrBurst"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  46, 0, 0
-    {
-     COORD (0,480)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MWrDAck"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  48, 0, 0
-    {
-     COORD (840,480)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_rdBurst"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  50, 0, 0
-    {
-     COORD (0,520)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MWrBTerm"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  52, 0, 0
-    {
-     COORD (840,520)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_wrDBus(0:C_MPLB_DWIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  54, 0, 0
-    {
-     COORD (0,560)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MBusy"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  56, 0, 0
-    {
-     COORD (840,560)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_TAttribute(0:15)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  58, 0, 0
-    {
-     COORD (0,600)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MIRQ"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  60, 0, 0
-    {
-     COORD (840,600)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_lockErr"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  62, 0, 0
-    {
-     COORD (0,640)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MRdWdAddr(0:3)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  64, 0, 0
-    {
-     COORD (840,640)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_abort"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  66, 0, 0
-    {
-     COORD (0,680)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_MstRd_Req"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  68, 0, 0
-    {
-     COORD (840,680)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="M_UABus(0:31)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  70, 0, 0
-    {
-     COORD (0,720)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_MstWr_Req"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  72, 0, 0
-    {
-     COORD (840,720)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_Mst_CmdAck"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  74, 0, 0
-    {
-     COORD (0,760)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_Mst_Addr(0:C_MPLB_AWIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  76, 0, 0
-    {
-     COORD (840,760)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_Mst_Cmplt"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  78, 0, 0
-    {
-     COORD (0,800)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_Mst_Length(0:11)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  80, 0, 0
-    {
-     COORD (840,800)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_Mst_Error"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  82, 0, 0
-    {
-     COORD (0,840)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_Mst_BE(0:(C_MPLB_NATIVE_DWIDTH/8)-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  84, 0, 0
-    {
-     COORD (840,840)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_Mst_Rearbitrate"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  86, 0, 0
-    {
-     COORD (0,880)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_Mst_Type"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  88, 0, 0
-    {
-     COORD (840,880)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_Mst_Cmd_Timeout"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  90, 0, 0
-    {
-     COORD (0,920)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_Mst_Lock"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  92, 0, 0
-    {
-     COORD (840,920)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_MstRd_d(0:C_MPLB_NATIVE_DWIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  94, 0, 0
-    {
-     COORD (0,960)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_Mst_Reset"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  96, 0, 0
-    {
-     COORD (840,960)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_MstRd_rem(0:(C_MPLB_NATIVE_DWIDTH/8)-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  98, 0, 0
-    {
-     COORD (0,1000)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_MstRd_dst_rdy_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  100, 0, 0
-    {
-     COORD (840,1000)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_MstRd_sof_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  102, 0, 0
-    {
-     COORD (0,1040)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_MstRd_dst_dsc_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  104, 0, 0
-    {
-     COORD (840,1040)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_MstRd_eof_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  106, 0, 0
-    {
-     COORD (0,1080)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_MstWr_d(0:C_MPLB_NATIVE_DWIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  108, 0, 0
-    {
-     COORD (840,1080)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_MstRd_src_rdy_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  110, 0, 0
-    {
-     COORD (0,1120)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_MstWr_rem(0:(C_MPLB_NATIVE_DWIDTH/8)-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  112, 0, 0
-    {
-     COORD (840,1120)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_MstRd_src_dsc_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  114, 0, 0
-    {
-     COORD (0,1160)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_MstWr_sof_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  116, 0, 0
-    {
-     COORD (840,1160)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_MstWr_dst_rdy_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  118, 0, 0
-    {
-     COORD (0,1200)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_MstWr_eof_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  120, 0, 0
-    {
-     COORD (840,1200)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_MstWr_dst_dsc_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  122, 0, 0
-    {
-     COORD (0,1240)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_MstWr_src_rdy_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  124, 0, 0
-    {
-     COORD (0,1280)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_MstWr_src_dsc_n"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-   }
-  }
- }
- SYMBOL "plbv46_slave_single_v1_01_a" "plbv46_slave_single" "plbv46_slave_single"
- {
-  HEADER
-  {
-   VARIABLES
-   {
-    #DESCRIPTION=""
-    #GENERIC0="C_ARD_ADDR_RANGE_ARRAY:SLV64_ARRAY_TYPE:=(X\"0000_0000_7000_0000\",X\"0000_0000_7000_00FF\",X\"0000_0000_7000_0100\",X\"0000_0000_7000_01FF\")"
-    #GENERIC1="C_ARD_NUM_CE_ARRAY:INTEGER_ARRAY_TYPE:=(1,8)"
-    #GENERIC10="C_FAMILY:STRING:=\"virtex4\""
-    #GENERIC2="C_SPLB_P2P:INTEGER range 0 to 1:=0"
-    #GENERIC3="C_BUS2CORE_CLK_RATIO:INTEGER range 1 to 2:=1"
-    #GENERIC4="C_INCLUDE_DPHASE_TIMER:INTEGER range 0 to 1:=1"
-    #GENERIC5="C_SPLB_MID_WIDTH:INTEGER range 1 to 4:=2"
-    #GENERIC6="C_SPLB_NUM_MASTERS:INTEGER range 1 to 16:=8"
-    #GENERIC7="C_SPLB_AWIDTH:INTEGER range 32 to 32:=32"
-    #GENERIC8="C_SPLB_DWIDTH:INTEGER range 32 to 128:=32"
-    #GENERIC9="C_SIPIF_DWIDTH:INTEGER range 32 to 32:=32"
-    #HDL_ENTRIES=
-"library PROC_COMMON_V3_00_A,STD,IEEE;\n"+
-"use proc_common_v3_00_a.ipif_pkg.all,STD.STANDARD.all,ieee.std_logic_1164.all;"
-    #LANGUAGE="VHDL"
-    #MODIFIED="1315914037"
-   }
-  }
-  PAGE "" 
-  {
-   PAGEHEADER
-   {
-    RECT (0,0,840,1240)
-    FREEID 112
-   }
-   
-   BODY
-   {
-    RECT  1, -1, 0
-    {
-     VARIABLES
-     {
-      #OUTLINE_FILLING="1"
-     }
-     AREA (20,0,820,1240)
-    }
-    TEXT  3, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,30,115,54)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 2
-    }
-    TEXT  5, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (715,30,815,54)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 4
-    }
-    TEXT  7, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,70,117,94)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 6
-    }
-    TEXT  9, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (696,70,815,94)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 8
-    }
-    TEXT  11, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,110,171,134)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 10
-    }
-    TEXT  13, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (753,110,815,134)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 12
-    }
-    TEXT  15, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,150,184,174)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 14
-    }
-    TEXT  17, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (700,150,815,174)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 16
-    }
-    TEXT  19, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,190,143,214)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 18
-    }
-    TEXT  21, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (720,190,815,214)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 20
-    }
-    TEXT  23, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,230,143,254)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 22
-    }
-    TEXT  25, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (714,230,815,254)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 24
-    }
-    TEXT  27, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,270,131,294)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 26
-    }
-    TEXT  29, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (708,270,815,294)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 28
-    }
-    TEXT  31, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,310,133,334)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 30
-    }
-    TEXT  33, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (512,310,815,334)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 32
-    }
-    TEXT  35, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,350,394,374)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 34
-    }
-    TEXT  37, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (658,350,815,374)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 36
-    }
-    TEXT  39, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,390,118,414)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 38
-    }
-    TEXT  41, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (722,390,815,414)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 40
-    }
-    TEXT  43, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,430,147,454)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 42
-    }
-    TEXT  45, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (716,430,815,454)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 44
-    }
-    TEXT  47, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,470,121,494)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 46
-    }
-    TEXT  49, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (710,470,815,494)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 48
-    }
-    TEXT  51, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,510,338,534)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 50
-    }
-    TEXT  53, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (452,510,815,534)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 52
-    }
-    TEXT  55, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,550,166,574)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 54
-    }
-    TEXT  57, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (444,550,815,574)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 56
-    }
-    TEXT  59, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,590,148,614)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 58
-    }
-    TEXT  61, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (444,590,815,614)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 60
-    }
-    TEXT  63, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,630,150,654)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 62
-    }
-    TEXT  65, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (459,630,815,654)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 64
-    }
-    TEXT  67, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,670,134,694)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 66
-    }
-    TEXT  69, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (712,670,815,694)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 68
-    }
-    TEXT  71, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,710,350,734)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 70
-    }
-    TEXT  73, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (688,710,815,734)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 72
-    }
-    TEXT  75, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,750,138,774)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 74
-    }
-    TEXT  77, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (490,750,815,774)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 76
-    }
-    TEXT  79, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,790,136,814)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 78
-    }
-    TEXT  81, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (491,790,815,814)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 80
-    }
-    TEXT  83, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,830,175,854)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 82
-    }
-    TEXT  85, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (693,830,815,854)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 84
-    }
-    TEXT  87, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,870,173,894)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 86
-    }
-    TEXT  89, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (476,870,815,894)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 88
-    }
-    TEXT  91, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,910,201,934)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 90
-    }
-    TEXT  93, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (258,910,815,934)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 92
-    }
-    TEXT  95, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,950,199,974)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 94
-    }
-    TEXT  97, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (284,950,815,974)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 96
-    }
-    TEXT  99, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,990,165,1014)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 98
-    }
-    TEXT  101, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (284,990,815,1014)
-     ALIGN 6
-     MARGINS (1,1)
-     PARENT 100
-    }
-    TEXT  103, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1030,207,1054)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 102
-    }
-    TEXT  105, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1070,349,1094)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 104
-    }
-    TEXT  107, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1110,158,1134)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 106
-    }
-    TEXT  109, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1150,158,1174)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 108
-    }
-    TEXT  111, 0, 0
-    {
-     TEXT "$#NAME"
-     RECT (25,1190,143,1214)
-     ALIGN 4
-     MARGINS (1,1)
-     PARENT 110
-    }
-    PIN  2, 0, 0
-    {
-     COORD (0,40)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="SPLB_Clk"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  4, 0, 0
-    {
-     COORD (840,40)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_addrAck"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  6, 0, 0
-    {
-     COORD (0,80)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="SPLB_Rst"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  8, 0, 0
-    {
-     COORD (840,80)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_SSize(0:1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  10, 0, 0
-    {
-     COORD (0,120)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_ABus(0:31)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  12, 0, 0
-    {
-     COORD (840,120)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_wait"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  14, 0, 0
-    {
-     COORD (0,160)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_UABus(0:31)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  16, 0, 0
-    {
-     COORD (840,160)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_rearbitrate"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  18, 0, 0
-    {
-     COORD (0,200)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_PAValid"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  20, 0, 0
-    {
-     COORD (840,200)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_wrDAck"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  22, 0, 0
-    {
-     COORD (0,240)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_SAValid"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  24, 0, 0
-    {
-     COORD (840,240)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_wrComp"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  26, 0, 0
-    {
-     COORD (0,280)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_rdPrim"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  28, 0, 0
-    {
-     COORD (840,280)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_wrBTerm"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  30, 0, 0
-    {
-     COORD (0,320)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_wrPrim"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  32, 0, 0
-    {
-     COORD (840,320)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_rdDBus(0:C_SPLB_DWIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  34, 0, 0
-    {
-     COORD (0,360)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_masterID(0:C_SPLB_MID_WIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  36, 0, 0
-    {
-     COORD (840,360)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_rdWdAddr(0:3)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  38, 0, 0
-    {
-     COORD (0,400)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_abort"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  40, 0, 0
-    {
-     COORD (840,400)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_rdDAck"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  42, 0, 0
-    {
-     COORD (0,440)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_busLock"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  44, 0, 0
-    {
-     COORD (840,440)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_rdComp"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  46, 0, 0
-    {
-     COORD (0,480)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_RNW"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  48, 0, 0
-    {
-     COORD (840,480)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_rdBTerm"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  50, 0, 0
-    {
-     COORD (0,520)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_BE(0:(C_SPLB_DWIDTH/8)-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  52, 0, 0
-    {
-     COORD (840,520)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_MBusy(0:C_SPLB_NUM_MASTERS-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  54, 0, 0
-    {
-     COORD (0,560)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_MSize(0:1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  56, 0, 0
-    {
-     COORD (840,560)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_MWrErr(0:C_SPLB_NUM_MASTERS-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  58, 0, 0
-    {
-     COORD (0,600)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_size(0:3)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  60, 0, 0
-    {
-     COORD (840,600)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_MRdErr(0:C_SPLB_NUM_MASTERS-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  62, 0, 0
-    {
-     COORD (0,640)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_type(0:2)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  64, 0, 0
-    {
-     COORD (840,640)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Sl_MIRQ(0:C_SPLB_NUM_MASTERS-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  66, 0, 0
-    {
-     COORD (0,680)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_lockErr"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  68, 0, 0
-    {
-     COORD (840,680)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_Clk"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  70, 0, 0
-    {
-     COORD (0,720)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_wrDBus(0:C_SPLB_DWIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  72, 0, 0
-    {
-     COORD (840,720)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_Reset"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  74, 0, 0
-    {
-     COORD (0,760)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_wrBurst"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  76, 0, 0
-    {
-     COORD (840,760)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_Addr(0:C_SPLB_AWIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  78, 0, 0
-    {
-     COORD (0,800)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_rdBurst"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  80, 0, 0
-    {
-     COORD (840,800)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_Data(0:C_SIPIF_DWIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  82, 0, 0
-    {
-     COORD (0,840)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_wrPendReq"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  84, 0, 0
-    {
-     COORD (840,840)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_RNW"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  86, 0, 0
-    {
-     COORD (0,880)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_rdPendReq"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  88, 0, 0
-    {
-     COORD (840,880)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_BE(0:(C_SIPIF_DWIDTH/8)-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  90, 0, 0
-    {
-     COORD (0,920)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_wrPendPri(0:1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  92, 0, 0
-    {
-     COORD (840,920)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_CS(0:((C_ARD_ADDR_RANGE_ARRAY'LENGTH)/2)-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  94, 0, 0
-    {
-     COORD (0,960)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_rdPendPri(0:1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  96, 0, 0
-    {
-     COORD (840,960)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_RdCE(0:calc_num_ce(C_ARD_NUM_CE_ARRAY)-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  98, 0, 0
-    {
-     COORD (0,1000)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_reqPri(0:1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  100, 0, 0
-    {
-     COORD (840,1000)
-     VARIABLES
-     {
-      #DIRECTION="OUT"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="Bus2IP_WrCE(0:calc_num_ce(C_ARD_NUM_CE_ARRAY)-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (-20,0), (0,0) )
-     }
-    }
-    PIN  102, 0, 0
-    {
-     COORD (0,1040)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="PLB_TAttribute(0:15)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  104, 0, 0
-    {
-     COORD (0,1080)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #DOWNTO="0"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_Data(0:C_SIPIF_DWIDTH-1)"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC_VECTOR"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  106, 0, 0
-    {
-     COORD (0,1120)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_WrAck"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  108, 0, 0
-    {
-     COORD (0,1160)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_RdAck"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-    PIN  110, 0, 0
-    {
-     COORD (0,1200)
-     VARIABLES
-     {
-      #DIRECTION="IN"
-      #LENGTH="20"
-      #MDA_RECORD_TOKEN="OTHER"
-      #NAME="IP2Bus_Error"
-      #NUMBER="0"
-      #VHDL_TYPE="STD_LOGIC"
-     }
-     LINE  2, 0, 0
-     {
-      POINTS ( (0,0), (20,0) )
-     }
-    }
-   }
-  }
  }
  SYMBOL "#default" "powerlink" "powerlink"
  {
@@ -8864,6 +5807,3063 @@ HEADER
    }
   }
  }
+ SYMBOL "plbv46_master_burst_v1_01_a" "plbv46_master_burst" "plbv46_master_burst"
+ {
+  HEADER
+  {
+   VARIABLES
+   {
+    #DESCRIPTION=""
+    #GENERIC0="C_MPLB_AWIDTH:INTEGER range 32 to 36:=32"
+    #GENERIC1="C_MPLB_DWIDTH:INTEGER range 32 to 128:=32"
+    #GENERIC2="C_MPLB_NATIVE_DWIDTH:INTEGER range 32 to 128:=32"
+    #GENERIC3="C_MPLB_SMALLEST_SLAVE:INTEGER range 32 to 128:=32"
+    #GENERIC4="C_INHIBIT_CC_BLE_INCLUSION:INTEGER range 0 to 1:=0"
+    #GENERIC5="C_FAMILY:STRING:=\"virtex5\""
+    #HDL_ENTRIES=
+"library STD,IEEE;\n"+
+"use STD.STANDARD.all,ieee.std_logic_1164.all;"
+    #LANGUAGE="VHDL"
+    #MODIFIED="1315919447"
+   }
+  }
+  PAGE "" 
+  {
+   PAGEHEADER
+   {
+    RECT (0,0,840,1320)
+    FREEID 126
+   }
+   
+   BODY
+   {
+    RECT  1, -1, 0
+    {
+     VARIABLES
+     {
+      #OUTLINE_FILLING="1"
+     }
+     AREA (20,0,820,1320)
+    }
+    TEXT  3, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,30,117,54)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 2
+    }
+    TEXT  5, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (731,30,815,54)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 4
+    }
+    TEXT  7, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,70,119,94)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 6
+    }
+    TEXT  9, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (723,70,815,94)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 8
+    }
+    TEXT  11, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,110,163,134)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 10
+    }
+    TEXT  13, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (692,110,815,134)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 12
+    }
+    TEXT  15, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,150,179,174)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 14
+    }
+    TEXT  17, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (715,150,815,174)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 16
+    }
+    TEXT  19, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,190,183,214)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 18
+    }
+    TEXT  21, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (741,190,815,214)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 20
+    }
+    TEXT  23, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,230,159,254)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 22
+    }
+    TEXT  25, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (522,230,815,254)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 24
+    }
+    TEXT  27, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,270,140,294)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 26
+    }
+    TEXT  29, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (696,270,815,294)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 28
+    }
+    TEXT  31, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,310,140,334)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 30
+    }
+    TEXT  33, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (714,310,815,334)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 32
+    }
+    TEXT  35, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,350,373,374)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 34
+    }
+    TEXT  37, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (712,350,815,374)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 36
+    }
+    TEXT  39, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,390,161,414)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 38
+    }
+    TEXT  41, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (691,390,815,414)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 40
+    }
+    TEXT  43, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,430,173,454)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 42
+    }
+    TEXT  45, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (724,430,815,454)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 44
+    }
+    TEXT  47, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,470,161,494)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 46
+    }
+    TEXT  49, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (726,470,815,494)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 48
+    }
+    TEXT  51, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,510,173,534)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 50
+    }
+    TEXT  53, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (510,510,815,534)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 52
+    }
+    TEXT  55, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,550,132,574)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 54
+    }
+    TEXT  57, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (655,550,815,574)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 56
+    }
+    TEXT  59, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,590,125,614)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 58
+    }
+    TEXT  61, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (728,590,815,614)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 60
+    }
+    TEXT  63, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,630,225,654)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 62
+    }
+    TEXT  65, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (744,630,815,654)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 64
+    }
+    TEXT  67, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,670,203,694)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 66
+    }
+    TEXT  69, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (678,670,815,694)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 68
+    }
+    TEXT  71, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,710,203,734)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 70
+    }
+    TEXT  73, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (625,710,815,734)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 72
+    }
+    TEXT  75, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,750,393,774)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 74
+    }
+    TEXT  77, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (648,750,815,774)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 76
+    }
+    TEXT  79, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,790,250,814)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 78
+    }
+    TEXT  81, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (656,790,815,814)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 80
+    }
+    TEXT  83, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,830,488,854)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 82
+    }
+    TEXT  85, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (605,830,815,854)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 84
+    }
+    TEXT  87, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,870,185,894)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 86
+    }
+    TEXT  89, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (577,870,815,894)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 88
+    }
+    TEXT  91, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,910,183,934)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 90
+    }
+    TEXT  93, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (370,910,815,934)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 92
+    }
+    TEXT  95, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,950,193,974)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 94
+    }
+    TEXT  97, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (320,950,815,974)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 96
+    }
+    TEXT  99, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,990,251,1014)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 98
+    }
+    TEXT  101, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (625,990,815,1014)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 100
+    }
+    TEXT  103, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1030,256,1054)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 102
+    }
+    TEXT  105, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (624,1030,815,1054)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 104
+    }
+    TEXT  107, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1070,470,1094)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 106
+    }
+    TEXT  109, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (589,1070,815,1094)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 108
+    }
+    TEXT  111, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1110,520,1134)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 110
+    }
+    TEXT  113, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (584,1110,815,1134)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 112
+    }
+    TEXT  115, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1150,215,1174)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 114
+    }
+    TEXT  117, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (589,1150,815,1174)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 116
+    }
+    TEXT  119, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1190,216,1214)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 118
+    }
+    TEXT  121, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (584,1190,815,1214)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 120
+    }
+    TEXT  123, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1230,251,1254)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 122
+    }
+    TEXT  125, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1270,256,1294)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 124
+    }
+    PIN  2, 0, 0
+    {
+     COORD (0,40)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="MPLB_Clk"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  4, 0, 0
+    {
+     COORD (840,40)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="MD_Error"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  6, 0, 0
+    {
+     COORD (0,80)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="MPLB_Rst"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  8, 0, 0
+    {
+     COORD (840,80)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_request"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  10, 0, 0
+    {
+     COORD (0,120)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MAddrAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  12, 0, 0
+    {
+     COORD (840,120)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_priority(0:1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  14, 0, 0
+    {
+     COORD (0,160)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MSSize(0:1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  16, 0, 0
+    {
+     COORD (840,160)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_busLock"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  18, 0, 0
+    {
+     COORD (0,200)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MRearbitrate"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  20, 0, 0
+    {
+     COORD (840,200)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_RNW"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  22, 0, 0
+    {
+     COORD (0,240)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MTimeout"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  24, 0, 0
+    {
+     COORD (840,240)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_BE(0:(C_MPLB_DWIDTH/8)-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  26, 0, 0
+    {
+     COORD (0,280)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MRdErr"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  28, 0, 0
+    {
+     COORD (840,280)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_MSize(0:1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  30, 0, 0
+    {
+     COORD (0,320)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MWrErr"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  32, 0, 0
+    {
+     COORD (840,320)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_size(0:3)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  34, 0, 0
+    {
+     COORD (0,360)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MRdDBus(0:C_MPLB_DWIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  36, 0, 0
+    {
+     COORD (840,360)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_type(0:2)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  38, 0, 0
+    {
+     COORD (0,400)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MRdDAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  40, 0, 0
+    {
+     COORD (840,400)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_ABus(0:31)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  42, 0, 0
+    {
+     COORD (0,440)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MRdBTerm"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  44, 0, 0
+    {
+     COORD (840,440)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_wrBurst"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  46, 0, 0
+    {
+     COORD (0,480)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MWrDAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  48, 0, 0
+    {
+     COORD (840,480)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_rdBurst"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  50, 0, 0
+    {
+     COORD (0,520)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MWrBTerm"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  52, 0, 0
+    {
+     COORD (840,520)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_wrDBus(0:C_MPLB_DWIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  54, 0, 0
+    {
+     COORD (0,560)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MBusy"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  56, 0, 0
+    {
+     COORD (840,560)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_TAttribute(0:15)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  58, 0, 0
+    {
+     COORD (0,600)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MIRQ"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  60, 0, 0
+    {
+     COORD (840,600)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_lockErr"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  62, 0, 0
+    {
+     COORD (0,640)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MRdWdAddr(0:3)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  64, 0, 0
+    {
+     COORD (840,640)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_abort"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  66, 0, 0
+    {
+     COORD (0,680)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_MstRd_Req"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  68, 0, 0
+    {
+     COORD (840,680)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="M_UABus(0:31)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  70, 0, 0
+    {
+     COORD (0,720)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_MstWr_Req"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  72, 0, 0
+    {
+     COORD (840,720)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_Mst_CmdAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  74, 0, 0
+    {
+     COORD (0,760)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_Mst_Addr(0:C_MPLB_AWIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  76, 0, 0
+    {
+     COORD (840,760)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_Mst_Cmplt"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  78, 0, 0
+    {
+     COORD (0,800)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_Mst_Length(0:11)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  80, 0, 0
+    {
+     COORD (840,800)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_Mst_Error"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  82, 0, 0
+    {
+     COORD (0,840)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_Mst_BE(0:(C_MPLB_NATIVE_DWIDTH/8)-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  84, 0, 0
+    {
+     COORD (840,840)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_Mst_Rearbitrate"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  86, 0, 0
+    {
+     COORD (0,880)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_Mst_Type"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  88, 0, 0
+    {
+     COORD (840,880)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_Mst_Cmd_Timeout"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  90, 0, 0
+    {
+     COORD (0,920)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_Mst_Lock"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  92, 0, 0
+    {
+     COORD (840,920)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_MstRd_d(0:C_MPLB_NATIVE_DWIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  94, 0, 0
+    {
+     COORD (0,960)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_Mst_Reset"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  96, 0, 0
+    {
+     COORD (840,960)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_MstRd_rem(0:(C_MPLB_NATIVE_DWIDTH/8)-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  98, 0, 0
+    {
+     COORD (0,1000)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_MstRd_dst_rdy_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  100, 0, 0
+    {
+     COORD (840,1000)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_MstRd_sof_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  102, 0, 0
+    {
+     COORD (0,1040)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_MstRd_dst_dsc_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  104, 0, 0
+    {
+     COORD (840,1040)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_MstRd_eof_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  106, 0, 0
+    {
+     COORD (0,1080)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_MstWr_d(0:C_MPLB_NATIVE_DWIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  108, 0, 0
+    {
+     COORD (840,1080)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_MstRd_src_rdy_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  110, 0, 0
+    {
+     COORD (0,1120)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_MstWr_rem(0:(C_MPLB_NATIVE_DWIDTH/8)-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  112, 0, 0
+    {
+     COORD (840,1120)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_MstRd_src_dsc_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  114, 0, 0
+    {
+     COORD (0,1160)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_MstWr_sof_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  116, 0, 0
+    {
+     COORD (840,1160)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_MstWr_dst_rdy_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  118, 0, 0
+    {
+     COORD (0,1200)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_MstWr_eof_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  120, 0, 0
+    {
+     COORD (840,1200)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_MstWr_dst_dsc_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  122, 0, 0
+    {
+     COORD (0,1240)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_MstWr_src_rdy_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  124, 0, 0
+    {
+     COORD (0,1280)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_MstWr_src_dsc_n"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+   }
+  }
+ }
+ SYMBOL "plbv46_slave_single_v1_01_a" "plbv46_slave_single" "plbv46_slave_single"
+ {
+  HEADER
+  {
+   VARIABLES
+   {
+    #DESCRIPTION=""
+    #GENERIC0="C_ARD_ADDR_RANGE_ARRAY:SLV64_ARRAY_TYPE:=(X\"0000_0000_7000_0000\",X\"0000_0000_7000_00FF\",X\"0000_0000_7000_0100\",X\"0000_0000_7000_01FF\")"
+    #GENERIC1="C_ARD_NUM_CE_ARRAY:INTEGER_ARRAY_TYPE:=(1,8)"
+    #GENERIC10="C_FAMILY:STRING:=\"virtex4\""
+    #GENERIC2="C_SPLB_P2P:INTEGER range 0 to 1:=0"
+    #GENERIC3="C_BUS2CORE_CLK_RATIO:INTEGER range 1 to 2:=1"
+    #GENERIC4="C_INCLUDE_DPHASE_TIMER:INTEGER range 0 to 1:=1"
+    #GENERIC5="C_SPLB_MID_WIDTH:INTEGER range 1 to 4:=2"
+    #GENERIC6="C_SPLB_NUM_MASTERS:INTEGER range 1 to 16:=8"
+    #GENERIC7="C_SPLB_AWIDTH:INTEGER range 32 to 32:=32"
+    #GENERIC8="C_SPLB_DWIDTH:INTEGER range 32 to 128:=32"
+    #GENERIC9="C_SIPIF_DWIDTH:INTEGER range 32 to 32:=32"
+    #HDL_ENTRIES=
+"library PROC_COMMON_V3_00_A,STD,IEEE;\n"+
+"use proc_common_v3_00_a.ipif_pkg.all,STD.STANDARD.all,ieee.std_logic_1164.all;"
+    #LANGUAGE="VHDL"
+    #MODIFIED="1315914037"
+   }
+  }
+  PAGE "" 
+  {
+   PAGEHEADER
+   {
+    RECT (0,0,840,1240)
+    FREEID 112
+   }
+   
+   BODY
+   {
+    RECT  1, -1, 0
+    {
+     VARIABLES
+     {
+      #OUTLINE_FILLING="1"
+     }
+     AREA (20,0,820,1240)
+    }
+    TEXT  3, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,30,115,54)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 2
+    }
+    TEXT  5, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (715,30,815,54)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 4
+    }
+    TEXT  7, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,70,117,94)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 6
+    }
+    TEXT  9, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (696,70,815,94)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 8
+    }
+    TEXT  11, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,110,171,134)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 10
+    }
+    TEXT  13, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (753,110,815,134)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 12
+    }
+    TEXT  15, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,150,184,174)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 14
+    }
+    TEXT  17, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (700,150,815,174)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 16
+    }
+    TEXT  19, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,190,143,214)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 18
+    }
+    TEXT  21, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (720,190,815,214)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 20
+    }
+    TEXT  23, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,230,143,254)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 22
+    }
+    TEXT  25, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (714,230,815,254)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 24
+    }
+    TEXT  27, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,270,131,294)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 26
+    }
+    TEXT  29, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (708,270,815,294)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 28
+    }
+    TEXT  31, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,310,133,334)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 30
+    }
+    TEXT  33, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (512,310,815,334)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 32
+    }
+    TEXT  35, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,350,394,374)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 34
+    }
+    TEXT  37, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (658,350,815,374)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 36
+    }
+    TEXT  39, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,390,118,414)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 38
+    }
+    TEXT  41, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (722,390,815,414)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 40
+    }
+    TEXT  43, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,430,147,454)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 42
+    }
+    TEXT  45, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (716,430,815,454)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 44
+    }
+    TEXT  47, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,470,121,494)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 46
+    }
+    TEXT  49, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (710,470,815,494)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 48
+    }
+    TEXT  51, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,510,338,534)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 50
+    }
+    TEXT  53, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (452,510,815,534)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 52
+    }
+    TEXT  55, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,550,166,574)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 54
+    }
+    TEXT  57, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (444,550,815,574)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 56
+    }
+    TEXT  59, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,590,148,614)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 58
+    }
+    TEXT  61, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (444,590,815,614)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 60
+    }
+    TEXT  63, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,630,150,654)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 62
+    }
+    TEXT  65, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (459,630,815,654)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 64
+    }
+    TEXT  67, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,670,134,694)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 66
+    }
+    TEXT  69, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (712,670,815,694)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 68
+    }
+    TEXT  71, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,710,350,734)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 70
+    }
+    TEXT  73, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (688,710,815,734)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 72
+    }
+    TEXT  75, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,750,138,774)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 74
+    }
+    TEXT  77, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (490,750,815,774)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 76
+    }
+    TEXT  79, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,790,136,814)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 78
+    }
+    TEXT  81, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (491,790,815,814)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 80
+    }
+    TEXT  83, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,830,175,854)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 82
+    }
+    TEXT  85, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (693,830,815,854)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 84
+    }
+    TEXT  87, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,870,173,894)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 86
+    }
+    TEXT  89, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (476,870,815,894)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 88
+    }
+    TEXT  91, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,910,201,934)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 90
+    }
+    TEXT  93, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (258,910,815,934)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 92
+    }
+    TEXT  95, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,950,199,974)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 94
+    }
+    TEXT  97, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (284,950,815,974)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 96
+    }
+    TEXT  99, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,990,165,1014)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 98
+    }
+    TEXT  101, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (284,990,815,1014)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 100
+    }
+    TEXT  103, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1030,207,1054)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 102
+    }
+    TEXT  105, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1070,349,1094)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 104
+    }
+    TEXT  107, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1110,158,1134)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 106
+    }
+    TEXT  109, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1150,158,1174)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 108
+    }
+    TEXT  111, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,1190,143,1214)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 110
+    }
+    PIN  2, 0, 0
+    {
+     COORD (0,40)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="SPLB_Clk"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  4, 0, 0
+    {
+     COORD (840,40)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_addrAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  6, 0, 0
+    {
+     COORD (0,80)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="SPLB_Rst"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  8, 0, 0
+    {
+     COORD (840,80)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_SSize(0:1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  10, 0, 0
+    {
+     COORD (0,120)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_ABus(0:31)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  12, 0, 0
+    {
+     COORD (840,120)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_wait"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  14, 0, 0
+    {
+     COORD (0,160)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_UABus(0:31)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  16, 0, 0
+    {
+     COORD (840,160)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_rearbitrate"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  18, 0, 0
+    {
+     COORD (0,200)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_PAValid"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  20, 0, 0
+    {
+     COORD (840,200)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_wrDAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  22, 0, 0
+    {
+     COORD (0,240)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_SAValid"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  24, 0, 0
+    {
+     COORD (840,240)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_wrComp"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  26, 0, 0
+    {
+     COORD (0,280)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_rdPrim"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  28, 0, 0
+    {
+     COORD (840,280)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_wrBTerm"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  30, 0, 0
+    {
+     COORD (0,320)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_wrPrim"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  32, 0, 0
+    {
+     COORD (840,320)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_rdDBus(0:C_SPLB_DWIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  34, 0, 0
+    {
+     COORD (0,360)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_masterID(0:C_SPLB_MID_WIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  36, 0, 0
+    {
+     COORD (840,360)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_rdWdAddr(0:3)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  38, 0, 0
+    {
+     COORD (0,400)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_abort"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  40, 0, 0
+    {
+     COORD (840,400)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_rdDAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  42, 0, 0
+    {
+     COORD (0,440)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_busLock"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  44, 0, 0
+    {
+     COORD (840,440)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_rdComp"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  46, 0, 0
+    {
+     COORD (0,480)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_RNW"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  48, 0, 0
+    {
+     COORD (840,480)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_rdBTerm"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  50, 0, 0
+    {
+     COORD (0,520)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_BE(0:(C_SPLB_DWIDTH/8)-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  52, 0, 0
+    {
+     COORD (840,520)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_MBusy(0:C_SPLB_NUM_MASTERS-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  54, 0, 0
+    {
+     COORD (0,560)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_MSize(0:1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  56, 0, 0
+    {
+     COORD (840,560)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_MWrErr(0:C_SPLB_NUM_MASTERS-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  58, 0, 0
+    {
+     COORD (0,600)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_size(0:3)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  60, 0, 0
+    {
+     COORD (840,600)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_MRdErr(0:C_SPLB_NUM_MASTERS-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  62, 0, 0
+    {
+     COORD (0,640)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_type(0:2)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  64, 0, 0
+    {
+     COORD (840,640)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Sl_MIRQ(0:C_SPLB_NUM_MASTERS-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  66, 0, 0
+    {
+     COORD (0,680)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_lockErr"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  68, 0, 0
+    {
+     COORD (840,680)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_Clk"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  70, 0, 0
+    {
+     COORD (0,720)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_wrDBus(0:C_SPLB_DWIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  72, 0, 0
+    {
+     COORD (840,720)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_Reset"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  74, 0, 0
+    {
+     COORD (0,760)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_wrBurst"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  76, 0, 0
+    {
+     COORD (840,760)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_Addr(0:C_SPLB_AWIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  78, 0, 0
+    {
+     COORD (0,800)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_rdBurst"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  80, 0, 0
+    {
+     COORD (840,800)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_Data(0:C_SIPIF_DWIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  82, 0, 0
+    {
+     COORD (0,840)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_wrPendReq"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  84, 0, 0
+    {
+     COORD (840,840)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_RNW"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  86, 0, 0
+    {
+     COORD (0,880)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_rdPendReq"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  88, 0, 0
+    {
+     COORD (840,880)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_BE(0:(C_SIPIF_DWIDTH/8)-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  90, 0, 0
+    {
+     COORD (0,920)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_wrPendPri(0:1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  92, 0, 0
+    {
+     COORD (840,920)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_CS(0:((C_ARD_ADDR_RANGE_ARRAY'LENGTH)/2)-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  94, 0, 0
+    {
+     COORD (0,960)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_rdPendPri(0:1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  96, 0, 0
+    {
+     COORD (840,960)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_RdCE(0:calc_num_ce(C_ARD_NUM_CE_ARRAY)-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  98, 0, 0
+    {
+     COORD (0,1000)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_reqPri(0:1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  100, 0, 0
+    {
+     COORD (840,1000)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="Bus2IP_WrCE(0:calc_num_ce(C_ARD_NUM_CE_ARRAY)-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  102, 0, 0
+    {
+     COORD (0,1040)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="PLB_TAttribute(0:15)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  104, 0, 0
+    {
+     COORD (0,1080)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="0"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_Data(0:C_SIPIF_DWIDTH-1)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  106, 0, 0
+    {
+     COORD (0,1120)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_WrAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  108, 0, 0
+    {
+     COORD (0,1160)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_RdAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  110, 0, 0
+    {
+     COORD (0,1200)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="IP2Bus_Error"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+   }
+  }
+ }
  SYMBOL "unisim" "ODDR2" "ODDR2"
  {
   HEADER
@@ -9175,7 +9175,6 @@ PAGE "header"
   {
    LABEL "Architecture declarations"
    TEXT 
-"constant C_FAMILY : string := \"spartan6\";\n"+
 "constant C_ADDR_PAD_ZERO : std_logic_vector(31 downto 0) := (others => '0');\n"+
 "-- openMAC REG PLB Slave\n"+
 "constant C_MAC_REG_BASE : std_logic_vector(63 downto 0) := C_ADDR_PAD_ZERO & C_MAC_REG_BASEADDR;\n"+
@@ -15930,6 +15929,7 @@ PAGE "POWERLINK IP-CORE"
   {
    LABEL "Generic_1"
    TEXT 
+"C_FAMILY : string := \"spartan6\";\n"+
 "-- general\n"+
 "C_GEN_PDI : boolean := false;\n"+
 "C_GEN_PAR_IF : boolean := false;\n"+
@@ -34398,7 +34398,7 @@ PAGE ""
 {
  PAGEHEADER
  {
-  PAGESIZE (3307,2338)
+  PAGESIZE (6000,3400)
   MARGINS (200,200,200,200)
   RECT (0,0,0,0)
   VARIABLES
@@ -34407,59 +34407,59 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311684073"
-   PAGENAME="MAC_REG"
-   PAGENUMBER="6"
+   PAGENAME="POWERLINK IP-CORE"
+   PAGENUMBER="4"
    REVISION="1.0"
   }
  }
  
  BODY
  {
-  TEXT  118474, 0, 0
+  TEXT  118491, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "Created:"
-   RECT (2247,1904,2364,1957)
+   RECT (4940,2966,5057,3019)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  118475, 0, 0
+  TEXT  118492, 0, 0
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
-   RECT (2421,1900,3091,1960)
+   RECT (5114,2962,5784,3022)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  118476, 0, 0
+  TEXT  118493, 0, 0
   {
    PAGEALIGN 10
    TEXT "Title:"
-   RECT (2245,1964,2316,2017)
+   RECT (4938,3026,5009,3079)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  118477, 0, 0
+  TEXT  118494, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "$TITLE"
-   RECT (2418,1960,3088,2020)
+   RECT (5111,3022,5781,3082)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  118478, 0, 0
+  TEXT  118495, 0, 0
   {
    PAGEALIGN 10
    TEXT 
@@ -34467,59 +34467,59 @@ PAGE ""
 "B&R Strasse 1\n"+
 "5142 Eggelsberg\n"+
 "Austria"
-   RECT (2427,1758,3115,1892)
+   RECT (5120,2820,5808,2954)
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
    MULTILINE
   }
-  TEXT  118479, 0, 0
+  TEXT  118496, 0, 0
   {
    PAGEALIGN 10
    TEXT "Page:"
-   RECT (2245,2082,2324,2135)
+   RECT (4938,3144,5017,3197)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  118480, 0, 0
+  TEXT  118497, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "$PAGENUMBER / $PAGECOUNT     $PAGENAME"
-   RECT (2417,2078,3087,2138)
+   RECT (5110,3140,5780,3200)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,128,0,"Arial")
    UPDATE 0
   }
-  TEXT  118481, 0, 0
+  TEXT  118498, 0, 0
   {
    PAGEALIGN 10
    TEXT "Revision:"
-   RECT (2243,2022,2371,2075)
+   RECT (4936,3084,5064,3137)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
   }
-  TEXT  118482, 0, 0
+  TEXT  118499, 0, 0
   {
    PAGEALIGN 10
    TEXT "$Revision"
-   RECT (2417,2032,3077,2067)
+   RECT (5110,3094,5770,3129)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,204,0,"Arial")
    UPDATE 0
   }
-  GROUP  118483, 0, 0
+  GROUP  118500, 0, 0
   {
    PAGEALIGN 10
-   RECT (2227,1738,3108,2138)
+   RECT (4920,2800,5801,3200)
    FREEID 1
    LINE  594, 0, 0
    {
@@ -34528,10 +34528,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  118484, 0, 0
+  GROUP  118501, 0, 0
   {
    PAGEALIGN 10
-   RECT (2227,1958,3108,1959)
+   RECT (4920,3020,5801,3021)
    FREEID 1
    LINE  578, 0, 0
    {
@@ -34540,10 +34540,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  118485, 0, 0
+  GROUP  118502, 0, 0
   {
    PAGEALIGN 10
-   RECT (2227,1898,3108,1899)
+   RECT (4920,2960,5801,2961)
    FREEID 1
    LINE  577, 0, 0
    {
@@ -34552,10 +34552,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  118486, 0, 0
+  GROUP  118503, 0, 0
   {
    PAGEALIGN 10
-   RECT (2227,2018,3108,2019)
+   RECT (4920,3080,5801,3081)
    FREEID 1
    LINE  583, 0, 0
    {
@@ -34564,10 +34564,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  118487, 0, 0
+  GROUP  118504, 0, 0
   {
    PAGEALIGN 10
-   RECT (2227,2078,3108,2079)
+   RECT (4920,3140,5801,3141)
    FREEID 1
    LINE  582, 0, 0
    {
@@ -34576,10 +34576,10 @@ PAGE ""
     FILL (1,(0,0,0),0)
    }
   }
-  GROUP  118488, 0, 0
+  GROUP  118505, 0, 0
   {
    PAGEALIGN 10
-   RECT (2407,1898,2408,2139)
+   RECT (5100,2960,5101,3201)
    FREEID 1
    LINE  579, 0, 0
    {
@@ -34587,18 +34587,18 @@ PAGE ""
     POINTS ( (0,0), (0,240) )
    }
   }
-  LINE  118489, 0, 0
+  LINE  118506, 0, 0
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
-   POINTS ( (2407,1738), (2407,1898) )
+   POINTS ( (5100,2800), (5100,2960) )
    FILL (1,(0,0,0),0)
   }
-  LINKBMPPICT  118490, 0, 0
+  LINKBMPPICT  118507, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\DAT\\#BR.bmp"
-   RECT (2247,1758,2387,1838)
+   RECT (4940,2820,5080,2900)
   }
  }
  
