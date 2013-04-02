@@ -80,7 +80,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     //---------------------------------------------------------
     // include section header file for special functions in
     // tightly-coupled memory
-    #include <section-nios2.h>
+    #include <EplSection-nios2.h>
 
 #elif defined(__MICROBLAZE__)
 
@@ -104,7 +104,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     //---------------------------------------------------------
     // include section header file for special functions in
     // local memory
-    #include <section-microblaze.h>
+    #include <EplSection-microblaze.h>
 
 #else
     #error "Host CPU is unknown, set OMETH_HW_MODE and OMETH_MAKE_NONCACHABLE!"
@@ -116,7 +116,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     //---------------------------------------------------------
     // include section header file with null macros
-    #include <section-default.h>
+    #include <EplSection-default.h>
 
 #endif
 

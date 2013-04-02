@@ -261,7 +261,7 @@ typedef struct _tEdrvInstance
 // RX Hook function
 static int EdrvRxHook(void *arg,
                       ometh_packet_typ  *pPacket,
-                      OMETH_BUF_FREE_FCT  *pFct)  SECTION_EDRVOPENMAC_RX_HOOK;
+                      OMETH_BUF_FREE_FCT  *pFct)  EPL_SECTION_EDRVOPENMAC_RX_HOOK;
 
 static void EdrvCbSendAck(ometh_packet_typ *pPacket, void *arg, unsigned long time);
 
@@ -269,7 +269,7 @@ static void EdrvIrqHandler (void* pArg_p
 #ifndef ALT_ENHANCED_INTERRUPT_API_PRESENT
         , DWORD dwInt_p
 #endif
-        ) SECTION_EDRVOPENMAC_IRQ_HDL;
+        ) EPL_SECTION_EDRVOPENMAC_IRQ_HDL;
 
 
 

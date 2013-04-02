@@ -1238,7 +1238,7 @@ ometh_stat_typ    *omethStatistics
 void            omethRxIrqHandler
 (
  OMETH_H        hEth        /* handle of ethernet driver, see omethCreate() */
-) SECTION_OMETHLIB_RX_IRQ_HDL;
+) EPL_SECTION_OMETHLIB_RX_IRQ_HDL;
 
 /*****************************************************************************
 *
@@ -1258,7 +1258,7 @@ void            omethRxIrqHandler
 void            omethTxIrqHandler
 (
  OMETH_H        hEth        /* handle of ethernet driver, see omethCreate() */
-) SECTION_OMETHLIB_TX_IRQ_HDL;
+) EPL_SECTION_OMETHLIB_TX_IRQ_HDL;
 
 /*****************************************************************************
 *
