@@ -68,6 +68,7 @@
 
 #include "EplInc.h"
 #include "edrv.h"
+#include "kernel/EplDllkFilter.h"
 #include "Benchmark.h"
 #include "omethlib.h"   // openMAC header
 #include "EplTgtTimeStamp_openMac.h"
@@ -129,7 +130,7 @@
 #define EDRV_MAX_FILTERS            16
 
 //--- set driver's auto-response frames ---
-#define EDRV_MAX_AUTO_RESPONSES     14
+#define EDRV_MAX_AUTO_RESPONSES     15
 
 //--- set additional transmit queue size ---
 #define EDRV_MAX_TX_BUF2            16
@@ -150,6 +151,19 @@
 
 #ifndef EDRV_TIME_TRIG_TX
 #define EDRV_TIME_TRIG_TX FALSE
+#endif
+
+#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
+  #if (EDRV_QUEUE1_SIZE == 0) && (EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT)
+    #error "The Virtual Ethernet driver is enabled but no queue is allocated for it! \
+Please increase the size of receive queue number 1."
+  #endif
+
+  #if EDRV_QUEUE1_SIZE != 0
+    #define EDRV_VETH_RX_PENDING    EDRV_QUEUE1_SIZE
+  #else
+    #define EDRV_VETH_RX_PENDING    EPL_VETH_NUM_RX_BUFFERS
+  #endif
 #endif
 
 #if (EDRV_AUTO_RESPONSE == FALSE && EDRV_TIME_TRIG_TX == FALSE)
@@ -199,6 +213,9 @@ typedef struct _tEdrvInstance
     ometh_config_typ         m_EthConf;
     OMETH_H                  m_hOpenMac;
     OMETH_HOOK_H             m_hHook;
+#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
+    OMETH_HOOK_H             m_hHookVeth;
+#endif
     OMETH_FILTER_H           m_ahFilter[EDRV_MAX_FILTERS];
 
     phy_reg_typ*             m_pPhy[EDRV_PHY_NUM];
@@ -431,9 +448,36 @@ BYTE            abFilterMask[31],
         goto Exit;
     }
 
+#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
+    EdrvInstance_l.m_hHookVeth = omethHookCreate(EdrvInstance_l.m_hOpenMac,
+            EdrvRxHook, EDRV_VETH_RX_PENDING);
+    if (EdrvInstance_l.m_hHookVeth == 0)
+    {
+        Ret = kEplNoResource;
+        goto Exit;
+    }
+#endif
+
     for (i = 0; i < EDRV_MAX_FILTERS; i++)
     {
-        EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHook, (void*) i, abFilterMask, abFilterValue);
+        switch(i)
+        {
+#if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
+            case EPL_DLLK_FILTER_VETH_OPENMAC_UNICAST:
+            case EPL_DLLK_FILTER_VETH_OPENMAC_BROADCAST:
+            {
+                EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHookVeth,
+                                    (void*) i, abFilterMask, abFilterValue);
+                break;
+            }
+#endif
+            default:
+            {
+                EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHook,
+                                    (void*) i, abFilterMask, abFilterValue);
+            }
+        }
+
         if (EdrvInstance_l.m_ahFilter[i] == 0)
         {
             Ret = kEplNoResource;
