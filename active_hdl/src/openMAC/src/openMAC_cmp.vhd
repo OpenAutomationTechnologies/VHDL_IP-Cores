@@ -47,6 +47,8 @@
 --
 -- 2011-07-26  	V0.01	zelenkaj    First version						 				  
 -- 2012-01-11	V0.02	mairt		moved registers to seperate cmp int and tog int
+-- 2013-01-04	V0.03	d.k.        Add feature of tog int to generate a high pulse
+--           	     	            of configurable length.
 --
 -------------------------------------------------------------------------------
 
@@ -58,7 +60,9 @@ use ieee.std_logic_unsigned.all;
 entity openMAC_cmp is
 	generic(
 		mac_time_width_g : integer := 32;
-		gen2ndCmpTimer_g : boolean := false
+		gen2ndCmpTimer_g : boolean := false;
+		pulseWidth2ndCmpTimer_g : integer := 9;
+		genPulse2ndCmpTimer_g : boolean := false
 	);
 	port(
 		clk : in std_logic;
@@ -76,6 +80,8 @@ end openMAC_cmp;
 architecture rtl of openMAC_cmp is
 signal cmp_enable, tog_enable : std_logic;
 signal cmp_value, tog_value : std_logic_vector(mac_time'range);
+signal tog_counter_value : std_logic_vector(pulseWidth2ndCmpTimer_g-1 downto 0);
+signal tog_counter_preset : std_logic_vector(pulseWidth2ndCmpTimer_g-1 downto 0);
 signal irq_s, toggle_s : std_logic;
 begin
 	irq <= irq_s;
@@ -88,6 +94,10 @@ begin
 			
 			if gen2ndCmpTimer_g = TRUE then
 				tog_enable <= '0'; tog_value <= (others => '0'); toggle_s <= '0';
+				if genPulse2ndCmpTimer_g = TRUE then
+					tog_counter_value <= (others => '0');
+					tog_counter_preset <= (others => '0');
+				end if;
 			end if;
 			
 		elsif clk = '1' and clk'event then
@@ -100,6 +110,18 @@ begin
 			--tog
 			if tog_enable = '1' and mac_time = tog_value and gen2ndCmpTimer_g = TRUE then
 				toggle_s <= not toggle_s;
+				if genPulse2ndCmpTimer_g = TRUE then
+					tog_counter_value <= tog_counter_preset;
+				end if;
+			end if;
+			if tog_enable = '1' and toggle_s = '1'
+			   and (not (tog_counter_value = conv_std_logic_vector(0, tog_counter_value'length)))
+			   and gen2ndCmpTimer_g = TRUE
+			   and genPulse2ndCmpTimer_g = TRUE then
+				tog_counter_value <= tog_counter_value - 1;
+				if tog_counter_value = conv_std_logic_vector(1, tog_counter_value'length) then
+					toggle_s <= '0';
+				end if;
 			end if;
 			
 			--memory mapping
@@ -117,6 +139,9 @@ begin
 					when "11" =>
 						if gen2ndCmpTimer_g = TRUE then
 							tog_enable <= din(0);
+							if genPulse2ndCmpTimer_g = TRUE then
+								tog_counter_preset <= din(pulseWidth2ndCmpTimer_g downto 1);
+							end if;						
 						end if;						
 					when others =>
 						--go and get a coffee...

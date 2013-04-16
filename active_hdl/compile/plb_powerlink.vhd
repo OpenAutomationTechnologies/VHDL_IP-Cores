@@ -103,6 +103,7 @@ entity plb_powerlink is
        C_RX_INT_PKT : boolean := false;
        C_USE_2ND_PHY : boolean := true;
        C_NUM_SMI : integer range 1 to 2 := 2;
+       C_MAC_GEN_SECOND_TIMER : boolean := false;
        --pdi
        C_PDI_REV : integer := 0;
        C_PCP_SYS_ID : integer := 0;
@@ -112,7 +113,6 @@ entity plb_powerlink is
        C_PDI_ASYNC_BUF_1 : integer := 50;
        C_PDI_GEN_LED : boolean := false;
        C_PDI_GEN_TIME_SYNC : boolean := true;
-       C_PDI_GEN_SECOND_TIMER : boolean := false;
        C_PDI_GEN_EVENT : boolean := true;
        --global pdi and mac
        C_NUM_RPDO : integer := 3;
@@ -135,6 +135,9 @@ entity plb_powerlink is
        C_OBSERVER_ENABLE : boolean := false;
        -- clock stabiliser
        C_INSTANCE_ODDR2 : boolean := false;
+       -- sync IRQ pulse width
+       C_USE_PULSE_2nd_CMP_TIMER : boolean := true;
+       C_PULSE_WIDTH_2nd_CMP_TIMER : integer := 9;
        -- PDI AP PLB Slave
        C_PDI_AP_BASEADDR : std_logic_vector := X"00000000";
        C_PDI_AP_HIGHADDR : std_logic_vector := X"000FFFFF";
@@ -716,6 +719,8 @@ component powerlink
        spiCPHA_g : boolean := false;
        spiCPOL_g : boolean := false;
        use2ndCmpTimer_g : boolean := true;
+       usePulse2ndCmpTimer_g : boolean := true;
+       pulseWidth2ndCmpTimer_g : integer := 9;
        use2ndPhy_g : boolean := true;
        useIntPacketBuf_g : boolean := true;
        useRmii_g : boolean := true;
@@ -1480,12 +1485,14 @@ THE_POWERLINK_IP_CORE : powerlink
        papLowAct_g => C_PAP_LOW_ACT,
        pcpSysId => C_PCP_SYS_ID,
        pioValLen_g => C_PIO_VAL_LENGTH,
+       pulseWidth2ndCmpTimer_g => C_PULSE_WIDTH_2nd_CMP_TIMER,
        spiBigEnd_g => false,
        spiCPHA_g => C_SPI_CPHA,
        spiCPOL_g => C_SPI_CPOL,
-       use2ndCmpTimer_g => C_PDI_GEN_SECOND_TIMER,
+       use2ndCmpTimer_g => C_MAC_GEN_SECOND_TIMER,
        use2ndPhy_g => C_USE_2ND_PHY,
        useIntPacketBuf_g => C_MAC_PKT_EN,
+       usePulse2ndCmpTimer_g => C_USE_PULSE_2nd_CMP_TIMER,
        useRmii_g => C_USE_RMII,
        useRxIntPacketBuf_g => C_MAC_PKT_RX_EN
   )

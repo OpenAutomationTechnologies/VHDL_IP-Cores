@@ -227,7 +227,7 @@ typedef struct
     unsigned int                m_uiActiveTimerHdl;
 
 #ifdef EPL_TIMER_USE_COMPARE_PDI_INT
-    WORD                        m_wCompareTogPdiIntEnabled;
+    WORD                        m_wExtSyncIrqEnabled;
     WORD                        m_wSyncIntCycle;
 #endif //EPL_TIMER_USE_COMPARE_PDI_INT
 } tEplTimerSynckInstance;
@@ -258,10 +258,10 @@ static inline void  EplTimerSynckDrvSetCompareValue         (DWORD dwVal);
 static inline DWORD EplTimerSynckDrvGetTimeValue            (void);
 
 #ifdef EPL_TIMER_USE_COMPARE_PDI_INT
-static inline void  EplTimerSynckDrvCompareTogPdiInterruptEnable  (void);
-static inline void  EplTimerSynckDrvCompareTogPdiInterruptDisable  (void);
-static inline void  EplTimerSynckDrvSetCompareTogPdiValue         (DWORD dwVal);
-static void EplTimerSynckDrvCalcCompareTogPdiValue (void);
+static inline void  EplTimerSynckDrvExtSyncIrqEnable  (DWORD dwPulseWidthNs_p);
+static inline void  EplTimerSynckDrvExtSyncIrqDisable  (void);
+static inline void  EplTimerSynckDrvSetExtSyncIrqValue         (DWORD dwVal);
+static void EplTimerSynckDrvCalcExtSyncIrqValue (void);
 #endif //EPL_TIMER_USE_COMPARE_PDI_INT
 
 static void EplTimerSynckDrvInterruptHandler (void* pArg_p
@@ -312,8 +312,8 @@ tEplKernel      Ret = kEplSuccessful;
     EplTimerSynckDrvCompareInterruptDisable();
     EplTimerSynckDrvSetCompareValue( 0 );
 #ifdef EPL_TIMER_USE_COMPARE_PDI_INT
-    EplTimerSynckDrvCompareTogPdiInterruptDisable();
-    EplTimerSynckDrvSetCompareTogPdiValue( 0 );
+    EplTimerSynckDrvExtSyncIrqDisable();
+    EplTimerSynckDrvSetExtSyncIrqValue( 0 );
 #endif //EPL_TIMER_USE_COMPARE_PDI_INT
 
 #ifdef __NIOS2__
@@ -362,8 +362,8 @@ tEplKernel      Ret = kEplSuccessful;
     EplTimerSynckDrvCompareInterruptDisable();
     EplTimerSynckDrvSetCompareValue( 0 );
 #ifdef EPL_TIMER_USE_COMPARE_PDI_INT
-    EplTimerSynckDrvCompareTogPdiInterruptDisable();
-    EplTimerSynckDrvSetCompareTogPdiValue( 0 );
+    EplTimerSynckDrvExtSyncIrqDisable();
+    EplTimerSynckDrvSetExtSyncIrqValue( 0 );
 #endif //EPL_TIMER_USE_COMPARE_PDI_INT
 
 #ifdef __NIOS2__
@@ -668,40 +668,43 @@ tEplKernel      Ret = kEplSuccessful;
 #ifdef EPL_TIMER_USE_COMPARE_PDI_INT
 //---------------------------------------------------------------------------
 //
-// Function:    EplTimerSynckCompareTogPdiIntEnable()
+// Function:    EplTimerSynckExtSyncIrqEnable()
 //
-// Description: This function enables the compare pdi interrupt externally
+// Description: This function enables the external sync interrupt of 2nd CMP timer
 //
-// Parameters:  void
+// Parameters:  wSyncIntCycle_p     = trigger external sync int every nth cycle
+//              dwPulseWidthNs_p    = pulse width of external sync int.
+//                                    If 0 external sync int is just toggled.
 //
 // Return:      void
 //
 //---------------------------------------------------------------------------
-void PUBLIC EplTimerSynckCompareTogPdiIntEnable (DWORD wSyncIntCycle_p)
+void PUBLIC EplTimerSynckExtSyncIrqEnable (DWORD wSyncIntCycle_p,
+                                                DWORD dwPulseWidthNs_p)
 {
-    EplTimerSynckInstance_l.m_wCompareTogPdiIntEnabled = TRUE;
+    EplTimerSynckInstance_l.m_wExtSyncIrqEnabled = TRUE;
     EplTimerSynckInstance_l.m_wSyncIntCycle = wSyncIntCycle_p;
 
-    EplTimerSynckDrvCompareTogPdiInterruptEnable();
+    EplTimerSynckDrvExtSyncIrqEnable(dwPulseWidthNs_p);
 }
 
 //---------------------------------------------------------------------------
 //
-// Function:    EplTimerSynckCompareTogPdiIntDisable()
+// Function:    EplTimerSynckExtSyncIrqDisable()
 //
-// Description: This function disables the compare pdi interrupt externally
+// Description: This function disables the external sync interrupt of 2nd CMP timer
 //
 // Parameters:  void
 //
 // Return:      void
 //
 //---------------------------------------------------------------------------
-void PUBLIC EplTimerSynckCompareTogPdiIntDisable (void)
+void PUBLIC EplTimerSynckExtSyncIrqDisable (void)
 {
-    EplTimerSynckInstance_l.m_wCompareTogPdiIntEnabled = FALSE;
+    EplTimerSynckInstance_l.m_wExtSyncIrqEnabled = FALSE;
     EplTimerSynckInstance_l.m_wSyncIntCycle = 0;
 
-    EplTimerSynckDrvCompareTogPdiInterruptDisable();
+    EplTimerSynckDrvExtSyncIrqDisable();
 }
 #endif //EPL_TIMER_USE_COMPARE_PDI_INT
 
@@ -1102,23 +1105,23 @@ static inline DWORD EplTimerSynckDrvGetTimeValue (void)
 }
 
 #ifdef EPL_TIMER_USE_COMPARE_PDI_INT
-static inline void EplTimerSynckDrvCompareTogPdiInterruptDisable (void)
+static inline void EplTimerSynckDrvExtSyncIrqDisable (void)
 {
     TSYN_WR32( EPL_TIMER_SYNC_BASE, TIMERCMP_REG_OFF_CTRL_COMPARE_PDI, 0 );
 }
 
-static inline void EplTimerSynckDrvCompareTogPdiInterruptEnable (void)
+static inline void EplTimerSynckDrvExtSyncIrqEnable (DWORD dwPulseWidthNs_p)
 {
-    TSYN_WR32( EPL_TIMER_SYNC_BASE, TIMERCMP_REG_OFF_CTRL_COMPARE_PDI, 1 );
-
+    TSYN_WR32( EPL_TIMER_SYNC_BASE, TIMERCMP_REG_OFF_CTRL_COMPARE_PDI,
+            (1 | (OMETH_NS_2_TICKS(dwPulseWidthNs_p) << 1)));
 }
 
-static inline void EplTimerSynckDrvSetCompareTogPdiValue (DWORD dwVal)
+static inline void EplTimerSynckDrvSetExtSyncIrqValue (DWORD dwVal)
 {
     TSYN_WR32( EPL_TIMER_SYNC_BASE, TIMERCMP_REG_OFF_CMP_VAL_COMPARE_PDI, dwVal );
 }
 
-static void EplTimerSynckDrvCalcCompareTogPdiValue (void)
+static void EplTimerSynckDrvCalcExtSyncIrqValue (void)
 {
     tEplTimerSynckTimerInfo*    pTimerInfo;
     DWORD                       dwTargetAbsoluteTime;
@@ -1130,8 +1133,8 @@ static void EplTimerSynckDrvCalcCompareTogPdiValue (void)
         pTimerInfo = &EplTimerSynckInstance_l.m_aTimerInfo[TIMER_HDL_SYNC];
         dwTargetAbsoluteTime = pTimerInfo->m_dwAbsoluteTime;
 
-        EplTimerSynckDrvSetCompareTogPdiValue( dwTargetAbsoluteTime -
-                EplTimerSynckInstance_l.m_dwConfiguredTimeDiff +    // minus one cycle
+        EplTimerSynckDrvSetExtSyncIrqValue( dwTargetAbsoluteTime -
+                EplTimerSynckInstance_l.m_dwMeanTimeDiff +    // minus one cycle
                 EplTimerSynckInstance_l.m_dwAdvanceShift);      // plus sync shift
         wCycleCnt = 0;
     }
@@ -1187,9 +1190,9 @@ unsigned int                uiNextTimerHdl;
             {
                 #ifdef EPL_TIMER_USE_COMPARE_PDI_INT
                     BENCHMARK_MOD_24_SET(0);
-                    if(EplTimerSynckInstance_l.m_wCompareTogPdiIntEnabled == TRUE)
+                    if(EplTimerSynckInstance_l.m_wExtSyncIrqEnabled == TRUE)
                     {
-                        EplTimerSynckDrvCalcCompareTogPdiValue();
+                        EplTimerSynckDrvCalcExtSyncIrqValue();
                     }
                     BENCHMARK_MOD_24_RESET(0);
                 #endif //EPL_TIMER_USE_COMPARE_PDI_INT

@@ -112,13 +112,20 @@
                       Therefore a minimum size of: (1518 + 1518 + 64 + 180 + 76 + 64) * 2 ~= 7000 bytes is needed!]]></tip>
     </widget>
     '>
+    <!ENTITY C_MAC_GEN_SECOND_TIMER '
+    <widget id="C_MAC_GEN_SECOND_TIMER">
+        <key>C_MAC_GEN_SECOND_TIMER</key>
+        <label>Enable second timer for synchronous interrupt on SoC reception</label>
+        <tip><![CDATA[This option triggers an edge or pulse on SoC reception which enables the synchronization of an external task to the POWERLINK cycle.]]></tip>
+    </widget>
+    '>
     <!ENTITY C_INSTANCE_ODDR2 '
     <widget id="C_INSTANCE_ODDR2">
         <key>C_INSTANCE_ODDR2</key>
         <label>Instance an ODDR2 component to stabilize the phy clocks</label>
         <tip><![CDATA[Additional clock stabilization is needed when the phy0/1_clk ports are connected over non dedicated clock pins.]]></tip>
     </widget>
-    '>    
+    '>
 
     <!-- PDI --> 
     <!ENTITY C_PCP_SYS_ID '
@@ -182,13 +189,6 @@
         <key>C_PDI_GEN_LED</key>
         <label>Enable LED outputs</label>
         <tip><![CDATA[This enables LED control from the AP processor. (It uses additional FPGA resources)]]></tip>
-    </widget>
-    '>
-    <!ENTITY C_PDI_GEN_SECOND_TIMER '
-    <widget id="C_PDI_GEN_SECOND_TIMER">
-        <key>C_PDI_GEN_SECOND_TIMER</key>
-        <label>Use low-jitter SYNC IRQ with SoC timestamps for AP synchronization</label>
-        <tip><![CDATA[The Application Processor (AP) is synchronized to the POWERLINK cycles. In order to reduce FPGA-resource consumption you can disable the low-jitter SYNC interrupt if your application does not require low-jitter synchronization.]]></tip>
     </widget>
     '>
     <!ENTITY C_PDI_GEN_EVENT '
@@ -628,6 +628,7 @@
             <item>&C_NUM_SMI;</item>
             <item>&C_MAC_NUM_RX_BUFFER_USER;</item>
             <item>&C_MAC_PKT_SIZE_TX_USER;</item>
+            <item>&C_MAC_GEN_SECOND_TIMER;</item>
             <item>&C_INSTANCE_ODDR2;</item>
         </group>
         <group id="PDI">
@@ -641,7 +642,6 @@
             <item>&C_PDI_ASYNC_BUF_0_SIZE_USER;</item>
             <item>&C_PDI_ASYNC_BUF_1_SIZE_USER;</item>
             <item>&C_PDI_GEN_LED;</item>
-            <item>&C_PDI_GEN_SECOND_TIMER;</item>
             <item>&C_PDI_GEN_EVENT;</item>
         </group>
         <group id="Parallel_IF">

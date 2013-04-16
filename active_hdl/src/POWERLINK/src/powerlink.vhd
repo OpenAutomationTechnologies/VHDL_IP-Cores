@@ -101,6 +101,8 @@ entity powerlink is
 		useIntPacketBuf_g			:		boolean								:= true; --internal packet buffer
 		useRxIntPacketBuf_g			:		boolean								:= true; --rx buffer located in internal packet buffer
 		use2ndCmpTimer_g			:		boolean 							:= true; --use second cmp timer (used in PDI)
+		usePulse2ndCmpTimer_g			:		boolean 							:= true; --use second cmp timer with pulse support
+		pulseWidth2ndCmpTimer_g : integer := 9;
 		use2ndPhy_g					:		boolean 							:= true; --use second phy (introduces openHUB)
 		m_burstcount_width_g		:		integer								:= 4;
 		m_burstcount_const_g		:		boolean								:= true; --hold burst value during transfer
@@ -704,6 +706,15 @@ begin
 				tpdo_change_tog				=> tpdo_change_tog
 			);
 	end generate genPdiSpi;
+
+--PDI is disabled (either simple I/O or openMAC only)
+	genNotPdi : if not genPdi_g generate
+
+		-- directly forward toggle signal from 2nd CMP timer
+		ap_syncIrq <= irqToggle;
+		ap_syncIrq_n <= not irqToggle;
+
+	end generate genNotPdi;
 --
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -745,6 +756,8 @@ begin
 			endian_g => endian_g,
 			dma_highadr_g => m_address'high,
 			gen2ndCmpTimer_g => use2ndCmpTimer_g,
+			genPulse2ndCmpTimer_g => usePulse2ndCmpTimer_g,
+			pulseWidth2ndCmpTimer_g => pulseWidth2ndCmpTimer_g,
 			genHub_g => use2ndPhy_g,
 			iPktBufSizeLog2_g => iBufSizeLOG2_g,
 			iPktBufSize_g => iBufSize_g,

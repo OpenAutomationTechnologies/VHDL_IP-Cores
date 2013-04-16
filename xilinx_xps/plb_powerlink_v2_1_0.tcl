@@ -961,9 +961,35 @@ proc calc_dma_observer_state { param_handle } {
 ###################################################
 proc calc_second_time_sync_val { param_handle } {
     set mhsinst      [xget_hw_parent_handle $param_handle]
-    set time_sync    [xget_hw_parameter_value $mhsinst "C_PDI_GEN_SECOND_TIMER"]
+    set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]
+    set second_timer [xget_hw_parameter_value $mhsinst "C_MAC_GEN_SECOND_TIMER"]
 
-    if { $time_sync } {
+    if { $ipcore_mode != 1 && $ipcore_mode != 3 && $ipcore_mode != 4 } {
+        # only in modes with PDI
+        return false;
+    }
+
+    if { $second_timer } {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+###################################################
+## calc second timer pulse width enable
+###################################################
+proc calc_2nd_timer_pulse_enabled { param_handle } {
+    set mhsinst      [xget_hw_parent_handle $param_handle]
+    set ipcore_mode   [xget_hw_parameter_value $mhsinst "C_IP_CORE_MODE"]
+    set second_timer [xget_hw_parameter_value $mhsinst "C_MAC_GEN_SECOND_TIMER"]
+
+    if { $ipcore_mode != 5} {
+        # only in openMAC only mode
+        return false;
+    }
+
+    if { $second_timer } {
         return true;
     } else {
         return false;

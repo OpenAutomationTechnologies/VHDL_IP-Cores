@@ -70,6 +70,8 @@ entity openmac_ethernet is
        genSmiIO : boolean := true;
        gNumSmi : integer := 2;
        gen2ndCmpTimer_g : boolean := false;
+       genPulse2ndCmpTimer_g : boolean := true;
+       pulseWidth2ndCmpTimer_g : integer := 9;
        simulate : boolean := false;
        dma_highadr_g : integer := 31;
        m_data_width_g : integer := 16;
@@ -274,8 +276,10 @@ component OpenMAC
 end component;
 component openMAC_cmp
   generic(
-       gen2ndCmpTimer_g : boolean := false;
-       mac_time_width_g : integer := 32
+       gen2ndCmpTimer_g : BOOLEAN := false;
+       genPulse2ndCmpTimer_g : BOOLEAN := false;
+       mac_time_width_g : INTEGER := 32;
+       pulseWidth2ndCmpTimer_g : INTEGER := 9
   );
   port (
        addr : in std_logic_vector(1 downto 0);
@@ -579,7 +583,9 @@ smi_din <=  s_writedata when endian_g = "little" or (endian_g = "big" and s_byte
 THE_MAC_TIME_CMP : openMAC_cmp
   generic map (
        gen2ndCmpTimer_g => gen2ndCmpTimer_g,
-       mac_time_width_g => 32
+       genPulse2ndCmpTimer_g => genPulse2ndCmpTimer_g,
+       mac_time_width_g => 32,
+       pulseWidth2ndCmpTimer_g => pulseWidth2ndCmpTimer_g
   )
   port map(
        addr => t_address,
