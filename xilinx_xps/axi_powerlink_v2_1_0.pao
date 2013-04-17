@@ -49,6 +49,7 @@ lib axi_powerlink_v0_30_a lib/memMap vhdl
 lib axi_powerlink_v0_30_a lib/req_ack vhdl
 lib axi_powerlink_v0_30_a lib/sync vhdl
 lib axi_powerlink_v0_30_a lib/slow2fastSync vhdl
+lib axi_powerlink_v0_30_a lib/clkXingRtl vhdl
 lib axi_powerlink_v0_30_a openMAC_DMAFifo_Xilinx/async_fifo_ctrl vhdl
 lib axi_powerlink_v0_30_a openMAC_DMAFifo_Xilinx/fifo_read vhdl
 lib axi_powerlink_v0_30_a openMAC_DMAFifo_Xilinx/fifo_write vhdl

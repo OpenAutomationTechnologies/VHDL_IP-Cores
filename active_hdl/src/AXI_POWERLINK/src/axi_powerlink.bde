@@ -4053,6 +4053,372 @@ HEADER
    }
   }
  }
+ SYMBOL "#default" "clkXing" "clkXing"
+ {
+  HEADER
+  {
+   VARIABLES
+   {
+    #DESCRIPTION=""
+    #GENERIC0="gCsNum:NATURAL:=2"
+    #GENERIC1="gDataWidth:NATURAL:=32"
+    #HDL_ENTRIES=
+"library STD,IEEE;\n"+
+"use STD.STANDARD.all,ieee.std_logic_1164.all;"
+    #LANGUAGE="VHDL"
+    #MODIFIED="1364483816"
+   }
+  }
+  PAGE "" 
+  {
+   PAGEHEADER
+   {
+    RECT (0,0,400,360)
+    FREEID 28
+   }
+   
+   BODY
+   {
+    RECT  1, -1, 0
+    {
+     VARIABLES
+     {
+      #OUTLINE_FILLING="1"
+     }
+     AREA (20,0,380,360)
+    }
+    TEXT  3, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,30,65,54)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 2
+    }
+    TEXT  5, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (99,30,375,54)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 4
+    }
+    TEXT  7, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,70,95,94)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 6
+    }
+    TEXT  9, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (268,70,375,94)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 8
+    }
+    TEXT  11, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,110,211,134)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 10
+    }
+    TEXT  13, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (268,110,375,134)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 12
+    }
+    TEXT  15, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,150,114,174)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 14
+    }
+    TEXT  17, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (178,150,375,174)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 16
+    }
+    TEXT  19, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,190,99,214)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 18
+    }
+    TEXT  21, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (275,190,375,214)
+     ALIGN 6
+     MARGINS (1,1)
+     PARENT 20
+    }
+    TEXT  23, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,230,298,254)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 22
+    }
+    TEXT  25, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,270,129,294)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 24
+    }
+    TEXT  27, 0, 0
+    {
+     TEXT "$#NAME"
+     RECT (25,310,129,334)
+     ALIGN 4
+     MARGINS (1,1)
+     PARENT 26
+    }
+    PIN  2, 0, 0
+    {
+     COORD (0,40)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iArst"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  4, 0, 0
+    {
+     COORD (400,40)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="oFastReaddata(gDataWidth-1:0)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  6, 0, 0
+    {
+     COORD (0,80)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iFastClk"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  8, 0, 0
+    {
+     COORD (400,80)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="oFastWrAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  10, 0, 0
+    {
+     COORD (0,120)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iFastCs(gCsNum-1:0)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  12, 0, 0
+    {
+     COORD (400,120)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="oFastRdAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  14, 0, 0
+    {
+     COORD (0,160)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iFastRNW"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  16, 0, 0
+    {
+     COORD (400,160)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="oSlowCs(gCsNum-1:0)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  18, 0, 0
+    {
+     COORD (0,200)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iSlowClk"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  20, 0, 0
+    {
+     COORD (400,200)
+     VARIABLES
+     {
+      #DIRECTION="OUT"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="oSlowRNW"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (-20,0), (0,0) )
+     }
+    }
+    PIN  22, 0, 0
+    {
+     COORD (0,240)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #DOWNTO="1"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iSlowReaddata(gDataWidth-1:0)"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC_VECTOR"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  24, 0, 0
+    {
+     COORD (0,280)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iSlowWrAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+    PIN  26, 0, 0
+    {
+     COORD (0,320)
+     VARIABLES
+     {
+      #DIRECTION="IN"
+      #LENGTH="20"
+      #MDA_RECORD_TOKEN="OTHER"
+      #NAME="iSlowRdAck"
+      #NUMBER="0"
+      #VHDL_TYPE="STD_LOGIC"
+     }
+     LINE  2, 0, 0
+     {
+      POINTS ( (0,0), (20,0) )
+     }
+    }
+   }
+  }
+ }
  SYMBOL "#default" "powerlink" "powerlink"
  {
   HEADER
@@ -13014,7 +13380,7 @@ PAGE "MAC_REG_AXI"
   }
   WIRE  10319, 0, 0
   {
-   NET 10449
+   NET 38848
    VTX 10316, 10317
    VARIABLES
    {
@@ -13031,7 +13397,7 @@ PAGE "MAC_REG_AXI"
   }
   BUS  10339, 0, 0
   {
-   NET 10451
+   NET 38849
    VTX 10336, 10337
    VARIABLES
    {
@@ -13057,7 +13423,7 @@ PAGE "MAC_REG_AXI"
   TEXT  10377, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2328,1250,2571,1279)
+   RECT (2302,1250,2597,1279)
    ALIGN 9
    MARGINS (1,1)
    PARENT 10319
@@ -13065,7 +13431,7 @@ PAGE "MAC_REG_AXI"
   TEXT  10393, 0, 0
   {
    TEXT "$#NAME"
-   RECT (2328,1330,2596,1359)
+   RECT (2302,1330,2622,1359)
    ALIGN 9
    MARGINS (1,1)
    PARENT 10339
@@ -13084,34 +13450,10 @@ PAGE "MAC_REG_AXI"
     #NAME="Bus2MAC_REG_Resetn"
    }
   }
-  NET WIRE  10449, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="Bus2MAC_REG_RNW"
-   }
-  }
-  NET BUS  10451, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #MDA_RECORD_TOKEN="OTHER"
-    #NAME="Bus2MAC_REG_CS(1:0)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
-  }
-  NET WIRE  10764, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="IP2Bus_WrAck_s"
-   }
-  }
   TEXT  10766, 0, 0
   {
    TEXT "$#NAME"
-   RECT (842,1291,1029,1320)
+   RECT (813,1291,1027,1320)
    ALIGN 9
    MARGINS (1,1)
    PARENT 11056
@@ -13119,7 +13461,7 @@ PAGE "MAC_REG_AXI"
   TEXT  10769, 0, 0
   {
    TEXT "$#NAME"
-   RECT (845,1331,1032,1360)
+   RECT (813,1331,1027,1360)
    ALIGN 9
    MARGINS (1,1)
    PARENT 11057
@@ -13134,7 +13476,7 @@ PAGE "MAC_REG_AXI"
   TEXT  10772, 0, 0
   {
    TEXT "$#NAME"
-   RECT (859,1371,1029,1400)
+   RECT (857,1371,1027,1400)
    ALIGN 9
    MARGINS (1,1)
    PARENT 11058
@@ -13165,7 +13507,7 @@ PAGE "MAC_REG_AXI"
   }
   WIRE  11056, 0, 0
   {
-   NET 10764
+   NET 38846
    VTX 11048, 11049
    VARIABLES
    {
@@ -13174,7 +13516,7 @@ PAGE "MAC_REG_AXI"
   }
   WIRE  11057, 0, 0
   {
-   NET 29719
+   NET 38847
    VTX 11050, 11051
    VARIABLES
    {
@@ -13518,7 +13860,7 @@ PAGE "MAC_REG_AXI"
   TEXT  21832, 0, 0
   {
    TEXT "$#NAME"
-   RECT (421,1250,1033,1279)
+   RECT (388,1250,1027,1279)
    ALIGN 9
    MARGINS (1,1)
    PARENT 21861
@@ -13549,18 +13891,11 @@ PAGE "MAC_REG_AXI"
   }
   BUS  21861, 0, 0
   {
-   NET 31119
+   NET 38845
    VTX 21859, 21860
    VARIABLES
    {
     #NAMED="1"
-   }
-  }
-  NET WIRE  29719, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="IP2Bus_RdAck_s"
    }
   }
   NET BUS  31118, 0, 0
@@ -13569,15 +13904,6 @@ PAGE "MAC_REG_AXI"
    {
     #DOWNTO="1"
     #NAME="Bus2MAC_REG_Addr(C_S_AXI_MAC_REG_ADDR_WIDTH-1:0)"
-    #VHDL_TYPE="STD_LOGIC_VECTOR"
-   }
-  }
-  NET BUS  31119, 0, 0
-  {
-   VARIABLES
-   {
-    #DOWNTO="1"
-    #NAME="IP2Bus_Data_s(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
@@ -13597,6 +13923,47 @@ PAGE "MAC_REG_AXI"
    {
     #DOWNTO="1"
     #NAME="Bus2MAC_REG_Data(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET BUS  38845, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="IP2Bus_Data_fast(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  NET WIRE  38846, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="IP2Bus_WrAck_fast"
+   }
+  }
+  NET WIRE  38847, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="IP2Bus_RdAck_fast"
+   }
+  }
+  NET WIRE  38848, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="Bus2MAC_REG_RNW_fast"
+   }
+  }
+  NET BUS  38849, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_REG_CS_fast(1:0)"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
   }
@@ -13656,10 +14023,10 @@ PAGE "MAC_REG"
   TEXT  10102, 0, 0
   {
    TEXT "$#NAME"
-   RECT (905,491,1126,520)
+   RECT (1211,471,1269,500)
    ALIGN 9
    MARGINS (1,1)
-   PARENT 10265
+   PARENT 38813
    ORIENTATION 2
   }
   TEXT  10106, 0, 0
@@ -13670,13 +14037,6 @@ PAGE "MAC_REG"
    MARGINS (1,1)
    PARENT 10267
    ORIENTATION 2
-  }
-  NET WIRE  10112, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="Bus2MAC_REG_Clk"
-   }
   }
   NET WIRE  10116, 0, 0
   {
@@ -13879,35 +14239,6 @@ PAGE "MAC_REG"
     #NAME="Bus2MAC_REG_RNW_n"
    }
   }
-  NET WIRE  10165, 0, 0
-  {
-   VARIABLES
-   {
-    #NAME="clk50"
-   }
-  }
-  TEXT  10167, 0, 0
-  {
-   TEXT "$#NAME"
-   RECT (1629,345,1687,374)
-   ALIGN 6
-   MARGINS (1,1)
-   PARENT 10292
-   ORIENTATION 2
-  }
-  INSTANCE  10168, 0, 0
-  {
-   VARIABLES
-   {
-    #COMPONENT="buf"
-    #LIBRARY="#builtin"
-    #REFERENCE="U3"
-    #SYMBOL="buf"
-   }
-   COORD (1360,340)
-   VERTEXES ( (2,10226), (4,10257) )
-   PINPROP 4,"#PIN_STATE","0"
-  }
   NET BUS  10174, 0, 0
   {
    VARIABLES
@@ -13930,10 +14261,6 @@ PAGE "MAC_REG"
   {
    COORD (1140,500)
   }
-  VTX  10216, 0, 0
-  {
-   COORD (1240,500)
-  }
   VTX  10219, 0, 0
   {
    COORD (860,660)
@@ -13945,10 +14272,6 @@ PAGE "MAC_REG"
   VTX  10225, 0, 0
   {
    COORD (1440,500)
-  }
-  VTX  10226, 0, 0
-  {
-   COORD (1360,360)
   }
   VTX  10227, 0, 0
   {
@@ -14046,23 +14369,6 @@ PAGE "MAC_REG"
   {
    COORD (1100,620)
   }
-  VTX  10257, 0, 0
-  {
-   COORD (1480,360)
-  }
-  VTX  10258, 0, 0
-  {
-   COORD (1620,360)
-  }
-  WIRE  10265, 0, 0
-  {
-   NET 10112
-   VTX 10215, 10216
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
   WIRE  10267, 0, 0
   {
    NET 10116
@@ -14071,29 +14377,6 @@ PAGE "MAC_REG"
    {
     #NAMED="1"
    }
-  }
-  WIRE  10270, 0, 0
-  {
-   NET 10112
-   VTX 10216, 10225
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  VTX  10271, 0, 0
-  {
-   COORD (1240,360)
-  }
-  WIRE  10272, 0, 0
-  {
-   NET 10112
-   VTX 10216, 10271
-  }
-  WIRE  10273, 0, 0
-  {
-   NET 10112
-   VTX 10271, 10226
   }
   WIRE  10274, 0, 0
   {
@@ -14212,15 +14495,6 @@ PAGE "MAC_REG"
   {
    NET 10160
    VTX 10253, 10254
-   VARIABLES
-   {
-    #NAMED="1"
-   }
-  }
-  WIRE  10292, 0, 0
-  {
-   NET 10165
-   VTX 10257, 10258
    VARIABLES
    {
     #NAMED="1"
@@ -14566,6 +14840,485 @@ PAGE "MAC_REG"
     #NAME="MAC_REG2Bus_Data(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
     #VHDL_TYPE="STD_LOGIC_VECTOR"
    }
+  }
+  INSTANCE  38804, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="clkXing"
+    #GENERIC0="gCsNum : NATURAL := 2"
+    #GENERIC1="gDataWidth : NATURAL := C_S_AXI_MAC_REG_DATA_WIDTH"
+    #LIBRARY="#default"
+    #NO_CONF="1"
+    #PRAGMED_GENERICS=""
+    #REFERENCE="macRegClkXing"
+    #SYMBOL="clkXing"
+ }
+   COORD (1140,1400)
+   VERTEXES ( (6,38815), (2,38838), (4,38912), (8,38921), (12,38927), (10,38970), (14,39009), (18,39011), (22,39049), (24,39091), (26,39115), (16,39144), (20,39173) )
+   PINPROP 20,"#PIN_STATE","0"
+  }
+  TEXT  38805, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (1140,1364,1351,1399)
+   ALIGN 8
+   MARGINS (1,1)
+   PARENT 38804
+  }
+  TEXT  38809, 0, 0
+  {
+   TEXT "$#COMPONENT"
+   RECT (1140,1760,1236,1795)
+   MARGINS (1,1)
+   PARENT 38804
+  }
+  WIRE  38813, 0, 0
+  {
+   NET 38814
+   VTX 10215, 10225
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  38814, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="clk50"
+   }
+  }
+  VTX  38815, 0, 0
+  {
+   COORD (1140,1480)
+  }
+  VTX  38816, 0, 0
+  {
+   COORD (800,1480)
+  }
+  WIRE  38818, 0, 0
+  {
+   NET 38820
+   VTX 38815, 38816
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  38820, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="Bus2MAC_REG_Clk"
+   }
+  }
+  TEXT  38821, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (860,1450,1081,1479)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 38818
+  }
+  INSTANCE  38825, 0, 0
+  {
+   VARIABLES
+   {
+    #COMPONENT="Input"
+    #LIBRARY="#terminals"
+    #REFERENCE="clk50"
+    #SYMBOL="Input"
+   }
+   COORD (380,1200)
+  }
+  TEXT  38826, 0, 0
+  {
+   TEXT "$#REFERENCE"
+   RECT (259,1183,329,1218)
+   ALIGN 6
+   MARGINS (1,1)
+   PARENT 38825
+  }
+  TEXT  38833, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (846,1410,1094,1439)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 38839
+  }
+  VTX  38837, 0, 0
+  {
+   COORD (800,1440)
+  }
+  VTX  38838, 0, 0
+  {
+   COORD (1140,1440)
+  }
+  WIRE  38839, 0, 0
+  {
+   NET 10495
+   VTX 38837, 38838
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  38852, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="Bus2MAC_REG_RNW_fast"
+   }
+  }
+  TEXT  38854, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (813,1531,1108,1560)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 39010
+  }
+  NET BUS  38857, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_REG_CS_fast(1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  TEXT  38859, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (820,1491,1140,1520)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 38971
+  }
+  TEXT  38860, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1753,1451,1967,1480)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 38923
+  }
+  TEXT  38862, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1753,1491,1967,1520)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 38929
+  }
+  NET WIRE  38865, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="IP2Bus_WrAck_fast"
+   }
+  }
+  NET WIRE  38868, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="IP2Bus_RdAck_fast"
+   }
+  }
+  TEXT  38870, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1761,1411,2400,1440)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 38914
+  }
+  NET BUS  38873, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="IP2Bus_Data_fast(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  VTX  38912, 0, 0
+  {
+   COORD (1540,1440)
+  }
+  VTX  38913, 0, 0
+  {
+   COORD (1740,1440)
+  }
+  BUS  38914, 0, 0
+  {
+   NET 38873
+   VTX 38912, 38913
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  38921, 0, 0
+  {
+   COORD (1540,1480)
+  }
+  VTX  38922, 0, 0
+  {
+   COORD (1740,1480)
+  }
+  WIRE  38923, 0, 0
+  {
+   NET 38865
+   VTX 38921, 38922
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  38927, 0, 0
+  {
+   COORD (1540,1520)
+  }
+  VTX  38928, 0, 0
+  {
+   COORD (1740,1520)
+  }
+  WIRE  38929, 0, 0
+  {
+   NET 38868
+   VTX 38927, 38928
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  38969, 0, 0
+  {
+   COORD (800,1520)
+  }
+  VTX  38970, 0, 0
+  {
+   COORD (1140,1520)
+  }
+  BUS  38971, 0, 0
+  {
+   NET 38857
+   VTX 38969, 38970
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  39008, 0, 0
+  {
+   COORD (800,1560)
+  }
+  VTX  39009, 0, 0
+  {
+   COORD (1140,1560)
+  }
+  WIRE  39010, 0, 0
+  {
+   NET 38852
+   VTX 39008, 39009
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  39011, 0, 0
+  {
+   COORD (1140,1600)
+  }
+  VTX  39012, 0, 0
+  {
+   COORD (800,1600)
+  }
+  WIRE  39014, 0, 0
+  {
+   NET 38814
+   VTX 39011, 39012
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  TEXT  39016, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (941,1570,999,1599)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 39014
+  }
+  TEXT  39020, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (494,1611,1106,1640)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 39050
+  }
+  VTX  39048, 0, 0
+  {
+   COORD (800,1640)
+  }
+  VTX  39049, 0, 0
+  {
+   COORD (1140,1640)
+  }
+  BUS  39050, 0, 0
+  {
+   NET 39051
+   VTX 39048, 39049
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET BUS  39051, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #NAME="IP2Bus_Data_s(C_S_AXI_MAC_REG_DATA_WIDTH-1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  TEXT  39052, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (887,1651,1074,1680)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 39092
+  }
+  TEXT  39054, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (887,1691,1074,1720)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 39116
+  }
+  VTX  39090, 0, 0
+  {
+   COORD (800,1680)
+  }
+  VTX  39091, 0, 0
+  {
+   COORD (1140,1680)
+  }
+  WIRE  39092, 0, 0
+  {
+   NET 39117
+   VTX 39090, 39091
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  VTX  39114, 0, 0
+  {
+   COORD (800,1720)
+  }
+  VTX  39115, 0, 0
+  {
+   COORD (1140,1720)
+  }
+  WIRE  39116, 0, 0
+  {
+   NET 39118
+   VTX 39114, 39115
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET WIRE  39117, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="IP2Bus_WrAck_s"
+   }
+  }
+  NET WIRE  39118, 0, 0
+  {
+   VARIABLES
+   {
+    #NAME="IP2Bus_RdAck_s"
+   }
+  }
+  TEXT  39119, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1746,1531,2014,1560)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 39146
+  }
+  VTX  39144, 0, 0
+  {
+   COORD (1540,1560)
+  }
+  VTX  39145, 0, 0
+  {
+   COORD (1740,1560)
+  }
+  BUS  39146, 0, 0
+  {
+   NET 39194
+   VTX 39144, 39145
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  TEXT  39148, 0, 0
+  {
+   TEXT "$#NAME"
+   RECT (1739,1571,1982,1600)
+   ALIGN 9
+   MARGINS (1,1)
+   PARENT 39175
+  }
+  VTX  39173, 0, 0
+  {
+   COORD (1540,1600)
+  }
+  VTX  39174, 0, 0
+  {
+   COORD (1740,1600)
+  }
+  WIRE  39175, 0, 0
+  {
+   NET 10116
+   VTX 39173, 39174
+   VARIABLES
+   {
+    #NAMED="1"
+   }
+  }
+  NET BUS  39194, 0, 0
+  {
+   VARIABLES
+   {
+    #DOWNTO="1"
+    #MDA_RECORD_TOKEN="OTHER"
+    #NAME="Bus2MAC_REG_CS(1:0)"
+    #VHDL_TYPE="STD_LOGIC_VECTOR"
+   }
+  }
+  TEXT  39229, 0, 0
+  {
+   TEXT "@GENERIC_ACTUAL_VALUES()"
+   RECT (1140,1796,1827,1862)
+   PARENT 38804
   }
  }
  
@@ -30481,7 +31234,7 @@ PAGE ""
 {
  PAGEHEADER
  {
-  PAGESIZE (6000,3400)
+  PAGESIZE (3307,2338)
   MARGINS (200,200,200,200)
   RECT (0,0,0,0)
   VARIABLES
@@ -30490,8 +31243,8 @@ PAGE ""
    #BLOCKTABLE_TEMPL="1"
    #BLOCKTABLE_VISIBLE="0"
    #MODIFIED="1311684073"
-   PAGENAME="POWERLINK IP-CORE"
-   PAGENUMBER="15"
+   PAGENAME="MAC_REG"
+   PAGENUMBER="5"
    REVISION="1.0"
   }
  }
@@ -30503,7 +31256,7 @@ PAGE ""
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "Created:"
-   RECT (4940,2966,5057,3019)
+   RECT (2247,1904,2364,1957)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
@@ -30513,7 +31266,7 @@ PAGE ""
   {
    PAGEALIGN 10
    TEXT "$CREATIONDATE"
-   RECT (5114,2962,5784,3022)
+   RECT (2421,1900,3091,1960)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
@@ -30524,7 +31277,7 @@ PAGE ""
   {
    PAGEALIGN 10
    TEXT "Title:"
-   RECT (4938,3026,5009,3079)
+   RECT (2245,1964,2316,2017)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
@@ -30535,7 +31288,7 @@ PAGE ""
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "$TITLE"
-   RECT (5111,3022,5781,3082)
+   RECT (2418,1960,3088,2020)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
@@ -30550,7 +31303,7 @@ PAGE ""
 "B&R Strasse 1\n"+
 "5142 Eggelsberg\n"+
 "Austria"
-   RECT (5120,2820,5808,2954)
+   RECT (2427,1758,3115,1892)
    MARGINS (1,1)
    COLOR (0,0,0)
    FONT (12,0,0,700,0,0,0,"Arial")
@@ -30560,7 +31313,7 @@ PAGE ""
   {
    PAGEALIGN 10
    TEXT "Page:"
-   RECT (4938,3144,5017,3197)
+   RECT (2245,2082,2324,2135)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
@@ -30571,7 +31324,7 @@ PAGE ""
    PAGEALIGN 10
    OUTLINE 5,1, (0,0,0)
    TEXT "$PAGENUMBER / $PAGECOUNT     $PAGENAME"
-   RECT (5110,3140,5780,3200)
+   RECT (2417,2078,3087,2138)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
@@ -30582,7 +31335,7 @@ PAGE ""
   {
    PAGEALIGN 10
    TEXT "Revision:"
-   RECT (4936,3084,5064,3137)
+   RECT (2243,2022,2371,2075)
    ALIGN 4
    MARGINS (1,10)
    COLOR (0,0,0)
@@ -30592,7 +31345,7 @@ PAGE ""
   {
    PAGEALIGN 10
    TEXT "$Revision"
-   RECT (5110,3094,5770,3129)
+   RECT (2417,2032,3077,2067)
    ALIGN 4
    MARGINS (1,1)
    COLOR (0,0,0)
@@ -30602,7 +31355,7 @@ PAGE ""
   GROUP  38864, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,2800,5801,3200)
+   RECT (2227,1738,3108,2138)
    FREEID 1
    LINE  594, 0, 0
    {
@@ -30614,7 +31367,7 @@ PAGE ""
   GROUP  38865, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,3020,5801,3021)
+   RECT (2227,1958,3108,1959)
    FREEID 1
    LINE  578, 0, 0
    {
@@ -30626,7 +31379,7 @@ PAGE ""
   GROUP  38866, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,2960,5801,2961)
+   RECT (2227,1898,3108,1899)
    FREEID 1
    LINE  577, 0, 0
    {
@@ -30638,7 +31391,7 @@ PAGE ""
   GROUP  38867, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,3080,5801,3081)
+   RECT (2227,2018,3108,2019)
    FREEID 1
    LINE  583, 0, 0
    {
@@ -30650,7 +31403,7 @@ PAGE ""
   GROUP  38868, 0, 0
   {
    PAGEALIGN 10
-   RECT (4920,3140,5801,3141)
+   RECT (2227,2078,3108,2079)
    FREEID 1
    LINE  582, 0, 0
    {
@@ -30662,7 +31415,7 @@ PAGE ""
   GROUP  38869, 0, 0
   {
    PAGEALIGN 10
-   RECT (5100,2960,5101,3201)
+   RECT (2407,1898,2408,2139)
    FREEID 1
    LINE  579, 0, 0
    {
@@ -30674,14 +31427,14 @@ PAGE ""
   {
    PAGEALIGN 10
    OUTLINE 0,1, (132,134,132)
-   POINTS ( (5100,2800), (5100,2960) )
+   POINTS ( (2407,1738), (2407,1898) )
    FILL (1,(0,0,0),0)
   }
   LINKBMPPICT  38871, 0, 0
   {
    PAGEALIGN 10
    FILENAME ".\\..\\..\\..\\..\\Aldec\\Active-HDL 8.3\\dat\\#BR.bmp"
-   RECT (4940,2820,5080,2900)
+   RECT (2247,1758,2387,1838)
   }
  }
  
