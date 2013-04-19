@@ -153,6 +153,27 @@
 #define EDRV_TIME_TRIG_TX FALSE
 #endif
 
+#ifndef EDRV_QUEUE1_SIZE
+#define EDRV_QUEUE1_SIZE    0
+#endif
+
+#ifndef EDRV_QUEUE2_SIZE
+#define EDRV_QUEUE2_SIZE    0
+#endif
+
+#if EPL_DLL_DISABLE_DEFERRED_RXFRAME_RELEASE_ASND == FALSE
+  #if (EDRV_QUEUE2_SIZE == 0) && (EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT)
+    #error "Defered release for Asnd frames is enabled but no queue is allocated for it! \
+Please increase the size of receive queue number 2."
+  #endif
+
+  #if EDRV_QUEUE2_SIZE != 0
+    #define EDRV_ASND_RX_PENDING    EDRV_QUEUE2_SIZE
+  #else
+    #define EDRV_ASND_RX_PENDING    EPL_ASND_NUM_RX_BUFFERS
+  #endif
+#endif
+
 #if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
   #if (EDRV_QUEUE1_SIZE == 0) && (EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_INT)
     #error "The Virtual Ethernet driver is enabled but no queue is allocated for it! \
@@ -213,6 +234,9 @@ typedef struct _tEdrvInstance
     ometh_config_typ         m_EthConf;
     OMETH_H                  m_hOpenMac;
     OMETH_HOOK_H             m_hHook;
+#if EPL_DLL_DISABLE_DEFERRED_RXFRAME_RELEASE_ASND == FALSE
+    OMETH_HOOK_H             m_hHookAsnd;
+#endif
 #if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
     OMETH_HOOK_H             m_hHookVeth;
 #endif
@@ -448,6 +472,17 @@ BYTE            abFilterMask[31],
         goto Exit;
     }
 
+#if EPL_DLL_DISABLE_DEFERRED_RXFRAME_RELEASE_ASND == FALSE
+    // initialize RX hook for Asnd frames
+    EdrvInstance_l.m_hHookAsnd = omethHookCreate(EdrvInstance_l.m_hOpenMac,
+            EdrvRxHook, EDRV_ASND_RX_PENDING);
+    if (EdrvInstance_l.m_hHookAsnd == 0)
+    {
+        Ret = kEplNoResource;
+        goto Exit;
+    }
+#endif
+
 #if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) != 0)
     EdrvInstance_l.m_hHookVeth = omethHookCreate(EdrvInstance_l.m_hOpenMac,
             EdrvRxHook, EDRV_VETH_RX_PENDING);
@@ -467,6 +502,14 @@ BYTE            abFilterMask[31],
             case EPL_DLLK_FILTER_VETH_OPENMAC_BROADCAST:
             {
                 EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHookVeth,
+                                    (void*) i, abFilterMask, abFilterValue);
+                break;
+            }
+#endif
+#if EPL_DLL_DISABLE_DEFERRED_RXFRAME_RELEASE_ASND == FALSE
+            case EPL_DLLK_FILTER_ASND:
+            {
+                EdrvInstance_l.m_ahFilter[i] = omethFilterCreate(EdrvInstance_l.m_hHookAsnd,
                                     (void*) i, abFilterMask, abFilterValue);
                 break;
             }
