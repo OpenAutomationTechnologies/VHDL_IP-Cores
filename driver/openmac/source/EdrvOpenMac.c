@@ -66,74 +66,61 @@
 ----------------------------------------------------------------------------*/
 
 
-#include "global.h"
 #include "EplInc.h"
 #include "edrv.h"
 #include "Benchmark.h"
-#include "Debug.h"
-
-#ifdef __NIOS2__
-#include "system.h"     // FPGA system definitions
-#include <sys/alt_cache.h>
-#include <sys/alt_irq.h>
-#include <alt_types.h>
-#include <io.h>
-#elif defined(__MICROBLAZE__)
-#include "xparameters.h" // FPGA system definitions
-#include "xintc_l.h"
-#include "mb_interface.h"
-#else
-    #error "Configuration is unknown!"
-#endif
 #include "omethlib.h"   // openMAC header
-
 #include "EplTgtTimeStamp_openMac.h"
 
-//comment the following lines to disable feature
-//#define EDRV_DEBUG        //debugging information forwarded to stdout
-//#define EDRV_2NDTXQUEUE    //use additional TX queue for MN
+//--- set the system's base addresses ---
+
+#ifdef __NIOS2__
+  #include "system.h"     // FPGA system definitions
+  #include <sys/alt_cache.h>
+  #include <sys/alt_irq.h>
+  #include <alt_types.h>
+  #include <io.h>
+
+  //POWERLINK IP-Core in "pcp_0" subsystem
+  #if defined(PCP_0_QSYS_POWERLINK_0_MAC_REG_BASE)
+    #include "EdrvOpenMac_qsys.h"
+  #elif defined(POWERLINK_0_MAC_REG_BASE)
+    #include "EdrvOpenMac_sopc.h"
+  #else
+    #error "POWERLINK IP-Core is not found in Nios II (sub-)system!"
+  #endif
+
+#elif defined(__MICROBLAZE__)
+  #include "xparameters.h" // FPGA system definitions
+  #include "xintc_l.h"
+  #include "mb_interface.h"
+
+  //POWERLINK IP-Core with PLB
+  #if defined(POWERLINK_USES_PLB_BUS)
+    #include "EdrvOpenMac_plb.h"
+  #elif defined(POWERLINK_USES_AXI_BUS)
+    #include "EdrvOpenMac_axi.h"
+  #else
+    #error "POWERLINK IP-Core is not found in Microblaze system!"
+  #endif
+
+#else
+  #error "Configuration is unknown!"
+#endif
 
 //---------------------------------------------------------------------------
 // defines
 //---------------------------------------------------------------------------
+
+//comment the following lines to disable feature
+//#define EDRV_DEBUG        //debugging information forwarded to stdout
+//#define EDRV_2NDTXQUEUE    //use additional TX queue for MN
 
 //------------------------------------------------------
 //--- set phys settings ---
 //set phy AC timing behavior (ref. to data sheet)
 #define EDRV_PHY_RST_PULSE_US        10000 //length of reset pulse (rst_n = 0)
 #define EDRV_PHY_RST_READY_US         5000 //time after phy is ready to operate
-
-//--- set the system's base addresses ---
-#if defined(__NIOS2__)
-
-//POWERLINK IP-Core in "pcp_0" subsystem
-#if defined(PCP_0_QSYS_POWERLINK_0_MAC_REG_BASE)
-#include "EdrvOpenMac_qsys.h"
-
-//POWERLINK IP-Core in SOPC
-#elif defined(POWERLINK_0_MAC_REG_BASE)
-#include "EdrvOpenMac_sopc.h"
-
-#else
-#error "POWERLINK IP-Core is not found in Nios II (sub-)system!"
-#endif
-
-#elif defined(__MICROBLAZE__)
-
-//POWERLINK IP-Core with PLB
-#if defined(POWERLINK_USES_PLB_BUS)
-#include "EdrvOpenMac_plb.h"
-
-#elif defined(POWERLINK_USES_AXI_BUS)
-#include "EdrvOpenMac_axi.h"
-
-#else
-#error "POWERLINK IP-Core is not found in Microblaze system!"
-#endif
-
-#else
-#error "Configuration unknown!"
-#endif
 
 //--- set driver's MTU ---
 #define EDRV_MAX_BUFFER_SIZE        1518
@@ -1224,6 +1211,40 @@ tEplKernel Ret = kEplSuccessful;
     return Ret;
 }
 
+//---------------------------------------------------------------------------
+//
+// Function:    EdrvReleaseRxBuffer
+//
+// Description: This function will be called when a RX buffer needs to be
+//              released later.
+//
+// Parameters:  pRxBuffer_p = the buffer to release
+//
+// Returns:     kEplSuccessful after successfully releasing the buffer
+//              kEplEdrvInvalidRxBuf if the buffer does not exist
+//
+// State:
+//
+//---------------------------------------------------------------------------
+tEplKernel  EdrvReleaseRxBuffer (tEdrvRxBuffer* pRxBuffer_p)
+{
+    tEplKernel Ret = kEplEdrvInvalidRxBuf;
+    ometh_packet_typ*   pPacket = NULL;
+
+    pPacket = GET_TYPE_BASE(ometh_packet_typ, data, pRxBuffer_p->m_pbBuffer);
+    pPacket->length = pRxBuffer_p->m_uiRxMsgLen;
+
+    if(pPacket->length != 0)
+    {
+        omethPacketFree(pPacket);
+        Ret = kEplSuccessful;
+    } else {
+        Ret = kEplEdrvInvalidRxBuf;
+    }
+
+    return Ret;
+}
+
 
 //=========================================================================//
 //                                                                         //
@@ -1367,6 +1388,8 @@ tEdrvRxBuffer       rxBuffer;
 unsigned int        uiIndex;
 #endif
 tEplTgtTimeStamp    TimeStamp;
+int                     iRet;
+tEdrvReleaseRxBuffer    RetReleaseRxBuffer;
 
     rxBuffer.m_BufferInFrame = kEdrvBufferLastInFrame;
     rxBuffer.m_pbBuffer = (BYTE *) &pPacket->data;
@@ -1382,7 +1405,14 @@ tEplTgtTimeStamp    TimeStamp;
     microblaze_invalidate_dcache_range((DWORD)pPacket, pPacket->length);
 #endif
 
-    EdrvInstance_l.m_InitParam.m_pfnRxHandler(&rxBuffer); //pass frame to Powerlink Stack
+    RetReleaseRxBuffer = EdrvInstance_l.m_InitParam.m_pfnRxHandler(&rxBuffer); //pass frame to Powerlink Stack
+    if (RetReleaseRxBuffer == kEdrvReleaseRxBufferLater)
+    {
+        iRet = 0; //packet has to be released later, openMAC may not use this buffer!
+    } else {
+        iRet = -1; //packet has to be moved back to openMAC
+    }
+
 #if EDRV_MAX_AUTO_RESPONSES > 0
     uiIndex = (unsigned int) arg;
 
@@ -1398,6 +1428,5 @@ tEplTgtTimeStamp    TimeStamp;
     }
 #endif
 
-    return 0;
+    return iRet;
 }
-

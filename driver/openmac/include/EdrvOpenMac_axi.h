@@ -93,14 +93,25 @@
     #define EDRV_MAX_RX_BUFFERS             XPAR_AXI_POWERLINK_0_MAC_RX_BUFFERS
     #define EDRV_PKT_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_PKT_BASEADDR
     #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
+
+    #if XPAR_AXI_POWERLINK_0_RX_QUEUE_1_SIZE != 0
+      #define EDRV_QUEUE1_SIZE              XPAR_AXI_POWERLINK_0_RX_QUEUE_1_SIZE
+    #endif
+
+    #if XPAR_AXI_POWERLINK_0_RX_QUEUE_2_SIZE != 0
+      #define EDRV_QUEUE2_SIZE              XPAR_AXI_POWERLINK_0_RX_QUEUE_2_SIZE
+    #endif
+
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
     #define EDRV_MAX_RX_BUFFERS             16
     #define EDRV_PKT_BASE           (void *)0 //not used
     #define EDRV_PKT_SPAN                   0 //not used
+
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT
     #define EDRV_MAX_RX_BUFFERS             16
     #define EDRV_PKT_BASE           (void *)XPAR_AXI_POWERLINK_0_S_AXI_MAC_PKT_BASEADDR
     #define EDRV_PKT_SPAN                   XPAR_AXI_POWERLINK_0_MAC_PKT_SIZE
+
 #endif
 
 // DEFINES FOR Interrupt Controller

@@ -92,14 +92,25 @@
     #define EDRV_MAX_RX_BUFFERS             POWERLINK_0_MAC_REG_MACRXBUFFERS
     #define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
     #define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
+
+    #if POWERLINK_0_MAC_REG_MACRXQUEUE1SIZE != 0
+      #define EDRV_QUEUE1_SIZE           POWERLINK_0_MAC_REG_MACRXQUEUE1SIZE
+    #endif
+
+    #if POWERLINK_0_MAC_REG_MACRXQUEUE2SIZE != 0
+      #define EDRV_QUEUE2_SIZE           POWERLINK_0_MAC_REG_MACRXQUEUE2SIZE
+    #endif
+
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_INT_RX_EXT                        //TX in M9K and RX in external memory
     #define EDRV_MAX_RX_BUFFERS             16
     #define EDRV_PKT_BASE           (void *)POWERLINK_0_MAC_BUF_BASE
     #define EDRV_PKT_SPAN                   POWERLINK_0_MAC_BUF_MACBUFSIZE
+
 #elif EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT                        //TX+RX in external memory
     #define EDRV_MAX_RX_BUFFERS             16
     #define EDRV_PKT_BASE           (void *)0 //not used
     #define EDRV_PKT_SPAN                   0 //not used
+
 #endif
 
 // DEFINES FOR TIMERSYNC
