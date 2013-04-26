@@ -136,7 +136,7 @@ begin
 		if rst = '1' then
 			cnt <= 0;
 		elsif clk = '1' and clk'event then
-			if tc = '1' then
+			if tc = '1' or ss = '0' then
 				cnt <= 0;
 			elsif capPulse = '1' and cpha_g = true then
 				cnt <= cnt + 1;
