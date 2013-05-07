@@ -855,9 +855,14 @@ proc calc_mac_rx_buffers { param_handle } {
         error "Number of Rpdos invalid!"
     }
 
-    if {$rpdo_count != 0} {
-        # Add additional Rx buffers for Asnd frames
-        incr macRxBuffers 7
+    if { $rpdo_count != 0} {
+        # MAsnd needs 7 Asnd and 6 AInv buffers max -> use all available RX buffers
+        incr macRxBuffers 13
+    }
+
+    if { $macRxBuffers > 16 } {
+        # guard RX buffer limit
+        set macRxBuffers 16
     }
 
     return $macRxBuffers

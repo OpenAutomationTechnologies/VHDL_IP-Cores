@@ -860,8 +860,12 @@ proc my_validation_callback {} {
             set macRxBuffers 5
         }
 
-        # add additional buffers for asnd (masnd supports 7 multi asnd slots!)
-        incr macRxBuffers 7
+        # add additional buffers for asnd (masnd supports 7 multi asnd slots + 6 AInv!)
+        incr macRxBuffers 13
+
+        if { $macRxBuffers > 16 } {
+            set macRxBuffers 16
+        }
 
         #and fix tpdo size
         set tpdo0size 4
