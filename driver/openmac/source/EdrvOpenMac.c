@@ -81,6 +81,7 @@
   #include <sys/alt_irq.h>
   #include <alt_types.h>
   #include <io.h>
+  #include <unistd.h>    // for usleep
 
   //POWERLINK IP-Core in "pcp_0" subsystem
   #if defined(PCP_0_QSYS_POWERLINK_0_MAC_REG_BASE)
@@ -95,6 +96,7 @@
   #include "xparameters.h" // FPGA system definitions
   #include "xintc_l.h"
   #include "mb_interface.h"
+  #include "xilinx_usleep.h"
 
   //POWERLINK IP-Core with PLB
   #if defined(POWERLINK_USES_PLB_BUS)
@@ -204,11 +206,7 @@ Please increase the size of receive queue number 1."
 #define GET_TYPE_BASE(typ, element, ptr)    \
     ((typ*)( ((size_t)ptr) - (size_t)&((typ*)0)->element ))
 
-#ifdef __NIOS2__
-#include <unistd.h>
-#elif defined(__MICROBLAZE__)
-#include "xilinx_usleep.h"
-#endif
+// rename usleep
 #define EDRV_USLEEP(time)            usleep(time)
 
 #ifdef __NIOS2__
