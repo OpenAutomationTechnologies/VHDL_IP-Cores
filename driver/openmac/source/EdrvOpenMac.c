@@ -821,7 +821,9 @@ Exit:
 tEplKernel EdrvReleaseTxMsgBuffer     (tEdrvTxBuffer * pBuffer_p)
 {
 tEplKernel          Ret = kEplSuccessful;
-ometh_packet_typ*   pPacket = NULL;
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
+ometh_packet_typ*   pPacket
+#endif
 
     if (pBuffer_p->m_BufferNumber.m_dwVal < EDRV_MAX_AUTO_RESPONSES)
     {
@@ -835,11 +837,9 @@ ometh_packet_typ*   pPacket = NULL;
         goto Exit;
     }
 
+#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
     pPacket = GET_TYPE_BASE(ometh_packet_typ, data, pBuffer_p->m_pbBuffer);
 
-    // mark buffer as free, before actually freeing it
-    pBuffer_p->m_pbBuffer = NULL;
-#if EDRV_PKT_LOC == EDRV_PKT_LOC_TX_RX_EXT
     //free tx buffer
 #ifdef __NIOS2__
     alt_uncached_free(pPacket);
@@ -851,6 +851,9 @@ ometh_packet_typ*   pPacket = NULL;
 #else
 #error "Configuration unknown"
 #endif
+
+    // mark buffer as free
+    pBuffer_p->m_pbBuffer = NULL;
 
 Exit:
     return Ret;
