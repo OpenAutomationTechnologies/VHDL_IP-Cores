@@ -128,7 +128,7 @@ set_module_property INTERNAL false
 set_module_property GROUP "Interface Protocols/Ethernet"
 set_module_property AUTHOR "Michael Hogger and Joerg Zelenka"
 set_module_property DISPLAY_NAME "POWERLINK"
-set_module_property TOP_LEVEL_HDL_FILE "src/powerlink.vhd"
+set_module_property TOP_LEVEL_HDL_FILE "../../common/powerlink/src/powerlink.vhd"
 set_module_property TOP_LEVEL_HDL_MODULE powerlink
 set_module_property INSTANTIATE_IN_SYSTEM_MODULE true
 set_module_property EDITABLE FALSE
@@ -137,43 +137,43 @@ set_module_property ICON_PATH "img/br.png"
 add_documentation_link "POWERLINK IP-Core Documentation" "doc/01_POWERLINK-IP-Core_Altera.pdf"
 
 #files
-add_file "src/powerlink.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi_par.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi_dpr_Altera.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi_tripleVBufLogic.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi_apIrqGen.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi_controlStatusReg.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi_event.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi_led.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi_simpleReg.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openFILTER.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openHUB.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_Ethernet.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_cmp.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_phyAct.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_DPR_Altera.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_DMAFifo_Altera.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_DMAmaster.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_DMAmaster/dma_handler.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_DMAmaster/master_handler.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_PHYMI.vhd" {SYNTHESIS SIMULATION}
-add_file "src/openMAC_rmii2mii.vhd" {SYNTHESIS SIMULATION}
-add_file "src/portio.vhd" {SYNTHESIS SIMULATION}
-add_file "src/portio_cnt.vhd" {SYNTHESIS SIMULATION}
-add_file "src/spi.vhd" {SYNTHESIS SIMULATION}
-add_file "src/spi_sreg.vhd" {SYNTHESIS SIMULATION}
-add_file "src/pdi_spi.vhd" {SYNTHESIS SIMULATION}
-add_file "src/lib/addr_decoder.vhd" {SYNTHESIS SIMULATION}
-add_file "src/lib/edgedet.vhd" {SYNTHESIS SIMULATION}
-add_file "src/lib/req_ack.vhd" {SYNTHESIS SIMULATION}
-add_file "src/lib/sync.vhd" {SYNTHESIS SIMULATION}
-add_file "src/lib/slow2fastSync.vhd" {SYNTHESIS SIMULATION}
-add_file "src/lib/memMap.vhd" {SYNTHESIS SIMULATION}
-add_file "mif/dpr_16_16.mif" {SYNTHESIS SIMULATION}
-add_file "mif/dpr_16_32.mif" {SYNTHESIS SIMULATION}
-add_file "mif/pdi_dpr.mif" {SYNTHESIS SIMULATION}
+add_file "../../altera/openmac/src/dpr_16_16.mif" {SYNTHESIS SIMULATION}
+add_file "../../altera/openmac/src/dpr_16_32.mif" {SYNTHESIS SIMULATION}
+add_file "../../altera/pdi/src/pdi_dpr.mif" {SYNTHESIS SIMULATION}
+add_file "../../common/powerlink/src/powerlink.vhd" {SYNTHESIS SIMULATION}
+add_file "../../altera/openmac/src/openMAC_DPR.vhd" {SYNTHESIS SIMULATION}
+add_file "../../altera/openmac/src/openMAC_DMAFifo.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openFILTER.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openHUB.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openMAC.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openMAC_Ethernet.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openMAC_cmp.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openMAC_phyAct.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openMAC_DMAmaster.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/dma_handler.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/master_handler.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openMAC_PHYMI.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openMAC_rmii2mii.vhd" {SYNTHESIS SIMULATION}
+add_file "../../altera/pdi/src/pdi_dpr.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/pdi.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/pdi_par.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/pdi_tripleVBufLogic.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/pdi_apIrqGen.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/pdi_controlStatusReg.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/pdi_event.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/pdi_led.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/pdi_simpleReg.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/portio.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/portio_cnt.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/pdi/src/pdi_spi.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/spi/src/spi.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/spi/src/spi_sreg.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/addr_decoder.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/edgedet.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/req_ack.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/sync.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/slow2fastSync.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/memMap.vhd" {SYNTHESIS SIMULATION}
 
 #callbacks
 set_module_property VALIDATION_CALLBACK my_validation_callback
