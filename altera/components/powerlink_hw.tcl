@@ -126,7 +126,7 @@ set_module_property NAME powerlink
 set_module_property VERSION 0.3.0
 set_module_property INTERNAL false
 set_module_property GROUP "Interface Protocols/Ethernet"
-set_module_property AUTHOR "Michael Hogger and Joerg Zelenka"
+set_module_property AUTHOR "B&R"
 set_module_property DISPLAY_NAME "POWERLINK"
 set_module_property TOP_LEVEL_HDL_FILE "../../common/powerlink/src/powerlink.vhd"
 set_module_property TOP_LEVEL_HDL_MODULE powerlink
@@ -365,12 +365,12 @@ set_parameter_property macGen2ndSmi DISPLAY_NAME "Enable second Phy Serial Manag
 set_parameter_property macGen2ndSmi DESCRIPTION "The POWERLINK Slave allows a second Serial Management Interface, which is used for the Ethernet Phy configuration. If the two available Phys share one SMI, disable this setting!"
 
 add_parameter macTxBurstSize INTEGER 4
-set_parameter_property macTxBurstSize ALLOWED_RANGES {1 4 8 16}
+set_parameter_property macTxBurstSize ALLOWED_RANGES {1 4 8 16 32 64}
 set_parameter_property macTxBurstSize DISPLAY_NAME "Number of Words per DMA Read Transfer (TX direction)"
 set_parameter_property macTxBurstSize DESCRIPTION "Sets the number of words (2 bytes) for each openMAC DMA read transfer (TX direction). A value of 1 refers to single beat transfers and disables burst transfers."
 
 add_parameter macRxBurstSize INTEGER 4
-set_parameter_property macRxBurstSize ALLOWED_RANGES {1 4 8 16}
+set_parameter_property macRxBurstSize ALLOWED_RANGES {1 4 8 16 32 64}
 set_parameter_property macRxBurstSize DISPLAY_NAME "Number of Words per DMA Write Transfer (RX direction)"
 set_parameter_property macRxBurstSize DESCRIPTION "Sets the number of words (2 bytes) for each openMAC DMA write transfer (RX direction). A value of 1 refers to single beat transfers and disables burst transfers."
 
@@ -1514,75 +1514,6 @@ set_interface_property MAC_IRQ ASSOCIATED_CLOCK clk50meg
 set_interface_property MAC_IRQ ENABLED true
 add_interface_port MAC_IRQ mac_irq irq Output 1
 
-##Export Phy Management shared
-add_interface PHYM conduit end
-set_interface_property PHYM ENABLED true
-add_interface_port PHYM phy_SMIClk export Output 1
-add_interface_port PHYM phy_SMIDat export Bidir 1
-add_interface_port PHYM phy_Rst_n export Output 1
-
-##Export Phy Management 0
-add_interface PHYM0 conduit end
-set_interface_property PHYM0 ENABLED true
-add_interface_port PHYM0 phy0_SMIClk export Output 1
-add_interface_port PHYM0 phy0_SMIDat export Bidir 1
-add_interface_port PHYM0 phy0_Rst_n export Output 1
-
-##Export Phy Management 1
-add_interface PHYM1 conduit end
-set_interface_property PHYM1 ENABLED true
-add_interface_port PHYM1 phy1_SMIClk export Output 1
-add_interface_port PHYM1 phy1_SMIDat export Bidir 1
-add_interface_port PHYM1 phy1_Rst_n export Output 1
-
-##Export Phy Links
-add_interface PHYL conduit end
-set_interface_property PHYL ENABLED true
-add_interface_port PHYL phy0_link export Input 1
-add_interface_port PHYL phy1_link export Input 1
-
-##Export Rmii Phy 0
-add_interface RMII0 conduit end
-set_interface_property RMII0 ENABLED true
-add_interface_port RMII0 phy0_RxDat export Input 2
-add_interface_port RMII0 phy0_RxDv export Input 1
-add_interface_port RMII0 phy0_TxDat export Output 2
-add_interface_port RMII0 phy0_TxEn export Output 1
-add_interface_port RMII0 phy0_RxErr export Input 1
-
-##Export Rmii Phy 1
-add_interface RMII1 conduit end
-set_interface_property RMII1 ENABLED true
-add_interface_port RMII1 phy1_RxDat export Input 2
-add_interface_port RMII1 phy1_RxDv export Input 1
-add_interface_port RMII1 phy1_TxDat export Output 2
-add_interface_port RMII1 phy1_TxEn export Output 1
-add_interface_port RMII1 phy1_RxErr export Input 1
-
-##Export Mii Phy 0
-add_interface MII0 conduit end
-set_interface_property MII0 ENABLED false
-add_interface_port MII0 phyMii0_TxClk export Input 1
-add_interface_port MII0 phyMii0_TxEn export Output 1
-add_interface_port MII0 phyMii0_TxEr export Output 1
-add_interface_port MII0 phyMii0_TxDat export Output 4
-add_interface_port MII0 phyMii0_RxClk export Input 1
-add_interface_port MII0 phyMii0_RxDv export Input 1
-add_interface_port MII0 phyMii0_RxEr export Input 1
-add_interface_port MII0 phyMii0_RxDat export Input 4
-
-##Export Mii Phy 1
-add_interface MII1 conduit end
-set_interface_property MII1 ENABLED false
-add_interface_port MII1 phyMii1_TxClk export Input 1
-add_interface_port MII1 phyMii1_TxEn export Output 1
-add_interface_port MII1 phyMii1_TxEr export Output 1
-add_interface_port MII1 phyMii1_TxDat export Output 4
-add_interface_port MII1 phyMii1_RxClk export Input 1
-add_interface_port MII1 phyMii1_RxDv export Input 1
-add_interface_port MII0 phyMii1_RxEr export Input 1
-add_interface_port MII1 phyMii1_RxDat export Input 4
-
 ##Avalon Memory Mapped Slave: MAC_BUF Buffer
 add_interface MAC_BUF avalon end
 set_interface_property MAC_BUF addressAlignment DYNAMIC
@@ -1691,6 +1622,75 @@ set_interface_property PDI_AP_IRQ associatedAddressablePoint PDI_AP
 set_interface_property PDI_AP_IRQ ASSOCIATED_CLOCK clk50meg
 set_interface_property PDI_AP_IRQ ENABLED true
 add_interface_port PDI_AP_IRQ ap_irq irq Output 1
+
+##Export Phy Management shared
+add_interface PHYM conduit end
+set_interface_property PHYM ENABLED true
+add_interface_port PHYM phy_SMIClk export Output 1
+add_interface_port PHYM phy_SMIDat export Bidir 1
+add_interface_port PHYM phy_Rst_n export Output 1
+
+##Export Phy Management 0
+add_interface PHYM0 conduit end
+set_interface_property PHYM0 ENABLED true
+add_interface_port PHYM0 phy0_SMIClk export Output 1
+add_interface_port PHYM0 phy0_SMIDat export Bidir 1
+add_interface_port PHYM0 phy0_Rst_n export Output 1
+
+##Export Phy Management 1
+add_interface PHYM1 conduit end
+set_interface_property PHYM1 ENABLED true
+add_interface_port PHYM1 phy1_SMIClk export Output 1
+add_interface_port PHYM1 phy1_SMIDat export Bidir 1
+add_interface_port PHYM1 phy1_Rst_n export Output 1
+
+##Export Phy Links
+add_interface PHYL conduit end
+set_interface_property PHYL ENABLED true
+add_interface_port PHYL phy0_link export Input 1
+add_interface_port PHYL phy1_link export Input 1
+
+##Export Rmii Phy 0
+add_interface RMII0 conduit end
+set_interface_property RMII0 ENABLED true
+add_interface_port RMII0 phy0_RxDat export Input 2
+add_interface_port RMII0 phy0_RxDv export Input 1
+add_interface_port RMII0 phy0_TxDat export Output 2
+add_interface_port RMII0 phy0_TxEn export Output 1
+add_interface_port RMII0 phy0_RxErr export Input 1
+
+##Export Rmii Phy 1
+add_interface RMII1 conduit end
+set_interface_property RMII1 ENABLED true
+add_interface_port RMII1 phy1_RxDat export Input 2
+add_interface_port RMII1 phy1_RxDv export Input 1
+add_interface_port RMII1 phy1_TxDat export Output 2
+add_interface_port RMII1 phy1_TxEn export Output 1
+add_interface_port RMII1 phy1_RxErr export Input 1
+
+##Export Mii Phy 0
+add_interface MII0 conduit end
+set_interface_property MII0 ENABLED false
+add_interface_port MII0 phyMii0_TxClk export Input 1
+add_interface_port MII0 phyMii0_TxEn export Output 1
+add_interface_port MII0 phyMii0_TxEr export Output 1
+add_interface_port MII0 phyMii0_TxDat export Output 4
+add_interface_port MII0 phyMii0_RxClk export Input 1
+add_interface_port MII0 phyMii0_RxDv export Input 1
+add_interface_port MII0 phyMii0_RxEr export Input 1
+add_interface_port MII0 phyMii0_RxDat export Input 4
+
+##Export Mii Phy 1
+add_interface MII1 conduit end
+set_interface_property MII1 ENABLED false
+add_interface_port MII1 phyMii1_TxClk export Input 1
+add_interface_port MII1 phyMii1_TxEn export Output 1
+add_interface_port MII1 phyMii1_TxEr export Output 1
+add_interface_port MII1 phyMii1_TxDat export Output 4
+add_interface_port MII1 phyMii1_RxClk export Input 1
+add_interface_port MII1 phyMii1_RxDv export Input 1
+add_interface_port MII0 phyMii1_RxEr export Input 1
+add_interface_port MII1 phyMii1_RxDat export Input 4
 
 ##AP external IRQ
 add_interface AP_EX_IRQ conduit end
