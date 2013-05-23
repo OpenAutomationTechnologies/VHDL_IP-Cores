@@ -43,6 +43,7 @@ lib proc_common_v3_00_a  all
 lib plbv46_slave_single_v1_01_a  all
 lib plbv46_master_burst_v1_01_a  all
 
+lib plb_powerlink_v0_30_a ../../../../../../common/lib/src/global vhdl
 lib plb_powerlink_v0_30_a ../../../../../../common/lib/src/addr_decoder vhdl
 lib plb_powerlink_v0_30_a ../../../../../../common/lib/src/edgedet vhdl
 lib plb_powerlink_v0_30_a ../../../../../../common/lib/src/memMap vhdl
