@@ -56,6 +56,9 @@ package Global is
     function MAX (a : natural; b : natural) return natural;
     function MIN (a : natural; b : natural) return natural;
 
+    function integerToBoolean (a : integer) return boolean;
+    function booleanToInteger (a : boolean) return integer;
+
 end Global;
 
 package body Global is
@@ -98,4 +101,29 @@ package body Global is
         return vRes;
         
     end function;
+
+    function integerToBoolean (a : integer) return boolean is
+        variable vRes : boolean;
+    begin
+        if a = 0 then
+            vRes := false;
+        else
+            vRes := true;
+        end if;
+
+        return vRes;
+    end function;
+    
+    function booleanToInteger (a : boolean) return integer is
+        variable vRes : integer;
+    begin
+        if a = false then
+            vRes := 0;
+        else
+            vRes := 1;
+        end if;
+
+        return vRes;
+    end function;
+
 end Global;

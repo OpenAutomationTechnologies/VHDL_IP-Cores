@@ -83,45 +83,46 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+use work.global.all;
 
 entity powerlink is
 	generic(
 	-- GENERAL GENERICS															--
 		endian_g					:		string								:= "little";
-		genOnePdiClkDomain_g		:		boolean								:= false;
-		genPdi_g					:		boolean 							:= true;
-		genInternalAp_g				:		boolean 							:= true;
-		genSimpleIO_g				:		boolean 							:= false;
-		genSpiAp_g					:		boolean 							:= false;
+		genOnePdiClkDomain_g		:		integer								:= 0;
+		genPdi_g					:		integer 							:= 1;
+		genInternalAp_g				:		integer 							:= 1;
+		genSimpleIO_g				:		integer 							:= 0;
+		genSpiAp_g					:		integer 							:= 0;
 	-- OPENMAC GENERICS
-		Simulate                    :     	boolean 							:= false;
+		Simulate                    :     	integer 							:= 0;
    		iBufSize_g					: 		integer 							:= 1024;
    		iBufSizeLOG2_g				: 		integer 							:= 10;
-		useRmii_g					:		boolean								:= true; --use Rmii
-		useIntPacketBuf_g			:		boolean								:= true; --internal packet buffer
-		useRxIntPacketBuf_g			:		boolean								:= true; --rx buffer located in internal packet buffer
-		use2ndCmpTimer_g			:		boolean 							:= true; --use second cmp timer (used in PDI)
-		usePulse2ndCmpTimer_g			:		boolean 							:= true; --use second cmp timer with pulse support
+		useRmii_g					:		integer								:= 1; --use Rmii
+		useIntPacketBuf_g			:		integer								:= 1; --internal packet buffer
+		useRxIntPacketBuf_g			:		integer								:= 1; --rx buffer located in internal packet buffer
+		use2ndCmpTimer_g			:		integer 							:= 1; --use second cmp timer (used in PDI)
+		usePulse2ndCmpTimer_g			:		integer 							:= 1; --use second cmp timer with pulse support
 		pulseWidth2ndCmpTimer_g : integer := 9;
-		use2ndPhy_g					:		boolean 							:= true; --use second phy (introduces openHUB)
+		use2ndPhy_g					:		integer 							:= 1; --use second phy (introduces openHUB)
 		m_burstcount_width_g		:		integer								:= 4;
-		m_burstcount_const_g		:		boolean								:= true; --hold burst value during transfer
+		m_burstcount_const_g		:		integer								:= 1; --hold burst value during transfer
 		m_tx_burst_size_g			:		integer								:= 16; --0 < x =< 2**m_burstcount_width_g
 		m_rx_burst_size_g			:		integer								:= 16; --0 < x =< 2**m_burstcount_width_g
 		m_tx_fifo_size_g			:		integer								:= 16;
 		m_rx_fifo_size_g			:		integer								:= 16;
 		m_data_width_g				:		integer								:= 16;
-		gen_dma_observer_g			:		boolean								:= true;
-		genSmiIO 					: 		boolean 							:= true; --drive SMI IO if true
+		gen_dma_observer_g			:		integer								:= 1;
+		genSmiIO 					: 		integer 							:= 1; --drive SMI IO if true
         gNumSmi                     :       integer range 1 to 2                := 2; --number of SMI used
 	-- PDI GENERICS
 		iRpdos_g					:		integer 							:= 3;
 		iTpdos_g					:		integer 							:= 1;
-		genABuf1_g					:		boolean 							:= true; --if false iABuf1_g must be set to 0!
-		genABuf2_g					:		boolean 							:= true; --if false iABuf2_g must be set to 0!
-		genLedGadget_g				:		boolean 							:= false;
-		genTimeSync_g				:		boolean								:= false;
-		genEvent_g					:		boolean								:= false;
+		genABuf1_g					:		integer 							:= 1; --if 0 iABuf1_g must be set to 0!
+		genABuf2_g					:		integer 							:= 1; --if 0 iABuf2_g must be set to 0!
+		genLedGadget_g				:		integer 							:= 0;
+		genTimeSync_g				:		integer								:= 0;
+		genEvent_g					:		integer								:= 0;
 		--PDO buffer size *3
 		iTpdoBufSize_g				:		integer 							:= 100;
 		iRpdo0BufSize_g				:		integer 							:= 100;
@@ -134,16 +135,16 @@ entity powerlink is
         pcpSysId                    :       integer                             := 1;
 	-- 8/16bit PARALLEL PDI GENERICS
 		papDataWidth_g				:		integer 							:= 8;
-		papLowAct_g					:		boolean								:= false;
-		papBigEnd_g					:		boolean								:= false;
+		papLowAct_g					:		integer								:= 0;
+		papBigEnd_g					:		integer								:= 0;
 	-- SPI GENERICS
-		spiCPOL_g					:		boolean 							:= false;
-		spiCPHA_g					:		boolean 							:= false;
-		spiBigEnd_g					:		boolean								:= false;
+		spiCPOL_g					:		integer 							:= 0;
+		spiCPHA_g					:		integer 							:= 0;
+		spiBigEnd_g					:		integer								:= 0;
 	-- PORTIO
 		pioValLen_g					:		integer								:= 50; --clock ticks of pcp_clk
 	-- GENERAL TARGET DEPENDINGS
-		genIoBuf_g					:		boolean								:= true --generates IO buffers
+		genIoBuf_g					:		integer								:= 1 --generates IO buffers
 	);
 	port(
 	-- CLOCK / RESET PORTS
@@ -373,8 +374,8 @@ architecture rtl of powerlink is
 	
 begin
 	--general signals
-	clkAp_s <= clkAp when genOnePdiClkDomain_g = FALSE else clkPcp;
-	rstAp_s <= rstAp when genOnePdiClkDomain_g = FALSE else rstPcp;
+	clkAp_s <= clkAp when integerToBoolean(genOnePdiClkDomain_g) = false else clkPcp;
+	rstAp_s <= rstAp when integerToBoolean(genOnePdiClkDomain_g) = false else rstPcp;
 	
 	phyLink <= phy1_link & phy0_link;
 	
@@ -388,7 +389,7 @@ begin
 	
 ------------------------------------------------------------------------------------------------------------------------
 --PCP + AP
-	genPdi : if genPdi_g and genInternalAp_g and not genSpiAp_g generate
+	genPdi : if integerToBoolean(genPdi_g) and integerToBoolean(genInternalAp_g) and not integerToBoolean(genSpiAp_g) generate
 		
 		--sync and async interrupt are driven by only one line
 		-- this gives some effort for Nios II AP ;)
@@ -404,16 +405,16 @@ begin
 		
 		theAvalonPdi : entity work.pdi
 			generic map (
-				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
+				genOnePdiClkDomain_g		=> integerToBoolean(genOnePdiClkDomain_g),
 				iPdiRev_g					=> iPdiRev_g,
                 pcpSysId                    => pcpSysId,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
-				genABuf1_g					=> genABuf1_g,
-				genABuf2_g					=> genABuf2_g,
-				genLedGadget_g				=> genLedGadget_g,
-				genTimeSync_g				=> genTimeSync_g,
-				genEvent_g					=> genEvent_g,
+				genABuf1_g					=> integerToBoolean(genABuf1_g),
+				genABuf2_g					=> integerToBoolean(genABuf2_g),
+				genLedGadget_g				=> integerToBoolean(genLedGadget_g),
+				genTimeSync_g				=> integerToBoolean(genTimeSync_g),
+				genEvent_g					=> integerToBoolean(genEvent_g),
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -461,7 +462,7 @@ begin
 	end generate genPdi;
 
 --AP is external connected via parallel interface
-	genPdiPar : if genPdi_g and not genInternalAp_g and not genSpiAp_g generate
+	genPdiPar : if integerToBoolean(genPdi_g) and not integerToBoolean(genInternalAp_g) and not integerToBoolean(genSpiAp_g) generate
 		
 		--only 8 or 16bit data width is allowed
 		ASSERT ( papDataWidth_g = 8 or papDataWidth_g = 16 )
@@ -470,14 +471,14 @@ begin
 		
 		-------------------------------------------------------------------------------------
 		--convert active low signals to active high - respectively assign active high signals
-		theActiveLowGen : if papLowAct_g generate
+		theActiveLowGen : if integerToBoolean(papLowAct_g) generate
 			pap_wr_s <= not pap_wr_n;
 			pap_rd_s <= not pap_rd_n;
 			pap_cs_s <= not pap_cs_n;
 			pap_be_s <= not pap_be_n;
 		end generate;
 		
-		theActiveHighGen : if not papLowAct_g generate
+		theActiveHighGen : if not integerToBoolean(papLowAct_g) generate
 			pap_wr_s <= pap_wr;
 			pap_rd_s <= pap_rd;
 			pap_cs_s <= pap_cs;
@@ -498,8 +499,8 @@ begin
 		theParPort : entity work.pdi_par
 			generic map (
 				papDataWidth_g				=> papDataWidth_g,
-				papBigEnd_g					=> papBigEnd_g,
-				papGenIoBuf_g				=> genIoBuf_g
+				papBigEnd_g					=> integerToBoolean(papBigEnd_g),
+				papGenIoBuf_g				=> integerToBoolean(genIoBuf_g)
 			)
 			port map (
 			-- 8/16bit parallel
@@ -532,16 +533,16 @@ begin
 		
 		thePdi : entity work.pdi
 			generic map (
-				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
+				genOnePdiClkDomain_g		=> integerToBoolean(genOnePdiClkDomain_g),
 				iPdiRev_g					=> iPdiRev_g,
                 pcpSysId                    => pcpSysId,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
-				genABuf1_g					=> genABuf1_g,
-				genABuf2_g					=> genABuf2_g,
-				genLedGadget_g				=> genLedGadget_g,
-				genTimeSync_g				=> genTimeSync_g,
-				genEvent_g					=> genEvent_g,
+				genABuf1_g					=> integerToBoolean(genABuf1_g),
+				genABuf2_g					=> integerToBoolean(genABuf2_g),
+				genLedGadget_g				=> integerToBoolean(genLedGadget_g),
+				genTimeSync_g				=> integerToBoolean(genTimeSync_g),
+				genEvent_g					=> integerToBoolean(genEvent_g),
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -589,7 +590,7 @@ begin
 	end generate genPdiPar;
 
 --AP is extern connected via SPI
-	genPdiSpi : if genPdi_g and genSpiAp_g generate
+	genPdiSpi : if integerToBoolean(genPdi_g) and integerToBoolean(genSpiAp_g) generate
 		
 		ap_syncIrq <= ap_irq_s;
 		ap_syncIrq_n <= not ap_irq_s;
@@ -626,9 +627,9 @@ begin
 		thePdiSpi : entity work.pdi_spi
 			generic map (
 				spiSize_g					=> 8, --fixed value!
-				cpol_g 						=> spiCPOL_g,
-				cpha_g 						=> spiCPHA_g,
-				spiBigEnd_g					=> spiBigEnd_g
+				cpol_g 						=> integerToBoolean(spiCPOL_g),
+				cpha_g 						=> integerToBoolean(spiCPHA_g),
+				spiBigEnd_g					=> integerToBoolean(spiBigEnd_g)
 			)
 			port map (
 				-- SPI
@@ -651,16 +652,16 @@ begin
 		
 		thePdi : entity work.pdi
 			generic map (
-				genOnePdiClkDomain_g		=> genOnePdiClkDomain_g,
+				genOnePdiClkDomain_g		=> integerToBoolean(genOnePdiClkDomain_g),
 				iPdiRev_g					=> iPdiRev_g,
                 pcpSysId                    => pcpSysId,
 				iRpdos_g					=> iRpdos_g,
 				iTpdos_g					=> iTpdos_g,
-				genABuf1_g					=> genABuf1_g,
-				genABuf2_g					=> genABuf2_g,
-				genLedGadget_g				=> genLedGadget_g,
-				genTimeSync_g				=> genTimeSync_g,
-				genEvent_g					=> genEvent_g,
+				genABuf1_g					=> integerToBoolean(genABuf1_g),
+				genABuf2_g					=> integerToBoolean(genABuf2_g),
+				genLedGadget_g				=> integerToBoolean(genLedGadget_g),
+				genTimeSync_g				=> integerToBoolean(genTimeSync_g),
+				genEvent_g					=> integerToBoolean(genEvent_g),
 				--PDO buffer size *3
 				iTpdoBufSize_g				=> iTpdoBufSize_g,
 				iRpdo0BufSize_g				=> iRpdo0BufSize_g,
@@ -708,7 +709,7 @@ begin
 	end generate genPdiSpi;
 
 --PDI is disabled (either simple I/O or openMAC only)
-	genNotPdi : if not genPdi_g generate
+	genNotPdi : if not integerToBoolean(genPdi_g) generate
 
 		-- directly forward toggle signal from 2nd CMP timer
 		ap_syncIrq <= irqToggle;
@@ -720,11 +721,11 @@ begin
 
 ------------------------------------------------------------------------------------------------------------------------
 --SIMPLE I/O CN
-	genSimpleIO : if genSimpleIO_g generate
+	genSimpleIO : if integerToBoolean(genSimpleIO_g) generate
 		thePortIO : entity work.portio
 			generic map (
 				pioValLen_g			=> pioValLen_g,
-				pioGenIoBuf_g		=> genIoBuf_g
+				pioGenIoBuf_g		=> integerToBoolean(genIoBuf_g)
 			)
 			port map (
 				s0_address			=> smp_address,
@@ -755,27 +756,27 @@ begin
 		generic map (
 			endian_g => endian_g,
 			dma_highadr_g => m_address'high,
-			gen2ndCmpTimer_g => use2ndCmpTimer_g,
-			genPulse2ndCmpTimer_g => usePulse2ndCmpTimer_g,
+			gen2ndCmpTimer_g => integerToBoolean(use2ndCmpTimer_g),
+			genPulse2ndCmpTimer_g => integerToBoolean(usePulse2ndCmpTimer_g),
 			pulseWidth2ndCmpTimer_g => pulseWidth2ndCmpTimer_g,
-			genHub_g => use2ndPhy_g,
+			genHub_g => integerToBoolean(use2ndPhy_g),
 			iPktBufSizeLog2_g => iBufSizeLOG2_g,
 			iPktBufSize_g => iBufSize_g,
-			simulate => false,
-			useIntPktBuf_g => useIntPacketBuf_g,
-			useRmii_g => useRmii_g,
-			useRxIntPktBuf_g => useRxIntPacketBuf_g,
+			simulate => integerToBoolean(simulate),
+			useIntPktBuf_g => integerToBoolean(useIntPacketBuf_g),
+			useRmii_g => integerToBoolean(useRmii_g),
+			useRxIntPktBuf_g => integerToBoolean(useRxIntPacketBuf_g),
 			m_burstcount_width_g => m_burstcount_width_g,
-			m_burstcount_const_g => m_burstcount_const_g,
+			m_burstcount_const_g => integerToBoolean(m_burstcount_const_g),
 			m_data_width_g => m_data_width_g,
 			m_tx_fifo_size_g => m_tx_fifo_size_g,
 			m_rx_fifo_size_g => m_rx_fifo_size_g,
 			m_tx_burst_size_g => m_tx_burst_size_g,
 			m_rx_burst_size_g => m_rx_burst_size_g,
-			genSmiIO => genSmiIO,
+			genSmiIO => integerToBoolean(genSmiIO),
             gNumSmi => gNumSmi,
-			genPhyActLed_g => genLedGadget_g,
-			gen_dma_observer_g => gen_dma_observer_g
+			genPhyActLed_g => integerToBoolean(genLedGadget_g),
+			gen_dma_observer_g => integerToBoolean(gen_dma_observer_g)
 		)
 		port map(
 			clk => clk50,

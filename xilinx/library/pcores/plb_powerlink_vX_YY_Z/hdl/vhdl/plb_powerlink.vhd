@@ -65,6 +65,7 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 use ieee.math_real.log2;
 use ieee.math_real.ceil;
+use work.global.all;
 
 library proc_common_v3_00_a;
 use proc_common_v3_00_a.proc_common_pkg.all;
@@ -676,22 +677,22 @@ component openMAC_16to32conv
 end component;
 component powerlink
   generic(
-       Simulate : boolean := false;
+       Simulate : integer := 0;
        endian_g : string := "little";
        gNumSmi : integer range 1 to 2 := 2;
-       genABuf1_g : boolean := true;
-       genABuf2_g : boolean := true;
-       genEvent_g : boolean := false;
-       genInternalAp_g : boolean := true;
-       genIoBuf_g : boolean := true;
-       genLedGadget_g : boolean := false;
-       genOnePdiClkDomain_g : boolean := false;
-       genPdi_g : boolean := true;
-       genSimpleIO_g : boolean := false;
-       genSmiIO : boolean := true;
-       genSpiAp_g : boolean := false;
-       genTimeSync_g : boolean := false;
-       gen_dma_observer_g : boolean := true;
+       genABuf1_g : integer := 1;
+       genABuf2_g : integer := 1;
+       genEvent_g : integer := 0;
+       genInternalAp_g : integer := 1;
+       genIoBuf_g : integer := 1;
+       genLedGadget_g : integer := 0;
+       genOnePdiClkDomain_g : integer := 0;
+       genPdi_g : integer := 1;
+       genSimpleIO_g : integer := 0;
+       genSmiIO : integer := 1;
+       genSpiAp_g : integer := 0;
+       genTimeSync_g : integer := 0;
+       gen_dma_observer_g : integer := 1;
        iAsyBuf1Size_g : integer := 100;
        iAsyBuf2Size_g : integer := 100;
        iBufSizeLOG2_g : integer := 10;
@@ -703,28 +704,28 @@ component powerlink
        iRpdos_g : integer := 3;
        iTpdoBufSize_g : integer := 100;
        iTpdos_g : integer := 1;
-       m_burstcount_const_g : boolean := true;
+       m_burstcount_const_g : integer := 1;
        m_burstcount_width_g : integer := 4;
        m_data_width_g : integer := 16;
        m_rx_burst_size_g : integer := 16;
        m_rx_fifo_size_g : integer := 16;
        m_tx_burst_size_g : integer := 16;
        m_tx_fifo_size_g : integer := 16;
-       papBigEnd_g : boolean := false;
+       papBigEnd_g : integer := 0;
        papDataWidth_g : integer := 8;
-       papLowAct_g : boolean := false;
+       papLowAct_g : integer := 0;
        pcpSysId : integer := 1;
        pioValLen_g : integer := 50;
-       spiBigEnd_g : boolean := false;
-       spiCPHA_g : boolean := false;
-       spiCPOL_g : boolean := false;
-       use2ndCmpTimer_g : boolean := true;
-       usePulse2ndCmpTimer_g : boolean := true;
+       spiBigEnd_g : integer := 0;
+       spiCPHA_g : integer := 0;
+       spiCPOL_g : integer := 0;
+       use2ndCmpTimer_g : integer := 1;
+       usePulse2ndCmpTimer_g : integer := 1;
        pulseWidth2ndCmpTimer_g : integer := 9;
-       use2ndPhy_g : boolean := true;
-       useIntPacketBuf_g : boolean := true;
-       useRmii_g : boolean := true;
-       useRxIntPacketBuf_g : boolean := true
+       use2ndPhy_g : integer := 1;
+       useIntPacketBuf_g : integer := 1;
+       useRmii_g : integer := 1;
+       useRxIntPacketBuf_g : integer := 1
   );
   port (
        ap_address : in std_logic_vector(12 downto 0);
@@ -1446,22 +1447,22 @@ MAC_REG_PLB_SINGLE_SLAVE : plbv46_slave_single
 
 THE_POWERLINK_IP_CORE : powerlink
   generic map (
-       Simulate => false,
+       Simulate => booleanToInteger(false),
        endian_g => "big",
        gNumSmi => C_NUM_SMI,
-       genABuf1_g => C_PDI_GEN_ASYNC_BUF_0,
-       genABuf2_g => C_PDI_GEN_ASYNC_BUF_1,
-       genEvent_g => C_PDI_GEN_EVENT,
-       genInternalAp_g => C_GEN_PLB_BUS_IF,
-       genIoBuf_g => false,
-       genLedGadget_g => C_PDI_GEN_LED,
-       genOnePdiClkDomain_g => false,
-       genPdi_g => C_GEN_PDI,
-       genSimpleIO_g => C_GEN_SIMPLE_IO,
-       genSmiIO => false,
-       genSpiAp_g => C_GEN_SPI_IF,
-       genTimeSync_g => C_PDI_GEN_TIME_SYNC,
-       gen_dma_observer_g => C_OBSERVER_ENABLE,
+       genABuf1_g => booleanToInteger(C_PDI_GEN_ASYNC_BUF_0),
+       genABuf2_g => booleanToInteger(C_PDI_GEN_ASYNC_BUF_1),
+       genEvent_g => booleanToInteger(C_PDI_GEN_EVENT),
+       genInternalAp_g => booleanToInteger(C_GEN_PLB_BUS_IF),
+       genIoBuf_g => booleanToInteger(false),
+       genLedGadget_g => booleanToInteger(C_PDI_GEN_LED),
+       genOnePdiClkDomain_g => booleanToInteger(false),
+       genPdi_g => booleanToInteger(C_GEN_PDI),
+       genSimpleIO_g => booleanToInteger(C_GEN_SIMPLE_IO),
+       genSmiIO => booleanToInteger(false),
+       genSpiAp_g => booleanToInteger(C_GEN_SPI_IF),
+       genTimeSync_g => booleanToInteger(C_PDI_GEN_TIME_SYNC),
+       gen_dma_observer_g => booleanToInteger(C_OBSERVER_ENABLE),
        iAsyBuf1Size_g => C_PDI_ASYNC_BUF_0,
        iAsyBuf2Size_g => C_PDI_ASYNC_BUF_1,
        iBufSizeLOG2_g => C_MAC_PKT_SIZE_LOG2,
@@ -1473,28 +1474,28 @@ THE_POWERLINK_IP_CORE : powerlink
        iRpdos_g => C_NUM_RPDO,
        iTpdoBufSize_g => C_TPDO_BUF_SIZE,
        iTpdos_g => C_NUM_TPDO,
-       m_burstcount_const_g => true,
+       m_burstcount_const_g => booleanToInteger(true),
        m_burstcount_width_g => C_M_BURSTCOUNT_WIDTH,
        m_data_width_g => 32,
        m_rx_burst_size_g => C_MAC_DMA_BURST_SIZE_RX/4,
        m_rx_fifo_size_g => C_M_FIFO_SIZE_RX,
        m_tx_burst_size_g => C_MAC_DMA_BURST_SIZE_TX/4,
        m_tx_fifo_size_g => C_M_FIFO_SIZE_TX,
-       papBigEnd_g => false,
+       papBigEnd_g => booleanToInteger(false),
        papDataWidth_g => C_PAP_DATA_WIDTH,
-       papLowAct_g => C_PAP_LOW_ACT,
+       papLowAct_g => booleanToInteger(C_PAP_LOW_ACT),
        pcpSysId => C_PCP_SYS_ID,
        pioValLen_g => C_PIO_VAL_LENGTH,
        pulseWidth2ndCmpTimer_g => C_PULSE_WIDTH_2nd_CMP_TIMER,
-       spiBigEnd_g => false,
-       spiCPHA_g => C_SPI_CPHA,
-       spiCPOL_g => C_SPI_CPOL,
-       use2ndCmpTimer_g => C_MAC_GEN_SECOND_TIMER,
-       use2ndPhy_g => C_USE_2ND_PHY,
-       useIntPacketBuf_g => C_MAC_PKT_EN,
-       usePulse2ndCmpTimer_g => C_USE_PULSE_2nd_CMP_TIMER,
-       useRmii_g => C_USE_RMII,
-       useRxIntPacketBuf_g => C_MAC_PKT_RX_EN
+       spiBigEnd_g => booleanToInteger(false),
+       spiCPHA_g => booleanToInteger(C_SPI_CPHA),
+       spiCPOL_g => booleanToInteger(C_SPI_CPOL),
+       use2ndCmpTimer_g => booleanToInteger(C_MAC_GEN_SECOND_TIMER),
+       use2ndPhy_g => booleanToInteger(C_USE_2ND_PHY),
+       useIntPacketBuf_g => booleanToInteger(C_MAC_PKT_EN),
+       usePulse2ndCmpTimer_g => booleanToInteger(C_USE_PULSE_2nd_CMP_TIMER),
+       useRmii_g => booleanToInteger(C_USE_RMII),
+       useRxIntPacketBuf_g => booleanToInteger(C_MAC_PKT_RX_EN)
   )
   port map(
        mac_address(0) => mac_address(0),
