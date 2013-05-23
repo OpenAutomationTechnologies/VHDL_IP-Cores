@@ -1416,26 +1416,44 @@ add_display_item "openMAC" macRxQueue5Size  PARAMETER
 add_interface pcp_clk clock end
 set_interface_property pcp_clk ENABLED true
 add_interface_port pcp_clk clkPcp clk Input 1
-add_interface_port pcp_clk rstPcp reset Input 1
+
+##pcp reset
+add_interface pcp_reset reset end
+set_interface_property pcp_reset associatedClock pcp_clk
+set_interface_property pcp_reset synchronousEdges DEASSERT
+set_interface_property pcp_reset ENABLED true
+add_interface_port pcp_reset rstPcp reset Input 1
 
 ##ap clk
 add_interface ap_clk clock end
 set_interface_property ap_clk ENABLED true
 add_interface_port ap_clk clkAp clk Input 1
-add_interface_port ap_clk rstAp reset Input 1
+
+##ap reset
+add_interface ap_reset reset end
+set_interface_property ap_reset associatedClock ap_clk
+set_interface_property ap_reset synchronousEdges DEASSERT
+set_interface_property ap_reset ENABLED true
+add_interface_port ap_reset rstAp reset Input 1
+
+##clk 50MHz
+add_interface clk50meg clock end
+set_interface_property clk50meg ENABLED true
+add_interface_port clk50meg clk50 clk Input 1
+
+##common reset
+add_interface reset reset end
+set_interface_property reset associatedClock clk50meg
+set_interface_property reset synchronousEdges DEASSERT
+set_interface_property reset ENABLED true
+add_interface_port reset rst reset Input 1
 
 ##clk Ethernet
 add_interface clkEth clock end
 set_interface_property clkEth ENABLED true
 add_interface_port clkEth clkEth clk Input 1
 
-##clk 50MHz
-add_interface clk50meg clock end
-set_interface_property clk50meg ENABLED true
-add_interface_port clk50meg clk50 clk Input 1
-add_interface_port clk50meg rst reset Input 1
-
-##master clock
+##DMA Clock
 add_interface clkMaster clock end
 set_interface_property clkMaster ENABLED true
 add_interface_port clkMaster m_clk clk Input 1
@@ -1450,6 +1468,7 @@ add_interface_port clkPkt pkt_clk clk Input 1
 add_interface MAC_CMP avalon end
 set_interface_property MAC_CMP addressAlignment DYNAMIC
 set_interface_property MAC_CMP associatedClock clk50meg
+set_interface_property MAC_CMP associatedReset reset
 set_interface_property MAC_CMP burstOnBurstBoundariesOnly false
 set_interface_property MAC_CMP explicitAddressSpan 0
 set_interface_property MAC_CMP holdTime 0
@@ -1484,6 +1503,7 @@ add_interface_port MACCMP_IRQ tcp_irq irq Output 1
 add_interface MAC_REG avalon end
 set_interface_property MAC_REG addressAlignment DYNAMIC
 set_interface_property MAC_REG associatedClock clk50meg
+set_interface_property MAC_REG associatedReset reset
 set_interface_property MAC_REG burstOnBurstBoundariesOnly false
 set_interface_property MAC_REG explicitAddressSpan 0
 set_interface_property MAC_REG holdTime 0
@@ -1518,6 +1538,7 @@ add_interface_port MAC_IRQ mac_irq irq Output 1
 add_interface MAC_BUF avalon end
 set_interface_property MAC_BUF addressAlignment DYNAMIC
 set_interface_property MAC_BUF associatedClock clkPkt
+set_interface_property MAC_BUF associatedReset reset
 set_interface_property MAC_BUF burstOnBurstBoundariesOnly false
 set_interface_property MAC_BUF explicitAddressSpan 0
 set_interface_property MAC_BUF holdTime 0
@@ -1548,6 +1569,7 @@ set_interface_property MAC_DMA burstOnBurstBoundariesOnly false
 #not yet supported: set_interface_property MAC_DMA constantBurstBehavior false
 set_interface_property MAC_DMA linewrapBursts false
 set_interface_property MAC_DMA ASSOCIATED_CLOCK clkMaster
+set_interface_property MAC_DMA associatedReset reset
 set_interface_property MAC_DMA ENABLED false
 add_interface_port MAC_DMA m_read read Output 1
 add_interface_port MAC_DMA m_write write Output 1
@@ -1564,6 +1586,7 @@ add_interface_port MAC_DMA m_burstcount burstcount Output "m_burstcount_width_g"
 add_interface PDI_PCP avalon end
 set_interface_property PDI_PCP addressAlignment DYNAMIC
 set_interface_property PDI_PCP associatedClock pcp_clk
+set_interface_property PDI_PCP associatedReset pcp_reset
 set_interface_property PDI_PCP burstOnBurstBoundariesOnly false
 set_interface_property PDI_PCP explicitAddressSpan 0
 set_interface_property PDI_PCP holdTime 0
@@ -1592,6 +1615,7 @@ add_interface_port PDI_PCP pcp_waitrequest waitrequest Output 1
 add_interface PDI_AP avalon end
 set_interface_property PDI_AP addressAlignment DYNAMIC
 set_interface_property PDI_AP associatedClock ap_clk
+set_interface_property PDI_AP associatedReset ap_reset
 set_interface_property PDI_AP burstOnBurstBoundariesOnly false
 set_interface_property PDI_AP explicitAddressSpan 0
 set_interface_property PDI_AP holdTime 0
@@ -1734,6 +1758,7 @@ add_interface_port PAR_AP pap_gpio export Bidir 2
 add_interface SMP avalon end
 set_interface_property SMP addressAlignment DYNAMIC
 set_interface_property SMP associatedClock pcp_clk
+set_interface_property SMP associatedReset pcp_reset
 set_interface_property SMP burstOnBurstBoundariesOnly false
 set_interface_property SMP explicitAddressSpan 0
 set_interface_property SMP holdTime 0
@@ -1808,23 +1833,23 @@ if {$ClkRate50meg == 50000000} {
 #}
 
 #find out, which interfaces (avalon, exports, etc) are not necessary for the configurated device!
-    #set defaults
-    set_interface_property ap_clk ENABLED false
-    set_interface_property PDI_PCP ENABLED false
-    set_interface_property PDI_AP ENABLED false
-    set_interface_property PDI_AP_IRQ ENABLED false
-    set_interface_property SPI_AP ENABLED false
-    set_interface_property PAR_AP ENABLED false
-    set_interface_property SMP ENABLED false
-    set_interface_property SMP_PIO ENABLED false
-    set_interface_property AP_EX_IRQ ENABLED false
-    set_interface_property LED_GADGET ENABLED false
-
-    set_interface_property MAC_DMA ENABLED false
-    set_interface_property clkMaster ENABLED false
-    set_interface_property MAC_BUF ENABLED false
-    set_interface_property clkPkt ENABLED false
-
+	#set defaults
+	set_interface_property ap_clk ENABLED false
+    set_interface_property ap_reset ENABLED false
+	set_interface_property PDI_PCP ENABLED false
+	set_interface_property PDI_AP ENABLED false
+	set_interface_property PDI_AP_IRQ ENABLED false
+	set_interface_property SPI_AP ENABLED false
+	set_interface_property PAR_AP ENABLED false
+	set_interface_property SMP ENABLED false
+	set_interface_property SMP_PIO ENABLED false
+	set_interface_property AP_EX_IRQ ENABLED false
+	set_interface_property LED_GADGET ENABLED false
+	
+	set_interface_property MAC_DMA ENABLED false
+	set_interface_property clkMaster ENABLED false
+	set_interface_property MAC_BUF ENABLED false
+	set_interface_property clkPkt ENABLED false
     if {[get_parameter_value macTxBurstSize] > 1 || [get_parameter_value macRxBurstSize] > 1} {
         #we want to burst!
         set_port_property m_burstcount termination false
@@ -1912,6 +1937,7 @@ if {$ClkRate50meg == 50000000} {
     if {[get_parameter_value configPowerlink] == "openMAC only"} {
         #don't need pcp_clk
         set_interface_property pcp_clk ENABLED false
+        set_interface_property pcp_reset ENABLED false
         if {[get_parameter_value hwSupportSyncIrq]} {
             set_interface_property AP_EX_IRQ ENABLED true
             set_port_property ap_syncIrq_n termination true
@@ -1942,6 +1968,7 @@ if {$ClkRate50meg == 50000000} {
             set_interface_property PDI_AP ENABLED true
             set_interface_property PDI_AP_IRQ ENABLED true
             set_interface_property ap_clk ENABLED true
+            set_interface_property ap_reset ENABLED true
 
             if {[get_parameter_value genLedGadget]} {
                 set_interface_property LED_GADGET ENABLED true
