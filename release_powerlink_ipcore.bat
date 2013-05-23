@@ -72,6 +72,7 @@ copy common\lib\src\req_ack.vhd                     release\common\lib\src
 copy common\lib\src\sync.vhd                        release\common\lib\src
 copy common\lib\src\slow2fastSync.vhd               release\common\lib\src
 copy common\lib\src\memMap.vhd                      release\common\lib\src
+copy common\lib\src\global.vhd                      release\common\lib\src
 
 :: copy Xilinx AXI POWERLINK
 copy common\lib\src\addr_decoder.vhd                release\common\lib\src
@@ -81,6 +82,7 @@ copy common\lib\src\req_ack.vhd                     release\common\lib\src
 copy common\lib\src\sync.vhd                        release\common\lib\src
 copy common\lib\src\slow2fastSync.vhd               release\common\lib\src
 copy common\lib\src\clkXingRtl.vhd                  release\common\lib\src
+copy common\lib\src\global.vhd                      release\common\lib\src
 copy xilinx\openmac\src\async_fifo_ctrl.vhd         release\xilinx\openmac\src
 copy xilinx\openmac\src\fifo_read.vhd               release\xilinx\openmac\src
 copy xilinx\openmac\src\fifo_write.vhd              release\xilinx\openmac\src
@@ -129,6 +131,7 @@ copy common\lib\src\memMap.vhd                      release\common\lib\src
 copy common\lib\src\req_ack.vhd                     release\common\lib\src
 copy common\lib\src\sync.vhd                        release\common\lib\src
 copy common\lib\src\slow2fastSync.vhd               release\common\lib\src
+copy common\lib\src\global.vhd                      release\common\lib\src
 copy xilinx\openmac\src\async_fifo_ctrl.vhd         release\xilinx\openmac\src
 copy xilinx\openmac\src\fifo_read.vhd               release\xilinx\openmac\src
 copy xilinx\openmac\src\fifo_write.vhd              release\xilinx\openmac\src
