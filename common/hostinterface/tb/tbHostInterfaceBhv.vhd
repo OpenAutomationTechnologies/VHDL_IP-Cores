@@ -133,7 +133,7 @@ component hostInterface
        oHostWaitrequest : out std_logic;
        oPcpReaddata : out std_logic_vector(31 downto 0);
        oPcpWaitrequest : out std_logic;
-       
+
        iIrqExtSync : in std_logic;
        iNodeId : in std_logic_vector(7 downto 0);
        iClk : in std_logic;
@@ -143,7 +143,7 @@ component hostInterface
        oPlkLedStatus : out std_logic;
        oIrq : out std_logic
   );
-  
+
 end component;
 component pdi_dpr
   generic(

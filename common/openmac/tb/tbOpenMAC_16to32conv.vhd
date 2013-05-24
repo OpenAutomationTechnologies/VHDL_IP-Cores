@@ -41,7 +41,7 @@ use IEEE.std_logic_1164.all;
 library work;
 use global.all;
 
-entity tbOpenMAC_16to32conv is 
+entity tbOpenMAC_16to32conv is
 end tbOpenMAC_16to32conv;
 
 architecture bhv of tbOpenMAC_16to32conv is

@@ -95,7 +95,7 @@ WRw 00000D18 02DE
 
 # start time + owner + last + no retry
 WRw 00000D10 4301
- 
+
 #read TX0
 JEw 00000D00 0400
 # ack TX IRQ
@@ -105,12 +105,12 @@ WRw 00000004 0100
 JEw 00000D10 0400
 # ack TX IRQ
 WRw 00000004 0100
- 
+
 # #read RX0
 # JEw 00000C00 0800
 # # ack RX IRQ
 # WRw 0000000C 0100
-# 
+#
 # #read TX2
 # JEw 00000D20 0400
 # # ack TX IRQ

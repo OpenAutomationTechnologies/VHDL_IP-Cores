@@ -384,11 +384,11 @@ architecture Rtl of hostInterface is
 begin
 
     --! select status/control registers if host address is below 2 kB
-    statCtrlSel <= cActivated when iHostAddress < cBaseAddressArray(0)(iHostAddress'range) else 
+    statCtrlSel <= cActivated when iHostAddress < cBaseAddressArray(0)(iHostAddress'range) else
     cInactivated;
 
     --! select invalid address
-    invalidSel <= cActivated when iHostAddress >= 
+    invalidSel <= cActivated when iHostAddress >=
     cBaseAddressArray(cBaseAddressArrayCount-1)(iHostAddress'range) else
     cInactivated;
 
@@ -403,14 +403,14 @@ begin
     statCtrlRead <= iHostRead and statCtrlSel;
 
     --! host waitrequest from status/control, bridge or invalid
-    oHostWaitrequest <= 
+    oHostWaitrequest <=
     statCtrlWaitrequest when statCtrlSel = cActivated else
     cInactivated when bridgeEnable = cInactivated else
     not bridgeReady when bridgeSel = cActivated else
     not invalidSel;
 
     --! host readdata from status/control or bridge
-    oHostReaddata <= 
+    oHostReaddata <=
     bridgeReaddata when bridgeSel = cActivated else
     statCtrlReaddata when statCtrlSel = cActivated else
     (others => cInactivated);
@@ -476,8 +476,8 @@ begin
                 bridgeReady <= cInactivated;
             else
                 --! generate hostBridge write and read strobes
-                if bridgeSelOut = cActivated and 
-                    iHostBridgeWaitrequest = cActivated and 
+                if bridgeSelOut = cActivated and
+                    iHostBridgeWaitrequest = cActivated and
                     bridgeReady = cInactivated then
                     --! if bridge is busy forward requests
                     oHostBridgeWrite <= iHostWrite;

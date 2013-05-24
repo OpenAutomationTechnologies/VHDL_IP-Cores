@@ -42,7 +42,7 @@ use ieee.numeric_std.all;
 library work;
 use global.all;
 
-entity tbOpenMAC is 
+entity tbOpenMAC is
 end tbOpenMAC;
 
 architecture bhv of tbOpenMAC is
@@ -351,20 +351,20 @@ m_readdatavalid <= '0' when unsigned(m_burstcounter) = 0 or m_write = '1' else n
 --phy if
 genNoRx : if not cEnableLoop generate
 begin
-	phy0_rx_dv <= '0';
-	phy0_rx_err <= '0';
-	phy0_rx_dat <= "00";
+    phy0_rx_dv <= '0';
+    phy0_rx_err <= '0';
+    phy0_rx_dat <= "00";
 end generate;
 
 phy1_rx_dv <=
-	phy0_tx_en after 2500 ns when cGenManCol else
-	phy0_tx_en after 2500 ns when cGenAutoCol and unsigned(fifo_wr_done) = 1 else
-	'0';
+    phy0_tx_en after 2500 ns when cGenManCol else
+    phy0_tx_en after 2500 ns when cGenAutoCol and unsigned(fifo_wr_done) = 1 else
+    '0';
 phy1_rx_err <= '0';
-phy1_rx_dat <= 
-	phy0_tx_dat after 2500 ns when cGenManCol else
-	phy0_tx_dat after 2500 ns when cGenAutoCol and unsigned(fifo_wr_done) = 1 else
-	"00";
+phy1_rx_dat <=
+    phy0_tx_dat after 2500 ns when cGenManCol else
+    phy0_tx_dat after 2500 ns when cGenAutoCol and unsigned(fifo_wr_done) = 1 else
+    "00";
 
 process(clk100, reset)
 begin
@@ -382,28 +382,28 @@ fifo_wr_req <= phy0_tx_en;
 
 genLoop : if cEnableLoop generate
 begin
-	fifo_wr_data <= phy0_tx_dat;
-	phy0_rx_dv <= fifo_rd_req;
-	phy0_rx_dat <= fifo_rd_data(1 downto 0);
-	phy0_rx_err <= '0';
+    fifo_wr_data <= phy0_tx_dat;
+    phy0_rx_dv <= fifo_rd_req;
+    phy0_rx_dat <= fifo_rd_data(1 downto 0);
+    phy0_rx_err <= '0';
 end generate;
 
 procFifoRdReq : process(clk50, reset)
 begin
-	if reset = '1' then
-		fifo_rd_req <= '0';
-		fifo_wr_done <= (others => '0');
-	elsif rising_edge(clk50) then
-		if fifo_rd_empty = '1' then
-			fifo_rd_req <= '0';
-		elsif fifo_wr_req_falling = '1' then
-			fifo_rd_req <= '1' after 1 us;
-			fifo_wr_done <= std_logic_vector(unsigned(fifo_wr_done) + 1);
---		elsif unsigned(fifo_rd_usedw) > 106 and unsigned(fifo_wr_done) = 0 then
---			fifo_rd_req <= '1'; -- after 1 us;
---			fifo_wr_done <= std_logic_vector(unsigned(fifo_wr_done) + 1);
-		end if;
-	end if;
+    if reset = '1' then
+        fifo_rd_req <= '0';
+        fifo_wr_done <= (others => '0');
+    elsif rising_edge(clk50) then
+        if fifo_rd_empty = '1' then
+            fifo_rd_req <= '0';
+        elsif fifo_wr_req_falling = '1' then
+            fifo_rd_req <= '1' after 1 us;
+            fifo_wr_done <= std_logic_vector(unsigned(fifo_wr_done) + 1);
+--        elsif unsigned(fifo_rd_usedw) > 106 and unsigned(fifo_wr_done) = 0 then
+--            fifo_rd_req <= '1'; -- after 1 us;
+--            fifo_wr_done <= std_logic_vector(unsigned(fifo_wr_done) + 1);
+        end if;
+    end if;
 end process;
 
 ----  Component instantiations  ----

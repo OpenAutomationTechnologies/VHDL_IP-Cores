@@ -1,5 +1,5 @@
 ##############################################################################
-# Host Interface Timing Constraints for 
+# Host Interface Timing Constraints for
 #  (De-)Multiplexed Asynchronous Parallel Bus
 ##############################################################################
 

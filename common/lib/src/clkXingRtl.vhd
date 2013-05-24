@@ -151,7 +151,7 @@ begin
             din => iFastRNW,
             dout => slowRnw
         );
-    
+
     theSyncAnyAck : entity work.slow2fastSync
         port map (
             rstDst => iArst,
@@ -163,7 +163,7 @@ begin
         );
 
     -- WELCOME TO FAST CLOCK DOMAIN --
-    
+
     process(iArst, iFastClk)
     begin
         if iArst = '1' then
@@ -172,7 +172,7 @@ begin
             fastAnyAck <= fastWrAck or fastRdAck;
         end if;
     end process;
-    
+
     theSyncWrAck : entity work.slow2fastSync
         port map (
             rstDst => iArst,

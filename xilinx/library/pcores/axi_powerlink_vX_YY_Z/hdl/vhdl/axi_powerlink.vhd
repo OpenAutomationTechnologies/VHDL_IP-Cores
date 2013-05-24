@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 --! @file axi_powerlink.vhd
 --
---! @brief 
+--! @brief
 --
 -------------------------------------------------------------------------------
 --
@@ -37,17 +37,9 @@
 --    POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
--- Design unit header --
 --
 -- This is the toplevel file for using the POWERLINK IP-Core
 -- with Xilinx AXI.
---
--------------------------------------------------------------------------------
---
--- 2012-01-12   V0.01   zelenkaj	First version
--- 2012-01-26   V0.02   zelenkaj    Added number of SMI generic feature
--- 2012-01-27   V0.10   zelenkaj    Incremented PdiRev
--- 2012-08-03   V0.11   zelenkaj    add pcp sys id
 --
 -------------------------------------------------------------------------------
 
@@ -445,11 +437,11 @@ architecture struct of axi_powerlink is
 ---- Architecture declarations -----
 function get_max( a, b : integer)  return integer is
 begin
-	if a < b then
-		return b;
-	else
-		return a;
-	end if;
+    if a < b then
+        return b;
+    else
+        return a;
+    end if;
 end get_max;
 
 
@@ -1112,7 +1104,7 @@ begin
 
 ---- User Signal Assignments ----
 -- connect mac reg with mac cmp or reg output signals
-with Bus2MAC_REG_CS select 
+with Bus2MAC_REG_CS select
     IP2Bus_Data_s <=    MAC_CMP2Bus_Data    when "01",
                         MAC_REG2Bus_Data    when others; --"10" and others are decoded to MAC_REG
 
@@ -1137,8 +1129,8 @@ MAC_CMP2Bus_Error <= '0';
 pkt_clk <= Bus2MAC_PKT_Clk;
 Bus2MAC_PKT_Reset <= not Bus2MAC_PKT_Resetn;
 mbf_writedata <= Bus2MAC_PKT_Data;
---	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
---	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
+--    Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
+--    Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
 mbf_read <= Bus2MAC_PKT_RNW;
 mbf_write <= not Bus2MAC_PKT_RNW;
 mbf_chipselect <= Bus2MAC_PKT_CS(0);
@@ -1512,8 +1504,8 @@ MAC_REG2Bus_Error <= GND;
 ---- Terminal assignment ----
 
     -- Output\buffer terminals
-	mac_irq <= mac_irq_s;
-	tcp_irq <= tcp_irq_s;
+    mac_irq <= mac_irq_s;
+    tcp_irq <= tcp_irq_s;
 
 
 ----  Generate statements  ----
@@ -1529,7 +1521,7 @@ begin
          C_M_AXI_ADDR_WIDTH => C_M_AXI_MAC_DMA_ADDR_WIDTH,
          C_M_AXI_DATA_WIDTH => C_M_AXI_MAC_DMA_DATA_WIDTH,
          C_NATIVE_DATA_WIDTH => C_M_AXI_MAC_DMA_NATIVE_DWIDTH
-    )  
+    )
     port map(
          bus2ip_mst_cmd_timeout => bus2MAC_DMA_mst_cmd_timeout,
          bus2ip_mst_cmdack => bus2MAC_DMA_mst_cmdack,
@@ -1605,7 +1597,7 @@ begin
          gen_rx_fifo_g => not C_RX_INT_PKT,
          gen_tx_fifo_g => not C_TX_INT_PKT,
          m_burstcount_width_g => C_M_BURSTCOUNT_WIDTH
-    )  
+    )
     port map(
          Bus2MAC_DMA_MstRd_d => bus2MAC_DMA_mstrd_d( C_M_AXI_MAC_DMA_NATIVE_DWIDTH-1 downto 0 ),
          Bus2MAC_DMA_MstRd_eof_n => bus2MAC_DMA_mstrd_eof_n,
@@ -1664,7 +1656,7 @@ begin
          C_S_AXI_DATA_WIDTH => C_S_AXI_MAC_PKT_DATA_WIDTH,
          C_S_AXI_MIN_SIZE => C_MAC_PKT_MINSIZE,
          C_USE_WSTRB => C_S_AXI_MAC_PKT_USE_WSTRB
-    )  
+    )
     port map(
          Bus2IP_Addr => Bus2MAC_PKT_Addr( C_S_AXI_MAC_PKT_ADDR_WIDTH-1 downto 0 ),
          Bus2IP_BE => Bus2MAC_PKT_BE( (C_S_AXI_MAC_PKT_DATA_WIDTH/8)-1 downto 0 ),
@@ -1713,7 +1705,7 @@ begin
          C_S_AXI_DATA_WIDTH => C_S_AXI_PDI_PCP_DATA_WIDTH,
          C_S_AXI_MIN_SIZE => C_PDI_PCP_MINSIZE,
          C_USE_WSTRB => C_S_AXI_PDI_PCP_USE_WSTRB
-    )  
+    )
     port map(
          Bus2IP_Addr => Bus2PDI_PCP_Addr( C_S_AXI_PDI_PCP_ADDR_WIDTH-1 downto 0 ),
          Bus2IP_BE => Bus2PDI_PCP_BE( (C_S_AXI_PDI_PCP_DATA_WIDTH/8)-1 downto 0 ),
@@ -1756,8 +1748,8 @@ begin
 clkPcp <= Bus2PDI_PCP_Clk;
 Bus2PDI_PCP_Reset <= not Bus2PDI_PCP_Resetn;
 pcp_writedata <= Bus2PDI_PCP_Data;
---	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
---	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
+--    Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
+--    Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
 pcp_read <= Bus2PDI_PCP_RNW;
 pcp_write <= not Bus2PDI_PCP_RNW;
 pcp_chipselect <= Bus2PDI_PCP_CS(0);
@@ -1782,7 +1774,7 @@ begin
          C_S_AXI_DATA_WIDTH => C_S_AXI_PDI_AP_DATA_WIDTH,
          C_S_AXI_MIN_SIZE => C_PDI_AP_MINSIZE,
          C_USE_WSTRB => C_S_AXI_PDI_AP_USE_WSTRB
-    )  
+    )
     port map(
          Bus2IP_Addr => Bus2PDI_AP_Addr( C_S_AXI_PDI_AP_ADDR_WIDTH-1 downto 0 ),
          Bus2IP_BE => Bus2PDI_AP_BE( (C_S_AXI_PDI_AP_DATA_WIDTH/8)-1 downto 0 ),
@@ -1825,8 +1817,8 @@ begin
 clkAp <= Bus2PDI_AP_Clk;
 Bus2PDI_AP_Reset <= not Bus2PDI_AP_Resetn;
 ap_writedata <= Bus2PDI_AP_Data;
---	Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
---	Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
+--    Bus2MAC_PKT_Data(7 downto 0) & Bus2MAC_PKT_Data(15 downto 8) &
+--    Bus2MAC_PKT_Data(23 downto 16) & Bus2MAC_PKT_Data(31 downto 24);
 ap_read <= Bus2PDI_AP_RNW;
 ap_write <= not Bus2PDI_AP_RNW;
 ap_chipselect <= Bus2PDI_AP_CS(0);
@@ -1851,7 +1843,7 @@ begin
          C_S_AXI_DATA_WIDTH => C_S_AXI_SMP_PCP_DATA_WIDTH,
          C_S_AXI_MIN_SIZE => C_SMP_PCP_MINSIZE,
          C_USE_WSTRB => C_S_AXI_SMP_PCP_USE_WSTRB
-    )  
+    )
     port map(
          Bus2IP_Addr => Bus2SMP_PCP_Addr( C_S_AXI_SMP_PCP_ADDR_WIDTH-1 downto 0 ),
          Bus2IP_BE => Bus2SMP_PCP_BE( (C_S_AXI_SMP_PCP_DATA_WIDTH/8)-1 downto 0 ),
@@ -1909,7 +1901,7 @@ end generate genSimpleIoSignals;
 oddr2_0 : if not C_INSTANCE_ODDR2 generate
 begin
   phy0_clk <= clk50;
-  
+
   phy1_clk <= clk50;
 end generate oddr2_0;
 
@@ -1926,7 +1918,7 @@ begin
          R => GND,
          S => GND
     );
-  
+
   U11 : ODDR2
     port map(
          C0 => clk50,
@@ -1938,9 +1930,9 @@ begin
          R => GND,
          S => GND
     );
-  
+
   NET38470 <= not(clk50);
-  
+
   NET38418 <= not(clk50);
 end generate oddr2_1;
 

@@ -54,9 +54,9 @@ end clkgen;
 architecture bhv of clkgen is
     signal clock : std_logic;
 begin
-    
+
     oClk <= clock;
-    
+
     process
     begin
         clock <= cActivated;
@@ -67,5 +67,5 @@ begin
             wait;
         end if;
     end process;
-    
+
 end bhv;

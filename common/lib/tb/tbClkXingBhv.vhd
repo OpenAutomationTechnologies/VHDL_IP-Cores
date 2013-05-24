@@ -1,11 +1,4 @@
 -------------------------------------------------------------------------------
---! @file tbClkXingBhv.vhd
---
---! @brief Clock Crossing Bus converter Testbench
---
---! @details 
---
--------------------------------------------------------------------------------
 --
 --    (c) B&R, 2013
 --
@@ -66,7 +59,7 @@ begin
         clk100 <= '0';
         wait for 5 ns;
     end process;
-    
+
     process
     begin
         clk50 <= '1';
@@ -74,7 +67,7 @@ begin
         clk50 <= '0';
         wait for 10 ns;
     end process;
-    
+
     process
     begin
         rst <= '1';
@@ -103,27 +96,27 @@ begin
         iSlowWrAck => slowWrAck,
         iSlowRdAck => slowRdAck
     );
-    
+
     fastCs <=       "00",
                     "10" after 200 ns,
                     "00" after 640 ns,
                     "01" after 690 ns,
                     "10" after 860 ns,
                     "00" after 1100 ns;
-    
+
     fastRNW <=      '0',
                     '1' after 200 ns,
                     '0' after 640 ns;
-    
+
     slowReaddata <= x"1234_ABCD",
                     x"6666_6666" after 560 ns;
-    
+
     slowRdAck <=    '0',
                     '1' after 301 ns,
                     '0' after 321 ns,
                     '1' after 561 ns,
                     '0' after 581 ns;
-    
+
     slowWrAck <=    '0',
                     '1' after 781 ns,
                     '0' after 801 ns,

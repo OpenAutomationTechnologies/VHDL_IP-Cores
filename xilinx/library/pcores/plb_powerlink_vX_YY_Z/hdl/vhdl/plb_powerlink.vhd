@@ -34,27 +34,9 @@
 --    POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
--- Design unit header --
 --
 -- This is the toplevel file for using the POWERLINK IP-Core
 -- with Xilinx PLB V4.6.
---
--------------------------------------------------------------------------------
---
--- 2011-09-13   V0.01   zelenkaj    First version
--- 2011-11-24   V0.02   mairt       added slave interface for pdi pcp and pdi ap
--- 2011-11-26   V0.03   mairt       added slave interface for simpleIO
--- 2011-12-02   V0.04   zelenkaj    Exchanged IOs with _I, _O and _T
--- 2011-12-06   V0.05   zelenkaj    Changed instance names
--- 2011-12-07   V0.06   zelenkaj    Fixed address assignments for PDI PCP/AP
--- 2011-12-16   V0.07   mairt       added TX/RX burst size feature
--- 2012-01-19   V0.08   zelenkaj    Added bus to core clock ration feature
--- 2012-01-26   V0.09   zelenkaj    Added number of SMI generic feature
--- 2012-01-16   V0.10   zelenkaj    Replace plb_* with ipif_master_handler
--- 2012-01-27   V0.20   zelenkaj    Incremented PdiRev
--- 2012-02-01   V0.21   zelenkaj    Added attributes and RMII clk out
--- 2012-03-23   V0.22   zelenkaj    fixed to/downto issue
--- 2012-08-03   V0.23   zelenkaj    add pcp sys id
 --
 -------------------------------------------------------------------------------
 
@@ -584,11 +566,11 @@ architecture struct of plb_powerlink is
 ---- Architecture declarations -----
 function get_max( a, b : integer)  return integer is
 begin
-	if a < b then
-		return b;
-	else
-		return a;
-	end if;
+    if a < b then
+        return b;
+    else
+        return a;
+    end if;
 end get_max;
 
 
@@ -1245,35 +1227,35 @@ begin
 
 ---- User Signal Assignments ----
 -- connect mac reg with mac cmp or reg output signals
-with Bus2MAC_REG_CS select 
-	IP2Bus_Data_s(C_MAC_REG_PLB_DWIDTH-1 downto 0) <= MAC_REG2Bus_Data(C_MAC_REG_PLB_DWIDTH-1 downto 0) when "10",
-		MAC_CMP2Bus_Data(C_MAC_REG_PLB_DWIDTH-1 downto 0) 												when "01",
-		(others => '0') 																				when others;
-		
-with Bus2MAC_REG_CS select 
-	IP2Bus_WrAck_s <= MAC_REG2Bus_WrAck 				when "10",
-						MAC_CMP2Bus_WrAck 					when "01",
-						'0'										when others;	
+with Bus2MAC_REG_CS select
+    IP2Bus_Data_s(C_MAC_REG_PLB_DWIDTH-1 downto 0) <= MAC_REG2Bus_Data(C_MAC_REG_PLB_DWIDTH-1 downto 0) when "10",
+        MAC_CMP2Bus_Data(C_MAC_REG_PLB_DWIDTH-1 downto 0)                                                 when "01",
+        (others => '0')                                                                                 when others;
 
-with Bus2MAC_REG_CS select 
-	IP2Bus_RdAck_s <= MAC_REG2Bus_RdAck 				when "10",
-						MAC_CMP2Bus_RdAck 					when "01",
-						'0'										when others;	
+with Bus2MAC_REG_CS select
+    IP2Bus_WrAck_s <= MAC_REG2Bus_WrAck                 when "10",
+                        MAC_CMP2Bus_WrAck                     when "01",
+                        '0'                                        when others;
 
-with Bus2MAC_REG_CS select 
-	IP2Bus_Error_s <= MAC_REG2Bus_Error 				when "10",
-						MAC_CMP2Bus_Error 					when "01",
-						'0'										when others;
+with Bus2MAC_REG_CS select
+    IP2Bus_RdAck_s <= MAC_REG2Bus_RdAck                 when "10",
+                        MAC_CMP2Bus_RdAck                     when "01",
+                        '0'                                        when others;
+
+with Bus2MAC_REG_CS select
+    IP2Bus_Error_s <= MAC_REG2Bus_Error                 when "10",
+                        MAC_CMP2Bus_Error                     when "01",
+                        '0'                                        when others;
 Bus2MAC_REG_BE_s <=
-    Bus2MAC_REG_BE(0) & Bus2MAC_REG_BE(1) & 
+    Bus2MAC_REG_BE(0) & Bus2MAC_REG_BE(1) &
     Bus2MAC_REG_BE(2) & Bus2MAC_REG_BE(3);
 
 Bus2MAC_REG_Data_s <=
-    Bus2MAC_REG_Data(7 downto 0) & Bus2MAC_REG_Data(15 downto 8) & 
+    Bus2MAC_REG_Data(7 downto 0) & Bus2MAC_REG_Data(15 downto 8) &
     Bus2MAC_REG_Data(23 downto 16) & Bus2MAC_REG_Data(31 downto 24);
 
 MAC_REG2Bus_Data <=
-    MAC_REG2Bus_Data_s(7 downto 0) & MAC_REG2Bus_Data_s(15 downto 8) & 
+    MAC_REG2Bus_Data_s(7 downto 0) & MAC_REG2Bus_Data_s(15 downto 8) &
     MAC_REG2Bus_Data_s(23 downto 16) & MAC_REG2Bus_Data_s(31 downto 24);
 --test_port
 
@@ -1310,18 +1292,18 @@ test_port(31 downto 0) <= IP2Bus_Data_s;
 --mac_cmp assignments
 ---cmp_clk <= Bus2MAC_CMP_Clk;
 tcp_writedata <=
-    Bus2MAC_REG_Data(7 downto 0) & Bus2MAC_REG_Data(15 downto 8) & 
+    Bus2MAC_REG_Data(7 downto 0) & Bus2MAC_REG_Data(15 downto 8) &
     Bus2MAC_REG_Data(23 downto 16) & Bus2MAC_REG_Data(31 downto 24);
 tcp_read <= Bus2MAC_REG_RNW;
 tcp_write <= not Bus2MAC_REG_RNW;
 tcp_chipselect <= Bus2MAC_REG_CS(0);
 tcp_byteenable <=
-    Bus2MAC_REG_BE(0) & Bus2MAC_REG_BE(1) & 
+    Bus2MAC_REG_BE(0) & Bus2MAC_REG_BE(1) &
     Bus2MAC_REG_BE(2) & Bus2MAC_REG_BE(3);
 tcp_address <= Bus2MAC_REG_Addr(3 downto 2);
 
-MAC_CMP2Bus_Data <= 
-    tcp_readdata(7 downto 0) & tcp_readdata(15 downto 8) & 
+MAC_CMP2Bus_Data <=
+    tcp_readdata(7 downto 0) & tcp_readdata(15 downto 8) &
     tcp_readdata(23 downto 16) & tcp_readdata(31 downto 24);
 MAC_CMP2Bus_RdAck <= tcp_chipselect and tcp_read and not tcp_waitrequest;
 MAC_CMP2Bus_WrAck <= tcp_chipselect and tcp_write and not tcp_waitrequest;
@@ -1674,8 +1656,8 @@ MAC_REG2Bus_Error <= GND;
 ---- Terminal assignment ----
 
     -- Output\buffer terminals
-	mac_irq <= mac_irq_s;
-	tcp_irq <= tcp_irq_s;
+    mac_irq <= mac_irq_s;
+    tcp_irq <= tcp_irq_s;
 
 
 ----  Generate statements  ----
@@ -1690,7 +1672,7 @@ begin
          C_MPLB_DWIDTH => C_MAC_DMA_PLB_DWIDTH,
          C_MPLB_NATIVE_DWIDTH => C_MAC_DMA_PLB_NATIVE_DWIDTH,
          C_MPLB_SMALLEST_SLAVE => 32
-    )  
+    )
     port map(
          Bus2IP_MstRd_d => Bus2MAC_DMA_MstRd_d( C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0 ),
          Bus2IP_MstRd_eof_n => Bus2MAC_DMA_MstRd_eof_n,
@@ -1760,7 +1742,7 @@ end generate genMacDmaPlbBurst;
 oddr2_0 : if not C_INSTANCE_ODDR2 generate
 begin
   phy0_clk <= clk50;
-  
+
   phy1_clk <= clk50;
 end generate oddr2_0;
 
@@ -1777,9 +1759,9 @@ begin
          R => GND,
          S => GND
     );
-  
+
   NET118078 <= not(clk50);
-  
+
   U6 : ODDR2
     port map(
          C0 => clk50,
@@ -1791,7 +1773,7 @@ begin
          R => GND,
          S => GND
     );
-  
+
   NET118214 <= not(clk50);
 end generate oddr2_1;
 
@@ -1803,7 +1785,7 @@ begin
          gen_rx_fifo_g => not C_RX_INT_PKT,
          gen_tx_fifo_g => not C_TX_INT_PKT,
          m_burstcount_width_g => C_M_BURSTCOUNT_WIDTH
-    )  
+    )
     port map(
          Bus2MAC_DMA_MstRd_d => Bus2MAC_DMA_MstRd_d_s( C_MAC_DMA_PLB_NATIVE_DWIDTH-1 downto 0 ),
          Bus2MAC_DMA_MstRd_eof_n => Bus2MAC_DMA_MstRd_eof_n,
@@ -1871,7 +1853,7 @@ begin
          C_SPLB_MID_WIDTH => C_MAC_PKT_PLB_MID_WIDTH,
          C_SPLB_NUM_MASTERS => C_MAC_PKT_PLB_NUM_MASTERS,
          C_SPLB_P2P => C_MAC_PKT_PLB_P2P
-    )  
+    )
     port map(
          Bus2IP_Addr => Bus2MAC_PKT_Addr( C_MAC_PKT_PLB_AWIDTH-1 downto 0 ),
          Bus2IP_BE => Bus2MAC_PKT_BE( (C_MAC_PKT_PLB_DWIDTH/8)-1 downto 0 ),
@@ -1944,7 +1926,7 @@ begin
          C_SPLB_MID_WIDTH => C_PDI_PCP_PLB_MID_WIDTH,
          C_SPLB_NUM_MASTERS => C_PDI_PCP_PLB_NUM_MASTERS,
          C_SPLB_P2P => C_PDI_PCP_PLB_P2P
-    )  
+    )
     port map(
          Bus2IP_Addr => Bus2PDI_PCP_Addr( C_PDI_PCP_PLB_AWIDTH-1 downto 0 ),
          Bus2IP_BE => Bus2PDI_PCP_BE( (C_PDI_PCP_PLB_DWIDTH/8)-1 downto 0 ),
@@ -2045,7 +2027,7 @@ begin
          C_SPLB_MID_WIDTH => C_PDI_AP_PLB_MID_WIDTH,
          C_SPLB_NUM_MASTERS => C_PDI_AP_PLB_NUM_MASTERS,
          C_SPLB_P2P => C_PDI_AP_PLB_P2P
-    )  
+    )
     port map(
          Bus2IP_Addr => Bus2PDI_AP_Addr( C_PDI_AP_PLB_AWIDTH-1 downto 0 ),
          Bus2IP_BE => Bus2PDI_AP_BE( (C_PDI_AP_PLB_DWIDTH/8)-1 downto 0 ),
@@ -2166,7 +2148,7 @@ begin
          C_SPLB_MID_WIDTH => C_SMP_PCP_PLB_MID_WIDTH,
          C_SPLB_NUM_MASTERS => C_SMP_PCP_PLB_NUM_MASTERS,
          C_SPLB_P2P => C_SMP_PCP_PLB_P2P
-    )  
+    )
     port map(
          Bus2IP_Addr => Bus2SMP_PCP_Addr( C_SMP_PCP_PLB_AWIDTH-1 downto 0 ),
          Bus2IP_BE => Bus2SMP_PCP_BE( (C_SMP_PCP_PLB_DWIDTH/8)-1 downto 0 ),

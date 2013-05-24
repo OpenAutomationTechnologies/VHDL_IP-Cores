@@ -55,10 +55,10 @@ end enableGen;
 architecture bhv of enableGen is
     signal enable : std_logic;
 begin
-    
+
     oEnable <= enable;
     onEnable <= not enable;
-    
+
     process
     begin
         enable <= cInactivated;
@@ -67,5 +67,5 @@ begin
         enable <= not enable;
         wait;
     end process;
-    
+
 end bhv;

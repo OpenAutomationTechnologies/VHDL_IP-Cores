@@ -11,13 +11,13 @@ end entity tbPdiSpi;
 architecture bhv of tbPdiSpi is
     signal rst, clk, done : std_logic;
     signal spiClk, spiClk_s, spiSel, spiMiso, spiMosi : std_logic;
-    
+
     signal masterReg, masterLoadData : std_logic_vector(7 downto 0);
     signal masterLoad, masterShift : std_logic;
     signal masterShiftCnt : std_logic_vector(3 downto 0);
     alias masterShiftDone : std_logic is masterShiftCnt(masterShiftCnt'left);
     signal masterDout : std_logic_vector(7 downto 0);
-    
+
     procedure master_doShift (
         vLoadVal : in std_logic_vector(7 downto 0);
         signal shift : out std_logic;
@@ -44,9 +44,9 @@ begin
             iDone => done,
             oClk => clk
         );
-    
+
     rst <= cActivated, cInactivated after 100 ns;
-    
+
     theSpiClkGen : entity work.clkgen
         generic map (
             gPeriod => 1000 ns
@@ -55,9 +55,9 @@ begin
             iDone => done,
             oClk => spiClk_s
         );
-    
+
     spiClk <= spiClk_s after 10 ns when spiSel = cActivated else cInactivated;
-        
+
     theMasterSreg : process(rst, spiClk, masterLoad, masterShiftDone)
     begin
         if masterLoad = cActivated then
@@ -76,10 +76,10 @@ begin
             end if;
         end if;
     end process;
-    
+
     spiMosi <= masterReg(masterReg'left);
     spiSel <= masterShift;
-    
+
     theStim : process
     begin
         masterLoad <= cInactivated;
@@ -87,39 +87,39 @@ begin
         masterShift <= cInactivated;
         done <= cInactivated;
         wait until rst = cInactivated;
-        
+
         -- test for inverse
         for i in 0 to 255 loop
             wait until spiClk_s'event;
             wait until rising_edge(clk);
             master_doShift(conv_std_logic_vector(i, 8), masterShift, masterLoad, masterLoadData, masterShiftDone);
         end loop;
-        
+
         --wake up
         wait until spiClk_s'event;
         wait until rising_edge(clk);
         master_doShift(x"03", masterShift, masterLoad, masterLoadData, masterShiftDone);
-        
+
         wait until spiClk_s'event;
         wait until rising_edge(clk);
         master_doShift(x"0A", masterShift, masterLoad, masterLoadData, masterShiftDone);
-        
+
         wait until spiClk_s'event;
         wait until rising_edge(clk);
         master_doShift(x"0C", masterShift, masterLoad, masterLoadData, masterShiftDone);
-        
+
         wait until spiClk_s'event;
         wait until rising_edge(clk);
         master_doShift(x"0F", masterShift, masterLoad, masterLoadData, masterShiftDone);
-        
+
         wait until spiClk_s'event;
         wait until rising_edge(clk);
         --??
-        
+
         done <= cActivated;
         wait;
     end process;
-    
+
     theDUT : entity work.pdi_spi
         generic map (
             spiSize_g => 8,

@@ -33,91 +33,6 @@
 #--    POSSIBILITY OF SUCH DAMAGE.
 #--
 #------------------------------------------------------------------------------------------------------------------------
-#-- Version History
-#------------------------------------------------------------------------------------------------------------------------
-#-- 2010-08-24    V0.01    zelenkaj    first generation
-#-- 2010-09-13    V0.02    zelenkaj    added selection Rmii / Mii
-#-- 2010-10-04    V0.03    zelenkaj    bugfix: Rmii / Mii selection was faulty
-#-- 2010-10-11    V0.04    zelenkaj    changed pdi dpr size calculation
-#-- 2010-10-18    V0.05    zelenkaj    added selection Big/Little Endian (pdi_par)
-#--                                    use bidirectional data bus (pdi_par)
-#-- 2010-11-15    V0.06    zelenkaj    bugfix: rpdo header was calculated twice
-#-- 2010-11-22    V0.07    zelenkaj    Added 2 GPIO signals to parallel interface
-#--                                    Added Operational Flag to simple I/O interface
-#--                                    Omitted T/RPDO descriptor sections in DPR
-#--                                    Added ability to verify connected clock rates (to clkEth and clk50meg)
-#--                                    Added generic to set duration of valid assertion (portio)
-#-- 2010-11-29    V0.08    zelenkaj    Changed several Endianness sel. to one for AP
-#--                                    Allocation of ping-pong tx buffers (necessary by openPOWERLINK stack)
-#-- 2010-11-30    V0.09    zelenkaj    Added other picture as Block Diagram (3 design approaches)
-#-- 2010-12-06    V0.10    zelenkaj    Changed Cmacros
-#--                                    Added openMAC only parameter
-#--                                    Added SPI IRQ active high/low choice
-#-- 2010-12-07    V0.11    zelenkaj    Bugfix: AP IRQ was generated incorrect for SPI
-#--                                    Code clean up
-#-- 2011-01-25    V0.12    zelenkaj    Added generic internal/external packet storage
-#-- 2011-02-24    V0.13    zelenkaj    Bugfix: openMAC only with RMII generates division by zero
-#--                                    minor changes (naming conventions Mii->SMI)
-#-- 2011-03-14    V0.14    zelenkaj    Added generic for packet storage (RX int/ext)
-#-- 2011-03-21    V0.15    zelenkaj    bugfix: packet buffer padding wasn't considered
-#-- 2011-03-28    V0.20    zelenkaj    Added: LED
-#--                                    Added: Events
-#--                                    Added/Changed: Asynchronous buffer 2x Ping-Pong
-#-- 2011-04-04    V0.21    zelenkaj    minor: led_status is the official name
-#--                                    minor: parallel interface uses ack instead of ready
-#-- 2011-04-26    V0.22    zelenkaj    prepared for pdi clock domain configuration, but not allowed to change by SOPC
-#-- 2011-04-28    V0.23    zelenkaj    second cmp timer of openMAC is optinal by generic
-#--                                    added link to IP-core documentation
-#--                                    added description to parameters (shown in SOPC GUI)
-#-- 2011-05-06    V0.24    zelenkaj    some naming convention changes
-#--                                    bug fix: use the RX_ER signal, it has important meaning!
-#-- 2011-05-09    V0.30    zelenkaj    Hardware Acceleration (HW ACC) added.
-#-- 2011-06-06    V0.31    zelenkaj    PDI status/control register enhanced by 8 bytes
-#-- 2011-06-20    V0.32    zelenkaj    RPDO size is set once for all
-#--                                    big/little endian option forwarded to system.h only, not to vhdl!
-#-- 2011-07-23    V0.33    zelenkaj    added RXERR for RMII
-#-- 2011-07-25    V0.34    zelenkaj    LED gadget and asynchronous buffer optional, reset of pdi revision
-#-- 2011-08-08    V0.35    zelenkaj    LED gadget enhancement -> added 8 general purpose outputs
-#-- 2011-08-02    V1.00    zelenkaj    exchanged Avalon interface with entity openMAC_Ethernet
-#-- 2011-09-05    V1.01    zelenkaj    PDI SPI async Irq low/high active was not terminated
-#-- 2011-09-06    V1.02    zelenkaj    async-buffer limitation is deactivated
-#-- 2011-09-14    V1.03    zelenkaj    extract of components into own files
-#-- 2011-10-10    V1.04    zelenkaj    async-buffer limitation fixed again..
-#-- 2011-10-13    V1.05    zelenkaj    file names changed..
-#-- 2011-10-14    V1.06    zelenkaj    rmii2mii fifos are deleted (dma fifo is abused for..)
-#-- 2011-11-07    V1.07    zelenkaj    added generic for dma master qualifiers
-#-- 2011-11-17    V1.08    zelenkaj    pdi dpr vhd-file renamed
-#-- 2011-11-21    V1.09    zelenkaj    added time synchronization feature
-#-- 2011-11-28    V1.10    zelenkaj    added waitrequest signals to pdi pcp/ap
-#-- 2011-11-29    V1.11    zelenkaj    event feature is optional
-#-- 2011-11-30    V1.12    zelenkaj    Added generic for DMA observer
-#-- 2011-12-12    V1.13    zelenkaj    Changed packet location enumerator
-#-- 2011-12-14    V1.14    zelenkaj    Changed documentation path/filename
-#-- 2011-12-15    V1.15    zelenkaj    Changed openMAC only RX buffer configuration
-#-- 2012-01-04    V1.16    zelenkaj    Added feature to create mif files for openMAC DPR and PDI DPR
-#-- 2012-01-09    V1.17    zelenkaj    Added ap_syncIrq for external AP
-#-- 2012-01-11    V1.18    zelenkaj    Async Irq is omitted if event hw support is disabled
-#-- 2012-01-12    V1.19    zelenkaj    Added macro to system.h in case of low-jitter SYNC
-#-- 2012-01-25    V1.20    zelenkaj    Added special initialization to pdi_dpr.mif
-#-- 2012-01-26    V1.21    zelenkaj    Added generic for SMI generation and one SMI ports
-#--                                    Renamed label for SYNC IRQ feature
-#--                                    Added "expert mode" for the advanced users
-#--                                    Omit hwacc options, since we are fast enough!
-#--                                    Minor delete of system.h parameter
-#-- 2012-01-27    V1.30    zelenkaj    Incremented PdiRev
-#-- 2012-01-31    V1.31    zelenkaj    moved hw event support into "exper mode"
-#--                                    fixed expert mode for dma observer
-#-- 2012-02-21    V1.32    zelenkaj    Changed IP-Core group
-#--                                    Added mif files and removed generation (to support ip-core repo)
-#-- 2012-02-29    V1.33    zelenkaj    Fix buffer size allocation
-#-- 2012-03-07    V1.34    zelenkaj    Fix top HDL file path
-#-- 2012-03-13    V1.35    zelenkaj    Forward R/TPDO + async buffer size to system.h
-#-- 2012-04-02    V1.36    zelenkaj    vhdl file names case sensitive
-#-- 2012-05-22    V1.37    zelenkaj    Fix DPRAM size allocation
-#-- 2012-06-14    V1.38    zelenkaj    RX buffer number has to be set by user for openMAC only in any case
-#-- 2012-08-03    V1.39    zelenkaj    revised PDI REV
-#--                                    added PCPSYSID
-#------------------------------------------------------------------------------------------------------------------------
 
 package require -exact sopc 10.1
 
@@ -1163,25 +1078,25 @@ proc my_validation_callback {} {
     } else {
         set_parameter_value genPdi_g 0
     }
-    
+
     if {$genAvalonAp} {
         set_parameter_value genInternalAp_g 1
     } else {
         set_parameter_value genInternalAp_g 0
     }
-    
+
     if {$genSimpleIO} {
         set_parameter_value genSimpleIO_g 1
     } else {
         set_parameter_value genSimpleIO_g 0
     }
-    
+
     if {$genSpiAp} {
         set_parameter_value genSpiAp_g 1
     } else {
         set_parameter_value genSpiAp_g 0
     }
-    
+
     if {$enDmaObserver} {
         set_parameter_value gen_dma_observer_g 1
     } else {
@@ -1845,7 +1760,7 @@ if {$ClkRate50meg == 50000000} {
 	set_interface_property SMP_PIO ENABLED false
 	set_interface_property AP_EX_IRQ ENABLED false
 	set_interface_property LED_GADGET ENABLED false
-	
+
 	set_interface_property MAC_DMA ENABLED false
 	set_interface_property clkMaster ENABLED false
 	set_interface_property MAC_BUF ENABLED false

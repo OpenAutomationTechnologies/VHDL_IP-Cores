@@ -7,19 +7,19 @@
 # clock definitions
 ## define the clocks in your design (depends on your PLL settings!)
 ##  (under "Compilation Report" - "TimeQuest Timing Analyzer" - "Clocks")
-set ext_clk		EXT_CLK
-set clk50 		inst|the_altpll_0|sd1|pll7|clk[0]
-set clkPcp		inst|the_altpll_0|sd1|pll7|clk[1]
-set clk25		inst|the_altpll_0|sd1|pll7|clk[2]
-set clkAp		inst|the_altpll_0|sd1|pll7|clk[3]
+set ext_clk        EXT_CLK
+set clk50         inst|the_altpll_0|sd1|pll7|clk[0]
+set clkPcp        inst|the_altpll_0|sd1|pll7|clk[1]
+set clk25        inst|the_altpll_0|sd1|pll7|clk[2]
+set clkAp        inst|the_altpll_0|sd1|pll7|clk[3]
 
-set p0TxClk		PHY0_TXCLK
-set p0RxClk		PHY0_RXCLK
-set p1TxClk		PHY1_TXCLK
-set p1RxClk		PHY1_RXCLK
+set p0TxClk        PHY0_TXCLK
+set p0RxClk        PHY0_RXCLK
+set p1TxClk        PHY1_TXCLK
+set p1RxClk        PHY1_RXCLK
 
 ## define which clock drives SRAM controller
-set clkSRAM		$clkPcp
+set clkSRAM        $clkPcp
 # ----------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------
@@ -56,22 +56,22 @@ set_false_path -from [get_ports RESET_n] -to [get_registers *]
 # sram (IS61WV102416BLL-10TLI)
 ## SRAM is driven by 100 MHz fsm.
 ## Note: The SOPC inserts 2 write and 2 read cycles, thus, the SRAM "sees" 50 MHz!
-set sram_clk		50.0
-set sram_tper		[expr 1000.0 / $sram_clk]
+set sram_clk        50.0
+set sram_tper        [expr 1000.0 / $sram_clk]
 ## delay Address Access Time (tAA) = 10.0 ns
-set sram_ddel		10.0
+set sram_ddel        10.0
 ## pcb delay
-set sram_tpcb		0.1
+set sram_tpcb        0.1
 ## fpga settings...
-set sram_tco		5.5
-set sram_tsu		[expr $sram_tper - $sram_ddel - $sram_tco - 2*$sram_tpcb]
-set sram_th			0.0
-set sram_tcom		0.0
+set sram_tco        5.5
+set sram_tsu        [expr $sram_tper - $sram_ddel - $sram_tco - 2*$sram_tpcb]
+set sram_th            0.0
+set sram_tcom        0.0
 
-set sram_in_max	[expr $sram_tper - $sram_tsu]
-set sram_in_min	$sram_th
-set sram_out_max	[expr $sram_tper - $sram_tco]
-set sram_out_min	$sram_tcom
+set sram_in_max    [expr $sram_tper - $sram_tsu]
+set sram_in_min    $sram_th
+set sram_out_max    [expr $sram_tper - $sram_tco]
+set sram_out_min    $sram_tcom
 
 ## TSU / TH
 set_input_delay -clock CLKSRAM_virt -max $sram_in_max [get_ports SRAM_DQ[*]]
@@ -108,18 +108,18 @@ set_multicycle_path -from [get_clocks CLKSRAM_virt] -to [get_clocks $clkSRAM] -h
 # ----------------------------------------------------------------------------------
 # MII
 # phy = MARVELL 88E1111
-set phy_tper		40.0
-set phy_tout2clk	10.0
-set phy_tclk2out	10.0
-set phy_tsu			10.0
-set phy_th			0.0
+set phy_tper        40.0
+set phy_tout2clk    10.0
+set phy_tclk2out    10.0
+set phy_tsu            10.0
+set phy_th            0.0
 # pcb delay
-set phy_tpcb		0.1
+set phy_tpcb        0.1
 
-set phy_in_max		[expr $phy_tper - ($phy_tout2clk - $phy_tpcb)]
-set phy_in_min		[expr $phy_tclk2out - $phy_tpcb]
-set phy_out_max	[expr $phy_tsu + $phy_tpcb]
-set phy_out_min	[expr $phy_tclk2out - $phy_tpcb]
+set phy_in_max        [expr $phy_tper - ($phy_tout2clk - $phy_tpcb)]
+set phy_in_min        [expr $phy_tclk2out - $phy_tpcb]
+set phy_out_max    [expr $phy_tsu + $phy_tpcb]
+set phy_out_min    [expr $phy_tclk2out - $phy_tpcb]
 
 ##PHY0
 ## real clock
@@ -166,15 +166,15 @@ set_false_path -from [get_ports PHY1_LINK] -to [get_registers *]
 
 # ----------------------------------------------------------------------------------
 # Set clock groups (cut paths)
-set_clock_groups -asynchronous 	-group $clk50 \
-											-group [format "%s %s" $clkPcp CLKSRAM_virt] \
-											-group $clkAp \
-											-group $clk25 \
-											-group [format "%s %s" phy0_rxclk phy0_vrxclk] \
-											-group [format "%s %s" phy0_txclk phy0_vtxclk] \
-											-group [format "%s %s" phy1_rxclk phy1_vrxclk] \
-											-group [format "%s %s" phy1_txclk phy1_vtxclk] \
-											-group $ext_clk
+set_clock_groups -asynchronous     -group $clk50 \
+                                            -group [format "%s %s" $clkPcp CLKSRAM_virt] \
+                                            -group $clkAp \
+                                            -group $clk25 \
+                                            -group [format "%s %s" phy0_rxclk phy0_vrxclk] \
+                                            -group [format "%s %s" phy0_txclk phy0_vtxclk] \
+                                            -group [format "%s %s" phy1_rxclk phy1_vrxclk] \
+                                            -group [format "%s %s" phy1_txclk phy1_vtxclk] \
+                                            -group $ext_clk
 # ----------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------
@@ -197,16 +197,16 @@ set_false_path -from [get_ports EPCS_DATA0] -to [get_registers *]
 # PDI async parallel interface (8/16bit)
 ## PDI interface timing constraints
 ### write pulse width
-set pdi_tpwr		20.0
+set pdi_tpwr        20.0
 ### hold address valid (time to next rising edge of write signal)
-set pdi_tha			40.0
+set pdi_tha            40.0
 ### data setup/hold time
-set pdi_tsd			5.0
-set pdi_thd			2.0
+set pdi_tsd            5.0
+set pdi_thd            2.0
 
 ## create parallel port write strobe as clock
 ### define period to "worst case" (=one writes subsequently patterns to FPGA)
-set pdi_tperwr		[expr $pdi_tpwr + $pdi_tha]
+set pdi_tperwr        [expr $pdi_tpwr + $pdi_tha]
 
 #############################################################
 # uncomment following lines if PDI_WR is used
@@ -238,8 +238,8 @@ set_input_delay -clock WRITE_EDGE_virt -min $pdi_thd [get_ports {PDI_DATA[*]}] -
 
 ### input delay for others
 #### set input delay
-set pdi_max_in		15.0
-set pdi_min_in		0.0
+set pdi_max_in        15.0
+set pdi_min_in        0.0
 ####
 set_input_delay -clock CLK50_virt -max $pdi_max_in [get_ports {PDI_ADDR[*]}]
 set_input_delay -clock CLK50_virt -min $pdi_min_in [get_ports {PDI_ADDR[*]}]
@@ -258,8 +258,8 @@ set_input_delay -clock CLK50_virt -min $pdi_min_in [get_ports {PDI_WR*}]
 
 ## clock-2-output requirements
 ### set output delay
-set pdi_max_out 	5.0
-set pdi_min_out 	0.0
+set pdi_max_out     5.0
+set pdi_min_out     0.0
 
 set_output_delay -clock CLK50_virt -max $pdi_max_out [get_ports {PDI_DATA[*]}]
 set_output_delay -clock CLK50_virt -min $pdi_min_out [get_ports {PDI_DATA[*]}]

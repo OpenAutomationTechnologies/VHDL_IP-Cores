@@ -90,39 +90,39 @@ architecture bhv of busMaster is
             when others => tmp := "XXXX";
         end case;
         return tmp;
-    end char_to_nib;    
-    
+    end char_to_nib;
+
     file stimulifile : text open read_mode is gStimuliFile;
-    
+
     type tFsm is (idle, write, read, jmpEq, jmpEq_wait);
     signal fsm : tFsm;
-    
+
     signal clk : std_logic;
     signal rst : std_logic;
     signal enable : std_logic;
-    
+
     signal stimAddress : std_logic_vector(31 downto 0);
     signal stimData : std_logic_vector(31 downto 0);
     signal stimAccess : character;
     signal byteenable : std_logic_vector(3 downto 0);
 begin
-    
+
     clk <= iClk;
     rst <= iRst;
     enable <= iEnable;
-    
+
     oAddress <= stimAddress(oAddress'range) when fsm = write or fsm = read or fsm = jmpEq else (others => 'X');
     oWritedata <=   (others => 'X') when fsm /= write else
                     stimData(stimData'left downto stimData'left-(gDataWidth-1));
-    
+
     oWrite <= cActivated when fsm = write else cInactivated;
     oRead <= cActivated when fsm = read or fsm = jmpEq else cInactivated;
     oSelect <= cActivated when fsm = write or fsm = read or fsm = jmpEq else cInactivated;
-    
+
     oByteenable <=  byteenable when gDataWidth = 32 else
                     byteenable(3 downto 2) or byteenable(1 downto 0) when gDataWidth = 16 else
                     (others => '-');
-    
+
     byteenable <=   "1111" when stimAccess = 'd' else
                     "0011" when stimAccess = 'w' and stimAddress(1) = '0' else
                     "1100" when stimAccess = 'w' and stimAddress(1) = '1' else
@@ -131,7 +131,7 @@ begin
                     "0100" when stimAccess = 'b' and stimAddress(1 downto 0) = "10" else
                     "1000" when stimAccess = 'b' and stimAddress(1 downto 0) = "11" else
                     "----";
-    
+
     readFile : process(clk, rst)
         variable vLine : line;
         variable vReadString : string(1 to 50);
@@ -156,11 +156,11 @@ begin
                             exit when vReadString(1) /= ' '; --empty line
                             exit when endfile(stimulifile);
                         end loop;
-                        
+
                         if vReadString(1 to 4) = "HALT" then
                             vDone := true;
                         else
-                            
+
                             case vReadString(1 to 2) is
                                 when "WR" =>
                                     fsm <= write;
@@ -172,19 +172,19 @@ begin
                                     fsm <= idle;
                                 when others =>
                             end case;
-                            
+
                             stimAccess <= vReadString(3);
-                            
+
                             for i in 0 to 7 loop
                                 stimAddress((8-i)*4-1 downto (7-i)*4) <= char_to_nib(vReadString(i+5));
                             end loop;
-                            
+
                             for i in 0 to 7 loop
                                 stimData((8-i)*4-1 downto (7-i)*4) <= char_to_nib(vReadString(i+14));
                             end loop;
-                            
+
                         end if;
-                        
+
                     else
                         oDone <= cActivated;
                     end if;
@@ -205,11 +205,11 @@ begin
                                 end if;
                             end if;
                         end loop;
-                        
+
                         if vDoJmp = cActivated then
                             fsm <= idle;
                         end if;
-                        
+
                     end if;
                 elsif fsm = jmpEq_wait then
                     fsm <= jmpEq;
@@ -217,5 +217,5 @@ begin
             end if;
         end if;
     end process;
-    
+
 end bhv;

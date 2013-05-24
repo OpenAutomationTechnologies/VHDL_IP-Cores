@@ -7,15 +7,15 @@
 # clock definitions
 ## define the clocks in your design (depends on your PLL settings!)
 ##  (under "Compilation Report" - "TimeQuest Timing Analyzer" - "Clocks")
-set ext_clk		EXT_CLK
-set clk50 		inst|the_altpll_0|sd1|pll7|clk[0]
-set clkPcp		inst|the_altpll_0|sd1|pll7|clk[1]
-set clk100		inst|the_altpll_0|sd1|pll7|clk[2]
-set clk25		inst|the_altpll_0|sd1|pll7|clk[3]
-set clkAp		inst|the_altpll_0|sd1|pll7|clk[4]
+set ext_clk        EXT_CLK
+set clk50         inst|the_altpll_0|sd1|pll7|clk[0]
+set clkPcp        inst|the_altpll_0|sd1|pll7|clk[1]
+set clk100        inst|the_altpll_0|sd1|pll7|clk[2]
+set clk25        inst|the_altpll_0|sd1|pll7|clk[3]
+set clkAp        inst|the_altpll_0|sd1|pll7|clk[4]
 
 ## define which clock drives SRAM controller
-set clkSRAM		$clkPcp
+set clkSRAM        $clkPcp
 # ----------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------
@@ -45,15 +45,15 @@ create_generated_clock -source $clkSRAM -name CLKSRAM_virt
 
 # define clock groups
 ## clock group A includes openMAC + RMII phys
-set clkGroupA	[format "%s %s %s" $clk50 $clk100 CLK50_virt]
+set clkGroupA    [format "%s %s %s" $clk50 $clk100 CLK50_virt]
 ## clock group B includes Nios II + SRAM
-set clkGroupB	[format "%s %s" $clkPcp CLKSRAM_virt]
+set clkGroupB    [format "%s %s" $clkPcp CLKSRAM_virt]
 
-set_clock_groups -asynchronous 	-group $clkGroupA \
-											-group $clkGroupB \
-											-group $clkAp \
-											-group $clk25 \
-											-group $ext_clk
+set_clock_groups -asynchronous     -group $clkGroupA \
+                                            -group $clkGroupB \
+                                            -group $clkAp \
+                                            -group $clk25 \
+                                            -group $ext_clk
 
 # cut reset input
 set_false_path -from [get_ports RESET_n] -to [get_registers *]
@@ -63,22 +63,22 @@ set_false_path -from [get_ports RESET_n] -to [get_registers *]
 # sram (IS61WV51216BLL-10TLI)
 ## SRAM is driven by 100 MHz fsm.
 ## Note: The SOPC inserts 2 write and 2 read cycles, thus, the SRAM "sees" 50 MHz!
-set sram_clk		50.0
-set sram_tper		[expr 1000.0 / $sram_clk]
+set sram_clk        50.0
+set sram_tper        [expr 1000.0 / $sram_clk]
 ## delay Address Access Time (tAA) = 10.0 ns
-set sram_ddel		10.0
+set sram_ddel        10.0
 ## pcb delay
-set sram_tpcb		0.1
+set sram_tpcb        0.1
 ## fpga settings...
-set sram_tco		5.5
-set sram_tsu		[expr $sram_tper - $sram_ddel - $sram_tco - 2*$sram_tpcb]
-set sram_th			0.0
-set sram_tcom		0.0
+set sram_tco        5.5
+set sram_tsu        [expr $sram_tper - $sram_ddel - $sram_tco - 2*$sram_tpcb]
+set sram_th            0.0
+set sram_tcom        0.0
 
-set sram_in_max	[expr $sram_tper - $sram_tsu]
-set sram_in_min	$sram_th
-set sram_out_max	[expr $sram_tper - $sram_tco]
-set sram_out_min	$sram_tcom
+set sram_in_max    [expr $sram_tper - $sram_tsu]
+set sram_in_min    $sram_th
+set sram_out_max    [expr $sram_tper - $sram_tco]
+set sram_out_min    $sram_tcom
 
 ## TSU / TH
 set_input_delay -clock CLKSRAM_virt -max $sram_in_max [get_ports SRAM_DQ[*]]
@@ -115,17 +115,17 @@ set_multicycle_path -from [get_clocks CLKSRAM_virt] -to [get_clocks $clkSRAM] -h
 # ----------------------------------------------------------------------------------
 # RMII
 ## phy = NATIONAL DP83640
-set phy_tsu			4.0
-set phy_th			2.0
-set phy_tco			14.0
-set phy_tcomin		2.0
+set phy_tsu            4.0
+set phy_th            2.0
+set phy_tco            14.0
+set phy_tcomin        2.0
 ## pcb delay
-set phy_tpcb		0.1
+set phy_tpcb        0.1
 
-set phy_in_max		[expr $phy_tco + $phy_tpcb]
-set phy_in_min		[expr $phy_tcomin - $phy_tpcb]
-set phy_out_max	[expr $phy_tsu + $phy_tpcb]
-set phy_out_min	[expr $phy_th - $phy_tpcb]
+set phy_in_max        [expr $phy_tco + $phy_tpcb]
+set phy_in_min        [expr $phy_tcomin - $phy_tpcb]
+set phy_out_max    [expr $phy_tsu + $phy_tpcb]
+set phy_out_min    [expr $phy_th - $phy_tpcb]
 
 ## input
 set_input_delay -clock CLK50_virt -max $phy_in_max [get_ports {PHY?_RXDV PHY?_RXER PHY?_RXD[*]}]
