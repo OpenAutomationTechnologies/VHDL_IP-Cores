@@ -1,32 +1,12 @@
 #ignore dirs
-activehdl_workspace/
 release/
-active_hdl/hdl_assist
-active_hdl/log
-active_hdl/slp
-active_hdl/src/wave*
+work
 
 #ignore files
 *.asdb
+*.asdbw
 *.bak
-
-#ignore files in active_hdl
-active_hdl/*.mgf
-active_hdl/*.adf
-active_hdl/*.dat
-active_hdl/*.wsp
-active_hdl/*.set
-active_hdl/*.order
-active_hdl/*.cfg
-active_hdl/*.ini
-active_hdl/*.log
-active_hdl/*.LIB
-active_hdl/compile/*.cmd
-active_hdl/compile/*.bdeid
-active_hdl/compile/*.*~*
-active_hdl/compile/*.epr
-active_hdl/compile/*.erf
-active_hdl/compile/*.sth
-
-#ignore files in driver
-driver/.project
+*.cfg
+*.vcd
+*.wlf
+transcript
