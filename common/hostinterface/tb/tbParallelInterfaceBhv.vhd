@@ -49,12 +49,16 @@ use work.global.all;
 use work.hostInterfacePkg.all;
 
 entity tbParallelInterface is
+    generic (
+        --! Enable multiplexed addr/data bus (0 = disables)
+        gMultiplex : natural := 0
+    );
 end tbParallelInterface;
 
 architecture bhv of tbParallelInterface is
     -- DUT
     constant cDataWidth : natural := 16;
-    constant cMultiplex : natural := 1; -- 0 = FALSE
+    constant cMultiplex : natural := gMultiplex; -- 0 = FALSE
     signal parHostChipselect : std_logic;
     signal parHostRead : std_logic;
     signal parHostWrite : std_logic;
