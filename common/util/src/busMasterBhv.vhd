@@ -151,10 +151,10 @@ begin
                         loop
                             vReadString := (others => ' ');
                             readline(stimulifile, vLine);
-                            read(vLine, vReadString);
-                            exit when vReadString(1) /= '#'; --comments
-                            exit when vReadString(1) /= ' '; --empty line
-                            exit when endfile(stimulifile);
+                            read(vLine, vReadString(vLine'range));
+                            exit when ( vReadString(1) /= '#' or
+                                        vReadString(1) /= ' ' or
+                                        endfile(stimulifile));
                         end loop;
 
                         if vReadString(1 to 4) = "HALT" then
