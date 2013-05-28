@@ -42,7 +42,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_textio.all;
 
 library work;
-use global.all;
+use work.global.all;
 
 entity busMaster is
     generic (
