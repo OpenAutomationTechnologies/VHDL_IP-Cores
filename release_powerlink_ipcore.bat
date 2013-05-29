@@ -34,6 +34,7 @@ copy doc\02_POWERLINK-IP-Core_Generic.pdf           release\doc
 copy doc\03_OpenMAC.pdf                             release\doc
 
 :: copy Altera POWERLINK
+copy common\powerlink\revision.txt                  release\common\powerlink
 copy altera\components\doc\index.pdf                release\altera\components\doc
 copy altera\components\img\*.*                      release\altera\components\img
 copy altera\components\powerlink_hw.tcl             release\altera\components
@@ -77,6 +78,7 @@ copy common\lib\src\memMap.vhd                      release\common\lib\src
 copy common\lib\src\global.vhd                      release\common\lib\src
 
 :: copy Xilinx AXI POWERLINK
+copy common\powerlink\revision.txt                  release\common\powerlink
 copy common\lib\src\addr_decoder.vhd                release\common\lib\src
 copy common\lib\src\edgedet.vhd                     release\common\lib\src
 copy common\lib\src\memMap.vhd                      release\common\lib\src
@@ -128,6 +130,7 @@ copy xilinx\library\pcores\axi_powerlink_vX_YY_Z\doc\index.pdf                  
 copy xilinx\library\pcores\axi_powerlink_vX_YY_Z\hdl\vhdl\axi_powerlink.vhd        release\xilinx\library\pcores\%DIR_AXI_POWERLINK%\hdl\vhdl
 
 :: copy Xilinx PLB POWERLINK
+copy common\powerlink\revision.txt                  release\common\powerlink
 copy common\lib\src\addr_decoder.vhd                release\common\lib\src
 copy common\lib\src\edgedet.vhd                     release\common\lib\src
 copy common\lib\src\memMap.vhd                      release\common\lib\src
