@@ -78,3 +78,12 @@ Revision History
                         [FIX] Increase number of Rx buffers, Change description
                         [FIX] Forward Xilinx FPGA family downto HDL
                         [FIX] timing issue with MII phy interface
+
+07.06.2013  V0.3.0      [TASK] X: Add clock-x-ing to AXI_POWERLINK MAC_REG
+                        [FIX] SPI frame counter reset done with inactive select signal
+                        [TASK] Revise repo directory structure
+                        [TASK] Enable POWERLINK IP-Core to work with SOPC and QSYS
+                        [FIX] X: openMAC DMA fifo component declaration
+                        [TASK] Source file cleanup
+                        [FEATURE] Implement Rx queue GUI options
+                        [FEATURE] Add Rx buffers for MAsnd
