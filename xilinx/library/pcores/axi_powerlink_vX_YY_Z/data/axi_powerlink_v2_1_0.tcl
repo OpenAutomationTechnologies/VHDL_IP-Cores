@@ -746,11 +746,11 @@ proc calc_mac_packet_size_log2 { param_handle } {
     if { $pack_loc == 0 } {
         #TX and RX into DPRAM
         set macBufSize [expr $txBufSize + $rxBufSize]
-        set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
+        set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2)))]
     } elseif {$pack_loc == 1} {
         #TX into DPRAM and RX over axi
         set macBufSize $txBufSize
-        set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2.)))]
+        set log2MacBufSize [expr int(ceil(log($macBufSize) / log(2)))]
     } elseif {$pack_loc == 2} {
         #TX and RX over axi
         set log2MacBufSize 3
