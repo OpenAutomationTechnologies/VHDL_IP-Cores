@@ -6,7 +6,7 @@
 --! @details This generic binary encoder can be configured to any width,
 --! however, mind base 2 values. In order to reduce the complexity of the
 --! synthesized circuit the reduced or-operation is applied.
---! (Borrowed from academic.csuohio.edu/chu_p and applied coding styles)
+-- (Borrowed from academic.csuohio.edu/chu_p and applied coding styles)
 -------------------------------------------------------------------------------
 --
 --    (c) B&R, 2012
@@ -49,19 +49,20 @@ use work.global.all;
 
 entity binaryEncoder is
     generic (
+        --! One-hot data width
         gDataWidth : natural := 8
-        );
+    );
     port (
+        --! One hot code input
         iOneHot : in std_logic_vector(gDataWidth-1 downto 0);
+        --! Binary encoded output
         oBinary : out std_logic_vector(LogDualis(gDataWidth)-1 downto 0)
-        );
+    );
 end binaryEncoder;
 
-architecture Rtl of binaryEncoder is
-
-    type tMaskArray is
-    array(LogDualis(gDataWidth)-1 downto 0) of
-    std_logic_vector(gDataWidth-1 downto 0);
+architecture rtl of binaryEncoder is
+    type tMaskArray is array(LogDualis(gDataWidth)-1 downto 0) of
+        std_logic_vector(gDataWidth-1 downto 0);
 
     signal mask : tMaskArray;
 
@@ -79,12 +80,13 @@ architecture Rtl of binaryEncoder is
         end loop;
         return vOrMask;
     end function;
-
 begin
-
     mask <= genOrMask;
 
-    process(mask, iOneHot)
+    process (
+        mask,
+        iOneHot
+    )
         variable rowVector : std_logic_vector(gDataWidth-1 downto 0);
         variable tempBit : std_logic;
     begin
@@ -99,4 +101,4 @@ begin
         end loop;
     end process;
 
-end Rtl;
+end rtl;
