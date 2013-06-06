@@ -1,0 +1,130 @@
+-------------------------------------------------------------------------------
+--! @file tripleBufRtl.vhd
+--
+--! @brief Triple Buffer Logic
+--
+--! @details This instance implements a triple buffer arbitration logic.
+--! The instance is connected to the producing and consuming devices, which
+--! trigger a buffer change.
+-------------------------------------------------------------------------------
+--
+--    (c) B&R, 2013
+--
+--    Redistribution and use in source and binary forms, with or without
+--    modification, are permitted provided that the following conditions
+--    are met:
+--
+--    1. Redistributions of source code must retain the above copyright
+--       notice, this list of conditions and the following disclaimer.
+--
+--    2. Redistributions in binary form must reproduce the above copyright
+--       notice, this list of conditions and the following disclaimer in the
+--       documentation and/or other materials provided with the distribution.
+--
+--    3. Neither the name of B&R nor the names of its
+--       contributors may be used to endorse or promote products derived
+--       from this software without prior written permission. For written
+--       permission, please contact office@br-automation.com
+--
+--    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+--    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+--    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+--    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+--    COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+--    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+--    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+--    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+--    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+--    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+--    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+--    POSSIBILITY OF SUCH DAMAGE.
+--
+-------------------------------------------------------------------------------
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.global.all;
+
+entity tripleBuf is
+    port (
+        --! Global reset signal
+        iRst : in std_logic;
+        --! Global clock, producer and consumer must be synchronous
+        iClk : in std_logic;
+        --! Producer trigger
+        iPro_trig : in std_logic;
+        --! Producer buffer select
+        oPro_sel : out std_logic_vector(1 downto 0);
+        --! Consumer trigger
+        iCon_trig : in std_logic;
+        --! Consumer buffer select
+        oCon_sel : out std_logic_vector(1 downto 0)
+    );
+end tripleBuf;
+
+architecture rtl of tripleBuf is
+    --! triple buffer select typ
+    subtype tTriBuf is std_logic_vector(1 downto 0);
+
+    --! consumer initialisation (must not be zero or equal to producer's!)
+    constant cTriBuf_con : tTriBuf := "01";
+    --! producer initialisation (must not be zero or equal to consumer's!)
+    constant cTriBuf_pro : tTriBuf := "10";
+
+    -- register type
+    type tReg is record
+        pro : tTriBuf;
+        con : tTriBuf;
+    end record;
+
+    -- regsiter initialisation
+    constant cRegInit : tReg := (
+        cTriBuf_pro,
+        cTriBuf_con
+    );
+
+    -- registers
+    signal reg : tReg;
+    -- registers next
+    signal reg_next : tReg;
+begin
+    -- output select
+    oCon_sel <= reg.con;
+    oPro_sel <= reg.pro;
+
+    regProc : process(iRst, iClk)
+    begin
+        if iRst = cActivated then
+            reg <= cRegInit;
+        elsif rising_edge(iClk) then
+            reg <= reg_next;
+        end if;
+    end process;
+
+    comProc : process (
+        iPro_trig,
+        iCon_trig,
+        reg
+    )
+        variable vFreeBuf : tTriBuf;
+    begin
+        --default
+        reg_next <= reg;
+
+        -- calculate free buffer
+        vFreeBuf := reg.con xor reg.pro;
+
+        -- handle special case -> both instances request buffer change
+        if iPro_trig = cActivated and iCon_trig = cActivated then
+            -- assign latest buffer to consumer, since producer gets free buffer
+            reg_next.con <= reg.pro;
+        end if;
+
+        if iPro_trig = cActivated then
+            reg_next.pro <= vFreeBuf;
+        elsif iCon_trig = cActivated then
+            reg_next.con <= vFreeBuf;
+        end if;
+    end process;
+end rtl;
