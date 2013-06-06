@@ -1,5 +1,6 @@
 #ignore dirs
 release/
+results/
 work
 
 #ignore files
