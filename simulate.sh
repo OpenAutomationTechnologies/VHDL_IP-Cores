@@ -18,9 +18,6 @@ do
     #change to directory of current tb*.sh
     pushd `dirname $TBSH`
 
-    echo
-    echo "Simulate" `basename $TBSH .sh`
-
     #run sh
     chmod +x ./`basename $TBSH .sh`.sh
     ./`basename $TBSH .sh`.sh
@@ -31,11 +28,8 @@ do
     popd
 
     #copy work to results
-    mkdir ./results/`basename $TBSH .sh` -p
-    cp `dirname $TBSH`/work ./results/`basename $TBSH .sh`/work -r
-    #copy waves to results and convert to vcd
-    cp `dirname $TBSH`/*.wlf ./results/`basename $TBSH .sh` -r
-    wlf2vcd `dirname $TBSH`/*.wlf -o ./results/`basename $TBSH .sh`/wave.vcd
+    mkdir results -p
+    cp `dirname $TBSH`/_out_* ./results -ru
 
     #check return
     if [ $RET -ne 0 ]; then

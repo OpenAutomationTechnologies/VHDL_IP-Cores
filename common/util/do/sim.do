@@ -7,9 +7,7 @@ onbreak {
 }
 run -all
 if { $broken } {
-    puts "failure"
     quit -code 1
 } else {
-    puts "success"
     quit -code 0
 }

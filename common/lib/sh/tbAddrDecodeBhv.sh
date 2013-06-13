@@ -1,8 +1,5 @@
 #!/bin/bash
 #
-echo
-echo "---tbAddrDecode---"
-
 ROOT=../../..
 
 SRC_LIST="common/lib/src/global.vhd \
@@ -14,6 +11,11 @@ common/lib/tb/tbAddrDecodeBhv.vhd"
 TOP_LEVEL=tbAddrDecode
 
 chmod +x $ROOT/common/util/sh/msim-sim.sh
-exec "$ROOT/common/util/sh/msim-sim.sh" $TOP_LEVEL $SRC_LIST
+./$ROOT/common/util/sh/msim-sim.sh $TOP_LEVEL -s $SRC_LIST
 
-exit $ret
+if test $? -ne 0
+then
+    exit 1
+fi
+
+exit 0
