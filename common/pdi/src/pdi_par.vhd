@@ -333,7 +333,7 @@ begin
                 clk => ap_clk,
                 rst => ap_reset
             );
-        pap_wr_s <= pap_wr_tmp;
+        pap_wr_s <= pap_wr_tmp and pap_cs_tmp;
 
     end block;
     --
