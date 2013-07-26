@@ -98,9 +98,7 @@ entity spiBridge is
         --! Bus read data
         iBusReaddata    : in std_logic_vector(gBusDataWidth-1 downto 0);
         --! Bus waitrequest
-        iBusWaitrequest : in std_logic;
-        --! Synchronous protocol reset
-        iSrst           : in std_logic
+        iBusWaitrequest : in std_logic
     );
 end spiBridge;
 
@@ -119,8 +117,10 @@ architecture rtl of spiBridge is
     --! Valid data provided by spi core
     signal validData    : std_logic_vector(gRegisterSize-1 downto 0);
 
-    --! Rising edge of synchronous protocol reset
-    signal srst_rising : std_logic;
+    --! Synchronized inSpiSel
+    signal nSpiSel_sync     : std_logic;
+    --! Falling edge of inSpiSel
+    signal spiSel_falling   : std_logic;
 begin
     theProtCore : entity work.protStream
         generic map (
@@ -136,7 +136,7 @@ begin
         port map (
             iArst               => iArst,
             iClk                => iClk,
-            iSrst               => srst_rising,
+            iSrst               => spiSel_falling,
             oStreamLoad         => load,
             oStreamLoadData     => loadData,
             iStreamValid        => valid,
@@ -171,14 +171,32 @@ begin
             oValid      => valid
         );
 
-    theSyncEdgeDet : entity work.edgedetector
+    --! The synchronizer moves the spi sel into the iClk domain.
+    --! The reg intialization can be inactivated, since only the falling edge
+    --! is detected by theSpiSelEdgeDet.
+    theSpiSelSync : entity work.synchronizer
+        generic map (
+            gStages => 2,
+            gInit   => cInactivated
+        )
+        port map (
+            iArst   => iArst,
+            iClk    => iClk,
+            iAsync  => inSpiSel,
+            oSync   => nSpiSel_sync
+        );
+
+    --! Detect the falling edge of the synchronized spi sel signal.
+    --! The input signal is initialized to '0', however, only the falling edge
+    --! is detected.
+    theSpiSelEdgeDet : entity work.edgedetector
         port map (
             iArst       => iArst,
             iClk        => iClk,
             iEnable     => cActivated,
-            iData       => iSrst,
-            oRising     => srst_rising,
-            oFalling    => open,
+            iData       => nSpiSel_sync,
+            oRising     => open,
+            oFalling    => spiSel_falling,
             oAny        => open
         );
 end rtl;

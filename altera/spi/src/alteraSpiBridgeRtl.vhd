@@ -98,9 +98,7 @@ entity alteraSpiBridge is
         --! Avalon-MM master bridge readdata
         avm_bridge_readdata : in std_logic_vector(gBusDataWidth-1 downto 0);
         --! Avalon-MM master bridge waitrequest
-        avm_bridge_waitrequest : in std_logic;
-        --! Sync irq
-        coe_sync_irq : in std_logic
+        avm_bridge_waitrequest : in std_logic
     );
 end alteraSpiBridge;
 
@@ -136,8 +134,7 @@ begin
             oBusWritedata   => avm_bridge_writedata,
             oBusRead        => avm_bridge_read,
             iBusReaddata    => avm_bridge_readdata,
-            iBusWaitrequest => avm_bridge_waitrequest,
-            iSrst           => coe_sync_irq
+            iBusWaitrequest => avm_bridge_waitrequest
         );
 
     -- miso output driver

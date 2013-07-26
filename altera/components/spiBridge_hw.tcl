@@ -299,9 +299,3 @@ add_interface_port bridge avm_bridge_writedata writedata Output gbusdatawidth
 add_interface_port bridge avm_bridge_read read Output 1
 add_interface_port bridge avm_bridge_readdata readdata Input gbusdatawidth
 add_interface_port bridge avm_bridge_waitrequest waitrequest Input 1
-
-# connection point sync
-add_interface sync conduit end
-set_interface_property sync ENABLED true
-
-add_interface_port sync coe_sync_irq export Input 1
