@@ -494,17 +494,29 @@ gnTxTime:    IF NOT Timer GENERATE
                   Tx_Dma_Out & Tx_Sync & "00" & "0100" & "00" & "0" & "0" & Col_Cnt;
 END GENERATE;
 
-
-RamH:    ENTITY    work.Dpr_16_16
-    GENERIC MAP(Simulate => Simulate)
-    PORT MAP (    CLKA    => Clk,                    CLKB    => Clk,
-                EnA        => cActivated,            Enb        => cActivated,
-                BEA        => Ram_Be,
-                WEA        => Ram_Wr,                WEB        => Desc_We,
-                ADDRA    => s_Adr(8 DOWNTO 1),    ADDRB    => Desc_Addr,
-                  DIA        => s_Din,                DIB        => DescRam_In,
-                DOA        => Tx_Ram_Dat,            DOB        => DescRam_Out
-            );
+    --! This DPRAM holds the Tx descriptor accessible by the host and the DMA.
+    TXRAM : entity work.dpRam
+        generic map (
+            gWordWidth      => s_Din'length,
+            gNumberOfWords  => 256,
+            gInitFile       => "UNUSED"
+        )
+        port map (
+            iClk_A          => Clk,
+            iEnable_A       => cActivated,
+            iWriteEnable_A  => Ram_Wr,
+            iAddress_A      => s_Adr(8 downto 1),
+            iByteenable_A   => Ram_Be,
+            iWritedata_A    => s_Din,
+            oReaddata_A     => Tx_Ram_Dat,
+            iClk_B          => Clk,
+            iEnable_B       => cActivated,
+            iWriteEnable_B  => Desc_We,
+            iByteenable_B   => (others => cActivated),
+            iAddress_B      => Desc_Addr,
+            iWritedata_B    => DescRam_In,
+            oReaddata_B     => DescRam_Out
+        );
 
     ASSERT NOT( TxSyncOn AND NOT Timer )
         REPORT "TxSyncOn needs Timer!"
@@ -1041,17 +1053,29 @@ ngRxTime:    IF NOT timer GENERATE
                   Rx_Dma_Out & '0' & "0" & A_Err & Hub_Rx_L & "00" & Match_Desc & N_Err & P_Err & Rx_Ovr & F_Err;
 END GENERATE;
 
-RxRam:    ENTITY    work.Dpr_16_16
-    GENERIC MAP(Simulate => Simulate)
-    PORT MAP (    CLKA    => Clk,                    CLKB    => Clk,
-                EnA        => cActivated,            Enb        => cActivated,
-                BEA        => Ram_Be,
-                WEA        => Ram_Wr,                WEB        => Desc_We,
-                ADDRA    => s_Adr(8 DOWNTO 1),    ADDRB    => Desc_Addr,
-                  DIA        => s_Din,                DIB        => DescRam_In,
-                DOA        => Rx_Ram_Dat,            DOB        => DescRam_Out
-            );
-
+    --! This DPRAM holds the Rx descriptor accessible by the host and the DMA.
+    RXRAM : entity work.dpRam
+        generic map (
+            gWordWidth      => s_Din'length,
+            gNumberOfWords  => 256,
+            gInitFile       => "UNUSED"
+        )
+        port map (
+            iClk_A          => Clk,
+            iEnable_A       => cActivated,
+            iWriteEnable_A  => Ram_Wr,
+            iAddress_A      => s_Adr(8 downto 1),
+            iByteenable_A   => Ram_Be,
+            iWritedata_A    => s_Din,
+            oReaddata_A     => Rx_Ram_Dat,
+            iClk_B          => Clk,
+            iEnable_B       => cActivated,
+            iWriteEnable_B  => Desc_We,
+            iByteenable_B   => (others => cActivated),
+            iAddress_B      => Desc_Addr,
+            iWritedata_B    => DescRam_In,
+            oReaddata_B     => DescRam_Out
+        );
 
 pRxSm: PROCESS( Dsm,
                 Rx_Beg, Rx_On, RX_OWN, F_End, F_Err, Diag, Rx_Count )
@@ -1206,25 +1230,51 @@ BEGIN
 
     Filter_Addr <= Dibl_Cnt & Byte_Cnt;
 
-FiltRamH:    ENTITY    work.Dpr_16_32
-    GENERIC MAP(Simulate => Simulate)
-    PORT MAP (    CLKA    => Clk,            CLKB    => Clk,
-                EnA        => cActivated,    EnB        => cActivated,
-                BEA        => Ram_BeH,
-                WEA        => Ram_Wr,
-                ADDRA    => Ram_Addr,    ADDRB    => Filter_Addr,
-                  DIA        => s_Din,        DOB        => Filter_Out_H
-                );
+    --! This simplex DPRAM holds the higher dword for the Rx packet filters.
+    FILTERRAMHIGH : entity work.dpRamSplx
+        generic map (
+            gWordWidthA         => s_Din'length,
+            gByteenableWidthA   => Ram_BeH'length,
+            gNumberOfWordsA     => 256,
+            gWordWidthB         => Filter_Out_H'length,
+            gNumberOfWordsB     => 128,
+            gInitFile           => "UNUSED"
+        )
+        port map (
+            iClk_A          => Clk,
+            iEnable_A       => cActivated,
+            iWriteEnable_A  => Ram_Wr,
+            iAddress_A      => Ram_Addr,
+            iByteenable_A   => Ram_BeH,
+            iWritedata_A    => s_Din,
+            iClk_B          => Clk,
+            iEnable_B       => cActivated,
+            iAddress_B      => Filter_Addr,
+            oReaddata_B     => Filter_Out_H
+        );
 
-FiltRamL:    ENTITY    work.Dpr_16_32
-    GENERIC MAP(Simulate => Simulate)
-    PORT MAP (    CLKA    => Clk,            CLKB    => Clk,
-                EnA        => cActivated,    EnB        => cActivated,
-                BEA        => Ram_BeL,
-                WEA        => Ram_Wr,
-                ADDRA    => Ram_Addr,    ADDRB    => Filter_Addr,
-                DIA        => s_Din,        DOB        => Filter_Out_L
-            );
+    --! This simplex DPRAM holds the lower dword for the Rx packet filters.
+    FILTERRAMLOW : entity work.dpRamSplx
+        generic map (
+            gWordWidthA         => s_Din'length,
+            gByteenableWidthA   => Ram_BeL'length,
+            gNumberOfWordsA     => 256,
+            gWordWidthB         => Filter_Out_H'length,
+            gNumberOfWordsB     => 128,
+            gInitFile           => "UNUSED"
+        )
+        port map (
+            iClk_A          => Clk,
+            iEnable_A       => cActivated,
+            iWriteEnable_A  => Ram_Wr,
+            iAddress_A      => Ram_Addr,
+            iByteenable_A   => Ram_BeL,
+            iWritedata_A    => s_Din,
+            iClk_B          => Clk,
+            iEnable_B       => cActivated,
+            iAddress_B      => Filter_Addr,
+            oReaddata_B     => Filter_Out_L
+        );
 
     Erg0 <= (Rx_Buf XOR Filter_Out_H( 7 DOWNTO  0)) AND Filter_Out_H(15 DOWNTO  8);
      Erg1 <= (Rx_Buf XOR Filter_Out_H(23 DOWNTO 16)) AND Filter_Out_H(31 DOWNTO 24);

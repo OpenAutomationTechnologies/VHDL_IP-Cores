@@ -1,0 +1,93 @@
+# This stimuli file tests the openMAC register memory space.
+# MAC content:  0x0000 - 0x3FFF
+# MAC filter:   0x0800 - 0x0BFF
+# MAC ram:      0x0800 - 0x0FFF
+# SMI:          0x1000 - 0x100F
+# IRQ table:    0x1010 - 0x101F
+# DMA error:    0x1020 - 0x102F
+
+################################################################################
+# 1. TEST PHY MANAGEMENT
+# 1.1 Phy reset
+# 1.1.1 Read initial phy reset
+# 1.1.2 Deactivate phy reset
+# 1.1.3 Read changed phy reset again
+# 1.2 SMI Tx
+# 1.2.1 Read tx/rx buffer
+# 1.2.2 Write tx buffer
+# 1.2.3 Start tx transfer
+# 1.2.4 Wait for transfer done
+# 1.3 SMI Rx
+# 1.3.1 Start read transfer
+# 1.3.2 Wait for transfer done
+# 1.3.3 Read received data (pull-up used in tb)
+################################################################################
+# 1.1.1 Read initial phy reset
+ASS w 00001004 0000
+# 1.1.2 Deactivate phy reset
+WR w 00001004 0080
+# 1.1.3 Read changed phy reset again
+ASS w 00001004 0080
+
+# 1.2.1 Read tx buffer
+ASS w 00001002 ABCD
+# 1.2.2 Write tx buffer
+WR w 00001002 1234
+# 1.2.3 Start tx transfer
+WR w 00001000 5002
+# 1.2.4 Wait for transfer done
+WAIT w 00001000 0080
+
+# 1.3.1 Start read transfer
+WR w 00001000 6000
+# 1.3.2 Wait for transfer done
+WAIT w 00001000 0080
+# 1.3.3 Read received data (pull-up used in tb)
+ASS w 00001002 FFFF
+
+################################################################################
+# 2. TEST MAC
+# 2.1 Manual transmission
+# 2.1.1 Set Tx descriptor 0: Packet size 62 byte
+# 2.1.2 Set Tx descriptor 0: Pointer 00000824
+# 2.1.3 Set Tx descriptor 0: Owner is MAC and no retry
+# 2.1.4 Check tx descriptor again
+# 2.1.5 Set MAC control: Irq enable, half duplex and run Tx0
+# 2.1.6 Wait for Transmission complete
+# 2.1.7 Check pending irq
+# 2.1.8 Ack pending irq
+# 2.1.9 Check pending irq again
+# 2.1.10 Stop MAC
+# 2.1.11 Check stopped MAC
+################################################################################
+# 2.1.1 Set Tx descriptor 0: Packet size 62 byte
+WR w 00000D02 003E
+# 2.1.2 Set Tx descriptor 0: Pointer 12340200
+WR w 00000D04 0300
+WR w 00000D06 1234
+# 2.1.3 Set Tx descriptor 0: Owner is MAC, last descriptor and no retry
+WR w 00000D00 0301
+# 2.1.4 Check tx descriptor again
+ASS w 00000D02 003E
+ASS w 00000D04 0300
+ASS w 00000D06 1234
+ASS w 00000D00 0301
+# 2.1.5 Set MAC control: Irq enable, half duplex and run Tx0
+WR w 00000002 A080
+# 2.1.6 Wait for Transmission complete
+WAIT w 00000D00 0400
+# 2.1.7 Check pending irq
+JEQ w 00000000 A1A0 2
+ERR
+# 2.1.8 Ack pending irq
+WR w 00000004 0100
+# 2.1.9 Check pending irq again
+JEQ w 00000000 A0A0 2
+ERR
+# 2.1.10 Stop MAC
+WR w 00000004 A080
+# 2.1.11 Check stopped MAC
+JEQ w 00000000 0020 2
+ERR
+
+FIN

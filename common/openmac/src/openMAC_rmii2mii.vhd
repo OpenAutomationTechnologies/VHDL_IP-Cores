@@ -139,29 +139,28 @@ begin
             end if;
         end process;
 
-        --abuse openMAC's DMA FIFO
-        theRMII2MII_TXFifo : entity work.openMAC_DMAfifo
+        --! This is the asynchronous FIFO used to decouple RMII from MII.
+        TXFIFO : entity work.asyncFifo
             generic map (
-                fifo_data_width_g => NIBBLE_SIZE,
-                fifo_word_size_g => 2**FIFO_NIBBLES_LOG2,
-                fifo_word_size_log2_g => FIFO_NIBBLES_LOG2
+                gDataWidth  => NIBBLE_SIZE,
+                gWordSize   => 2**FIFO_NIBBLES_LOG2,
+                gSyncStages => 2,
+                gMemRes     => "ON"
             )
             port map (
-                aclr        => aclr,
-                rd_clk        => mTxClk,
-                wr_clk        => clk50,
-                --read port
-                rd_req        => fifo_rd,
-                rd_data        => fifo_dout,
-                rd_empty    => fifo_empty,
-                rd_full        => open,
-                rd_usedw    => fifo_rdUsedWord,
-                --write port
-                wr_req        => fifo_wr,
-                wr_data        => fifo_din,
-                wr_empty    => fifo_wrempty,
-                wr_full        => fifo_full,
-                wr_usedw    => fifo_wrUsedWord
+                iAclr       => aclr,
+                iWrClk      => clk50,
+                iWrReq      => fifo_wr,
+                iWrData     => fifo_din,
+                oWrEmpty    => fifo_wrempty,
+                oWrFull     => fifo_full,
+                oWrUsedw    => fifo_wrUsedWord,
+                iRdClk      => mTxClk,
+                iRdReq      => fifo_rd,
+                oRdData     => fifo_dout,
+                oRdEmpty    => fifo_empty,
+                oRdFull     => open,
+                oRdUsedw    => fifo_rdUsedWord
             );
 
         --sync Mii Tx En (=fifo_valid) to wr clk
@@ -254,31 +253,28 @@ begin
             end if;
         end process;
 
-        --abuse openMAC's DMA FIFO
-        theMII2RMII_RXFifo : entity work.openMAC_DMAfifo
+        --! This is the asynchronous FIFO used to decouple RMII from MII.
+        RXFIFO : entity work.asyncFifo
             generic map (
-                fifo_data_width_g => NIBBLE_SIZE,
-                fifo_word_size_g => 2**FIFO_NIBBLES_LOG2,
-                fifo_word_size_log2_g => FIFO_NIBBLES_LOG2
+                gDataWidth  => NIBBLE_SIZE,
+                gWordSize   => 2**FIFO_NIBBLES_LOG2,
+                gSyncStages => 2,
+                gMemRes     => "ON"
             )
             port map (
-                aclr        => rst,
-                rd_clk        => clk50,
-                wr_clk        => mRxClk,
-                --read port
-                rd_req        => fifo_rd,
-                rd_data        => fifo_dout,
-                rd_empty    => fifo_empty,
-                rd_full        => open,
-                rd_usedw    => fifo_rdUsedWord,
-                --write port
-                wr_req        => fifo_wr,
-                wr_data        => fifo_din,
-                wr_empty    => open,
-                wr_full        => fifo_full,
-                wr_usedw    => fifo_wrUsedWord
+                iAclr       => rst,
+                iWrClk      => mRxClk,
+                iWrReq      => fifo_wr,
+                iWrData     => fifo_din,
+                oWrEmpty    => open,
+                oWrFull     => fifo_full,
+                oWrUsedw    => fifo_wrUsedWord,
+                iRdClk      => clk50,
+                iRdReq      => fifo_rd,
+                oRdData     => fifo_dout,
+                oRdEmpty    => fifo_empty,
+                oRdFull     => open,
+                oRdUsedw    => fifo_rdUsedWord
             );
-
     end block;
-
 end rtl;

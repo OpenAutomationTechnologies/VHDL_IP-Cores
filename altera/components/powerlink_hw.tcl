@@ -58,11 +58,12 @@ add_file "../../altera/openmac/src/dpr_16_32.mif" {SYNTHESIS SIMULATION}
 add_file "../../altera/pdi/src/pdi_dpr.mif" {SYNTHESIS SIMULATION}
 add_file "../../common/powerlink/src/powerlink.vhd" {SYNTHESIS SIMULATION}
 add_file "../../altera/openmac/src/openMAC_DPR.vhd" {SYNTHESIS SIMULATION}
-add_file "../../altera/openmac/src/openMAC_DMAFifo.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openmacPkg-p.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/openmac/src/openFILTER.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/openmac/src/openHUB.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/openmac/src/openMAC.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/openmac/src/openMAC_Ethernet.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/openmac/src/openmacTop-rtl-ea.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/openmac/src/openMAC_cmp.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/openmac/src/openMAC_phyAct.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/openmac/src/openMAC_DMAmaster.vhd" {SYNTHESIS SIMULATION}
@@ -70,6 +71,8 @@ add_file "../../common/openmac/src/dma_handler.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/openmac/src/master_handler.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/openmac/src/openMAC_PHYMI.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/openmac/src/openMAC_rmii2mii.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/fifo/src/asyncFifo-e.vhd" {SYNTHESIS SIMULATION}
+add_file "../../altera/fifo/src/asyncFifo-syn-a.vhd" {SYNTHESIS SIMULATION}
 add_file "../../altera/pdi/src/pdi_dpr.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/pdi/src/pdi.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/pdi/src/pdi_par.vhd" {SYNTHESIS SIMULATION}
@@ -82,6 +85,10 @@ add_file "../../common/pdi/src/pdi_simpleReg.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/pdi/src/portio.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/pdi/src/portio_cnt.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/pdi/src/pdi_spi.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/dpRam-e.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/dpRamSplx-e.vhd" {SYNTHESIS SIMULATION}
+add_file "../../altera/lib/src/dpRam-rtl-a.vhd" {SYNTHESIS SIMULATION}
+add_file "../../altera/lib/src/dpRamSplx-rtl-a.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/cntRtl.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/synchronizerRtl.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/edgedetectorRtl.vhd" {SYNTHESIS SIMULATION}
@@ -89,9 +96,11 @@ add_file "../../common/lib/src/nShiftRegRtl.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/spi/src/spiSlave-e.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/spi/src/spiSlave-rtl_sclk-a.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/addr_decoder.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/addrDecodeRtl.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/edgedet.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/req_ack.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/sync.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/synchronizerRtl.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/slow2fastSync.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/memMap.vhd" {SYNTHESIS SIMULATION}
 

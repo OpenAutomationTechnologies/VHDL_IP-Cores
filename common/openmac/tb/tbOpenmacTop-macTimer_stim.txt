@@ -1,0 +1,54 @@
+# This stimuli file tests the openMAC Timer.
+# Address-functionality mapping:
+# 0x00 (wr) -> compare value
+# 0x01 (wr) -> compare enable
+# 0x10 (wr) -> toggle value (if enabled with generic)
+# 0x11 (wr) -> toggle counter preset & toggle enable (if enabled with generic)
+# 0x00 (rd) -> mac time
+# 0x01 (rd) -> irq & compare enable
+# 0x10 (rd) -> toggle value (if enabled with generic)
+# 0x11 (rd) -> toggle & toggle enable (if enabled with generic)
+
+################################################################################
+# 1. Test MAC TIMER
+# 1.1 Wait for specific timer value
+################################################################################
+# 1.1 Wait for specific timer value
+WAIT d 00000000 00000100
+
+################################################################################
+# 2. Test compare interrupt
+# 2.1 Clear possible interrupts and read compare enable
+# 2.2 Set compare value and enable interrupt
+# 2.3 Wait for interrupt
+# 2.4 Clear interrupt
+# 2.5 Disable interrupt
+# 2.6 Check if disabled interrupt triggers although
+################################################################################
+# 2.1 Clear possible interrupts and read compare enable
+WR d 00000000 00000000
+WR d 00000004 00000000
+ASS d 00000004 00000000
+
+# 2.2 Set compare value and enable interrupt
+WR d 00000000 00000200
+WR d 00000004 00000001
+ASS d 00000004 00000001
+
+# 2.3 Wait for interrupt
+WAIT d 00000004 00000003
+
+# 2.4 Clear interrupt
+WR d 00000000 00000000
+ASS d 00000004 00000001
+
+# 2.5 Disable interrupt
+WR d 00000004 00000000
+ASS d 00000004 00000000
+
+# 2.6 Check if disabled interrupt triggers although
+WR d 00000000 00000210
+WAIT d 00000000 0000020F
+ASS d 00000004 00000000
+
+FIN
