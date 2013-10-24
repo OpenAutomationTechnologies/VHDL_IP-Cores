@@ -361,7 +361,7 @@ END PROCESS pBackDel;
 
     CrcDin <= Tx_Sr(1 DOWNTO 0);
 
-Calc: PROCESS ( Clk, Crc, CrcDin )     IS
+Calc: PROCESS ( Clk, Crc, CrcDin, Sm_Tx )     IS
     VARIABLE    H         : std_logic_vector(1 DOWNTO 0);
 BEGIN
 
@@ -510,9 +510,10 @@ RamH:    ENTITY    work.Dpr_16_16
         REPORT "TxSyncOn needs Timer!"
             severity failure;
 
-pTxSm: PROCESS( Rst, Clk, Dsm,
+pTxSm: PROCESS( Dsm,
                 Tx_On, TX_OWN, Retry_Cnt, Ext_Tx, Tx_Wait,
-                Tx_Sync, Sm_Tx, F_End, Tx_Col, Ext_Ack, Tx_Del, Tx_Beg, Tx_Half, Tx_Del_End )
+                Tx_Sync, Sm_Tx, F_End, Tx_Col, Ext_Ack, Tx_Del, Tx_Beg, Tx_Half, Tx_Del_End,
+                rCrs_Dv )
 BEGIN
 
 
@@ -562,12 +563,17 @@ BEGIN
                             end if;
             WHEN OTHERS     =>
         END CASE;
-
-    IF    Rst = '1'                    THEN    Dsm <= sIdle;
-    ELSIF    rising_edge( Clk )        THEN    Dsm <= Tx_Dsm_Next;
-    END IF;
-
 END PROCESS pTxSm;
+
+    pTxSmClk : process(Rst, Clk)
+    begin
+        if Rst = cActivated then
+            Dsm <= sIdle;
+        elsif rising_edge(Clk) then
+            Dsm <= Tx_Dsm_Next;
+        end if;
+    end process pTxSmClk;
+
 pTxControl: PROCESS( Rst, Clk )
 BEGIN
 
@@ -1047,7 +1053,7 @@ RxRam:    ENTITY    work.Dpr_16_16
             );
 
 
-pRxSm: PROCESS( Rst, Clk, Dsm,
+pRxSm: PROCESS( Dsm,
                 Rx_Beg, Rx_On, RX_OWN, F_End, F_Err, Diag, Rx_Count )
 BEGIN
 
@@ -1075,12 +1081,16 @@ BEGIN
             WHEN sOdd   =>                                Rx_Dsm_Next <= sIdle;
             WHEN OTHERS     =>
         END CASE;
-
-    IF        Rst = '1'                THEN    Dsm <= sIdle;
-    ELSIF    rising_edge( Clk )        THEN    Dsm <= Rx_Dsm_Next;
-    END IF;
-
 END PROCESS pRxSm;
+
+    pRxSmClk : process(Rst, Clk)
+    begin
+        if Rst = cActivated then
+            Dsm <= sIdle;
+        elsif rising_edge(Clk) then
+            Dsm <= Rx_Dsm_Next;
+        end if;
+    end process pRxSmClk;
 
 pRxControl: PROCESS( Rst, Clk )
 BEGIN

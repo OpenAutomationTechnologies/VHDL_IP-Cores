@@ -63,9 +63,6 @@ ARCHITECTURE struct OF OpenHUB IS
     SIGNAL TxEnI                : std_logic_vector(Ports DOWNTO 0);
     SIGNAL TxDatI0                : std_logic_vector(Ports DOWNTO 0);
     SIGNAL TxDatI1                : std_logic_vector(Ports DOWNTO 0);
-    SIGNAL MasterAtCollNumber    : integer RANGE 0 TO Ports;
-    SIGNAL HubActive            : boolean;
-    SIGNAL CollStatus            : boolean;
     SIGNAL TransmitMask_L       : std_logic_vector(Ports DOWNTO 1);
 
 BEGIN
@@ -150,16 +147,11 @@ BEGIN
                 Master_at_Coll := 0;
             END IF;
         END IF;
+
+        -- Output the Master Port - identifies the port (1...n) which has received the packet.
+        -- If Master is 0, the Hub is inactive.
+        ReceivePort <= Master;
     END IF;
-
-    HubActive <= Active;
-    MasterAtCollNumber <= Master_at_Coll;
-    CollStatus <= Coll;
-
-    -- Output the Master Port - identifies the port (1...n) which has received the packet.
-    -- If Master is 0, the Hub is inactive.
-    ReceivePort <= Master;
-
 END PROCESS do;
 END struct;
 
