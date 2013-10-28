@@ -1,0 +1,76 @@
+# This stimuli file tests the read port of the FIFO.
+# Address-functionality mapping:
+# 0x0000 (rd) -> read request
+# 0x0001 (rd) -> empty flag
+# 0x0002 (rd) -> full flag
+# 0x0003 (rd) -> full flag & used words
+# 0x0004 (rd) -> read data
+
+################################################################################
+# 1. Respond to write instance test 2.
+# 1.1 Wait for empty flag being cleared
+# 1.2 Check used words to be four
+# 1.3 Read FIFO four times
+################################################################################
+# 1.1 Wait for empty flag being cleared
+WAIT d 00000001 00000000
+# add some nops here to surely see the value four
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+
+# 1.2 Check used words to be four
+ASS d 00000003 00000004
+
+# 1.3 Read FIFO four times
+RD d 00000000
+RD d 00000000
+RD d 00000000
+RD d 00000000
+
+################################################################################
+# 2. Respond to write instance test 3.
+# 2.1 Wait for full flag being set
+# 2.2 Check used word to be eight
+# 2.3 Read FIFO eight+two times
+################################################################################
+# 2.1 Wait for full flag being set
+WAIT d 00000002 00000001
+
+# 2.2 Check used word to be eight
+ASS d 00000003 00000008
+
+# 2.3 Read FIFO eight+two times
+RD d 00000000
+RD d 00000000
+RD d 00000000
+RD d 00000000
+RD d 00000000
+RD d 00000000
+RD d 00000000
+RD d 00000000
+RD d 00000000
+RD d 00000000
+
+################################################################################
+# 3. Respond to write instance test 4.
+# 3.1 Wait for FIFO used word being four
+# 3.2 Check read values
+################################################################################
+# 3.1 Wait for FIFO used word being four
+WAIT d 00000003 00000004
+
+# 3.2 Check read values
+RD d 00000000
+ASS d 00000004 03020100
+RD d 00000000
+ASS d 00000004 07060504
+RD d 00000000
+ASS d 00000004 0B0A0908
+RD d 00000000
+ASS d 00000004 0F0E0D0C
+
+FIN

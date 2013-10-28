@@ -1,0 +1,87 @@
+# This stimuli file tests the write port of the FIFO.
+# Address-functionality mapping:
+# 0x0000 (wr) -> write request
+# 0x0001 (rd) -> empty flag
+# 0x0002 (rd) -> full flag
+# 0x0003 (rd) -> full flag & used words
+
+################################################################################
+# 1. Test flags for empty FIFO
+# 1.1 Empty flag must be set
+# 1.2 Full flag must be reset
+# 1.3 Used word must be zero
+################################################################################
+# 1.1 Empty flag must be set
+ASS d 00000001 00000001
+
+# 1.2 Full flag must be reset
+ASS d 00000002 00000000
+
+# 1.3 Used word must be zero
+ASS d 00000003 00000000
+
+################################################################################
+# 2. Write data into FIFO and check flags
+# 2.1 Write four times any words into FIFO
+# 2.2 Empty flag must be reset
+# 2.3 Full flag must be reset
+# 2.4 Used word must be four
+# 2.5 Wait for FIFO being emptied by read instance
+################################################################################
+# 2.1 Write four times any words into FIFO
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+
+# 2.2 Empty flag must be reset
+ASS d 00000001 00000000
+
+# 2.3 Full flag must be reset
+ASS d 00000002 00000000
+
+# 2.4 Used word must be four
+ASS d 00000003 00000004
+
+# 2.5 Wait for FIFO being emptied by read instance
+WAIT d 00000001 00000001
+
+################################################################################
+# 3. Fill FIFO to full state
+# 3.1 Write eight+two times any words into FIFO
+# 3.2 Check for full flag
+# 3.3 Wait for FIFO being emptied by read instance
+################################################################################
+# 3.1 Write eight times any words into FIFO
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+WR d 00000000 FFFFFFFF
+
+# 3.2 Check for full flag
+ASS d 00000002 00000001
+
+# 3.3 Wait for FIFO being emptied by read instance
+WAIT d 00000001 00000001
+
+################################################################################
+# 4. Write specific data into FIFO
+# 4.1 Write counting bytes into FIFO
+# 4.2 Wait for FIFO being emptied by read instance
+################################################################################
+# 4.1 Write counting bytes into FIFO
+WR d 00000000 03020100
+WR d 00000000 07060504
+WR d 00000000 0B0A0908
+WR d 00000000 0F0E0D0C
+
+# 4.2 Wait for FIFO being emptied by read instance
+WAIT d 00000001 00000001
+
+FIN
