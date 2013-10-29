@@ -258,6 +258,13 @@ end openmacTop;
 
 architecture rtl of openmacTop is
     ---------------------------------------------------------------------------
+    -- Constants
+    ---------------------------------------------------------------------------
+    --! Lowest index of Phy port
+    constant cPhyPortLow    : natural := cHubIntPort+1;
+    --! Highest index of Phy port
+    constant cPhyPortHigh   : natural := gPhyPortCount+1;
+    ---------------------------------------------------------------------------
     -- Component types
     ---------------------------------------------------------------------------
     --! openMAC port type
@@ -292,7 +299,7 @@ architecture rtl of openmacTop is
     type tPhyMgmtPort is record
         rst                 : std_logic;
         clk                 : std_logic;
-        address             : std_logic_vector(2 downto 0);
+        address             : std_logic_vector(3 downto 1);
         chipselect          : std_logic;
         nByteenable         : std_logic_vector(1 downto 0);
         nWrite              : std_logic;
@@ -302,7 +309,6 @@ architecture rtl of openmacTop is
         smiDataIn           : std_logic;
         smiDataOut          : std_logic;
         smiDataOutEnable    : std_logic;
-        nSmiDataOutEnable   : std_logic; --FIXME: change this in openMAC_MII to avoid this!
         nPhyReset           : std_logic;
     end record;
 
@@ -311,7 +317,7 @@ architecture rtl of openmacTop is
         rst         : std_logic;
         clk         : std_logic;
         write       : std_logic;
-        address     : std_logic_vector(1 downto 0);
+        address     : std_logic_vector(3 downto 2);
         writedata   : std_logic_vector(31 downto 0);
         readdata    : std_logic_vector(31 downto 0);
         macTime     : std_logic_vector(cMacTimeWidth-1 downto 0);
@@ -323,45 +329,36 @@ architecture rtl of openmacTop is
     type tOpenHubPort is record
         rst             : std_logic;
         clk             : std_logic;
-        rxDv            : std_logic_vector(gPhyPortCount+1 downto 1);
-        rxDat0          : std_logic_vector(gPhyPortCount+1 downto 1);
-        rxDat1          : std_logic_vector(gPhyPortCount+1 downto 1);
-        txEn            : std_logic_vector(gPhyPortCount+1 downto 1);
-        txDat0          : std_logic_vector(gPhyPortCount+1 downto 1);
-        txDat1          : std_logic_vector(gPhyPortCount+1 downto 1);
-        internPort      : integer range 1 to gPhyPortCount+1;
-        transmitMask    : std_logic_vector(gPhyPortCount+1 downto 1);
-        receivePort     : integer range 0 to gPhyPortCount+1;
+        rx              : tRmiiPathArray(cPhyPortHigh downto cHubIntPort);
+        tx              : tRmiiPathArray(cPhyPortHigh downto cHubIntPort);
+        internPort      : integer range cHubIntPort to cPhyPortHigh;
+        transmitMask    : std_logic_vector(cPhyPortHigh downto cHubIntPort);
+        receivePort     : integer range 0 to cPhyPortHigh;
     end record;
 
     --! openFILTER port type
     type tOpenFilterPort is record
         rst                 : std_logic;
         clk                 : std_logic;
-        nCheckShortFrames   : std_logic;
-        rxIn                : tRmiiPath;
-        rxOut               : tRmiiPath;
-        txIn                : tRmiiPath;
-        txOut               : tRmiiPath;
-        rxError             : std_logic;
+        rxIn                : tRmiiPathArray(cPhyPortHigh downto cPhyPortLow);
+        rxOut               : tRmiiPathArray(cPhyPortHigh downto cPhyPortLow);
+        txIn                : tRmiiPathArray(cPhyPortHigh downto cPhyPortLow);
+        txOut               : tRmiiPathArray(cPhyPortHigh downto cPhyPortLow);
+        rxError             : std_logic_vector(cPhyPortHigh downto cPhyPortLow);
     end record;
-    --! openFILTER port array type
-    type tOpenFilterPortArray is array (natural range <>) of tOpenFilterPort;
 
     --! RMII-to-MII converter port type
     type tConvRmiiToMiiPort is record
         rst         : std_logic;
         clk         : std_logic;
-        rmiiTx      : tRmiiPath;
-        rmiiRx      : tRmiiPath;
-        miiTx       : tMiiPath;
-        miiTxClk    : std_logic;
-        miiRx       : tMiiPath;
-        miiRxError  : std_logic;
-        miiRxClk    : std_logic;
+        rmiiTx      : tRmiiPathArray(cPhyPortHigh downto cPhyPortLow);
+        rmiiRx      : tRmiiPathArray(cPhyPortHigh downto cPhyPortLow);
+        miiTx       : tMiiPathArray(cPhyPortHigh downto cPhyPortLow);
+        miiTxClk    : std_logic_vector(cPhyPortHigh downto cPhyPortLow);
+        miiRx       : tMiiPathArray(cPhyPortHigh downto cPhyPortLow);
+        miiRxError  : std_logic_vector(cPhyPortHigh downto cPhyPortLow);
+        miiRxClk    : std_logic_vector(cPhyPortHigh downto cPhyPortLow);
     end record;
-    --! RMII-to-MII converter port array type
-    type tConvRmiiToMiiPortArray is array (natural range <>) of tConvRmiiToMiiPort;
 
     --! Packet Buffer single port type
     type tPacketBufferSinglePort is record
@@ -522,10 +519,6 @@ architecture rtl of openmacTop is
     -- MII signals
     ---------------------------------------------------------------------------
     --! Mii Tx paths
-    signal miiRxPath        : tMiiPathArray(gPhyPortCount-1 downto 0);
-    --! Mii Rx error paths
-    signal miiRxPathError   : std_logic_vector(gPhyPortCount-1 downto 0);
-    --! Mii Tx paths
     signal miiTxPath        : tMiiPathArray(gPhyPortCount-1 downto 0);
 
     ---------------------------------------------------------------------------
@@ -540,9 +533,9 @@ architecture rtl of openmacTop is
     --! Instance openHUB port
     signal inst_openhub         : tOpenHubPort;
     --! Instances openFILTER port
-    signal inst_openfilter      : tOpenFilterPortArray(gPhyPortCount+1 downto cHubIntPort+1);
+    signal inst_openfilter      : tOpenFilterPort;
     --! Instances RMII-to-MII converter port
-    signal inst_convRmiiToMii   : tConvRmiiToMiiPortArray(gPhyPortCount+1 downto cHubIntPort+1);
+    signal inst_convRmiiToMii   : tConvRmiiToMiiPort;
     --! Instance Packet buffer port
     signal inst_pktBuffer       : tPacketBufferPort;
     --! Instance DMA master port
@@ -753,14 +746,12 @@ begin
         end process ASSIGN_MAC;
 
         -- Note that internal port is crossed!
-        inst_openmac.rmii.rx.enable     <= inst_openhub.txEn(cHubIntPort);
-        inst_openmac.rmii.rx.data(1)    <= inst_openhub.txDat1(cHubIntPort);
-        inst_openmac.rmii.rx.data(0)    <= inst_openhub.txDat0(cHubIntPort);
+        inst_openmac.rmii.rx <= inst_openhub.tx(cHubIntPort);
 
         -- Clip the hub receive port to two bits
         inst_openmac.hubRx <= std_logic_vector(
             resize(
-                to_unsigned(inst_openhub.receivePort, logDualis(gPhyPortCount+1)),
+                to_unsigned(inst_openhub.receivePort, logDualis(cPhyPortHigh)),
             inst_openmac.hubRx'length)
         );
 
@@ -773,7 +764,7 @@ begin
         -----------------------------------------------------------------------
         inst_phyMgmt.clk            <= iClk;
         inst_phyMgmt.rst            <= iRst;
-        inst_phyMgmt.address        <= iMacReg_address(3 downto 1); --FIXME: in openMAC_MII
+        inst_phyMgmt.address        <= iMacReg_address(inst_phyMgmt.address'range);
         inst_phyMgmt.chipselect     <= sel_smi;
         inst_phyMgmt.nByteenable    <= not iMacReg_byteenable;
         inst_phyMgmt.nWrite         <= not iMacReg_write;
@@ -783,7 +774,6 @@ begin
                                     byteSwap(iMacReg_writedata);
 
         inst_phyMgmt.smiDataIn          <= reduceAnd(iSmi_data_in);
-        inst_phyMgmt.smiDataOutEnable   <= not inst_phyMgmt.nSmiDataOutEnable; --FIXME: in openMAC_PHYMI
 
         -----------------------------------------------------------------------
         -- The openMAC timer
@@ -791,7 +781,7 @@ begin
         inst_openmacTimer.clk       <= iClk;
         inst_openmacTimer.rst       <= iRst;
         inst_openmacTimer.write     <= iMacTimer_write;
-        inst_openmacTimer.address   <= iMacTimer_address(3 downto 2); --FIXME: in openMAC_cmp
+        inst_openmacTimer.address   <= iMacTimer_address(inst_openmacTimer.address'range);
         inst_openmacTimer.writedata <= iMacTimer_writedata;
 
         -- this is the mac time
@@ -815,17 +805,13 @@ begin
             -- no defaults, so take care!
 
             -- Loop through phy ports and internal hub port (MAC).
-            for i in gPhyPortCount+1 downto cHubIntPort loop
+            for i in cPhyPortHigh downto cHubIntPort loop
                 -- Assign internal port to mac, others to filter.
                 if i = cHubIntPort then
                     -- Note that internal port is crossed!
-                    inst_openhub.rxDv(i)    <= inst_openmac.rmii.tx.enable;
-                    inst_openhub.rxDat1(i)  <= inst_openmac.rmii.tx.data(1);
-                    inst_openhub.rxDat0(i)  <= inst_openmac.rmii.tx.data(0);
+                    inst_openhub.rx(i) <= inst_openmac.rmii.tx;
                 else
-                    inst_openhub.rxDv(i)    <= inst_openfilter(i).rxOut.enable;
-                    inst_openhub.rxDat1(i)  <= inst_openfilter(i).rxOut.data(1);
-                    inst_openhub.rxDat0(i)  <= inst_openfilter(i).rxOut.data(0);
+                    inst_openhub.rx(i) <= inst_openfilter.rxOut(i);
                 end if;
             end loop;
         end process ASSIGN_HUB;
@@ -833,10 +819,11 @@ begin
         -----------------------------------------------------------------------
         -- The openFILTER(s)
         -----------------------------------------------------------------------
+        inst_openfilter.rst <= iRst;
+        inst_openfilter.clk <= iClk;
+
         --! This process assigns the phy ports to the generated filters.
         ASSIGN_FILTERS : process (
-            iRst,
-            iClk,
             inst_convRmiiToMii,
             inst_openhub,
             rmiiRxPath_reg,
@@ -846,19 +833,16 @@ begin
             -- no defaults, so take care!
 
             -- Loop through phy ports only (internal hub port is skipped).
-            for i in gPhyPortCount+1 downto cHubIntPort+1 loop
-                inst_openfilter(i).rst                  <= iRst;
-                inst_openfilter(i).clk                  <= iClk;
-                inst_openfilter(i).nCheckShortFrames    <= cActivated;
+            for i in cPhyPortHigh downto cPhyPortLow loop
                 -- assign from phy or RMII-to-MII converter
                 case gPhyPortType is
                     when cPhyPortRmii =>
-                        inst_openfilter(i).rxIn     <= rmiiRxPath_reg(i-(cHubIntPort+1));
-                        inst_openfilter(i).rxError  <= rmiiRxPathError_reg(i-(cHubIntPort+1));
+                        inst_openfilter.rxIn(i)     <= rmiiRxPath_reg(i-(cPhyPortLow));
+                        inst_openfilter.rxError(i)  <= rmiiRxPathError_reg(i-(cPhyPortLow));
                     when cPhyPortMii =>
-                        inst_openfilter(i).rxIn     <= inst_convRmiiToMii(i).rmiiRx;
+                        inst_openfilter.rxIn(i)     <= inst_convRmiiToMii.rmiiRx(i);
                         -- Filter Rx error is always zero, since converter already dumps packets!
-                        inst_openfilter(i).rxError  <= cInactivated;
+                        inst_openfilter.rxError(i)  <= cInactivated;
                     when others =>
                         assert (FALSE)
                         report "Wrong phy port type in ASSIGN_FILTERS!"
@@ -866,41 +850,21 @@ begin
                 end case;
 
                 -- assign from hub
-                inst_openfilter(i).txIn.enable  <= inst_openhub.txEn(i);
-                inst_openfilter(i).txIn.data(1) <= inst_openhub.txDat1(i);
-                inst_openfilter(i).txIn.data(0) <= inst_openhub.txDat0(i);
+                inst_openfilter.txIn(i)  <= inst_openhub.tx(i);
             end loop;
         end process ASSIGN_FILTERS;
 
         -----------------------------------------------------------------------
         -- The RMII-to-MII converter(s)
         -----------------------------------------------------------------------
-        --! This process assigns the phy ports to the RMII-to-MII converters.
-        ASSIGN_RMII2MII : process (
-            iRst,
-            iClk,
-            iMii_RxClk,
-            iMii_TxClk,
-            inst_openfilter,
-            miiRxPath,
-            miiRxPathError
-        )
-        begin
-            -- no defaults, so take care!
+        inst_convRmiiToMii.clk      <= iClk;
+        inst_convRmiiToMii.rst      <= iRst;
+        inst_convRmiiToMii.rmiiTx   <= inst_openfilter.txOut;
 
-            -- Loop through phy ports only (internal hub port is skipped).
-            for i in gPhyPortCount+1 downto cHubIntPort+1 loop
-                inst_convRmiiToMii(i).clk       <= iClk;
-                inst_convRmiiToMii(i).rst       <= iRst;
-                inst_convRmiiToMii(i).rmiiTx    <= inst_openfilter(i).txOut;
-
-                inst_convRmiiToMii(i).miiRx         <= miiRxPath(i-cHubIntPort-1);
-                inst_convRmiiToMii(i).miiRxError    <= miiRxPathError(i-cHubIntPort-1);
-                inst_convRmiiToMii(i).miiRxClk      <= iMii_RxClk(i-cHubIntPort-1);
-
-                inst_convRmiiToMii(i).miiTxClk      <= iMii_TxClk(i-cHubIntPort-1);
-            end loop;
-        end process ASSIGN_RMII2MII;
+        inst_convRmiiToMii.miiRx        <= iMii_Rx;
+        inst_convRmiiToMii.miiRxError   <= iMii_RxError;
+        inst_convRmiiToMii.miiRxClk     <= iMii_RxClk;
+        inst_convRmiiToMii.miiTxClk     <= iMii_TxClk;
 
         -----------------------------------------------------------------------
         -- The PACKET BUFFER
@@ -1045,42 +1009,42 @@ begin
 
     --! The phy management core is an SMI master to communication with the
     --! phys.
-    THEPHYMGMT : entity work.OpenMAC_MII
+    THEPHYMGMT : entity work.phyMgmt
         port map (
-            Clk         => inst_phyMgmt.clk,
-            Rst         => inst_phyMgmt.rst,
-            Addr        => inst_phyMgmt.address,
-            Sel         => inst_phyMgmt.chipselect,
-            nBe         => inst_phyMgmt.nByteenable,
-            nWr         => inst_phyMgmt.nWrite,
-            Data_In     => inst_phyMgmt.writedata,
-            Data_Out    => inst_phyMgmt.readdata,
-            Mii_Clk     => inst_phyMgmt.smiClk,
-            Mii_Di      => inst_phyMgmt.smiDataIn,
-            Mii_Do      => inst_phyMgmt.smiDataOut,
-            Mii_Doe     => inst_phyMgmt.nSmiDataOutEnable, --FIXME: change this in openMAC_MII to avoid this!
-            nResetOut   => inst_phyMgmt.nPhyReset
+            iRst                => inst_phyMgmt.rst,
+            iClk                => inst_phyMgmt.clk,
+            iAddress            => inst_phyMgmt.address,
+            iSelect             => inst_phyMgmt.chipselect,
+            inByteenable        => inst_phyMgmt.nByteenable,
+            inWrite             => inst_phyMgmt.nWrite,
+            iWritedata          => inst_phyMgmt.writedata,
+            oReaddata           => inst_phyMgmt.readdata,
+            oSmiClk             => inst_phyMgmt.smiClk,
+            iSmiDataIn          => inst_phyMgmt.smiDataIn,
+            oSmiDataOut         => inst_phyMgmt.smiDataOut,
+            oSmiDataOutEnable   => inst_phyMgmt.smiDataOutEnable,
+            onPhyReset          => inst_phyMgmt.nPhyReset
         );
 
     --! The openMAC timer instance provides hardware timers referencing to the
     --! openMAC's MAC Time (Mac_Zeit).
-    THEOPENMACTIMER : entity work.openMAC_cmp
+    THEOPENMACTIMER : entity work.openmacTimer
         generic map (
-            mac_time_width_g        => cMacTimeWidth,
-            gen2ndCmpTimer_g        => cMacTimer_2ndTimer,
-            pulseWidth2ndCmpTimer_g => gTimerPulseRegWidth,
-            genPulse2ndCmpTimer_g   => (gTimerEnablePulseWidth /= cFalse)
+            gMacTimeWidth           => cMacTimeWidth,
+            gMacTimer_2ndTimer      => cMacTimer_2ndTimer,
+            gTimerPulseRegWidth     => gTimerPulseRegWidth,
+            gTimerEnablePulseWidth  => (gTimerEnablePulseWidth /= cFalse)
         )
         port map (
-            clk         => inst_openmacTimer.clk,
-            rst         => inst_openmacTimer.rst,
-            wr          => inst_openmacTimer.write,
-            addr        => inst_openmacTimer.address,
-            din         => inst_openmacTimer.writedata,
-            dout        => inst_openmacTimer.readdata,
-            mac_time    => inst_openmacTimer.macTime,
-            irq         => inst_openmacTimer.interrupt,
-            toggle      => inst_openmacTimer.toggle
+            iRst        => inst_openmacTimer.rst,
+            iClk        => inst_openmacTimer.clk,
+            iWrite      => inst_openmacTimer.write,
+            iAddress    => inst_openmacTimer.address,
+            iWritedata  => inst_openmacTimer.writedata,
+            oReaddata   => inst_openmacTimer.readdata,
+            iMacTime    => inst_openmacTimer.macTime,
+            oIrq        => inst_openmacTimer.interrupt,
+            oToggle     => inst_openmacTimer.toggle
         );
 
     ---------------------------------------------------------------------------
@@ -1216,89 +1180,66 @@ begin
     --! The openHUB instance is only needed if more than one phy port is
     --! configured.
     GEN_HUB : if gPhyPortCount > 1 generate
-        THEOPENHUB : entity work.openHUB
+        THEOPENHUB : entity work.openhub
             generic map (
-                ports => gPhyPortCount+1 -- plus MAC port
+                gPortCount => gPhyPortCount+1 -- plus MAC port
             )
             port map (
-                Rst             => inst_openhub.rst,
-                Clk             => inst_openhub.clk,
-                RxDv            => inst_openhub.rxDv,
-                RxDat0          => inst_openhub.rxDat0,
-                RxDat1          => inst_openhub.rxDat1,
-                TxEn            => inst_openhub.txEn,
-                TxDat0          => inst_openhub.txDat0,
-                TxDat1          => inst_openhub.txDat1,
-                internPort      => inst_openhub.internPort,
-                TransmitMask    => inst_openhub.transmitMask,
-                ReceivePort     => inst_openhub.receivePort
+                iRst        => inst_openhub.rst,
+                iClk        => inst_openhub.clk,
+                iRx         => inst_openhub.rx,
+                oTx         => inst_openhub.tx,
+                iIntPort    => inst_openhub.internPort,
+                iTxMask     => inst_openhub.transmitMask,
+                oRxPort     => inst_openhub.receivePort
             );
     end generate GEN_HUB;
 
     --! In case of HUB bypass assign inst_openhub although!
     GEN_HUBBYPASS : if gPhyPortCount = 1 generate
         --! Port number for external phy port
-        constant cExtPort   : natural := cHubIntPort+1;
+        constant cExtPort   : natural := cPhyPortLow;
         --! Port number for internal MAC port
         constant cIntPort   : natural := cHubIntPort;
     begin
-        inst_openhub.txEn(cExtPort)     <= inst_openhub.rxDv(cIntPort);
-        inst_openhub.txDat1(cExtPort)   <= inst_openhub.rxDat1(cIntPort);
-        inst_openhub.txDat0(cExtPort)   <= inst_openhub.rxDat0(cIntPort);
+        inst_openhub.tx(cExtPort)   <= inst_openhub.rx(cIntPort);
 
-        inst_openhub.txEn(cIntPort)     <= inst_openhub.rxDv(cExtPort);
-        inst_openhub.txDat1(cIntPort)   <= inst_openhub.rxDat1(cExtPort);
-        inst_openhub.txDat0(cIntPort)   <= inst_openhub.rxDat0(cExtPort);
+        inst_openhub.tx(cIntPort)   <= inst_openhub.rx(cExtPort);
 
         inst_openhub.receivePort        <= cExtPort;
     end generate GEN_HUBBYPASS;
 
     --! Generate openFILTER instances for every phy port.
-    GEN_FILTER : for i in inst_openfilter'range generate
-        THEOPENFILTER : entity work.openFILTER
-            generic map (
-                bypassFilter => FALSE
-            )
+    GEN_FILTER : for i in cPhyPortHigh downto cPhyPortLow generate
+        THEOPENFILTER : entity work.openfilter
             port map (
-                Rst                 => inst_openfilter(i).rst,
-                Clk                 => inst_openfilter(i).clk,
-                nCheckShortFrames   => inst_openfilter(i).nCheckShortFrames,
-                RxDvIn              => inst_openfilter(i).rxIn.enable,
-                RxDatIn             => inst_openfilter(i).rxIn.data,
-                RxDvOut             => inst_openfilter(i).rxOut.enable,
-                RxDatOut            => inst_openfilter(i).rxOut.data,
-                TxEnIn              => inst_openfilter(i).txIn.enable,
-                TxDatIn             => inst_openfilter(i).txIn.data,
-                TxEnOut             => inst_openfilter(i).txOut.enable,
-                TxDatOut            => inst_openfilter(i).txOut.data,
-                RxErr               => inst_openfilter(i).rxError
+                iRst        => inst_openfilter.rst,
+                iClk        => inst_openfilter.clk,
+                iRx         => inst_openfilter.rxIn(i),
+                oRx         => inst_openfilter.rxOut(i),
+                iTx         => inst_openfilter.txIn(i),
+                oTx         => inst_openfilter.txOut(i),
+                iRxError    => inst_openfilter.rxError(i)
             );
     end generate GEN_FILTER;
 
     --! Generate MII signals for every phy port. Note that this includes
     --! the RMII-to-MII converter.
     GEN_MII : if gPhyPortType = cPhyPortMii generate
-        miiRxPath       <= iMii_Rx;
-        miiRxPathError  <= iMii_RxError;
-        GEN_CONVERTER : for i in inst_convRmiiToMii'range generate
+        GEN_CONVERTER : for i in cPhyPortHigh downto cPhyPortLow generate
             -- convert phy port to filter index range
-            miiTxPath(i-cHubIntPort-1)  <= inst_convRmiiToMii(i).miiTx;
-            THERMII2MIICONVERTER : entity work.rmii2mii
+            miiTxPath(i-cHubIntPort-1)  <= inst_convRmiiToMii.miiTx(i);
+            THERMII2MIICONVERTER : entity work.convRmiiToMii
                 port map (
-                    clk50   => inst_convRmiiToMii(i).clk,
-                    rst     => inst_convRmiiToMii(i).rst,
-                    rTxEn   => inst_convRmiiToMii(i).rmiiTx.enable,
-                    rTxDat  => inst_convRmiiToMii(i).rmiiTx.data,
-                    rRxDv   => inst_convRmiiToMii(i).rmiiRx.enable,
-                    rRxDat  => inst_convRmiiToMii(i).rmiiRx.data,
-                    rRxEr   => open,
-                    mTxEn   => inst_convRmiiToMii(i).miiTx.enable,
-                    mTxDat  => inst_convRmiiToMii(i).miiTx.data,
-                    mTxClk  => inst_convRmiiToMii(i).miiTxClk,
-                    mRxDv   => inst_convRmiiToMii(i).miiRx.enable,
-                    mRxEr   => inst_convRmiiToMii(i).miiRxError,
-                    mRxDat  => inst_convRmiiToMii(i).miiRx.data,
-                    mRxClk  => inst_convRmiiToMii(i).miiRxClk
+                    iRst        => inst_convRmiiToMii.rst,
+                    iClk        => inst_convRmiiToMii.clk,
+                    iRmiiTx     => inst_convRmiiToMii.rmiiTx(i),
+                    oRmiiRx     => inst_convRmiiToMii.rmiiRx(i),
+                    iMiiRxClk   => inst_convRmiiToMii.miiRxClk(i),
+                    iMiiRx      => inst_convRmiiToMii.miiRx(i),
+                    iMiiRxError => inst_convRmiiToMii.miiRxError(i),
+                    iMiiTxClk   => inst_convRmiiToMii.miiTxClk(i),
+                    oMiiTx      => inst_convRmiiToMii.miiTx(i)
                 );
         end generate GEN_CONVERTER;
     end generate GEN_MII;
@@ -1326,7 +1267,7 @@ begin
             elsif falling_edge(iClk2x) then
                 -- convert phy port to filter index range
                 for i in gPhyPortCount-1 downto 0 loop
-                    rmiiTxPath_reg(i) <= inst_openfilter(i+cHubIntPort+1).txOut;
+                    rmiiTxPath_reg(i) <= inst_openfilter.txOut(i+cPhyPortLow);
                 end loop;
             end if;
         end process LATCHTXPATH;
@@ -1467,16 +1408,17 @@ begin
     GEN_ACTIVITY : if gEnableActivity = cTrue generate
         --! The activity generate uses the Tx enable and Rx data valid signal
         --! to detect a packet run.
-        THEACTIVITY : entity work.openMAC_phyAct
+        THEACTIVITY : entity work.phyActGen
             generic map (
-                iBlinkFreq_g => cActivityFreq
+                gActivityFreq   => cActivityFreq,
+                gClkFreq        => cClkFreq
             )
             port map (
-                rst     => inst_activity.rst,
-                clk     => inst_activity.clk,
-                tx_en   => inst_activity.txEnable,
-                rx_dv   => inst_activity.rxDataValid,
-                act_led => inst_activity.activity
+                iRst        => inst_activity.rst,
+                iClk        => inst_activity.clk,
+                iTxEnable   => inst_activity.txEnable,
+                iRxValid    => inst_activity.rxDataValid,
+                oActivity   => inst_activity.activity
             );
     end generate GEN_ACTIVITY;
 end rtl;

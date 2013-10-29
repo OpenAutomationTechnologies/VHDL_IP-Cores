@@ -630,33 +630,6 @@ component ipif_master_handler
        m_waitrequest : out std_logic := '1'
   );
 end component;
-component openMAC_16to32conv
-  generic(
-       bus_address_width : integer := 10;
-       gEndian : string := "little"
-  );
-  port (
-       bus_address : in std_logic_vector(bus_address_width-1 downto 0);
-       bus_byteenable : in std_logic_vector(3 downto 0);
-       bus_read : in std_logic;
-       bus_select : in std_logic;
-       bus_write : in std_logic;
-       bus_writedata : in std_logic_vector(31 downto 0);
-       clk : in std_logic;
-       rst : in std_logic;
-       s_readdata : in std_logic_vector(15 downto 0);
-       s_waitrequest : in std_logic;
-       bus_ack_rd : out std_logic;
-       bus_ack_wr : out std_logic;
-       bus_readdata : out std_logic_vector(31 downto 0);
-       s_address : out std_logic_vector(bus_address_width-1 downto 0);
-       s_byteenable : out std_logic_vector(1 downto 0);
-       s_chipselect : out std_logic;
-       s_read : out std_logic;
-       s_write : out std_logic;
-       s_writedata : out std_logic_vector(15 downto 0)
-  );
-end component;
 component powerlink
   generic(
        Simulate : integer := 0;
@@ -1114,6 +1087,7 @@ signal MAC_REG2Bus_Error : std_logic;
 signal MAC_REG2Bus_RdAck : std_logic;
 signal MAC_REG2Bus_WrAck : std_logic;
 signal mac_waitrequest : std_logic;
+signal mac_ack : std_logic;
 signal mac_write : std_logic;
 signal mbf_chipselect : std_logic;
 signal mbf_read : std_logic;
@@ -1330,32 +1304,34 @@ MAC_PKT2Bus_Error <= '0';
 
 ----  Component instantiations  ----
 
-MAC_REG_16to32 : openMAC_16to32conv
+MAC_REG_16to32 : entity work.mmSlaveConv
   generic map (
        bus_address_width => C_MAC_REG_PLB_AWIDTH,
        gEndian => "big"
   )
   port map(
-       bus_ack_rd => MAC_REG2Bus_RdAck,
-       bus_ack_wr => MAC_REG2Bus_WrAck,
-       bus_address => Bus2MAC_REG_Addr( C_MAC_REG_PLB_AWIDTH-1 downto 0 ),
-       bus_byteenable => Bus2MAC_REG_BE_s( (C_MAC_REG_PLB_DWIDTH/8)-1 downto 0 ),
-       bus_read => Bus2MAC_REG_RNW,
-       bus_readdata => MAC_REG2Bus_Data_s( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
-       bus_select => Bus2MAC_REG_CS(1),
-       bus_write => Bus2MAC_REG_RNW_n,
-       bus_writedata => Bus2MAC_REG_Data_s( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
-       clk => clk50,
-       rst => rst,
-       s_address => mac_address( C_MAC_REG_PLB_AWIDTH-1 downto 0 ),
-       s_byteenable => mac_byteenable,
-       s_chipselect => mac_chipselect,
-       s_read => mac_read,
-       s_readdata => mac_readdata,
-       s_waitrequest => mac_waitrequest,
-       s_write => mac_write,
-       s_writedata => mac_writedata
+       oMaster_ReadAck => MAC_REG2Bus_RdAck,
+       oMaster_WriteAck => MAC_REG2Bus_WrAck,
+       iMaster_address => Bus2MAC_REG_Addr( C_MAC_REG_PLB_AWIDTH-1 downto 0 ),
+       iMaster_byteenable => Bus2MAC_REG_BE_s( (C_MAC_REG_PLB_DWIDTH/8)-1 downto 0 ),
+       iMaster_read => Bus2MAC_REG_RNW,
+       oMaster_readdata => MAC_REG2Bus_Data_s( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
+       iMaster_select => Bus2MAC_REG_CS(1),
+       iMaster_write => Bus2MAC_REG_RNW_n,
+       iMaster_writedata => Bus2MAC_REG_Data_s( C_MAC_REG_PLB_DWIDTH-1 downto 0 ),
+       iClk => clk50,
+       iRst => rst,
+       oSlave_address => mac_address( C_MAC_REG_PLB_AWIDTH-1 downto 0 ),
+       oSlave_byteenable => mac_byteenable,
+       oSlave_select => mac_chipselect,
+       oSlave_read => mac_read,
+       iSlave_readdata => mac_readdata,
+       iSlave_ack => mac_ack,
+       oSlave_write => mac_write,
+       oSlave_writedata => mac_writedata
   );
+
+mac_ack <= not mac_waitrequest;
 
 MAC_REG_PLB_SINGLE_SLAVE : plbv46_slave_single
   generic map (

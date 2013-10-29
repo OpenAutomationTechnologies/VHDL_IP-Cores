@@ -1,8 +1,13 @@
 -------------------------------------------------------------------------------
--- RMII to MII converter
--- ex: openMAC - openHUB - RMII2MII - MII PHY
+--! @file convRmiiToMii-rtl-ea.vhd
 --
---       Copyright (C) 2009 B&R
+--! @brief RMII-to-MII converter
+--
+--! @details This is an RMII-to-MII converter to convert MII phy traces to RMII.
+--!          Example: MII PHY <--> RMII-to-MII converter <--> RMII MAC
+-------------------------------------------------------------------------------
+--
+--    (c) B&R, 2013
 --
 --    Redistribution and use in source and binary forms, with or without
 --    modification, are permitted provided that the following conditions
@@ -33,39 +38,42 @@
 --    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 --    POSSIBILITY OF SUCH DAMAGE.
 --
--- Note: Used DPR is specific to Altera/Xilinx. Use one of the following files:
---       OpenMAC_DPR_Altera.vhd
---       OpenMAC_DPR_Xilinx.vhd
---
 -------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
-use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
-entity rmii2mii is
+library work;
+--! use global library
+use work.global.all;
+--! use openmac package
+use work.openmacPkg.all;
+
+entity convRmiiToMii is
     port (
-        clk50                : in     std_logic; --used by RMII as well!!!
-        rst                    : in     std_logic;
-        --RMII (MAC)
-        rTxEn                : in    std_logic;
-        rTxDat                : in     std_logic_vector(1 downto 0);
-        rRxDv                : out    std_logic;
-        rRxDat                : out    std_logic_vector(1 downto 0);
-        rRxEr                : out    std_logic;
-        --MII (PHY)
-        mTxEn                : out    std_logic;
-        mTxDat                : out    std_logic_vector(3 downto 0);
-        mTxClk                : in    std_logic;
-        mRxDv                : in    std_logic;
-        mRxEr                : in    std_logic;
-        mRxDat                : in    std_logic_vector(3 downto 0);
-        mRxClk                : in    std_logic
+        --! Reset
+        iRst        : in    std_logic;
+        --! RMII Clock
+        iClk        : in    std_logic;
+        --! RMII transmit path
+        iRmiiTx     : in    tRmiiPath;
+        --! RMII receive path
+        oRmiiRx     : out   tRmiiPath;
+        --! MII receive clock
+        iMiiRxClk   : in    std_logic;
+        --! MII receive path
+        iMiiRx      : in    tMiiPath;
+        --! MII receive error
+        iMiiRxError : in    std_logic;
+        --! MII transmit clock
+        iMiiTxClk   : in    std_logic;
+        --! MII transmit path
+        oMiiTx      : out   tMiiPath
     );
-end rmii2mii;
+end convRmiiToMii;
 
-architecture rtl of rmii2mii is
+architecture rtl of convRmiiToMii is
     constant DIBIT_SIZE : integer := 2;
     constant NIBBLE_SIZE : integer := 4;
 begin
@@ -85,56 +93,56 @@ begin
 
         --convert dibits to nibble
         signal sel_dibit : std_logic;
-        signal fifo_din_reg : std_logic_vector(rTxDat'range);
+        signal fifo_din_reg : std_logic_vector(iRmiiTx.data'range);
     begin
 
-        fifo_din <= rTxDat & fifo_din_reg;
+        fifo_din <= iRmiiTx.data & fifo_din_reg;
         fifo_wr <= sel_dibit;
 
         --convert dibits to nibble (to fit to fifo)
-        process(clk50, rst)
+        process(iClk, iRst)
         begin
-            if rst = '1' then
-                sel_dibit <= '0';
-                fifo_din_reg <= (others => '0');
-            elsif clk50 = '1' and clk50'event then
-                if rTxEn = '1' then
+            if iRst = cActivated then
+                sel_dibit <= cInactivated;
+                fifo_din_reg <= (others => cInactivated);
+            elsif iClk = cActivated and iClk'event then
+                if iRmiiTx.enable = cActivated then
                     sel_dibit <= not sel_dibit;
-                    if sel_dibit = '0' then
-                        fifo_din_reg <= rTxDat;
+                    if sel_dibit = cInactivated then
+                        fifo_din_reg <= iRmiiTx.data;
                     end if;
                 else
-                    sel_dibit <= '0';
+                    sel_dibit <= cInactivated;
                 end if;
             end if;
         end process;
 
         fifo_half <= fifo_rdUsedWord(fifo_rdUsedWord'left);
 
-        mTxDat <= fifo_dout_l;
-        mTxEn <= fifo_valid_l;
+        oMiiTx.data <= fifo_dout_l;
+        oMiiTx.enable <= fifo_valid_l;
 
-        process(mTxClk, rst)
+        process(iMiiTxClk, iRst)
         begin
-            if rst = '1' then
-                fifo_rd <= '0';
-                fifo_valid <= '0';
-                fifo_dout_l <= (others => '0');
-                fifo_valid_l <= '0';
-            elsif mTxClk = '1' and mTxClk'event then
+            if iRst = cActivated then
+                fifo_rd <= cInactivated;
+                fifo_valid <= cInactivated;
+                fifo_dout_l <= (others => cInactivated);
+                fifo_valid_l <= cInactivated;
+            elsif iMiiTxClk = cActivated and iMiiTxClk'event then
                 fifo_dout_l <= fifo_dout;
                 fifo_valid_l <= fifo_valid;
 
-                if fifo_rd = '0' and fifo_half = '1' then
-                    fifo_rd <= '1';
-                elsif fifo_rd = '1' and fifo_empty = '1' then
-                    fifo_rd <= '0';
+                if fifo_rd = cInactivated and fifo_half = cActivated then
+                    fifo_rd <= cActivated;
+                elsif fifo_rd = cActivated and fifo_empty = cActivated then
+                    fifo_rd <= cInactivated;
                 end if;
 
-                if fifo_rd = '1' and fifo_rdUsedWord > conv_std_logic_vector(1, fifo_rdUsedWord'length) then
-                    fifo_valid <= '1';
+                if fifo_rd = cActivated and fifo_rdUsedWord > std_logic_vector(to_unsigned(1, fifo_rdUsedWord'length)) then
+                    fifo_valid <= cActivated;
                 else
-                    fifo_valid <= '0';
+                    fifo_valid <= cInactivated;
                 end if;
             end if;
         end process;
@@ -149,13 +157,13 @@ begin
             )
             port map (
                 iAclr       => aclr,
-                iWrClk      => clk50,
+                iWrClk      => iClk,
                 iWrReq      => fifo_wr,
                 iWrData     => fifo_din,
                 oWrEmpty    => fifo_wrempty,
                 oWrFull     => fifo_full,
                 oWrUsedw    => fifo_wrUsedWord,
-                iRdClk      => mTxClk,
+                iRdClk      => iMiiTxClk,
                 iRdReq      => fifo_rd,
                 oRdData     => fifo_dout,
                 oRdEmpty    => fifo_empty,
@@ -164,19 +172,19 @@ begin
             );
 
         --sync Mii Tx En (=fifo_valid) to wr clk
-        process(clk50, rst)
+        process(iClk, iRst)
         begin
-            if rst = '1' then
-                aclr <= '1'; --reset fifo
-                rTxEn_l <= '0';
-            elsif clk50 = '1' and clk50'event then
-                rTxEn_l <= rTxEn;
+            if iRst = cActivated then
+                aclr <= cActivated; --reset fifo
+                rTxEn_l <= cInactivated;
+            elsif iClk = cActivated and iClk'event then
+                rTxEn_l <= iRmiiTx.enable;
 
-                aclr <= '0'; --default
+                aclr <= cInactivated; --default
 
                 --clear the full fifo after TX on RMII side is done
-                if fifo_full = '1' and rTxEn_l = '1' and rTxEn = '0' then
-                    aclr <= '1';
+                if fifo_full = cActivated and rTxEn_l = cActivated and iRmiiTx.enable = cInactivated then
+                    aclr <= cActivated;
                 end if;
             end if;
         end process;
@@ -199,56 +207,54 @@ begin
     begin
 
 
-        process(mRxClk, rst)
+        process(iMiiRxClk, iRst)
         begin
-            if rst = '1' then
-                fifo_din <= (others => '0');
-                fifo_wr <= '0';
-            elsif mRxClk = '1' and mRxClk'event then
-                fifo_din <= mRxDat;
-                fifo_wr <= mRxDv and not mRxEr;
+            if iRst = cActivated then
+                fifo_din <= (others => cInactivated);
+                fifo_wr <= cInactivated;
+            elsif iMiiRxClk = cActivated and iMiiRxClk'event then
+                fifo_din <= iMiiRx.data;
+                fifo_wr <= iMiiRx.enable and not iMiiRxError;
             end if;
         end process;
 
-        rRxDat <=     fifo_dout(fifo_dout'right+1 downto 0) when sel_dibit = '1' else
+        oRmiiRx.data <=     fifo_dout(fifo_dout'right+1 downto 0) when sel_dibit = cActivated else
                     fifo_dout(fifo_dout'left downto fifo_dout'left-1);
 
-        rRxDv <= fifo_valid;
+        oRmiiRx.enable <= fifo_valid;
         fifo_rd <= fifo_rd_s and not sel_dibit;
 
-        process(clk50, rst)
+        process(iClk, iRst)
         begin
-            if rst = '1' then
-                sel_dibit <= '0';
-            elsif clk50 = '1' and clk50'event then
-                if fifo_rd_s = '1' or fifo_valid = '1' then
+            if iRst = cActivated then
+                sel_dibit <= cInactivated;
+            elsif iClk = cActivated and iClk'event then
+                if fifo_rd_s = cActivated or fifo_valid = cActivated then
                     sel_dibit <= not sel_dibit;
                 else
-                    sel_dibit <= '0';
+                    sel_dibit <= cInactivated;
                 end if;
             end if;
         end process;
 
         fifo_half <= fifo_rdUsedWord(fifo_rdUsedWord'left);
 
-        rRxEr <= '0';
-
-        process(clk50, rst)
+        process(iClk, iRst)
         begin
-            if rst = '1' then
-                fifo_rd_s <= '0';
-                fifo_valid <= '0';
-            elsif clk50 = '1' and clk50'event then
-                if fifo_rd_s = '0' and fifo_half = '1' then
-                    fifo_rd_s <= '1';
-                elsif fifo_rd_s = '1'  and fifo_empty = '1' then
-                    fifo_rd_s <= '0';
+            if iRst = cActivated then
+                fifo_rd_s <= cInactivated;
+                fifo_valid <= cInactivated;
+            elsif iClk = cActivated and iClk'event then
+                if fifo_rd_s = cInactivated and fifo_half = cActivated then
+                    fifo_rd_s <= cActivated;
+                elsif fifo_rd_s = cActivated  and fifo_empty = cActivated then
+                    fifo_rd_s <= cInactivated;
                 end if;
 
-                if fifo_rd_s = '1' then
-                    fifo_valid <= '1';
+                if fifo_rd_s = cActivated then
+                    fifo_valid <= cActivated;
                 else
-                    fifo_valid <= '0';
+                    fifo_valid <= cInactivated;
                 end if;
             end if;
         end process;
@@ -262,14 +268,14 @@ begin
                 gMemRes     => "ON"
             )
             port map (
-                iAclr       => rst,
-                iWrClk      => mRxClk,
+                iAclr       => iRst,
+                iWrClk      => iMiiRxClk,
                 iWrReq      => fifo_wr,
                 iWrData     => fifo_din,
                 oWrEmpty    => open,
                 oWrFull     => fifo_full,
                 oWrUsedw    => fifo_wrUsedWord,
-                iRdClk      => clk50,
+                iRdClk      => iClk,
                 iRdReq      => fifo_rd,
                 oRdData     => fifo_dout,
                 oRdEmpty    => fifo_empty,

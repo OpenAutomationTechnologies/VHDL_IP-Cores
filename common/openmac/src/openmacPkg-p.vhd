@@ -127,6 +127,9 @@ package openmacPkg is
         tx  => cMiiPathInit
     );
 
+    --! Functio to get tRmiiPathArray enables.
+    function rmiiGetEnable ( iArray : tRmiiPathArray ) return std_logic_vector;
+
     ---------------------------------------------------------------------------
     -- Memory mapping
     ---------------------------------------------------------------------------
@@ -225,6 +228,8 @@ package openmacPkg is
     ---------------------------------------------------------------------------
     --! The activity blink frequency [Hz]
     constant cActivityFreq  : natural := 6;
+    --! Clock frequency of iClk [Hz]
+    constant cClkFreq       : natural := 50e6;
 
     ---------------------------------------------------------------------------
     -- Constants for openhub
@@ -254,5 +259,16 @@ package openmacPkg is
 end package openmacPkg;
 
 package body openmacPkg is
-    -- The body is empty for now.
+    --! Functio to get tRmiiPathArray enables.
+    function rmiiGetEnable ( iArray : tRmiiPathArray ) return std_logic_vector is
+        variable vRes_tmp : std_logic_vector(iArray'range);
+    begin
+        vRes_tmp := (others => cInactivated);
+
+        for i in iArray'range loop
+            vRes_tmp(i) := iArray(i).enable;
+        end loop;
+
+        return vRes_tmp;
+    end function;
 end package body openmacPkg;

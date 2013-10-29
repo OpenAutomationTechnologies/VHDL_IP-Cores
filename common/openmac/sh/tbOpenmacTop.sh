@@ -32,12 +32,12 @@ common/openmac/src/openmacPkg-p.vhd \
 common/openmac/src/dma_handler.vhd \
 common/openmac/src/master_handler.vhd \
 common/openmac/src/openMAC_DMAmaster.vhd \
-common/openmac/src/openFILTER.vhd \
-common/openmac/src/openHUB.vhd \
-common/openmac/src/openMAC_cmp.vhd \
-common/openmac/src/openMAC_phyAct.vhd \
-common/openmac/src/openMAC_PHYMI.vhd \
-common/openmac/src/openMAC_rmii2mii.vhd \
+common/openmac/src/openfilter-rtl-ea.vhd \
+common/openmac/src/openhub-rtl-ea.vhd \
+common/openmac/src/openmacTimer-rtl-ea.vhd \
+common/openmac/src/phyActGen-rtl-ea.vhd \
+common/openmac/src/phyMgmt-rtl-ea.vhd \
+common/openmac/src/convRmiiToMii-rtl-ea.vhd \
 common/openmac/src/openMAC.vhd \
 common/openmac/src/openmacTop-rtl-ea.vhd \
 \
