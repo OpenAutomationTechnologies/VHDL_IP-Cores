@@ -68,6 +68,9 @@ package Global is
     function byteSwap (iVector : std_logic_vector) return std_logic_vector;
     function wordSwap (iVector : std_logic_vector) return std_logic_vector;
 
+    function reduceOr (iVector : std_logic_vector) return std_logic;
+    function reduceAnd (iVector : std_logic_vector) return std_logic;
+
 end Global;
 
 package body Global is
@@ -171,6 +174,32 @@ package body Global is
         end loop;
 
         return vResult;
+    end function;
+
+    function reduceOr (iVector : std_logic_vector) return std_logic is
+        variable vRes_tmp : std_logic;
+    begin
+        -- initialize result variable
+        vRes_tmp := cInactivated;
+
+        for i in iVector'range loop
+            vRes_tmp := vRes_tmp or iVector(i);
+        end loop;
+
+        return vRes_tmp;
+    end function;
+
+    function reduceAnd (iVector : std_logic_vector) return std_logic is
+        variable vRes_tmp : std_logic;
+    begin
+        -- initialize result variable
+        vRes_tmp := cActivated;
+
+        for i in iVector'range loop
+            vRes_tmp := vRes_tmp and iVector(i);
+        end loop;
+
+        return vRes_tmp;
     end function;
 
 end Global;
