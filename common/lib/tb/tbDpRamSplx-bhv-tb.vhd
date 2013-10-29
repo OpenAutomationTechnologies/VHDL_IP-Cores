@@ -49,17 +49,19 @@ use work.global.all;
 entity tbDpRamSplx is
     generic (
         --! Data width port A [bit]
-        gWordWidthA     : natural := 32;
+        gWordWidthA         : natural := 32;
+        --! Byteenable width port A [bit]
+        gByteenableWidthA   : natural := 4;
         --! Number of words port A
-        gNumberOfWordsA : natural := 1024;
+        gNumberOfWordsA     : natural := 1024;
         --! Data width port B [bit]
-        gWordWidthB     : natural := 32;
+        gWordWidthB         : natural := 32;
         --! Number of words port B
-        gNumberOfWordsB : natural := 1024;
+        gNumberOfWordsB     : natural := 1024;
         --! Initialization file
-        gInitFile       : string := "unused";
+        gInitFile           : string := "unused";
         --! Stimuli file
-        gStimFile       : string := "stim.txt"
+        gStimFile           : string := "stim.txt"
     );
 end tbDpRamSplx;
 
@@ -73,7 +75,7 @@ architecture bhv of tbDpRamSplx is
     type tDut is record
         write       : std_logic;
         address     : std_logic_vector(logDualis(gNumberOfWordsA)-1 downto 0);
-        byteenable  : std_logic_vector(gWordWidthA/8-1 downto 0);
+        byteenable  : std_logic_vector(gByteenableWidthA-1 downto 0);
         writedata   : std_logic_vector(gWordWidthA-1 downto 0);
         readdata    : std_logic_vector(gWordWidthA-1 downto 0);
     end record;
@@ -123,11 +125,12 @@ begin
     --! The device under test (DUT)
     theDUT : entity work.dpRamSplx
         generic map (
-            gWordWidthA     => gWordWidthA,
-            gNumberOfWordsA => gNumberOfWordsA,
-            gWordWidthB     => gWordWidthB,
-            gNumberOfWordsB => gNumberOfWordsB,
-            gInitFile       => gInitFile
+            gWordWidthA         => gWordWidthA,
+            gByteenableWidthA   => gByteenableWidthA,
+            gNumberOfWordsA     => gNumberOfWordsA,
+            gWordWidthB         => gWordWidthB,
+            gNumberOfWordsB     => gNumberOfWordsB,
+            gInitFile           => gInitFile
         )
         port map (
             iClk_A          => clk,

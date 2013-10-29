@@ -52,15 +52,17 @@ use work.global.all;
 entity dpRamSplx is
     generic (
         --! Word width port A [bit]
-        gWordWidthA     : natural := 16;
+        gWordWidthA         : natural := 16;
+        --! Byteenable width port A [bit]
+        gByteenableWidthA   : natural := 2;
         --! Number of words (reference is port A)
-        gNumberOfWordsA : natural := 1024;
+        gNumberOfWordsA     : natural := 1024;
         --! Word width port B [bit]
-        gWordWidthB     : natural := 32;
+        gWordWidthB         : natural := 32;
         --! Number of words (reference is port B)
-        gNumberOfWordsB : natural := 512;
+        gNumberOfWordsB     : natural := 512;
         --! Initialization file
-        gInitFile       : string := "UNUSED"
+        gInitFile           : string := "UNUSED"
     );
     port (
         -- PORT A
@@ -73,7 +75,7 @@ entity dpRamSplx is
         --! Address of port A
         iAddress_A      : in std_logic_vector(logDualis(gNumberOfWordsA)-1 downto 0);
         --! Byteenable of port A
-        iByteenable_A   : in std_logic_vector(gWordWidthA/8-1 downto 0);
+        iByteenable_A   : in std_logic_vector(gByteenableWidthA-1 downto 0);
         --! Writedata of port A
         iWritedata_A    : in std_logic_vector(gWordWidthA-1 downto 0);
         -- PORT B

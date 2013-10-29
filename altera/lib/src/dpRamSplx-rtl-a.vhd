@@ -63,8 +63,8 @@ begin
             widthad_b               => logDualis(gNumberOfWordsB),
             width_a                 => gWordWidthA,
             width_b                 => gWordWidthB,
-            width_byteena_a         => gWordWidthA/8,
-            width_byteena_b         => gWordWidthB/8
+            width_byteena_a         => gByteenableWidthA,
+            width_byteena_b         => gByteenableWidthA
         )
         port map (
             clock0      => iClk_A,

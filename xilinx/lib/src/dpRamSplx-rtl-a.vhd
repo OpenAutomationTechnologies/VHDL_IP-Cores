@@ -56,28 +56,32 @@ architecture rtl of dpRamSplx is
         sUnsupported,
         sAsym_16_32,
         sAsym_32_16,
-        sSym
+        sSym,
+        sSym_noBe
     );
 
     --! Function to return width configuration.
     function getWidthConfig (
-        wordWidthA  : natural;
-        wordWidthB  : natural
+        wordWidthA          : natural;
+        byteEnableWidthA    : natural;
+        wordWidthB          : natural
     ) return tWidthConfig is
     begin
-        if wordWidthA = 16 and wordWidthB = 32 then
+        if wordWidthA = 16 and wordWidthB = 32 and byteEnableWidthA = 2 then
             return sAsym_16_32;
-        elsif wordWidthA = 32 and wordWidthB = 16 then
+        elsif wordWidthA = 32 and wordWidthB = 16 and byteEnableWidthA = 4 then
             return sAsym_32_16;
-        elsif wordWidthA = wordWidthB then
+        elsif wordWidthA = wordWidthB and byteEnableWidthA = wordWidthA/cByteLength then
             return sSym;
+        elsif wordWidthA = wordWidthB and byteEnableWidthA = 1 then
+            return sSym_noBe;
         else
             return sUnsupported;
         end if;
     end function;
 
     --! Width configuration
-    constant cWidthConfig   : tWidthConfig := getWidthConfig(gWordWidthA, gWordWidthB);
+    constant cWidthConfig   : tWidthConfig := getWidthConfig(gWordWidthA, gByteenableWidthA, gWordWidthB);
 
     --! Words of dpram
     constant cDprWords      : natural := min(gNumberOfWordsA, gNumberOfWordsB);
@@ -87,7 +91,7 @@ architecture rtl of dpRamSplx is
     --! Dpr write port address
     signal writeAddress     : std_logic_vector(logDualis(cDprWords)-1 downto 0);
     --! Dpr write port enables
-    signal writeByteenable  : std_logic_vector(cDprWordWidth/8-1 downto 0);
+    signal writeByteenable  : std_logic_vector(cDprWordWidth/cByteLength-1 downto 0);
     --! Dpr write port
     signal writedata        : std_logic_vector(cDprWordWidth-1 downto 0);
     --! Dpr read port address
@@ -163,4 +167,14 @@ begin
         readAddress     <= iAddress_B;
         oReaddata_B     <= readdata;
     end generate WIDTHCFG_SYM;
+
+    --! This generate block assigns the symmetric write and read ports with
+    --! disabled byteenables.
+    WIDTHCFG_SYM_NOBE : if cWidthConfig = sSym_noBe generate
+        writeAddress    <= iAddress_A;
+        writeByteenable <= (others => iByteenable_A(iByteenable_A'left));
+        writedata       <= iWritedata_A;
+        readAddress     <= iAddress_B;
+        oReaddata_B     <= readdata;
+    end generate WIDTHCFG_SYM_NOBE;
 end architecture rtl;
