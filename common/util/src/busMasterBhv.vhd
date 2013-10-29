@@ -201,10 +201,10 @@ begin
                 vCmd                := instruction2Command(vReadString);
                 vJump               := FALSE;
                 -- reset register
-                NextReg.address     <= (others => 'X');
-                NextReg.writeData   <= (others => 'X');
-                NextReg.byteEnable  <= (others => 'X');
-                NextReg.compareValue<= (others => 'X');
+                NextReg.address     <= (others => cInactivated);
+                NextReg.writeData   <= (others => cInactivated);
+                NextReg.byteEnable  <= (others => cInactivated);
+                NextReg.compareValue<= (others => cInactivated);
                 NextReg.memAccess   <= s_UNDEF;
                 NextReg.command     <= s_UNDEF;
                 NextReg.errorEnable <= cInactivated;
