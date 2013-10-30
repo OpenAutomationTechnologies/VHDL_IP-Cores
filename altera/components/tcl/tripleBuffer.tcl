@@ -3,7 +3,7 @@
 
 # Generation callback for nios2-bsp
 proc generationCallback { instName tgtDir bspDir } {
-    set fileName        "appif-cfg.h"
+    set fileName        "tbuf-cfg.h"
     set cmacro_off              "TBUF_OFFSET"
     set listCmacro_off  [list   "TBUF_OFFSET_CONACK" \
                                 $cmacro_off \
@@ -94,8 +94,8 @@ proc generationCallback { instName tgtDir bspDir } {
 
     # Write IFNDEF stuff
     writeFile_emptyLine $fid
-    writeFile_string $fid "#ifndef __APPIF_CFG_H__"
-    writeFile_string $fid "#define __APPIF_CFG_H__"
+    writeFile_string $fid "#ifndef _INC_tbuf_cfg_H_"
+    writeFile_string $fid "#define _INC_tbuf_cfg_H_"
     writeFile_emptyLine $fid
 
     # Write offset/size/is-pro pairs
@@ -140,7 +140,7 @@ proc generationCallback { instName tgtDir bspDir } {
     writeFile_string $fid "                      }"
 
     writeFile_emptyLine $fid
-    writeFile_string $fid "#endif"
+    writeFile_string $fid "#endif /* _INC_tbuf_cfg_H_ */"
     writeFile_close $fid
 
     puts "***********************************************************"
