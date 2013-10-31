@@ -105,6 +105,7 @@ architecture bhv of busMaster is
         s_INSTR_FETCH,
         s_REGISTER,        -- sync. barrier
         s_WAIT,
+        s_PRE_COMPARE,     -- glitch barrier
         s_COMPARE,
         s_ERROR,
         s_FINISHED
@@ -283,10 +284,20 @@ begin
                     if iAck = cActivated then
                         -- propagation delay to ensure, that the input is correct.
                         -- otherwise it would take some delta cycles.
-                        InterpreterState <= s_COMPARE after 100 ps;
+                        InterpreterState <= s_PRE_COMPARE after 100 ps;
                     elsif Reg.command = s_NOP then
                         InterpreterState <= s_READOUT;
                     end if;
+
+            when s_PRE_COMPARE =>
+                -- check if ack is stable
+                if iAck = cActivated then
+                    -- stable, go ahead!
+                    InterpreterState <= s_COMPARE;
+                else
+                    -- instable go back
+                    InterpreterState <= s_WAIT;
+                end if;
 
             when s_COMPARE =>
                 -- compare, if neccessary, actual with compare value!
