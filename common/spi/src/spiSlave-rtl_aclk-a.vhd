@@ -256,6 +256,7 @@ begin
 
     busCombProc : process (
         iLoad,
+        iLoadData,
         loadReg
     )
     begin
