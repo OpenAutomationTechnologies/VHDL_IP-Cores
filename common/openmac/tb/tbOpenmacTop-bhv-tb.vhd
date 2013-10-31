@@ -249,7 +249,7 @@ architecture bhv of tbOpenmacTop is
 
     --! Phy management type
     type tDutPhyMgmt is record
-        nPhyRst         : std_logic;
+        nPhyRst         : std_logic_vector(gSmiPortCount-1 downto 0);
         clk             : std_logic_vector(gSmiPortCount-1 downto 0);
         data_outEnable  : std_logic;
         data_out        : std_logic_vector(gSmiPortCount-1 downto 0);

@@ -237,7 +237,7 @@ entity openmacTop is
         -- Phy management interface
         -----------------------------------------------------------------------
         --! Phy reset (low-active)
-        onPhy_reset             : out   std_logic;
+        onPhy_reset             : out   std_logic_vector(gSmiPortCount-1 downto 0);
         --! SMI clock
         oSmi_clk                : out   std_logic_vector(gSmiPortCount-1 downto 0);
         --! SMI data output enable (tri-state buffer)
@@ -621,7 +621,7 @@ begin
         oSmi_clk            <= (others => inst_phyMgmt.smiClk);
         oSmi_data_out       <= (others => inst_phyMgmt.smiDataOut);
         oSmi_data_outEnable <= inst_phyMgmt.smiDataOutEnable;
-        onPhy_reset         <= inst_phyMgmt.nPhyReset;
+        onPhy_reset         <= (others => inst_phyMgmt.nPhyReset);
 
         oActivity <= inst_activity.activity;
 

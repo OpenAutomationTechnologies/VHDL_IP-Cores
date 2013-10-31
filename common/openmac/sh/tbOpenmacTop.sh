@@ -18,7 +18,9 @@ common/lib/src/addrDecodeRtl.vhd \
 common/lib/src/cntRtl.vhd \
 common/lib/src/dpRam-e.vhd \
 common/lib/src/dpRamSplx-e.vhd \
+common/lib/src/edgedetectorRtl.vhd \
 common/lib/src/synchronizerRtl.vhd \
+common/lib/src/syncTog-rtl-ea.vhd \
 \
 common/util/src/dpRam-bhv-a.vhd \
 altera/lib/src/dpRamSplx-rtl-a.vhd \

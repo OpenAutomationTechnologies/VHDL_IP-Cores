@@ -106,6 +106,7 @@ cp common/lib/src/req_ack.vhd                     ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/sync.vhd                        ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/synchronizerRtl.vhd             ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/slow2fastSync.vhd               ${DIR_RELEASE}/common/lib/src
+cp common/lib/src/syncTog-rtl-ea.vhd               ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/memMap.vhd                      ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/global.vhd                      ${DIR_RELEASE}/common/lib/src
 
@@ -148,7 +149,7 @@ cp common/fifo/src/asyncFifo-rtl-a.vhd            ${DIR_RELEASE}/common/fifo/src
 cp common/fifo/src/fifoRead-rtl-ea.vhd            ${DIR_RELEASE}/common/fifo/src
 cp common/fifo/src/fifoWrite-rtl-ea.vhd           ${DIR_RELEASE}/common/fifo/src
 cp common/lib/src/cntRtl.vhd                      ${DIR_RELEASE}/common/lib/src
-cp common/lib/src/synchronizerRtl.vhd             ${DIR_RELEASE}/common/lib/src
+cp common/lib/src/syncTog-rtl-ea.vhd             ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/edgedetectorRtl.vhd             ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/nShiftRegRtl.vhd                ${DIR_RELEASE}/common/lib/src
 cp common/spi/src/spiSlave-e.vhd                  ${DIR_RELEASE}/common/spi/src
@@ -184,6 +185,7 @@ cp common/lib/src/req_ack.vhd                     ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/sync.vhd                        ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/synchronizerRtl.vhd             ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/slow2fastSync.vhd               ${DIR_RELEASE}/common/lib/src
+cp common/lib/src/syncTog-rtl-ea.vhd               ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/global.vhd                      ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/dpRam-e.vhd                     ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/dpRamSplx-e.vhd                 ${DIR_RELEASE}/common/lib/src

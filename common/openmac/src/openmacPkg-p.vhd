@@ -130,6 +130,34 @@ package openmacPkg is
     --! Functio to get tRmiiPathArray enables.
     function rmiiGetEnable ( iArray : tRmiiPathArray ) return std_logic_vector;
 
+    --! Procedure to convert tRmiiPathArray to std_logic_vector.
+    procedure rmiiPathArrayToStdLogicVector (
+        signal iVector      : in    tRmiiPathArray;
+        signal oEnable      : out   std_logic_vector;
+        signal oData        : out   std_logic_vector
+    );
+
+    --! Procedure to convert std_logic_vector to tRmiiPathArray
+    procedure stdLogicVectorToRmiiPathArray (
+        signal iEnable      : in    std_logic_vector;
+        signal iData        : in    std_logic_vector;
+        signal oVector      : out   tRmiiPathArray
+    );
+
+    --! Procedure to convert tMiiPathArray to std_logic_vector.
+    procedure miiPathArrayToStdLogicVector (
+        signal iVector      : in    tMiiPathArray;
+        signal oEnable      : out   std_logic_vector;
+        signal oData        : out   std_logic_vector
+    );
+
+    --! Procedure to convert std_logic_vector to tMiiPathArray
+    procedure stdLogicVectorToMiiPathArray (
+        signal iEnable      : in    std_logic_vector;
+        signal iData        : in    std_logic_vector;
+        signal oVector      : out   tMiiPathArray
+    );
+
     ---------------------------------------------------------------------------
     -- Memory mapping
     ---------------------------------------------------------------------------
@@ -271,4 +299,80 @@ package body openmacPkg is
 
         return vRes_tmp;
     end function;
+
+    --! Procedure to convert tRmiiPathArray to std_logic_vector.
+    procedure rmiiPathArrayToStdLogicVector (
+        signal iVector      : in    tRmiiPathArray;
+        signal oEnable      : out   std_logic_vector;
+        signal oData        : out   std_logic_vector
+    ) is
+        variable vVector_tmp : tRmiiPathArray(iVector'length-1 downto 0);
+    begin
+        vVector_tmp := iVector;
+
+        for i in vVector_tmp'range loop
+            oEnable(i) <= vVector_tmp(i).enable;
+
+            for j in cRmiiDataWidth-1 downto 0 loop
+                oData(i*cRmiiDataWidth+j) <= vVector_tmp(i).data(j);
+            end loop;
+        end loop;
+    end procedure;
+
+    --! Procedure to convert std_logic_vector to tRmiiPathArray
+    procedure stdLogicVectorToRmiiPathArray (
+        signal iEnable      : in    std_logic_vector;
+        signal iData        : in    std_logic_vector;
+        signal oVector      : out   tRmiiPathArray
+    ) is
+        variable vVector_tmp : tRmiiPathArray(iEnable'length-1 downto 0);
+    begin
+        for i in vVector_tmp'range loop
+            vVector_tmp(i).enable := iEnable(i);
+
+            for j in cRmiiDataWidth-1 downto 0 loop
+                vVector_tmp(i).data(j)  := iData(i*cRmiiDataWidth+j);
+            end loop;
+        end loop;
+
+        oVector <= vVector_tmp;
+    end procedure;
+
+        --! Procedure to convert tMiiPathArray to std_logic_vector.
+    procedure miiPathArrayToStdLogicVector (
+        signal iVector      : in    tMiiPathArray;
+        signal oEnable      : out   std_logic_vector;
+        signal oData        : out   std_logic_vector
+    ) is
+        variable vVector_tmp : tMiiPathArray(iVector'length-1 downto 0);
+    begin
+        vVector_tmp := iVector;
+
+        for i in vVector_tmp'range loop
+            oEnable(i)      <= vVector_tmp(i).enable;
+
+            for j in cMiiDataWidth-1 downto 0 loop
+                oData(i*cMiiDataWidth+j) <= vVector_tmp(i).data(j);
+            end loop;
+        end loop;
+    end procedure;
+
+    --! Procedure to convert std_logic_vector to tMiiPathArray
+    procedure stdLogicVectorToMiiPathArray (
+        signal iEnable      : in    std_logic_vector;
+        signal iData        : in    std_logic_vector;
+        signal oVector      : out   tMiiPathArray
+    ) is
+        variable vVector_tmp : tMiiPathArray(iEnable'length-1 downto 0);
+    begin
+        for i in vVector_tmp'range loop
+            vVector_tmp(i).enable   := iEnable(i);
+
+            for j in cMiiDataWidth-1 downto 0 loop
+                vVector_tmp(i).data(j) := iData(i*cMiiDataWidth+j);
+            end loop;
+        end loop;
+
+        oVector <= vVector_tmp;
+    end procedure;
 end package body openmacPkg;

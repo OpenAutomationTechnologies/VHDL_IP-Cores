@@ -300,7 +300,7 @@ architecture rtl of openmac_ethernet is
     signal miiTxClk     : std_logic_vector(cPhyPortCount-1 downto 0);
 
     --! Phy reset
-    signal nPhyRst      : std_logic;
+    signal nPhyRst      : std_logic_vector(cSmiPortCount-1 downto 0);
     --! SMI clocks
     signal smiClk       : std_logic_vector(cSmiPortCount-1 downto 0);
     --! SMI data out enable
@@ -485,9 +485,9 @@ begin
         smiDin(0) <= phy_smi_dio_I;
     end generate DONT_GEN_IO;
 
-    phy0_rst_n  <= nPhyRst;
-    phy1_rst_n  <= nPhyRst;
-    phy_rst_n   <= nPhyRst;
+    phy0_rst_n  <= nPhyRst(0);
+    phy1_rst_n  <= nPhyRst(0);
+    phy_rst_n   <= nPhyRst(0); -- vector is identical
 
     ---------------------------------------------------------------------------
     -- RMII Phy ports

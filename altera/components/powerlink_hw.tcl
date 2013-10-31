@@ -102,6 +102,7 @@ add_file "../../common/lib/src/req_ack.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/sync.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/synchronizerRtl.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/slow2fastSync.vhd" {SYNTHESIS SIMULATION}
+add_file "../../common/lib/src/syncTog-rtl-ea.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/lib/src/memMap.vhd" {SYNTHESIS SIMULATION}
 
 #callbacks

@@ -82,10 +82,10 @@ begin
         --fifo size must not be larger than 2**5
         constant FIFO_NIBBLES_LOG2 : integer := 5;
 
-        signal fifo_half, fifo_full, fifo_empty, fifo_valid, fifo_valid_l, fifo_wrempty : std_logic;
+        signal fifo_half, fifo_full, fifo_empty, fifo_valid, txEnable_reg, fifo_wrempty : std_logic;
         signal fifo_wr, fifo_rd : std_logic;
         signal fifo_din : std_logic_vector(NIBBLE_SIZE-1 downto 0);
-        signal fifo_dout, fifo_dout_l : std_logic_vector(NIBBLE_SIZE-1 downto 0);
+        signal fifo_dout, txData_reg : std_logic_vector(NIBBLE_SIZE-1 downto 0);
         signal fifo_rdUsedWord : std_logic_vector (FIFO_NIBBLES_LOG2-1 downto 0);
         signal fifo_wrUsedWord : std_logic_vector (FIFO_NIBBLES_LOG2-1 downto 0);
         --necessary for clr fifo
@@ -119,19 +119,19 @@ begin
 
         fifo_half <= fifo_rdUsedWord(fifo_rdUsedWord'left);
 
-        oMiiTx.data <= fifo_dout_l;
-        oMiiTx.enable <= fifo_valid_l;
+        oMiiTx.data <= txData_reg;
+        oMiiTx.enable <= txEnable_reg;
 
         process(iMiiTxClk, iRst)
         begin
             if iRst = cActivated then
-                fifo_rd <= cInactivated;
-                fifo_valid <= cInactivated;
-                fifo_dout_l <= (others => cInactivated);
-                fifo_valid_l <= cInactivated;
+                fifo_rd         <= cInactivated;
+                fifo_valid      <= cInactivated;
+                txData_reg      <= (others => cInactivated);
+                txEnable_reg    <= cInactivated;
             elsif iMiiTxClk = cActivated and iMiiTxClk'event then
-                fifo_dout_l <= fifo_dout;
-                fifo_valid_l <= fifo_valid;
+                txData_reg      <= fifo_dout;
+                txEnable_reg    <= fifo_valid;
 
                 if fifo_rd = cInactivated and fifo_half = cActivated then
                     fifo_rd <= cActivated;
@@ -196,8 +196,10 @@ begin
         constant FIFO_NIBBLES_LOG2 : integer := 5;
 
         signal fifo_half, fifo_full, fifo_empty, fifo_valid : std_logic;
-        signal fifo_wr, fifo_rd : std_logic;
-        signal fifo_din : std_logic_vector(NIBBLE_SIZE-1 downto 0);
+        signal rxDataValid_reg, fifo_rd : std_logic;
+        signal rxError_reg : std_logic;
+        signal fifo_wr : std_logic;
+        signal rxData_reg : std_logic_vector(NIBBLE_SIZE-1 downto 0);
         signal fifo_dout : std_logic_vector(NIBBLE_SIZE-1 downto 0);
         signal fifo_rdUsedWord : std_logic_vector(FIFO_NIBBLES_LOG2-1 downto 0);
         signal fifo_wrUsedWord : std_logic_vector(FIFO_NIBBLES_LOG2-1 downto 0);
@@ -210,13 +212,17 @@ begin
         process(iMiiRxClk, iRst)
         begin
             if iRst = cActivated then
-                fifo_din <= (others => cInactivated);
-                fifo_wr <= cInactivated;
+                rxData_reg      <= (others => cInactivated);
+                rxDataValid_reg <= cInactivated;
+                rxError_reg     <= cInactivated;
             elsif iMiiRxClk = cActivated and iMiiRxClk'event then
-                fifo_din <= iMiiRx.data;
-                fifo_wr <= iMiiRx.enable and not iMiiRxError;
+                rxData_reg      <= iMiiRx.data;
+                rxDataValid_reg <= iMiiRx.enable;
+                rxError_reg     <= iMiiRxError;
             end if;
         end process;
+
+        fifo_wr <= rxDataValid_reg and not rxError_reg;
 
         oRmiiRx.data <=     fifo_dout(fifo_dout'right+1 downto 0) when sel_dibit = cActivated else
                     fifo_dout(fifo_dout'left downto fifo_dout'left-1);
@@ -271,7 +277,7 @@ begin
                 iAclr       => iRst,
                 iWrClk      => iMiiRxClk,
                 iWrReq      => fifo_wr,
-                iWrData     => fifo_din,
+                iWrData     => rxData_reg,
                 oWrEmpty    => open,
                 oWrFull     => fifo_full,
                 oWrUsedw    => fifo_wrUsedWord,

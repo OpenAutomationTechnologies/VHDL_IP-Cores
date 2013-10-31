@@ -42,6 +42,9 @@ use ieee.std_logic_unsigned.all;
 use ieee.math_real.log2;
 use ieee.math_real.ceil;
 
+library work;
+use work.global.all;
+
 entity openMAC_DMAmaster is
   generic(
        simulate : boolean := false;
@@ -174,19 +177,6 @@ component master_handler
        rx_rd_req : out std_logic;
        tx_aclr : out std_logic;
        tx_wr_req : out std_logic
-  );
-end component;
-component slow2fastSync
-  generic(
-       doSync_g : boolean := TRUE
-  );
-  port (
-       clkDst : in std_logic;
-       clkSrc : in std_logic;
-       dataSrc : in std_logic;
-       rstDst : in std_logic;
-       rstSrc : in std_logic;
-       dataDst : out std_logic
   );
 end component;
 
@@ -338,25 +328,33 @@ rx_wr_clk <= dma_clk;
 
 tx_wr_clk <= m_clk;
 
-sync1 : slow2fastSync
-  port map(
-       clkDst => m_clk,
-       clkSrc => dma_clk,
-       dataDst => m_mac_tx_off,
-       dataSrc => mac_tx_off,
-       rstDst => rst,
-       rstSrc => rst
-  );
+    sync1 : entity work.syncTog
+        generic map (
+            gStages => 2,
+            gInit   => cInactivated
+        )
+        port map (
+            iSrc_rst    => rst,
+            iSrc_clk    => dma_clk,
+            iSrc_data   => mac_tx_off,
+            iDst_rst    => rst,
+            iDst_clk    => m_clk,
+            oDst_data   => m_mac_tx_off
+        );
 
-sync2 : slow2fastSync
-  port map(
-       clkDst => m_clk,
-       clkSrc => dma_clk,
-       dataDst => m_mac_rx_off,
-       dataSrc => mac_rx_off,
-       rstDst => rst,
-       rstSrc => rst
-  );
+    sync2 : entity work.syncTog
+        generic map (
+            gStages => 2,
+            gInit   => cInactivated
+        )
+        port map (
+            iSrc_rst    => rst,
+            iSrc_clk    => dma_clk,
+            iSrc_data   => mac_rx_off,
+            iDst_rst    => rst,
+            iDst_clk    => m_clk,
+            oDst_data   => m_mac_rx_off
+        );
 
 
 ----  Generate statements  ----
@@ -441,38 +439,50 @@ end generate gen16bitFifo;
 
 genRxAddrSync : if gen_rx_fifo_g generate
 begin
-  sync4 : slow2fastSync
-    port map(
-         clkDst => m_clk,
-         clkSrc => dma_clk,
-         dataDst => m_dma_new_addr_wr,
-         dataSrc => dma_new_addr_wr,
-         rstDst => rst,
-         rstSrc => rst
-    );
+    sync4 : entity work.syncTog
+        generic map (
+            gStages => 2,
+            gInit   => cInactivated
+        )
+        port map (
+            iSrc_rst    => rst,
+            iSrc_clk    => dma_clk,
+            iSrc_data   => dma_new_addr_wr,
+            iDst_rst    => rst,
+            iDst_clk    => m_clk,
+            oDst_data   => m_dma_new_addr_wr
+        );
 end generate genRxAddrSync;
 
 genTxAddrSync : if gen_tx_fifo_g generate
 begin
-  sync5 : slow2fastSync
-    port map(
-         clkDst => m_clk,
-         clkSrc => dma_clk,
-         dataDst => m_dma_new_addr_rd,
-         dataSrc => dma_new_addr_rd,
-         rstDst => rst,
-         rstSrc => rst
-    );
+    sync5 : entity work.syncTog
+        generic map (
+            gStages => 2,
+            gInit   => cInactivated
+        )
+        port map(
+            iSrc_rst    => rst,
+            iSrc_clk    => dma_clk,
+            iSrc_data   => dma_new_addr_rd,
+            iDst_rst    => rst,
+            iDst_clk    => m_clk,
+            oDst_data   => m_dma_new_addr_rd
+        );
 
-  sync6 : slow2fastSync
-    port map(
-         clkDst => m_clk,
-         clkSrc => dma_clk,
-         dataDst => m_dma_new_rd_len,
-         dataSrc => dma_new_rd_len,
-         rstDst => rst,
-         rstSrc => rst
-    );
+    sync6 : entity work.syncTog
+        generic map (
+            gStages => 2,
+            gInit   => cInactivated
+        )
+        port map(
+            iSrc_rst    => rst,
+            iSrc_clk    => dma_clk,
+            iSrc_data   => dma_new_rd_len,
+            iDst_rst    => rst,
+            iDst_clk    => m_clk,
+            oDst_data   => m_dma_new_rd_len
+        );
 end generate genTxAddrSync;
 
 gen32bitFifo : if fifo_data_width_g = 32 generate

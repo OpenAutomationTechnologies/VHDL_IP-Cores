@@ -51,6 +51,7 @@ lib axi_powerlink_v0_30_a ../../../../../../common/lib/src/memMap vhdl
 lib axi_powerlink_v0_30_a ../../../../../../common/lib/src/req_ack vhdl
 lib axi_powerlink_v0_30_a ../../../../../../common/lib/src/sync vhdl
 lib axi_powerlink_v0_30_a ../../../../../../common/lib/src/slow2fastSync vhdl
+lib axi_powerlink_v0_30_a ../../../../../../common/lib/src/syncTog-rtl-ea vhdl
 lib axi_powerlink_v0_30_a ../../../../../../common/lib/src/clkXingRtl vhdl
 lib axi_powerlink_v0_30_a ../../../../../../common/lib/src/dpRam-e vhdl
 lib axi_powerlink_v0_30_a ../../../../../../common/lib/src/dpRamSplx-e vhdl

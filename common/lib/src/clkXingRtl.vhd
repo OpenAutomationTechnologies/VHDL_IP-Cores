@@ -46,6 +46,9 @@ use ieee.numeric_std.all;
 --! need reduce or operation
 use ieee.std_logic_misc.OR_REDUCE;
 
+library work;
+use work.global.all;
+
 entity clkXing is
     generic (
         gCsNum : natural := 2;
@@ -152,14 +155,18 @@ begin
             dout => slowRnw
         );
 
-    theSyncAnyAck : entity work.slow2fastSync
+    theSyncAnyAck : entity work.syncTog
+        generic map (
+            gStages => 2,
+            gInit   => cInactivated
+        )
         port map (
-            rstDst => iArst,
-            clkDst => iSlowClk,
-            rstSrc => iArst,
-            clkSrc => iFastClk,
-            dataSrc => fastAnyAck,
-            dataDst => slowAnyAck
+            iSrc_rst    => iArst,
+            iSrc_clk    => iFastClk,
+            iSrc_data   => fastAnyAck,
+            iDst_rst    => iArst,
+            iDst_clk    => iSlowClk,
+            oDst_data   => slowAnyAck
         );
 
     -- WELCOME TO FAST CLOCK DOMAIN --
@@ -173,26 +180,36 @@ begin
         end if;
     end process;
 
-    theSyncWrAck : entity work.slow2fastSync
+    theSyncWrAck : entity work.syncTog
+        generic map (
+            gStages => 2,
+            gInit   => cInactivated
+        )
         port map (
-            rstDst => iArst,
-            clkDst => iFastClk,
-            rstSrc => iArst,
-            clkSrc => iSlowClk,
-            dataSrc => iSlowWrAck,
-            dataDst => fastWrAck
+            iSrc_rst    => iArst,
+            iSrc_clk    => iSlowClk,
+            iSrc_data   => iSlowWrAck,
+            iDst_rst    => iArst,
+            iDst_clk    => iFastClk,
+            oDst_data   => fastWrAck
         );
+
     oFastWrAck <= fastWrAck;
 
-    theSyncRdAck : entity work.slow2fastSync
+    theSyncRdAck : entity work.syncTog
+        generic map (
+            gStages => 2,
+            gInit   => cInactivated
+        )
         port map (
-            rstDst => iArst,
-            clkDst => iFastClk,
-            rstSrc => iArst,
-            clkSrc => iSlowClk,
-            dataSrc => iSlowRdAck,
-            dataDst => fastRdAck
+            iSrc_rst    => iArst,
+            iSrc_clk    => iSlowClk,
+            iSrc_data   => iSlowRdAck,
+            iDst_rst    => iArst,
+            iDst_clk    => iFastClk,
+            oDst_data   => fastRdAck
         );
+
     oFastRdAck <= fastRdAck;
 
     genThoseRdq : for i in readRegister'range generate
