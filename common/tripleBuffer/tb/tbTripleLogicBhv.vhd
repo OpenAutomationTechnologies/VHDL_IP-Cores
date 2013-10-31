@@ -94,7 +94,7 @@ begin
         report "Consumer has not changed to latest buffer!"
         severity failure;
 
-    lagStims : process(rst, clk)
+    lagStims : process(clk)
     begin
         if rising_edge(clk) then
             stimVec_ones_l <= stimVec_ones;

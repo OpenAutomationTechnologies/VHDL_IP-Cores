@@ -109,8 +109,8 @@ begin
     report "Triple buffer bridge translation is faulty!"
     severity failure;
 
-    --! This process checks the result with the falling clock edge
-    theDutSense : process(rst, clk)
+    --! This process describes the registers.
+    process(rst, clk)
     begin
         if rst = cActivated then
             error           <= cInactivated;
@@ -124,6 +124,14 @@ begin
             enable_ll       <= enable_l;
             outAddr_l       <= outAddr;
             outAddr_unreg_l <= outAddr_unreg;
+        end if;
+    end process;
+
+    --! This process checks the result with the falling clock edge
+    theDutSense : process(rst, clk)
+    begin
+        if rst = cActivated then
+            error           <= cInactivated;
         elsif falling_edge(clk) then
             --default
             error           <= cInactivated;

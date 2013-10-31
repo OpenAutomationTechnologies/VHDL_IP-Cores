@@ -86,7 +86,7 @@ begin
     --***********************************************************************--
     -- : simulates a single port memory with byte enable
     --***********************************************************************--
-    TheMemory : process(iSelect, iWrite, iRead, iAddress, iWriteData, iByteenable)
+    TheMemory : process(iSelect, iWrite, iRead, iAddress, iWriteData, Memory)
     begin
         oReadData <= (others => 'X');
         if iSelect = cActivated and iWrite /= iRead and  cMemoryRange >= to_integer(unsigned(iAddress))then
@@ -101,7 +101,7 @@ begin
     --***********************************************************************--
     -- : stimualte the ACK signal
     --***********************************************************************--
-    StimAck: process(oClk, oRst, iWrite, iRead, iSelect )
+    StimAck: process(oClk, oRst)
     begin
         if oRst = cActivated then
             oAck <= cInactivated;
