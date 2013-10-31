@@ -189,7 +189,12 @@ begin
         );
 
     theRam : entity work.spRam
+        generic map (
+            gDataWidth  => hostBridgeWritedata'length,
+            gAddrWidth  => cRamAddrWidth - 2
+        )
         port map (
+            iRst        => rst,
             iClk        => clk,
             iWrite      => hostBridgeWrite,
             iRead       => hostBridgeRead,
