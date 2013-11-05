@@ -122,7 +122,7 @@ end dynamicBridge;
 -------------------------------------------------------------------------------
 architecture rtl of dynamicBridge is
     --! Bridge cycle delay
-    constant cBridgeCycleDelay  : natural := 2;
+    constant cBridgeCycleDelay  : natural := 3;
     --! Bridge read path enable all bytes
     constant cByteenableAllOnes : std_logic_vector(iBaseSetByteenable'range) :=
         (others => cActivated);
