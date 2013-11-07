@@ -46,8 +46,6 @@ set_module_property INTERNAL false
 set_module_property GROUP "Interface Protocols/Ethernet"
 set_module_property AUTHOR "B&R"
 set_module_property DISPLAY_NAME "openMAC"
-set_module_property TOP_LEVEL_HDL_FILE "../../altera/openmac/src/alteraOpenmacTop-rtl-ea.vhd"
-set_module_property TOP_LEVEL_HDL_MODULE alteraOpenmacTop
 set_module_property INSTANTIATE_IN_SYSTEM_MODULE TRUE
 set_module_property EDITABLE false
 set_module_property VALIDATION_CALLBACK validation_callback
@@ -58,32 +56,9 @@ set_module_property ICON_PATH "img/br.png"
 # -----------------------------------------------------------------------------
 # file sets
 # -----------------------------------------------------------------------------
-#TODO: add_file "../../altera/components/sdc/openmac.sdc" {SYNTHESIS}
-add_file "../../common/lib/src/global.vhd"                      {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/addrDecodeRtl.vhd"               {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/cntRtl.vhd"                      {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/dpRam-e.vhd"                     {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/dpRamSplx-e.vhd"                 {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/edgedetectorRtl.vhd"             {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/synchronizerRtl.vhd"             {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/syncTog-rtl-ea.vhd"              {SYNTHESIS SIMULATION}
-add_file "../../common/fifo/src/asyncFifo-e.vhd"                {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/openmacPkg-p.vhd"            {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/dma_handler.vhd"             {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/master_handler.vhd"          {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/openMAC_DMAmaster.vhd"       {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/openfilter-rtl-ea.vhd"       {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/openhub-rtl-ea.vhd"          {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/openmacTimer-rtl-ea.vhd"     {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/phyActGen-rtl-ea.vhd"        {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/phyMgmt-rtl-ea.vhd"          {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/convRmiiToMii-rtl-ea.vhd"    {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/openMAC.vhd"                 {SYNTHESIS SIMULATION}
-add_file "../../common/openmac/src/openmacTop-rtl-ea.vhd"       {SYNTHESIS SIMULATION}
-add_file "../../altera/lib/src/dpRam-rtl-a.vhd"                 {SYNTHESIS SIMULATION}
-add_file "../../altera/lib/src/dpRamSplx-rtl-a.vhd"             {SYNTHESIS SIMULATION}
-add_file "../../altera/fifo/src/asyncFifo-syn-a.vhd"            {SYNTHESIS SIMULATION}
-add_file "../../altera/openmac/src/alteraOpenmacTop-rtl-ea.vhd" {SYNTHESIS SIMULATION}
+add_fileset             QUARTUS_SYNTH QUARTUS_SYNTH fileset_callback
+set_fileset_property    QUARTUS_SYNTH TOP_LEVEL     alteraOpenmacTop
+
 
 source "../../altera/components/tcl/global.tcl"
 
@@ -200,6 +175,55 @@ proc elaboration_callback {} {
     # Set CMacro and Hdl generics
     setCmacro
     setHdl
+}
+
+proc fileset_callback { entityName } {
+    send_message INFO "Generating entity $entityName"
+
+    set dir_root        ../..
+    set dir_common      ${dir_root}/common
+    set dir_altera      ${dir_root}/altera
+    set path_lib        lib/src
+    set path_openmac    openmac/src
+    set path_fifo       fifo/src
+
+    add_fileset_file "${entityName}/global.vhd"                     VHDL PATH "${dir_common}/${path_lib}/global.vhd"
+    add_fileset_file "${entityName}/addrDecodeRtl.vhd"              VHDL PATH "${dir_common}/${path_lib}/addrDecodeRtl.vhd"
+    add_fileset_file "${entityName}/cntRtl.vhd"                     VHDL PATH "${dir_common}/${path_lib}/cntRtl.vhd"
+    add_fileset_file "${entityName}/dpRam-e.vhd"                    VHDL PATH "${dir_common}/${path_lib}/dpRam-e.vhd"
+    add_fileset_file "${entityName}/dpRamSplx-e.vhd"                VHDL PATH "${dir_common}/${path_lib}/dpRamSplx-e.vhd"
+    add_fileset_file "${entityName}/edgedetectorRtl.vhd"            VHDL PATH "${dir_common}/${path_lib}/edgedetectorRtl.vhd"
+    add_fileset_file "${entityName}/synchronizerRtl.vhd"            VHDL PATH "${dir_common}/${path_lib}/synchronizerRtl.vhd"
+    add_fileset_file "${entityName}/syncTog-rtl-ea.vhd"             VHDL PATH "${dir_common}/${path_lib}/syncTog-rtl-ea.vhd"
+    add_fileset_file "${entityName}/asyncFifo-e.vhd"                VHDL PATH "${dir_common}/${path_fifo}/asyncFifo-e.vhd"
+    add_fileset_file "${entityName}/openmacPkg-p.vhd"               VHDL PATH "${dir_common}/${path_openmac}/openmacPkg-p.vhd"
+    add_fileset_file "${entityName}/dma_handler.vhd"                VHDL PATH "${dir_common}/${path_openmac}/dma_handler.vhd"
+    add_fileset_file "${entityName}/master_handler.vhd"             VHDL PATH "${dir_common}/${path_openmac}/master_handler.vhd"
+    add_fileset_file "${entityName}/openMAC_DMAmaster.vhd"          VHDL PATH "${dir_common}/${path_openmac}/openMAC_DMAmaster.vhd"
+    add_fileset_file "${entityName}/openfilter-rtl-ea.vhd"          VHDL PATH "${dir_common}/${path_openmac}/openfilter-rtl-ea.vhd"
+    add_fileset_file "${entityName}/openhub-rtl-ea.vhd"             VHDL PATH "${dir_common}/${path_openmac}/openhub-rtl-ea.vhd"
+    add_fileset_file "${entityName}/openmacTimer-rtl-ea.vhd"        VHDL PATH "${dir_common}/${path_openmac}/openmacTimer-rtl-ea.vhd"
+    add_fileset_file "${entityName}/phyActGen-rtl-ea.vhd"           VHDL PATH "${dir_common}/${path_openmac}/phyActGen-rtl-ea.vhd"
+    add_fileset_file "${entityName}/phyMgmt-rtl-ea.vhd"             VHDL PATH "${dir_common}/${path_openmac}/phyMgmt-rtl-ea.vhd"
+    add_fileset_file "${entityName}/convRmiiToMii-rtl-ea.vhd"       VHDL PATH "${dir_common}/${path_openmac}/convRmiiToMii-rtl-ea.vhd"
+    add_fileset_file "${entityName}/openMAC.vhd"                    VHDL PATH "${dir_common}/${path_openmac}/openMAC.vhd"
+    add_fileset_file "${entityName}/openmacTop-rtl-ea.vhd"          VHDL PATH "${dir_common}/${path_openmac}/openmacTop-rtl-ea.vhd"
+    add_fileset_file "${entityName}/dpRam-rtl-a.vhd"                VHDL PATH "${dir_altera}/${path_lib}/dpRam-rtl-a.vhd"
+    add_fileset_file "${entityName}/dpRamSplx-rtl-a.vhd"            VHDL PATH "${dir_altera}/${path_lib}/dpRamSplx-rtl-a.vhd"
+    add_fileset_file "${entityName}/asyncFifo-syn-a.vhd"            VHDL PATH "${dir_altera}/${path_fifo}/asyncFifo-syn-a.vhd"
+    add_fileset_file "${entityName}/alteraOpenmacTop-rtl-ea.vhd"    VHDL PATH "${dir_altera}/${path_openmac}/alteraOpenmacTop-rtl-ea.vhd"
+
+    set phyType     [get_parameter_value gui_phyType]
+
+    if { ${phyType} == ${::cPhyPortRmii} } {
+        # RMII
+        add_fileset_file "${entityName}/openmacTop-rmii.sdc" SDC PATH "sdc/openmacTop-rmii.sdc"
+    } elseif { ${phyType} == ${::cPhyPortMii} } {
+        # MII
+        add_fileset_file "${entityName}/openmacTop-mii.sdc" SDC PATH "sdc/openmacTop-mii.sdc"
+    } else {
+        send_message WARNING "Phy interface unknown. No timing constrains file generated!"
+    }
 }
 
 # -----------------------------------------------------------------------------

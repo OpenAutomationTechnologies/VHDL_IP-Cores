@@ -26,6 +26,8 @@ mkdir -p ${DIR_RELEASE}
 
 # copy Altera POWERLINK
 echo "copy Altera openmac ipcore..."
+cp --parents altera/components/sdc/openmacTop-mii.sdc         ${DIR_RELEASE}
+cp --parents altera/components/sdc/openmacTop-rmii.sdc        ${DIR_RELEASE}
 cp --parents altera/components/img/br.png                     ${DIR_RELEASE}
 cp --parents altera/components/openmac_hw.tcl                 ${DIR_RELEASE}
 cp --parents altera/components/tcl/global.tcl                 ${DIR_RELEASE}
