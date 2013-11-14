@@ -34,12 +34,12 @@ mkdir -p ${DIR_RELEASE}/common/pdi/src
 mkdir -p ${DIR_RELEASE}/common/powerlink/src
 mkdir -p ${DIR_RELEASE}/common/spi/src
 mkdir -p ${DIR_RELEASE}/doc
-mkdir -p ${DIR_RELEASE}/xilinx/library/pcores/${DIR_AXI_POWERLINK}/data
-mkdir -p ${DIR_RELEASE}/xilinx/library/pcores/${DIR_AXI_POWERLINK}/doc
-mkdir -p ${DIR_RELEASE}/xilinx/library/pcores/${DIR_AXI_POWERLINK}/hdl/vhdl
-mkdir -p ${DIR_RELEASE}/xilinx/library/pcores/${DIR_PLB_POWERLINK}/data
-mkdir -p ${DIR_RELEASE}/xilinx/library/pcores/${DIR_PLB_POWERLINK}/doc
-mkdir -p ${DIR_RELEASE}/xilinx/library/pcores/${DIR_PLB_POWERLINK}/hdl/vhdl
+mkdir -p ${DIR_RELEASE}/xilinx/components/pcores/${DIR_AXI_POWERLINK}/data
+mkdir -p ${DIR_RELEASE}/xilinx/components/pcores/${DIR_AXI_POWERLINK}/doc
+mkdir -p ${DIR_RELEASE}/xilinx/components/pcores/${DIR_AXI_POWERLINK}/hdl/vhdl
+mkdir -p ${DIR_RELEASE}/xilinx/components/pcores/${DIR_PLB_POWERLINK}/data
+mkdir -p ${DIR_RELEASE}/xilinx/components/pcores/${DIR_PLB_POWERLINK}/doc
+mkdir -p ${DIR_RELEASE}/xilinx/components/pcores/${DIR_PLB_POWERLINK}/hdl/vhdl
 mkdir -p ${DIR_RELEASE}/xilinx/lib/src
 mkdir -p ${DIR_RELEASE}/xilinx/openmac/src
 mkdir -p ${DIR_RELEASE}/xilinx/pdi/src
@@ -166,13 +166,13 @@ cp common/pdi/src/pdi.vhd                         ${DIR_RELEASE}/common/pdi/src
 cp common/pdi/src/portio_cnt.vhd                  ${DIR_RELEASE}/common/pdi/src
 cp common/pdi/src/portio.vhd                      ${DIR_RELEASE}/common/pdi/src
 cp common/powerlink/src/powerlink.vhd             ${DIR_RELEASE}/common/powerlink/src
-cp xilinx/library/pcores/axi_powerlink_vX_YY_Z/data/axi_powerlink_v2_1_0.mdd     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_AXI_POWERLINK}/data
-cp xilinx/library/pcores/axi_powerlink_vX_YY_Z/data/axi_powerlink_v2_1_0.mpd     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_AXI_POWERLINK}/data
-cp xilinx/library/pcores/axi_powerlink_vX_YY_Z/data/axi_powerlink_v2_1_0.mui     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_AXI_POWERLINK}/data
-cp xilinx/library/pcores/axi_powerlink_vX_YY_Z/data/axi_powerlink_v2_1_0.pao     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_AXI_POWERLINK}/data
-cp xilinx/library/pcores/axi_powerlink_vX_YY_Z/data/axi_powerlink_v2_1_0.tcl     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_AXI_POWERLINK}/data
-cp xilinx/library/pcores/axi_powerlink_vX_YY_Z/doc/index.pdf                     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_AXI_POWERLINK}/doc
-cp xilinx/library/pcores/axi_powerlink_vX_YY_Z/hdl/vhdl/axi_powerlink.vhd        ${DIR_RELEASE}/xilinx/library/pcores/${DIR_AXI_POWERLINK}/hdl/vhdl
+cp xilinx/components/pcores/axi_powerlink_vX_YY_Z/data/axi_powerlink_v2_1_0.mdd     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_AXI_POWERLINK}/data
+cp xilinx/components/pcores/axi_powerlink_vX_YY_Z/data/axi_powerlink_v2_1_0.mpd     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_AXI_POWERLINK}/data
+cp xilinx/components/pcores/axi_powerlink_vX_YY_Z/data/axi_powerlink_v2_1_0.mui     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_AXI_POWERLINK}/data
+cp xilinx/components/pcores/axi_powerlink_vX_YY_Z/data/axi_powerlink_v2_1_0.pao     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_AXI_POWERLINK}/data
+cp xilinx/components/pcores/axi_powerlink_vX_YY_Z/data/axi_powerlink_v2_1_0.tcl     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_AXI_POWERLINK}/data
+cp xilinx/components/pcores/axi_powerlink_vX_YY_Z/doc/index.pdf                     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_AXI_POWERLINK}/doc
+cp xilinx/components/pcores/axi_powerlink_vX_YY_Z/hdl/vhdl/axi_powerlink.vhd        ${DIR_RELEASE}/xilinx/components/pcores/${DIR_AXI_POWERLINK}/hdl/vhdl
 
 # copy Xilinx PLB POWERLINK
 echo "copy xilinx plb powerlink ipcore..."
@@ -230,10 +230,10 @@ cp common/pdi/src/pdi.vhd                         ${DIR_RELEASE}/common/pdi/src
 cp common/pdi/src/portio_cnt.vhd                  ${DIR_RELEASE}/common/pdi/src
 cp common/pdi/src/portio.vhd                      ${DIR_RELEASE}/common/pdi/src
 cp common/powerlink/src/powerlink.vhd             ${DIR_RELEASE}/common/powerlink/src
-cp xilinx/library/pcores/plb_powerlink_vX_YY_Z/data/plb_powerlink_v2_1_0.mdd     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_PLB_POWERLINK}/data
-cp xilinx/library/pcores/plb_powerlink_vX_YY_Z/data/plb_powerlink_v2_1_0.mpd     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_PLB_POWERLINK}/data
-cp xilinx/library/pcores/plb_powerlink_vX_YY_Z/data/plb_powerlink_v2_1_0.mui     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_PLB_POWERLINK}/data
-cp xilinx/library/pcores/plb_powerlink_vX_YY_Z/data/plb_powerlink_v2_1_0.pao     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_PLB_POWERLINK}/data
-cp xilinx/library/pcores/plb_powerlink_vX_YY_Z/data/plb_powerlink_v2_1_0.tcl     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_PLB_POWERLINK}/data
-cp xilinx/library/pcores/plb_powerlink_vX_YY_Z/doc/index.pdf                     ${DIR_RELEASE}/xilinx/library/pcores/${DIR_PLB_POWERLINK}/doc
-cp xilinx/library/pcores/plb_powerlink_vX_YY_Z/hdl/vhdl/plb_powerlink.vhd        ${DIR_RELEASE}/xilinx/library/pcores/${DIR_PLB_POWERLINK}/hdl/vhdl
+cp xilinx/components/pcores/plb_powerlink_vX_YY_Z/data/plb_powerlink_v2_1_0.mdd     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_PLB_POWERLINK}/data
+cp xilinx/components/pcores/plb_powerlink_vX_YY_Z/data/plb_powerlink_v2_1_0.mpd     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_PLB_POWERLINK}/data
+cp xilinx/components/pcores/plb_powerlink_vX_YY_Z/data/plb_powerlink_v2_1_0.mui     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_PLB_POWERLINK}/data
+cp xilinx/components/pcores/plb_powerlink_vX_YY_Z/data/plb_powerlink_v2_1_0.pao     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_PLB_POWERLINK}/data
+cp xilinx/components/pcores/plb_powerlink_vX_YY_Z/data/plb_powerlink_v2_1_0.tcl     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_PLB_POWERLINK}/data
+cp xilinx/components/pcores/plb_powerlink_vX_YY_Z/doc/index.pdf                     ${DIR_RELEASE}/xilinx/components/pcores/${DIR_PLB_POWERLINK}/doc
+cp xilinx/components/pcores/plb_powerlink_vX_YY_Z/hdl/vhdl/plb_powerlink.vhd        ${DIR_RELEASE}/xilinx/components/pcores/${DIR_PLB_POWERLINK}/hdl/vhdl
