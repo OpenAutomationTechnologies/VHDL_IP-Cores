@@ -110,8 +110,8 @@ proc generate {drv_handle} {
     set pktBufSize  [expr int(pow(2, [xget_param_value $periph "gPacketBufferLog2Size"]))]
 
     # Construct CMACROs
-    set lst_name    [list REG_BASE REG_SPAN TIMER_BASE TIMER_SPAN PHYCNT DMAOBSERV PKTLOCTX PKTLOCRX PKTBUFSIZE TIMERCNT TIMERPULSE TIMERPULSEREGWIDTH]
-    set lst_val     [list ${regBase} ${regSpan} ${timerBase} ${timerSpan} ${phyCount} ${dmaObserv} ${txBufLoc} ${rxBufLoc} ${pktBufSize} ${tmrCount} ${tmrPulsEn} ${tmrPulseWdt}]
+    set lst_name    [list REG_BASE REG_SPAN TIMER_BASE TIMER_SPAN PKT_BASE PKT_SPAN PHYCNT DMAOBSERV PKTLOCTX PKTLOCRX PKTBUFSIZE TIMERCNT TIMERPULSE TIMERPULSEREGWIDTH]
+    set lst_val     [list ${regBase} ${regSpan} ${timerBase} ${timerSpan} ${pktBase} ${pktSpan} ${phyCount} ${dmaObserv} ${txBufLoc} ${rxBufLoc} ${pktBufSize} ${tmrCount} ${tmrPulsEn} ${tmrPulseWdt}]
 
     # Generate header file
     set filePath "../../include"

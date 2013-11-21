@@ -30,8 +30,11 @@ cp --parents altera/components/sdc/openmacTop-mii.sdc           ${DIR_RELEASE}
 cp --parents altera/components/sdc/openmacTop-rmii.sdc          ${DIR_RELEASE}
 cp --parents altera/components/img/br.png                       ${DIR_RELEASE}
 cp --parents altera/components/openmac_hw.tcl                   ${DIR_RELEASE}
+cp --parents altera/components/openmac_sw.tcl                   ${DIR_RELEASE}
+cp --parents altera/components/tcl/openmac.tcl                  ${DIR_RELEASE}
 cp --parents altera/components/tcl/qsysUtil.tcl                 ${DIR_RELEASE}
 cp --parents common/util/tcl/ipcoreUtil.tcl                     ${DIR_RELEASE}
+cp --parents common/util/tcl/writeFile.tcl                      ${DIR_RELEASE}
 cp --parents common/lib/src/global.vhd                          ${DIR_RELEASE}
 cp --parents common/lib/src/addrDecodeRtl.vhd                   ${DIR_RELEASE}
 cp --parents common/lib/src/cntRtl.vhd                          ${DIR_RELEASE}

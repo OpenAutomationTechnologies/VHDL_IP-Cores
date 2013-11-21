@@ -291,7 +291,7 @@ proc checkGui {} {
     set txBufLoc    [get_parameter_value gui_txBufLoc]
     set rxBufLoc    [get_parameter_value gui_rxBufLoc]
     set tmrCount    [get_parameter_value gui_tmrCount]
-    set tmrPulseEn   [get_parameter_value gui_tmrPulseEn]
+    set tmrPulseEn  [get_parameter_value gui_tmrPulseEn]
 
     # Set warning if no RMII is used!
     if { ${phyType} != ${::cPhyPortRmii} } {
@@ -424,14 +424,26 @@ proc setCmacro {} {
     set txBufLoc    [get_parameter_value gui_txBufLoc]
     set rxBufLoc    [get_parameter_value gui_rxBufLoc]
     set tmrCount    [get_parameter_value gui_tmrCount]
-    set tmrPulseEn   [get_parameter_value gui_tmrPulseEn]
     set tmrPulseWdt [get_parameter_value gui_tmrPulseWdt]
+
+    # Get boolean parameters and convert them
+    if { [get_parameter_value gui_tmrPulseEn] } {
+        set tmrPulseEn ${::cTrue}
+    } else {
+        set tmrPulseEn ${::cFalse}
+    }
+
+    if { [getDmaUsed] } {
+        set dmaObserv ${::cTrue}
+    } else {
+        set dmaObserv ${::cFalse}
+    }
 
     # Phy count
     set_module_assignment embeddedsw.CMacro.PHYCNT              ${phyCount}
 
     # DMA observer
-    set_module_assignment embeddedsw.CMacro.DMAOBSERV           [getDmaUsed]
+    set_module_assignment embeddedsw.CMacro.DMAOBSERV           ${dmaObserv}
 
     # Packet buffer location Tx
     set_module_assignment embeddedsw.CMacro.PKTLOCTX            ${txBufLoc}
