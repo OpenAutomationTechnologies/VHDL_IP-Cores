@@ -88,7 +88,7 @@ entity mmSlaveConv is
         oSlave_write        : out   std_logic;
         --! Slave read
         oSlave_read         : out   std_logic;
-        --! Slave address (word address) FIXME: This should also be byte address!
+        --! Slave address (word address)
         oSlave_address      : out   std_logic_vector(gMasterAddrWidth-1 downto 0);
         --! Slave byteenable
         oSlave_byteenable   : out   std_logic_vector(1 downto 0);
@@ -182,23 +182,23 @@ begin
         -- Slave address
         -----------------------------------------------------------------------
         --default assignment
-        oSlave_address  <= cInactivated & iMaster_address(gMasterAddrWidth-1 downto 1); --FIXME: Don't shift here!
+        oSlave_address  <= iMaster_address;
 
         if masterAccess = sDword then
             case to_integer(unsigned(counter_reg)) is
                 when 0 | 2 =>
                     -- First word of dword access
                     if gEndian = "little" then
-                        oSlave_address(oSlave_address'right) <= cInactivated;
+                        oSlave_address(1) <= cInactivated;
                     else
-                        oSlave_address(oSlave_address'right) <= cActivated;
+                        oSlave_address(1) <= cActivated;
                     end if;
                 when 1 =>
                     -- Second word of dword access
                     if gEndian = "little" then
-                        oSlave_address(oSlave_address'right) <= cActivated;
+                        oSlave_address(1) <= cActivated;
                     else
-                        oSlave_address(oSlave_address'right) <= cInactivated;
+                        oSlave_address(1) <= cInactivated;
                     end if;
                 when others =>
                     null; --allowed due to default assignment
