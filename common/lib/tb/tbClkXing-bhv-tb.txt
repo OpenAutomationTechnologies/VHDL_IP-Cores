@@ -1,0 +1,6 @@
+# Memory mapping:
+# Simply read from any address
+
+ASS d 00000000 1234ABCD
+
+FIN
