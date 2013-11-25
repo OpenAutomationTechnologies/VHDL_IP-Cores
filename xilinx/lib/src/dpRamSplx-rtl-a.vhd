@@ -56,8 +56,7 @@ architecture rtl of dpRamSplx is
         sUnsupported,
         sAsym_16_32,
         sAsym_32_16,
-        sSym,
-        sSym_noBe
+        sSym
     );
 
     --! Function to return width configuration.
@@ -73,8 +72,6 @@ architecture rtl of dpRamSplx is
             return sAsym_32_16;
         elsif wordWidthA = wordWidthB and byteEnableWidthA = wordWidthA/cByteLength then
             return sSym;
-        elsif wordWidthA = wordWidthB and byteEnableWidthA = 1 then
-            return sSym_noBe;
         else
             return sUnsupported;
         end if;
@@ -167,14 +164,4 @@ begin
         readAddress     <= iAddress_B;
         oReaddata_B     <= readdata;
     end generate WIDTHCFG_SYM;
-
-    --! This generate block assigns the symmetric write and read ports with
-    --! disabled byteenables.
-    WIDTHCFG_SYM_NOBE : if cWidthConfig = sSym_noBe generate
-        writeAddress    <= iAddress_A;
-        writeByteenable <= (others => iByteenable_A(iByteenable_A'left));
-        writedata       <= iWritedata_A;
-        readAddress     <= iAddress_B;
-        oReaddata_B     <= readdata;
-    end generate WIDTHCFG_SYM_NOBE;
 end architecture rtl;

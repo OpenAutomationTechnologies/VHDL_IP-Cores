@@ -43,6 +43,7 @@ lib axi_openmac_v1_00_a ../../../../../../common/lib/src/clkXingRtl vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/lib/src/cntRtl vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/lib/src/dpRam-e vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/lib/src/dpRamSplx-e vhdl
+lib axi_openmac_v1_00_a ../../../../../../common/lib/src/dpRamSplxNbe-e vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/lib/src/edgedetectorRtl vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/lib/src/synchronizerRtl vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/lib/src/syncTog-rtl-ea vhdl
@@ -65,5 +66,6 @@ lib axi_openmac_v1_00_a ../../../../../../common/openmac/src/openMAC vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/openmac/src/openmacTop-rtl-ea vhdl
 lib axi_openmac_v1_00_a ../../../../../../xilinx/lib/src/dpRam-rtl-a vhdl
 lib axi_openmac_v1_00_a ../../../../../../xilinx/lib/src/dpRamSplx-rtl-a vhdl
+lib axi_openmac_v1_00_a ../../../../../../xilinx/lib/src/dpRamSplxNbe-rtl-a vhdl
 lib axi_openmac_v1_00_a ../../../../../../xilinx/openmac/src/ipifMasterHandler-rtl-ea vhdl
 lib axi_openmac_v1_00_a ../../../../../../xilinx/openmac/src/axi_openmac-rtl-ea vhdl

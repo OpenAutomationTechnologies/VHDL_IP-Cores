@@ -14,9 +14,9 @@ common/util/src/busMasterPkg.vhd \
 common/util/src/busMasterBhv.vhd \
 \
 common/lib/src/synchronizerRtl.vhd \
-common/lib/src/dpRamSplx-e.vhd \
+common/lib/src/dpRamSplxNbe-e.vhd \
 \
-altera/lib/src/dpRamSplx-rtl-a.vhd \
+xilinx/lib/src/dpRamSplxNbe-rtl-a.vhd \
 \
 common/fifo/src/fifoRead-rtl-ea.vhd \
 common/fifo/src/fifoWrite-rtl-ea.vhd \

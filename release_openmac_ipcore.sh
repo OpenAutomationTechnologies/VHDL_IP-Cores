@@ -81,6 +81,7 @@ cp --parents common/lib/src/clkXingRtl.vhd                      ${DIR_RELEASE}
 cp --parents common/lib/src/cntRtl.vhd                          ${DIR_RELEASE}
 cp --parents common/lib/src/dpRam-e.vhd                         ${DIR_RELEASE}
 cp --parents common/lib/src/dpRamSplx-e.vhd                     ${DIR_RELEASE}
+cp --parents common/lib/src/dpRamSplxNbe-e.vhd                  ${DIR_RELEASE}
 cp --parents common/lib/src/edgedetectorRtl.vhd                 ${DIR_RELEASE}
 cp --parents common/lib/src/synchronizerRtl.vhd                 ${DIR_RELEASE}
 cp --parents common/lib/src/syncTog-rtl-ea.vhd                  ${DIR_RELEASE}
@@ -104,5 +105,6 @@ cp --parents common/openmac/src/openMAC.vhd                     ${DIR_RELEASE}
 cp --parents common/openmac/src/openmacTop-rtl-ea.vhd           ${DIR_RELEASE}
 cp --parents xilinx/lib/src/dpRam-rtl-a.vhd                     ${DIR_RELEASE}
 cp --parents xilinx/lib/src/dpRamSplx-rtl-a.vhd                 ${DIR_RELEASE}
+cp --parents xilinx/lib/src/dpRamSplxNbe-rtl-a.vhd              ${DIR_RELEASE}
 cp --parents xilinx/openmac/src/ipifMasterHandler-rtl-ea.vhd    ${DIR_RELEASE}
 cp --parents xilinx/openmac/src/axi_openmac-rtl-ea.vhd          ${DIR_RELEASE}

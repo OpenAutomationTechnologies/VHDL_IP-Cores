@@ -52,8 +52,6 @@ use work.global.all;
 architecture rtl of asyncFifo is
     --! Address width
     constant cAddrWidth         : natural := logDualis(gWordSize);
-    --! Byteenable width (fix it to 1, since no byteenables are needed)
-    constant cByteenableWidth   : natural := 1;
 
     --! Type for DPRAM port commons
     type tDpramPortCommon is record
@@ -67,7 +65,6 @@ architecture rtl of asyncFifo is
         wrPort      : tDpramPortCommon;
         rdPort      : tDpramPortCommon;
         write       : std_logic;
-        byteenable  : std_logic_vector(cByteenableWidth-1 downto 0);
         writedata   : std_logic_vector(gDataWidth-1 downto 0);
         readdata    : std_logic_vector(gDataWidth-1 downto 0);
     end record;
@@ -128,7 +125,6 @@ begin
     inst_dpram.wrPort.enable    <= inst_writeCtrl.request;
     inst_dpram.write            <= inst_writeCtrl.request;
     inst_dpram.wrPort.address   <= inst_writeCtrl.address;
-    inst_dpram.byteenable       <= (others => cActivated); --always write words
     inst_dpram.writedata        <= iWrData;
     -- Read port
     inst_dpram.rdPort.clk       <= iRdClk;
@@ -197,13 +193,10 @@ begin
         );
 
     --! This is the FIFO buffer.
-    FIFO_BUFFER : entity work.dpRamSplx
+    FIFO_BUFFER : entity work.dpRamSplxNbe
         generic map (
-            gWordWidthA         => gDataWidth,
-            gByteenableWidthA   => cByteenableWidth,
-            gNumberOfWordsA     => gWordSize,
-            gWordWidthB         => gDataWidth,
-            gNumberOfWordsB     => gWordSize,
+            gWordWidth          => gDataWidth,
+            gNumberOfWords      => gWordSize,
             gInitFile           => "UNUSED"
         )
         port map (
@@ -211,7 +204,6 @@ begin
             iEnable_A       => inst_dpram.wrPort.enable,
             iWriteEnable_A  => inst_dpram.write,
             iAddress_A      => inst_dpram.wrPort.address,
-            iByteenable_A   => inst_dpram.byteenable,
             iWritedata_A    => inst_dpram.writedata,
             iClk_B          => inst_dpram.rdPort.clk,
             iEnable_B       => inst_dpram.rdPort.enable,
