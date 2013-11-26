@@ -35,7 +35,33 @@
 #
 # -----------------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------
+# PACKAGES
+# -----------------------------------------------------------------------------
+# Insert local packages.
+source "../../common/util/tcl/ipcoreUtil.tcl"
+source "../../altera/components/tcl/qsysUtil.tcl"
+source "../../common/openmac/tcl/openmac.tcl"
+
+# Use SOPC version 10.1
 package require -exact sopc 10.1
+
+# Use package ipcoreUtil for general functions...
+package require ipcoreUtil 0.0.1
+
+# Use package qsysUtil for Qsys helpers...
+package require qsysUtil 0.0.1
+
+# Use packge openmac...
+package require openmac 0.0.1
+
+# Assign constants from packages
+set cFalse          $::ipcoreUtil::cFalse
+set cTrue           $::ipcoreUtil::cTrue
+set cPktBufLocal    $::openmac::cPktBufLocal
+set cPktBufExtern   $::openmac::cPktBufExtern
+set cPhyPortRmii    $::openmac::cPhyPortRmii
+set cPhyPortMii     $::openmac::cPhyPortMii
 
 # -----------------------------------------------------------------------------
 # module
@@ -59,69 +85,57 @@ set_module_property ICON_PATH "img/br.png"
 add_fileset             QUARTUS_SYNTH QUARTUS_SYNTH fileset_callback
 set_fileset_property    QUARTUS_SYNTH TOP_LEVEL     alteraOpenmacTop
 
-
-source "../../altera/components/tcl/global.tcl"
-
 # -----------------------------------------------------------------------------
 # VHDL parameters
 # -----------------------------------------------------------------------------
 set hdlParamVisible FALSE
 
-global_addHdlParam  gPhyPortCount           NATURAL 2           $hdlParamVisible
-global_addHdlParam  gPhyPortType            NATURAL 1           $hdlParamVisible
-global_addHdlParam  gSmiPortCount           NATURAL 1           $hdlParamVisible
-global_addHdlParam  gEndianness             STRING  "little"    $hdlParamVisible
-global_addHdlParam  gEnableActivity         NATURAL 0           $hdlParamVisible
-global_addHdlParam  gEnableDmaObserver      NATURAL 0           $hdlParamVisible
-global_addHdlParam  gDmaAddrWidth           NATURAL 32          $hdlParamVisible
-global_addHdlParam  gDmaDataWidth           NATURAL 16          $hdlParamVisible
-global_addHdlParam  gDmaBurstCountWidth     NATURAL 4           $hdlParamVisible
-global_addHdlParam  gDmaWriteBurstLength    NATURAL 16          $hdlParamVisible
-global_addHdlParam  gDmaReadBurstLength     NATURAL 16          $hdlParamVisible
-global_addHdlParam  gDmaWriteFifoLength     NATURAL 16          $hdlParamVisible
-global_addHdlParam  gDmaReadFifoLength      NATURAL 16          $hdlParamVisible
-global_addHdlParam  gPacketBufferLocTx      NATURAL 1           $hdlParamVisible
-global_addHdlParam  gPacketBufferLocRx      NATURAL 1           $hdlParamVisible
-global_addHdlParam  gPacketBufferLog2Size   NATURAL 10          $hdlParamVisible
-global_addHdlParam  gTimerCount             NATURAL 2           $hdlParamVisible
-global_addHdlParam  gTimerEnablePulseWidth  NATURAL 0           $hdlParamVisible
-global_addHdlParam  gTimerPulseRegWidth     NATURAL 10          $hdlParamVisible
+qsysUtil::addHdlParam  gPhyPortCount           NATURAL 2           $hdlParamVisible
+qsysUtil::addHdlParam  gPhyPortType            NATURAL 1           $hdlParamVisible
+qsysUtil::addHdlParam  gSmiPortCount           NATURAL 1           $hdlParamVisible
+qsysUtil::addHdlParam  gEndianness             STRING  "little"    $hdlParamVisible
+qsysUtil::addHdlParam  gEnableActivity         NATURAL 0           $hdlParamVisible
+qsysUtil::addHdlParam  gEnableDmaObserver      NATURAL 0           $hdlParamVisible
+qsysUtil::addHdlParam  gDmaAddrWidth           NATURAL 32          $hdlParamVisible
+qsysUtil::addHdlParam  gDmaDataWidth           NATURAL 16          $hdlParamVisible
+qsysUtil::addHdlParam  gDmaBurstCountWidth     NATURAL 4           $hdlParamVisible
+qsysUtil::addHdlParam  gDmaWriteBurstLength    NATURAL 16          $hdlParamVisible
+qsysUtil::addHdlParam  gDmaReadBurstLength     NATURAL 16          $hdlParamVisible
+qsysUtil::addHdlParam  gDmaWriteFifoLength     NATURAL 16          $hdlParamVisible
+qsysUtil::addHdlParam  gDmaReadFifoLength      NATURAL 16          $hdlParamVisible
+qsysUtil::addHdlParam  gPacketBufferLocTx      NATURAL 1           $hdlParamVisible
+qsysUtil::addHdlParam  gPacketBufferLocRx      NATURAL 1           $hdlParamVisible
+qsysUtil::addHdlParam  gPacketBufferLog2Size   NATURAL 10          $hdlParamVisible
+qsysUtil::addHdlParam  gTimerCount             NATURAL 2           $hdlParamVisible
+qsysUtil::addHdlParam  gTimerEnablePulseWidth  NATURAL 0           $hdlParamVisible
+qsysUtil::addHdlParam  gTimerPulseRegWidth     NATURAL 10          $hdlParamVisible
 
 # -----------------------------------------------------------------------------
 # System Info parameters
 # -----------------------------------------------------------------------------
 set sysParamVisible FALSE
 
-global_addSysParam sys_mainClk      INTEGER 0   {CLOCK_RATE mainClk}    $sysParamVisible
-global_addSysParam sys_mainClkx2    INTEGER 0   {CLOCK_RATE mainClkx2}  $sysParamVisible
-global_addSysParam sys_dmaAddrWidth INTEGER 0   {ADDRESS_WIDTH dma}     $sysParamVisible
+qsysUtil::addSysParam sys_mainClk      INTEGER 0   {CLOCK_RATE mainClk}    $sysParamVisible
+qsysUtil::addSysParam sys_mainClkx2    INTEGER 0   {CLOCK_RATE mainClkx2}  $sysParamVisible
+qsysUtil::addSysParam sys_dmaAddrWidth INTEGER 0   {ADDRESS_WIDTH dma}     $sysParamVisible
 
 # -----------------------------------------------------------------------------
 # GUI parameters
 # -----------------------------------------------------------------------------
-# Constant for enums (borrowed from global.vhd)
-set cFalse          0
-set cTrue           1
 
-# Constants for enums (borrowed from openmacPkg-p.vhd)
-set cPktBufLocal    1
-set cPktBufExtern   2
-set cPhyPortRmii    1
-set cPhyPortMii     2
-
-global_addGuiParam  gui_phyType     NATURAL 1       "Phy(s) interface type"             ""          "${cPhyPortRmii}:RMII ${cPhyPortMii}:MII"
-global_addGuiParam  gui_phyCount    NATURAL 1       "Number of Phys"                    ""          "1:15"
-global_addGuiParam  gui_extraSmi    BOOLEAN FALSE   "Extra SMI ports"                   ""          ""
-global_addGuiParam  gui_txBufLoc    NATURAL 1       "Tx Buffer Location"                ""          "${cPktBufLocal}:Local ${cPktBufExtern}:External"
-global_addGuiParam  gui_txBufSize   NATURAL 1       "Tx Buffer Size"                    Kilobytes   "1:32"
-global_addGuiParam  gui_txBurstSize NATURAL 1       "Tx Dma Burst Size"                 Words       "1 4 8 16 32 64"
-global_addGuiParam  gui_rxBufLoc    NATURAL 1       "Rx Buffer Location"                ""          "${cPktBufLocal}:Local ${cPktBufExtern}:External"
-global_addGuiParam  gui_rxBufSize   NATURAL 1       "Rx Buffer Size"                    Kilobytes   "1:32"
-global_addGuiParam  gui_rxBurstSize NATURAL 1       "Rx Dma Burst Size"                 Words       "1 4 8 16 32 64"
-global_addGuiParam  gui_tmrCount    NATURAL 1       "Number of Hardware Timers"         ""          "1:2"
-global_addGuiParam  gui_tmrPulsEn   BOOLEAN FALSE   "Timer Pulse Width Control"         ""          ""
-global_addGuiParam  gui_tmrPulseWdt NATURAL 10      "Timer Pulse Width register width"  ""          "1:31"
-global_addGuiParam  gui_actEn       BOOLEAN FALSE   "Packet activity LED"               ""          ""
+qsysUtil::addGuiParam  gui_phyType     NATURAL 1       "Phy(s) interface type"             ""          "${cPhyPortRmii}:RMII ${cPhyPortMii}:MII"
+qsysUtil::addGuiParam  gui_phyCount    NATURAL 1       "Number of Phys"                    ""          "1:15"
+qsysUtil::addGuiParam  gui_extraSmi    BOOLEAN FALSE   "Extra SMI ports"                   ""          ""
+qsysUtil::addGuiParam  gui_txBufLoc    NATURAL 1       "Tx Buffer Location"                ""          "${cPktBufLocal}:Local ${cPktBufExtern}:External"
+qsysUtil::addGuiParam  gui_txBufSize   NATURAL 1       "Tx Buffer Size"                    Kilobytes   "1:32"
+qsysUtil::addGuiParam  gui_txBurstSize NATURAL 1       "Tx Dma Burst Size"                 Words       "1 4 8 16 32 64"
+qsysUtil::addGuiParam  gui_rxBufLoc    NATURAL 1       "Rx Buffer Location"                ""          "${cPktBufLocal}:Local ${cPktBufExtern}:External"
+qsysUtil::addGuiParam  gui_rxBufSize   NATURAL 1       "Rx Buffer Size"                    Kilobytes   "1:32"
+qsysUtil::addGuiParam  gui_rxBurstSize NATURAL 1       "Rx Dma Burst Size"                 Words       "1 4 8 16 32 64"
+qsysUtil::addGuiParam  gui_tmrCount    NATURAL 1       "Number of Hardware Timers"         ""          "1:2"
+qsysUtil::addGuiParam  gui_tmrPulseEn  BOOLEAN FALSE   "Timer Pulse Width Control"         ""          ""
+qsysUtil::addGuiParam  gui_tmrPulseWdt NATURAL 10      "Timer Pulse Width register width"  ""          "1:31"
+qsysUtil::addGuiParam  gui_actEn       BOOLEAN FALSE   "Packet activity LED"               ""          ""
 
 # -----------------------------------------------------------------------------
 # GUI configuration
@@ -143,7 +157,7 @@ add_display_item        $gui_namePktBuf gui_rxBufSize   PARAMETER
 add_display_item        $gui_namePktBuf gui_rxBurstSize PARAMETER
 
 add_display_item        $gui_nameTimer  gui_tmrCount    PARAMETER
-add_display_item        $gui_nameTimer  gui_tmrPulsEn   PARAMETER
+add_display_item        $gui_nameTimer  gui_tmrPulseEn  PARAMETER
 add_display_item        $gui_nameTimer  gui_tmrPulseWdt PARAMETER
 
 add_display_item        $gui_nameOthers gui_actEn       PARAMETER
@@ -235,7 +249,7 @@ proc controlGui {} {
     set phyCount    [get_parameter_value gui_phyCount]
     set txBufLoc    [get_parameter_value gui_txBufLoc]
     set rxBufLoc    [get_parameter_value gui_rxBufLoc]
-    set tmrPulsEn   [get_parameter_value gui_tmrPulsEn]
+    set tmrPulseEn   [get_parameter_value gui_tmrPulseEn]
 
     # If only one phy is used no extra SMI port necessary.
     if { ${phyCount} > 1 } {
@@ -263,7 +277,7 @@ proc controlGui {} {
     }
 
     # Enable timer pulse settings
-    if { ${tmrPulsEn} } {
+    if { ${tmrPulseEn} } {
         set_parameter_property gui_tmrPulseWdt VISIBLE TRUE
     } else {
         set_parameter_property gui_tmrPulseWdt VISIBLE FALSE
@@ -277,7 +291,7 @@ proc checkGui {} {
     set txBufLoc    [get_parameter_value gui_txBufLoc]
     set rxBufLoc    [get_parameter_value gui_rxBufLoc]
     set tmrCount    [get_parameter_value gui_tmrCount]
-    set tmrPulsEn   [get_parameter_value gui_tmrPulsEn]
+    set tmrPulseEn   [get_parameter_value gui_tmrPulseEn]
 
     # Set warning if no RMII is used!
     if { ${phyType} != ${::cPhyPortRmii} } {
@@ -290,10 +304,10 @@ proc checkGui {} {
     }
 
     # Timer pulse enable needs more than one timer!
-    if { ${tmrCount} < 2 && ${tmrPulsEn} } {
+    if { ${tmrCount} < 2 && ${tmrPulseEn} } {
         set tmrCountDisplay     [get_parameter_property gui_tmrCount DISPLAY_NAME]
-        set tmrPulsEnDisplay    [get_parameter_property gui_tmrPulsEn DISPLAY_NAME]
-        send_message error "If you enable \"${tmrPulsEnDisplay}\", the value \"${tmrCountDisplay}\" must be larger 2!"
+        set tmrPulseEnDisplay   [get_parameter_property gui_tmrPulseEn DISPLAY_NAME]
+        send_message error "If you enable \"${tmrPulseEnDisplay}\", the value \"${tmrCountDisplay}\" must be larger 2!"
     }
 }
 
@@ -406,20 +420,15 @@ proc generateMisc {} {
 
 # Set component's Cmacros.
 proc setCmacro {} {
-    set phyType     [get_parameter_value gui_phyType]
     set phyCount    [get_parameter_value gui_phyCount]
-    set extraSmi    [get_parameter_value gui_extraSmi]
     set txBufLoc    [get_parameter_value gui_txBufLoc]
-    set txBufSize   [get_parameter_value gui_txBufSize]
     set rxBufLoc    [get_parameter_value gui_rxBufLoc]
-    set rxBufSize   [get_parameter_value gui_rxBufSize]
     set tmrCount    [get_parameter_value gui_tmrCount]
-    set tmrPulsEn   [get_parameter_value gui_tmrPulsEn]
+    set tmrPulseEn   [get_parameter_value gui_tmrPulseEn]
     set tmrPulseWdt [get_parameter_value gui_tmrPulseWdt]
-    set actEn       [get_parameter_value gui_actEn]
 
     # Phy count
-    set_module_assignment embeddedsw.CMacro.PHYCNT           ${phyCount}
+    set_module_assignment embeddedsw.CMacro.PHYCNT              ${phyCount}
 
     # DMA observer
     set_module_assignment embeddedsw.CMacro.DMAOBSERV           [getDmaUsed]
@@ -436,7 +445,7 @@ proc setCmacro {} {
     set_module_assignment embeddedsw.CMacro.TIMERCNT            ${tmrCount}
 
     # Timer pulse enabled
-    set_module_assignment embeddedsw.CMacro.TIMERPULSE          ${tmrPulsEn}
+    set_module_assignment embeddedsw.CMacro.TIMERPULSE          ${tmrPulseEn}
 
     # Timer pulse width
     set_module_assignment embeddedsw.CMacro.TIMERPULSEREGWIDTH  ${tmrPulseWdt}
@@ -449,13 +458,11 @@ proc setHdl {} {
     set phyCount            [get_parameter_value gui_phyCount]
     set extraSmi            [get_parameter_value gui_extraSmi]
     set txBufLoc            [get_parameter_value gui_txBufLoc]
-    set txBufSize           [get_parameter_value gui_txBufSize]
     set txBurstSize         [get_parameter_value gui_txBurstSize]
     set rxBufLoc            [get_parameter_value gui_rxBufLoc]
-    set rxBufSize           [get_parameter_value gui_rxBufSize]
     set rxBurstSize         [get_parameter_value gui_rxBurstSize]
     set tmrCount            [get_parameter_value gui_tmrCount]
-    set tmrPulsEn           [get_parameter_value gui_tmrPulsEn]
+    set tmrPulseEn           [get_parameter_value gui_tmrPulseEn]
     set tmrPulseWdt         [get_parameter_value gui_tmrPulseWdt]
     set actEn               [get_parameter_value gui_actEn]
 
@@ -509,7 +516,7 @@ proc setHdl {} {
 
     # Timer configuration
     set_parameter_value gTimerCount             ${tmrCount}
-    set_parameter_value gTimerEnablePulseWidth  ${tmrPulsEn}
+    set_parameter_value gTimerEnablePulseWidth  ${tmrPulseEn}
     set_parameter_value gTimerPulseRegWidth     ${tmrPulseWdt}
 
     ############
@@ -549,53 +556,21 @@ proc getPktBufUsed {} {
 # Returns the local packet buffer size. If no local buffers are used, returns 0.
 proc getPktBufSize {} {
     set txBufLoc            [get_parameter_value gui_txBufLoc]
-    set txBufSize           [get_parameter_value gui_txBufSize]
     set rxBufLoc            [get_parameter_value gui_rxBufLoc]
-    set rxBufSize           [get_parameter_value gui_rxBufSize]
+    set txBufSize           [expr 1024 * [get_parameter_value gui_txBufSize]]
+    set rxBufSize           [expr 1024 * [get_parameter_value gui_rxBufSize]]
 
-    # Total local packet buffer size
-    set pktBufSize 0
-
-    if { ${txBufLoc} == ${::cPktBufLocal} } {
-        set pktBufSize [expr ${pktBufSize} + ${txBufSize} ]
-    }
-
-    if { ${rxBufLoc} == ${::cPktBufLocal} } {
-        set pktBufSize [expr ${pktBufSize} + ${rxBufSize} ]
-    }
-
-    # Convert to byte
-    set pktBufSize [expr ${pktBufSize} * 1024 ]
-
-    return ${pktBufSize}
+    return [openmac::getPktBufSize $txBufLoc $txBufSize $rxBufLoc $rxBufSize]
 }
 
 # Returns the burst count width. If no external buffers are used, returns 1.
 proc getBurstCountWidth {} {
     set txBufLoc            [get_parameter_value gui_txBufLoc]
-    set txBurstSize         [get_parameter_value gui_txBurstSize]
     set rxBufLoc            [get_parameter_value gui_rxBufLoc]
-    set rxBurstSize         [get_parameter_value gui_rxBurstSize]
+    set txBurstSize         [expr 1024 * [get_parameter_value gui_txBurstSize]]
+    set rxBurstSize         [expr 1024 * [get_parameter_value gui_rxBurstSize]]
 
-    # First set burst size of locals to zero.
-    if { ${txBufLoc} != ${::cPktBufExtern} } {
-        set txBurstSize     0
-    }
-
-    if { ${rxBufLoc} != ${::cPktBufExtern} } {
-        set rxBurstSize     0
-    }
-
-    # Find burst count width, get maximum and log2 + 1
-    if { ${txBurstSize} > ${rxBurstSize} } {
-        set maxBurstSize    ${txBurstSize}
-    } else {
-        set maxBurstSize    ${rxBurstSize}
-    }
-
-    set burstCountWidth [expr [global_logDualis ${maxBurstSize}] + 1]
-
-    return ${burstCountWidth}
+    return [openmac::getBurstCountWidth $txBufLoc $txBurstSize $rxBufLoc $rxBurstSize]
 }
 
 # Returns TRUE if bursts are used.
@@ -609,17 +584,7 @@ proc getBurstUsed {} {
 
 # Returns the fifo length depending on the burst length.
 proc getFifoLength { burstLength } {
-    # Minimum fifo length:
-    set fifoLength  16
-
-    # Size of max transfers stored
-    set maxTransfer [expr ${burstLength} * 2 ]
-
-    if { ${maxTransfer} > ${fifoLength} } {
-        set fifoLength  ${maxTransfer}
-    }
-
-    return ${fifoLength}
+    return [openmac::getFifoLength $burstLength]
 }
 
 # Returns the DMA Address width. Note that the returned range is 6 ... 32
@@ -651,7 +616,7 @@ proc getPktBufSizeLog2 {} {
 
     # Obtain packet buffer size and get log2 of it...
     set pktBufSize      [getPktBufSize]
-    set pktBufSizeLog2  [global_logDualis ${pktBufSize} ]
+    set pktBufSizeLog2  [ipcoreUtil::logDualis ${pktBufSize} ]
 
     if { ${pktBufSizeLog2} < ${minLog2} } {
         set pktBufSizeLog2  ${minLog2}
