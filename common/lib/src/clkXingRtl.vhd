@@ -85,12 +85,16 @@ begin
     -- WELCOME TO SLOW CLOCK DOMAIN --
     genThoseCs : for i in slowCs'range generate
     begin
-        theSyncCs : entity work.sync
+        theSyncCs : entity work.synchronizer
+            generic map (
+                gStages => 2,
+                gInit   => cInactivated
+            )
             port map (
-                rst => iArst,
-                clk => iSlowClk,
-                din => iFastCs(i),
-                dout => slowCs(i)
+                iArst   => iArst,
+                iClk    => iSlowClk,
+                iAsync  => iFastCs(i),
+                oSync   => slowCs(i)
             );
     end generate;
 
@@ -127,32 +131,38 @@ begin
     oSlowCs <= slowCs when wr = '1' or rd = '1' else (others => '0');
     oSlowRNW <= rd;
 
-    theWriteEdge : entity work.edgeDet
+    theWriteEdge : entity work.edgedetector
         port map (
-            rst => iArst,
-            clk => iSlowClk,
-            din => wr_s,
-            any => open,
-            rising => wr_rising,
-            falling => open
+            iArst       => iArst,
+            iClk        => iSlowClk,
+            iEnable     => cActivated,
+            iData       => wr_s,
+            oRising     => wr_rising,
+            oFalling    => open,
+            oAny        => open
         );
 
-    theReadEdge : entity work.edgeDet
+    theReadEdge : entity work.edgedetector
         port map (
-            rst => iArst,
-            clk => iSlowClk,
-            din => rd_s,
-            any => open,
-            rising => rd_rising,
-            falling => open
+            iArst       => iArst,
+            iClk        => iSlowClk,
+            iEnable     => cActivated,
+            iData       => rd_s,
+            oRising     => rd_rising,
+            oFalling    => open,
+            oAny        => open
         );
 
-    theSyncRnw : entity work.sync
+    theSyncRnw : entity work.synchronizer
+        generic map (
+            gStages => 2,
+            gInit   => cInactivated
+        )
         port map (
-            rst => iArst,
-            clk => iSlowClk,
-            din => iFastRNW,
-            dout => slowRnw
+            iArst   => iArst,
+            iClk    => iSlowClk,
+            iAsync  => iFastRNW,
+            oSync   => slowRnw
         );
 
     theSyncAnyAck : entity work.syncTog
@@ -214,12 +224,16 @@ begin
 
     genThoseRdq : for i in readRegister'range generate
     begin
-        theSyncRdq : entity work.sync
+        theSyncRdq : entity work.synchronizer
+            generic map (
+                gStages => 2,
+                gInit   => cInactivated
+            )
             port map (
-                rst => iArst,
-                clk => iFastClk,
-                din => readRegister(i),
-                dout => oFastReaddata(i)
+                iArst   => iArst,
+                iClk    => iFastClk,
+                iAsync  => readRegister(i),
+                oSync   => oFastReaddata(i)
             );
     end generate;
 end architecture;

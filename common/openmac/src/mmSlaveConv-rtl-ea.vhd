@@ -153,8 +153,8 @@ begin
     oSlave_select       <= iMaster_select;
     oSlave_write        <= iMaster_write and iMaster_select;
     oSlave_read         <= iMaster_read and iMaster_select;
-    oMaster_WriteAck    <= masterAck and iMaster_write;
-    oMaster_ReadAck     <= masterAck and iMaster_read;
+    oMaster_WriteAck    <= masterAck and iMaster_write and iMaster_select;
+    oMaster_ReadAck     <= masterAck and iMaster_read and iMaster_select;
 
     --! This process assigns the master readdata port controlled by the current
     --! conversion state.
