@@ -95,7 +95,7 @@ architecture bhv of tbProtStream is
     signal skipCnt          : natural;
     constant cSkipLoads     : natural := gStreamSkipLoads;
     constant cSkipValids    : natural := gStreamSkipValids;
-    constant cSkipCntMax    : natural := MAX(cSkipLoads, cSkipValids);
+    constant cSkipCntMax    : natural := maximum(cSkipLoads, cSkipValids);
 begin
     theRstGen : entity work.resetGen
         port map (
@@ -139,7 +139,7 @@ begin
                 end loop;
             end if;
 
-            for i in 0 to 2*MAX(cWrBufSize, cRdBufSize)-1 loop
+            for i in 0 to 2*maximum(cWrBufSize, cRdBufSize)-1 loop
                 wait for cWaitPeriod;
                 wait until rising_edge(clk);
                 valid <= cActivated;

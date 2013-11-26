@@ -84,9 +84,9 @@ architecture rtl of dpRamSplx is
     constant cWidthConfig   : tWidthConfig := getWidthConfig(gWordWidthA, gByteenableWidthA, gWordWidthB);
 
     --! Words of dpram
-    constant cDprWords      : natural := min(gNumberOfWordsA, gNumberOfWordsB);
+    constant cDprWords      : natural := minimum(gNumberOfWordsA, gNumberOfWordsB);
     --! Word width of dpram
-    constant cDprWordWidth  : natural := max(gWordWidthA, gWordWidthB);
+    constant cDprWordWidth  : natural := maximum(gWordWidthA, gWordWidthB);
 
     --! Dpr write port address
     signal writeAddress     : std_logic_vector(logDualis(cDprWords)-1 downto 0);

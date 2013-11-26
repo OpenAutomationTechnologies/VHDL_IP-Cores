@@ -213,7 +213,7 @@ architecture rtl of tripleBuffer is
 
     --! Typedef for port acknowledge
     type tAckPort is record
-        cnt     : unsigned(logDualis(MAX(cDpramReadDelay, cDpramWriteDelay)) downto 0);
+        cnt     : unsigned(logDualis(maximum(cDpramReadDelay, cDpramWriteDelay)) downto 0);
         ack     : std_logic;
     end record;
 

@@ -153,7 +153,7 @@ architecture rtl of dynamicBridge is
     --! Dynamic address offset within selected static space
     signal dynamicOffset         : std_logic_vector(iBaseSetData'range);
     --! Translated address
-    signal translateAddress         : std_logic_vector(MAX(iBaseSetData'high, oBridgeAddress'high) downto inAddrReg'low);
+    signal translateAddress         : std_logic_vector(maximum(iBaseSetData'high, oBridgeAddress'high) downto inAddrReg'low);
 begin
     -- assert
     assert (cBridgeCycleDelay > 0)

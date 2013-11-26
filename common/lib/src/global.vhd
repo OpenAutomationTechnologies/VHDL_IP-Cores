@@ -59,8 +59,8 @@ package Global is
 
     function LogDualis(cNumber : natural) return natural;
 
-    function MAX (a : natural; b : natural) return natural;
-    function MIN (a : natural; b : natural) return natural;
+    function maximum (a : natural; b : natural) return natural;
+    function minimum (a : natural; b : natural) return natural;
 
     function integerToBoolean (a : integer) return boolean;
     function booleanToInteger (a : boolean) return integer;
@@ -86,7 +86,7 @@ package body Global is
         return vResult;
     end LogDualis;
 
-    function MAX (a : natural; b : natural) return natural is
+    function maximum (a : natural; b : natural) return natural is
         variable vRes : natural;
     begin
 
@@ -100,7 +100,7 @@ package body Global is
 
     end function;
 
-    function MIN (a : natural; b : natural) return natural is
+    function minimum (a : natural; b : natural) return natural is
         variable vRes : natural;
     begin
 

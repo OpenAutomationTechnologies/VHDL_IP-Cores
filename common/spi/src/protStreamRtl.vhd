@@ -196,7 +196,7 @@ architecture rtl of protStream is
     --! Skip counter value for skip valids
     constant cSkipValids        : natural := gStreamSkipValids;
     --! Maximum skip counter value
-    constant cStreamSkipMax     : natural := MAX(cSkipLoads, cSkipValids);
+    constant cStreamSkipMax     : natural := maximum(cSkipLoads, cSkipValids);
     --! Skip counter
     signal skipCnt              : std_logic_vector(logDualis(cStreamSkipMax) downto 0);
     --! Skip counter next
