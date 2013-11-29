@@ -530,15 +530,6 @@ proc setHdl {} {
     set_parameter_value gTimerCount             ${tmrCount}
     set_parameter_value gTimerEnablePulseWidth  ${tmrPulseEn}
     set_parameter_value gTimerPulseRegWidth     ${tmrPulseWdt}
-
-    ############
-    # Debug: Print out all generics
-    set hdlPara [get_parameters]
-
-    foreach name $hdlPara {
-        set val [get_parameter_value $name]
-        send_message info "$name = $val"
-    }
 }
 
 # Returns TRUE if DMA is used (any location is external).
