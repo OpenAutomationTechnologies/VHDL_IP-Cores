@@ -24,6 +24,7 @@ mkdir -p ${DIR_RELEASE}/common/util/tcl
 echo "copy altera ipcore..."
 cp altera/components/tripleBuffer_hw.tcl                ${DIR_RELEASE}/altera/components
 cp altera/components/tripleBuffer_sw.tcl                ${DIR_RELEASE}/altera/components
+cp altera/components/tcl/tripleBufferGui.tcl            ${DIR_RELEASE}/altera/components/tcl
 cp altera/components/tcl/tripleBuffer.tcl               ${DIR_RELEASE}/altera/components/tcl
 cp altera/tripleBuffer/src/alteraTripleBufferRtl.vhd    ${DIR_RELEASE}/altera/tripleBuffer/src
 cp altera/lib/src/dpRam-rtl-a.vhd                       ${DIR_RELEASE}/altera/lib/src

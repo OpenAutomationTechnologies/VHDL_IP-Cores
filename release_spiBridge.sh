@@ -20,6 +20,7 @@ mkdir -p ${DIR_RELEASE}/common/lib/src
 # copy Altera
 echo "copy altera ipcore..."
 cp altera/components/spiBridge_hw.tcl       ${DIR_RELEASE}/altera/components
+cp altera/components/tcl/spiBridgeGui.tcl   ${DIR_RELEASE}/altera/components/tcl
 cp altera/components/sdc/spiBridge-aclk.sdc ${DIR_RELEASE}/altera/components/sdc
 cp altera/spi/src/alteraSpiBridgeRtl.vhd    ${DIR_RELEASE}/altera/spi/src
 cp common/lib/src/global.vhd                ${DIR_RELEASE}/common/lib/src

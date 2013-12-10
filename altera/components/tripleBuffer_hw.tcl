@@ -37,6 +37,8 @@
 
 package require -exact sopc 10.1
 
+source ../components/tcl/tripleBuffer.tcl
+
 # -----------------------------------------------------------------------------
 # module
 # -----------------------------------------------------------------------------
@@ -131,55 +133,7 @@ set_parameter_property  gPortAstream    VISIBLE             false
 # -----------------------------------------------------------------------------
 # GUI parameters
 # -----------------------------------------------------------------------------
-set CON_PARAM       conBufSize
-set CON_MAX_BUF     32
-set CON_BUF_NAME    "Consumer Buffer Size"
-set CON_BUF_UNIT    "Bytes"
-
-set PRO_PARAM       proBufSize
-set PRO_MAX_BUF     32
-set PRO_BUF_NAME    "Producer Buffer Size"
-set PRO_BUF_UNIT    "Bytes"
-
-# Generate Consumer buffer size parameters
-add_display_item "" "Consumer Buffers" GROUP
-
-add_parameter           numOfCon    NATURAL         4
-set_parameter_property  numOfCon    DISPLAY_NAME    "Number of Consumer Buffers"
-set_parameter_property  numOfCon    ALLOWED_RANGES  {0:32}
-
-add_display_item "Consumer Buffers" "numOfCon" PARAMETER
-
-set glb_listCon     ""
-for {set i 0} {$i < ${CON_MAX_BUF}} {incr i} {
-    add_parameter           ${CON_PARAM}${i} NATURAL        0
-    set_parameter_property  ${CON_PARAM}${i} DISPLAY_NAME   "${CON_BUF_NAME} ${i}"
-    set_parameter_property  ${CON_PARAM}${i} UNITS          ${CON_BUF_UNIT}
-
-    add_display_item "Consumer Buffers" "${CON_PARAM}${i}" PARAMETER
-
-    set glb_listCon [concat $glb_listCon ${CON_PARAM}${i}]
-}
-
-# Generate Producer buffer size parameters
-add_display_item "" "Producer Buffers" GROUP
-
-add_parameter           numOfPro    NATURAL         4
-set_parameter_property  numOfPro    DISPLAY_NAME    "Number of Producer Buffers"
-set_parameter_property  numOfPro    ALLOWED_RANGES  {0:32}
-
-add_display_item "Producer Buffers" "numOfPro" PARAMETER
-
-set glb_listPro     ""
-for {set i 0} {$i < ${PRO_MAX_BUF}} {incr i} {
-    add_parameter           ${PRO_PARAM}${i} NATURAL        0
-    set_parameter_property  ${PRO_PARAM}${i} DISPLAY_NAME   "${PRO_BUF_NAME} ${i}"
-    set_parameter_property  ${PRO_PARAM}${i} UNITS          ${PRO_BUF_UNIT}
-
-    add_display_item "Producer Buffers" "${PRO_PARAM}${i}" PARAMETER
-
-    set glb_listPro [concat $glb_listPro ${PRO_PARAM}${i}]
-}
+source tcl/tripleBufferGui.tcl
 
 add_parameter           gui_enableStream    BOOLEAN
 set_parameter_property  gui_enableStream    DEFAULT_VALUE   false
@@ -193,8 +147,11 @@ set_parameter_property  gui_enableStream    DISPLAY_NAME    "Stream Access at Po
 # callbacks
 # -----------------------------------------------------------------------------
 proc validation_callback {} {
-    setGuiParamListVis $::glb_listCon "numOfCon"
-    setGuiParamListVis $::glb_listPro "numOfPro"
+    set conMaxCnt [get_parameter_value "numOfCon" ]
+    setGuiParamListVis $::glb_listCon $conMaxCnt
+
+    set proMaxCnt [get_parameter_value "numOfPro" ]
+    setGuiParamListVis $::glb_listPro $proMaxCnt
 }
 
 proc elaboration_callback {} {
@@ -370,111 +327,6 @@ proc elaboration_callback {} {
     setListCmacro   "TBUF_PORTA_ISPRODUCER" $lstIsPro
     setValCmacro    "TBUF_NUM_CON"          $numCon
     setValCmacro    "TBUF_NUM_PRO"          $numPro
-}
-
-# -----------------------------------------------------------------------------
-# internal functions
-# -----------------------------------------------------------------------------
-# Sets the given parameters' visibility to true/false determined by
-# the parameter value maxname.
-proc setGuiParamListVis { lstname maxname } {
-    set cnt 0
-    set maxcnt [get_parameter_value $maxname]
-
-    foreach param $lstname {
-        if { $cnt < $maxcnt } {
-            set_parameter_property $param VISIBLE true
-        } else {
-            set_parameter_property $param VISIBLE false
-        }
-        incr cnt
-    }
-}
-
-# Get the given parameters' value by the parameter value maxname.
-proc getGuiParamListVal { lstname maxname } {
-    set cnt 0
-    set listRet ""
-    set maxcnt [get_parameter_value $maxname]
-
-    foreach param $lstname {
-        if { $cnt < $maxcnt } {
-            set listRet [concat $listRet [get_parameter_value $param]]
-        }
-        incr cnt
-    }
-
-    return $listRet
-}
-
-# Check size list for alignment
-proc checkSizeAlign { lst alnm } {
-    foreach val $lst {
-        if {[expr $val % $alnm] != 0} {
-            return -1
-        }
-    }
-    return 0
-}
-
-# Check list for unequality
-proc checkSizeUnequal { lst uneq } {
-    foreach val $lst {
-        if {$val == $uneq} {
-            return -1
-        }
-    }
-    return 0
-}
-
-# Get memory map of provided buffer sizes
-proc getMemoryMap { base lstSize } {
-    set lstBase $base
-    set accu    $base
-
-    foreach size $lstSize {
-        set lstBase [concat $lstBase [expr $accu + $size]]
-        set accu [expr $accu + $size]
-    }
-
-    return $lstBase
-}
-
-# Convert list values into hex
-proc convDecToHex { lst pos } {
-    set tmp ""
-
-    foreach i $lst {
-        set tmp [concat $tmp [format %0${pos}X $i]]
-    }
-
-    return $tmp
-}
-
-# Get string stream from list
-proc getStringStream { lst } {
-    set tmp ""
-
-    foreach i $lst {
-        set tmp [format "%s%s" $tmp $i]
-    }
-
-    return $tmp
-}
-
-# Set value as CMACRO
-proc setValCmacro { name val } {
-    set_module_assignment embeddedsw.CMacro.${name}             $val
-}
-
-# Set list as CMACRO
-proc setListCmacro { name lst } {
-    set cnt 0
-
-    foreach i $lst {
-        set_module_assignment embeddedsw.CMacro.${name}${cnt}   $i
-        incr cnt
-    }
 }
 
 # -----------------------------------------------------------------------------

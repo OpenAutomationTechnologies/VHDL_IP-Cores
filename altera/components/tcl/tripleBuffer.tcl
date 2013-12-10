@@ -206,3 +206,104 @@ proc limitList { listIn limit } {
 
     return $tmp
 }
+
+# Sets the given parameters' visibility to true/false determined by
+# the parameter value maxcnt.
+proc setGuiParamListVis { lstname maxcnt } {
+    set cnt 0
+
+    foreach param $lstname {
+        if { $cnt < $maxcnt } {
+            set_parameter_property $param VISIBLE true
+        } else {
+            set_parameter_property $param VISIBLE false
+        }
+        incr cnt
+    }
+}
+
+# Get the given parameters' value by the parameter value maxname.
+proc getGuiParamListVal { lstname maxname } {
+    set cnt 0
+    set listRet ""
+    set maxcnt [get_parameter_value $maxname]
+
+    foreach param $lstname {
+        if { $cnt < $maxcnt } {
+            set listRet [concat $listRet [get_parameter_value $param]]
+        }
+        incr cnt
+    }
+
+    return $listRet
+}
+
+# Check size list for alignment
+proc checkSizeAlign { lst alnm } {
+    foreach val $lst {
+        if {[expr $val % $alnm] != 0} {
+            return -1
+        }
+    }
+    return 0
+}
+
+# Check list for unequality
+proc checkSizeUnequal { lst uneq } {
+    foreach val $lst {
+        if {$val == $uneq} {
+            return -1
+        }
+    }
+    return 0
+}
+
+# Get memory map of provided buffer sizes
+proc getMemoryMap { base lstSize } {
+    set lstBase $base
+    set accu    $base
+
+    foreach size $lstSize {
+        set lstBase [concat $lstBase [expr $accu + $size]]
+        set accu [expr $accu + $size]
+    }
+
+    return $lstBase
+}
+
+# Convert list values into hex
+proc convDecToHex { lst pos } {
+    set tmp ""
+
+    foreach i $lst {
+        set tmp [concat $tmp [format %0${pos}X $i]]
+    }
+
+    return $tmp
+}
+
+# Get string stream from list
+proc getStringStream { lst } {
+    set tmp ""
+
+    foreach i $lst {
+        set tmp [format "%s%s" $tmp $i]
+    }
+
+    return $tmp
+}
+
+# Set value as CMACRO
+proc setValCmacro { name val } {
+    set_module_assignment embeddedsw.CMacro.${name}             $val
+}
+
+# Set list as CMACRO
+proc setListCmacro { name lst } {
+    set cnt 0
+
+    foreach i $lst {
+        set_module_assignment embeddedsw.CMacro.${name}${cnt}   $i
+        incr cnt
+    }
+}
