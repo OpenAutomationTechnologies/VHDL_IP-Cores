@@ -1,6 +1,8 @@
 #!/bin/bash
 # Generates the full documentation
 
+INPUT_PAR=$1
+
 # path to root
 ROOT_DIR=../../..
 
@@ -19,6 +21,9 @@ do
     ./${RUN_WAVEDROM} ${JSON}
 done
 
-${RUN_DOXYGEN}
+if [ "${INPUT_PAR}" != "--skip-doxygen" ];
+then
+    ${RUN_DOXYGEN}
+fi
 
 exit $?
