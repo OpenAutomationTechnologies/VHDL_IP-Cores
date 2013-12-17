@@ -3,6 +3,7 @@
 # e.g.: $ ./release_hostinterface_ipcore release
 
 DIR_RELEASE=$1
+DIR_DOC=doc/hostinterface
 
 if [ -z "${DIR_RELEASE}" ];
 then
@@ -15,7 +16,6 @@ mkdir -p ${DIR_RELEASE}
 
 # generate docs
 echo "generate docs..."
-DIR_DOC=doc/hostinterface
 pushd $DIR_DOC
 ./create-this-doc --skip-doxygen
 popd
@@ -62,3 +62,10 @@ cp --parents common/hostinterface/src/dynamicBridgeRtl.vhd          ${DIR_RELEAS
 cp --parents common/hostinterface/src/statusControlRegRtl.vhd       ${DIR_RELEASE}
 cp --parents common/hostinterface/src/parallelInterfaceRtl.vhd      ${DIR_RELEASE}
 cp --parents common/lib/src/global.vhd                              ${DIR_RELEASE}
+
+# create revision.txt
+REV_FILE=${DIR_RELEASE}/${DIR_DOC}/revision.md
+echo "Revision {#revision}" > $REV_FILE
+echo "========" >> $REV_FILE
+echo "" >> $REV_FILE
+git log --format="- %s" -- */hostinterface/* */lib/* >> $REV_FILE

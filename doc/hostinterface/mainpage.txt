@@ -6,6 +6,8 @@
 This is the Host Interface IP-Core documentation.
 
 - \subpage hostif
+- \subpage hostif_sc
+- \subpage revision
 
 
 *******************************************************************************/

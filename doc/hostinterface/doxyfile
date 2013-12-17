@@ -665,6 +665,7 @@ WARN_LOGFILE           = "warn.log"
 # with spaces.
 
 INPUT                  = mainpage.txt \
+                         revision.md \
                          md/hostif.md \
                          md/hostif_sc.md \
                          ../../common/hostinterface/src/hostInterfacePkg.vhd \
@@ -683,8 +684,7 @@ INPUT                  = mainpage.txt \
                          ../../common/lib/src/registerFileRtl.vhd \
                          ../../common/lib/src/synchronizerRtl.vhd \
                          ../../altera/hostinterface/src/alteraHostInterfaceRtl.vhd \
-                         ../../altera/lib/src/dpRam-rtl-a.vhd \
-                         ../../common/util/src/dpRam-bhv-a.vhd
+                         ../../altera/lib/src/dpRam-rtl-a.vhd
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
