@@ -4,7 +4,7 @@
 INPUT_PAR=$1
 
 # path to root
-ROOT_DIR=../../..
+ROOT_DIR=../..
 
 # script to generate wavedrome
 RUN_WAVEDROM=${ROOT_DIR}/tools/wavedrom.sh

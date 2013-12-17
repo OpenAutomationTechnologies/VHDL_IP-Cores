@@ -15,7 +15,7 @@ mkdir -p ${DIR_RELEASE}
 
 # generate docs
 echo "generate docs..."
-DIR_DOC=common/hostinterface/doc
+DIR_DOC=doc/hostinterface
 pushd $DIR_DOC
 ./create-this-doc --skip-doxygen
 popd
