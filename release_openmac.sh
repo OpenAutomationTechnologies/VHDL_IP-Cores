@@ -1,6 +1,6 @@
 #!/bin/bash
-# ./release_openmac_ipcore.sh RELEASE_DIR IP_VERSION
-# e.g.: $ ./release_powerlink_ipcore release v1_00_a
+# ./release_openmac.sh RELEASE_DIR IP_VERSION
+# e.g.: $ ./release_openmac.sh release v1_00_a
 
 DIR_RELEASE=$1
 IP_VERSION=$2
@@ -23,6 +23,16 @@ mkdir -p ${DIR_RELEASE}
 
 # copy docs
 # TODO
+
+# copy drivers
+echo "copy drivers..."
+cp --parents drivers/openmac/omethlib.c                         ${DIR_RELEASE}
+cp --parents drivers/openmac/omethlib.h                         ${DIR_RELEASE}
+cp --parents drivers/openmac/omethlib_phycfg_generic.c          ${DIR_RELEASE}
+cp --parents drivers/openmac/omethlib_phycfg.h                  ${DIR_RELEASE}
+cp --parents drivers/openmac/omethlib_target.h                  ${DIR_RELEASE}
+cp --parents drivers/openmac/omethlibint.c                      ${DIR_RELEASE}
+cp --parents drivers/openmac/omethlibint.h                      ${DIR_RELEASE}
 
 # copy Altera POWERLINK
 echo "copy Altera openmac ipcore..."
