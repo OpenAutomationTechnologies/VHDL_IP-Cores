@@ -136,6 +136,7 @@ qsysUtil::addGuiParam  gui_tmrCount    NATURAL 1       "Number of Hardware Timer
 qsysUtil::addGuiParam  gui_tmrPulseEn  BOOLEAN FALSE   "Timer Pulse Width Control"         ""          ""
 qsysUtil::addGuiParam  gui_tmrPulseWdt NATURAL 10      "Timer Pulse Width register width"  ""          "1:31"
 qsysUtil::addGuiParam  gui_actEn       BOOLEAN FALSE   "Packet activity LED"               ""          ""
+qsysUtil::addGuiParam  gui_sdcEn       BOOLEAN TRUE    "Automatic timing constraints"      ""          ""
 
 set_parameter_property gui_phyType     DESCRIPTION     "Select the Phy(s) Media Independent Interface type. Note that RMII is recommended since no extra resources are necessary!"
 set_parameter_property gui_phyCount    DESCRIPTION     "Set the number of connected Phys."
@@ -160,6 +161,7 @@ set_parameter_property gui_tmrPulseWdt DESCRIPTION     "Determine the timer 2 pu
                                                         Example: Generate a pulse of 1 us (fclk=50 MHz) requires 1 us * 50 MHz = 50 ticks.
                                                         To generate 50 ticks a width of log2(50) ~ 6 is needed."
 set_parameter_property gui_actEn       DESCRIPTION     "Use the MAC RMII signals to generate an activity signal. It can be used to drive LEDs."
+set_parameter_property gui_sdcEn       DESCRIPTION     "Use automatic timing constraints."
 
 # -----------------------------------------------------------------------------
 # GUI configuration
@@ -185,6 +187,7 @@ add_display_item        $gui_nameTimer  gui_tmrPulseEn  PARAMETER
 add_display_item        $gui_nameTimer  gui_tmrPulseWdt PARAMETER
 
 add_display_item        $gui_nameOthers gui_actEn       PARAMETER
+add_display_item        $gui_nameOthers gui_sdcEn       PARAMETER
 
 # -----------------------------------------------------------------------------
 # callbacks
@@ -252,15 +255,20 @@ proc fileset_callback { entityName } {
     add_fileset_file "alteraOpenmacTop-rtl-ea.vhd"    VHDL PATH "${dir_altera}/${path_openmac}/alteraOpenmacTop-rtl-ea.vhd"
 
     set phyType     [get_parameter_value gui_phyType]
+    set sdcEn       [get_parameter_value gui_sdcEn]
 
-    if { ${phyType} == ${::cPhyPortRmii} } {
-        # RMII
-        add_fileset_file "${entityName}/openmacTop-rmii.sdc" SDC PATH "sdc/openmacTop-rmii.sdc"
+    if { $sdcEn } {
+        if { ${phyType} == ${::cPhyPortRmii} } {
+            # RMII
+        add_fileset_file "openmacTop-rmii.sdc" SDC PATH "sdc/openmacTop-rmii.sdc"
     } elseif { ${phyType} == ${::cPhyPortMii} } {
         # MII
-        add_fileset_file "${entityName}/openmacTop-mii.sdc" SDC PATH "sdc/openmacTop-mii.sdc"
+        add_fileset_file "openmacTop-mii.sdc" SDC PATH "sdc/openmacTop-mii.sdc"
+        } else {
+            send_message WARNING "Phy interface unknown. No timing constrains file generated!"
+        }
     } else {
-        send_message WARNING "Phy interface unknown. No timing constrains file generated!"
+        send_message INFO "No timing constrains are set."
     }
 }
 
