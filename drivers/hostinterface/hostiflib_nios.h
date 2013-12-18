@@ -48,10 +48,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <io.h>
 #include <system.h>
 
-// include section header file for special functions in
-// tightly-coupled memory
-#include <section-nios2.h>
-
 // include generated header file for memory structure and version filed
 #include "hostiflib-mem.h"
 

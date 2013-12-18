@@ -58,10 +58,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endif
 
-//---------------------------------------------------------
-// include section header file with null macros
-#include <section-default.h>
-
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
