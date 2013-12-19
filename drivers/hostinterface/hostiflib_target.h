@@ -58,6 +58,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endif
 
+#ifndef HOSTIF_INLINE
+#define HOSTIF_INLINE
+#endif
+
 //------------------------------------------------------------------------------
 // const defines
 //------------------------------------------------------------------------------
