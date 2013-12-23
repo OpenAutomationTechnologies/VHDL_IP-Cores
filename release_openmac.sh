@@ -34,6 +34,7 @@ cp --parents ${DIR_DOC}/images/openmac-overview.png                 ${DIR_RELEAS
 cp --parents ${DIR_DOC}/md/openmac.md                               ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/doxyfile                                    ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/mainpage.txt                                ${DIR_RELEASE}
+cp --parents ${DIR_DOC}/omethlib.pdf                                ${DIR_RELEASE}
 
 # create revision.txt
 REV_FILE=${DIR_RELEASE}/${DIR_DOC}/revision.md
