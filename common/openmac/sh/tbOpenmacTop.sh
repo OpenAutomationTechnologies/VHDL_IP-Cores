@@ -42,7 +42,7 @@ common/openmac/src/openmacTimer-rtl-ea.vhd \
 common/openmac/src/phyActGen-rtl-ea.vhd \
 common/openmac/src/phyMgmt-rtl-ea.vhd \
 common/openmac/src/convRmiiToMii-rtl-ea.vhd \
-common/openmac/src/openMAC.vhd \
+common/openmac/src/openmac-rtl-ea.vhd \
 common/openmac/src/openmacTop-rtl-ea.vhd \
 \
 common/openmac/tb/tbOpenmacTop-bhv-tb.vhd \

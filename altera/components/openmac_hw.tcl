@@ -247,7 +247,7 @@ proc fileset_callback { entityName } {
     add_fileset_file "phyActGen-rtl-ea.vhd"           VHDL PATH "${dir_common}/${path_openmac}/phyActGen-rtl-ea.vhd"
     add_fileset_file "phyMgmt-rtl-ea.vhd"             VHDL PATH "${dir_common}/${path_openmac}/phyMgmt-rtl-ea.vhd"
     add_fileset_file "convRmiiToMii-rtl-ea.vhd"       VHDL PATH "${dir_common}/${path_openmac}/convRmiiToMii-rtl-ea.vhd"
-    add_fileset_file "openMAC.vhd"                    VHDL PATH "${dir_common}/${path_openmac}/openMAC.vhd"
+    add_fileset_file "openmac-rtl-ea.vhd"             VHDL PATH "${dir_common}/${path_openmac}/openmac-rtl-ea.vhd"
     add_fileset_file "openmacTop-rtl-ea.vhd"          VHDL PATH "${dir_common}/${path_openmac}/openmacTop-rtl-ea.vhd"
     add_fileset_file "dpRam-rtl-a.vhd"                VHDL PATH "${dir_altera}/${path_lib}/dpRam-rtl-a.vhd"
     add_fileset_file "dpRamSplx-rtl-a.vhd"            VHDL PATH "${dir_altera}/${path_lib}/dpRamSplx-rtl-a.vhd"

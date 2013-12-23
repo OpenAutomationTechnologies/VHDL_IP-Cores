@@ -65,7 +65,7 @@ cp --parents common/openmac/src/openmacTimer-rtl-ea.vhd         ${DIR_RELEASE}
 cp --parents common/openmac/src/phyActGen-rtl-ea.vhd            ${DIR_RELEASE}
 cp --parents common/openmac/src/phyMgmt-rtl-ea.vhd              ${DIR_RELEASE}
 cp --parents common/openmac/src/convRmiiToMii-rtl-ea.vhd        ${DIR_RELEASE}
-cp --parents common/openmac/src/openMAC.vhd                     ${DIR_RELEASE}
+cp --parents common/openmac/src/openmac-rtl-ea.vhd              ${DIR_RELEASE}
 cp --parents common/openmac/src/openmacTop-rtl-ea.vhd           ${DIR_RELEASE}
 cp --parents altera/lib/src/dpRam-rtl-a.vhd                     ${DIR_RELEASE}
 cp --parents altera/lib/src/dpRamSplx-rtl-a.vhd                 ${DIR_RELEASE}
@@ -111,7 +111,7 @@ cp --parents common/openmac/src/phyActGen-rtl-ea.vhd            ${DIR_RELEASE}
 cp --parents common/openmac/src/phyMgmt-rtl-ea.vhd              ${DIR_RELEASE}
 cp --parents common/openmac/src/convRmiiToMii-rtl-ea.vhd        ${DIR_RELEASE}
 cp --parents common/openmac/src/mmSlaveConv-rtl-ea.vhd          ${DIR_RELEASE}
-cp --parents common/openmac/src/openMAC.vhd                     ${DIR_RELEASE}
+cp --parents common/openmac/src/openmac-rtl-ea.vhd              ${DIR_RELEASE}
 cp --parents common/openmac/src/openmacTop-rtl-ea.vhd           ${DIR_RELEASE}
 cp --parents xilinx/lib/src/dpRam-rtl-a.vhd                     ${DIR_RELEASE}
 cp --parents xilinx/lib/src/dpRamSplx-rtl-a.vhd                 ${DIR_RELEASE}
