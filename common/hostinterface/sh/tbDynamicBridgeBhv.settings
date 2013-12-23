@@ -1,6 +1,8 @@
 #!/bin/bash
 # Settings file for running simulation.
 
+STIM_FILE="gStim=common/hostinterface/tb/tbDynamicBridgeBhv-stim.txt"
+
 SRC_LIST="\
 common/lib/src/global.vhd \
 common/util/src/clkGenBhv.vhd \
@@ -20,6 +22,6 @@ common/hostinterface/src/dynamicBridgeRtl.vhd \
 common/hostinterface/tb/tbDynamicBridgeBhv.vhd \
 "
 
-GEN_LIST=( "gUseMemBlock=0" "gUseMemBlock=1" )
+GEN_LIST=("gUseMemBlock=0 $STIM_FILE" "gUseMemBlock=1 $STIM_FILE")
 
 TOP_LEVEL=tbDynamicBridge

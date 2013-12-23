@@ -47,7 +47,9 @@ use work.hostInterfacePkg.all;
 entity tbDynamicBridge is
     generic (
         --! Configure dynamic bridge using memory blocks (0 = false)
-        gUseMemBlock : natural := 0
+        gUseMemBlock    : natural := 0;
+        --! Stimuli file for bus master
+        gStim           : string := "text.txt"
     );
 end tbDynamicBridge;
 
@@ -197,7 +199,7 @@ begin
         generic map (
             gAddrWidth      => cBridgeInAddrWidth,
             gDataWidth      => cBridgeOutAddrWidth,
-            gStimuliFile    => "../tb/tbDynamicBridgeBhv-stim.txt"
+            gStimuliFile    => gStim
         )
         port map (
             iRst        => rst,

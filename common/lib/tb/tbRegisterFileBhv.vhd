@@ -48,6 +48,9 @@ use ieee.numeric_std.all;
 use work.global.all;
 
 entity tbRegisterFile is
+    generic (
+        gStim : string := "filename.txt"
+    );
 end tbRegisterFile;
 
 architecture Bhv of tbRegisterFile is
@@ -103,7 +106,7 @@ begin
       generic map (
            gAddrWidth       => cAddressWidth,
            gDataWidth       => cWordWidth,
-           gStimuliFile     => "../../lib/tb/tbRegisterFile_stim.txt"
+           gStimuliFile     => gStim
       )
       port map(
             iRst            => Rst,

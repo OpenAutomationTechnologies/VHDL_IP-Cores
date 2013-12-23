@@ -1,5 +1,7 @@
 #!/bin/bash
 # Settings file for running simulation.
+STIM_FILE="gStim=common/lib/tb/tbRegisterFile_stim.txt"
+
 VHDL_STD="-2008"
 
 SRC_LIST="common/lib/src/global.vhd \
@@ -10,5 +12,7 @@ common/util/src/busMasterPkg.vhd \
 common/util/src/busMasterBhv.vhd \
 common/lib/src/registerFileRtl.vhd \
 common/lib/tb/tbRegisterFileBhv.vhd"
+
+GEN_LIST=("$STIM_FILE")
 
 TOP_LEVEL=tbRegisterFile

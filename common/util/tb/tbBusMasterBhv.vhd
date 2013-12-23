@@ -55,6 +55,9 @@ use work.global.all;
 use work.busMasterPkg.all;
 
 entity tbBusMasterBhv is
+    generic (
+        gStim : string := "filename.txt"
+    );
 end entity tbBusMasterBhv;
 
 architecture Bhv of tbBusMasterBhv is
@@ -66,7 +69,7 @@ architecture Bhv of tbBusMasterBhv is
     constant cMemoryRange   : natural := 10;
     constant cInitMemory    : tMemory(cMemoryRange-1 downto 0) := (others => (others => '0'));
     constant cPeriode       : time := 2 ns;
-    constant cStimuliFile   : string := "../tb/tbBusMasterBhv_TB_stim.txt";
+    constant cStimuliFile   : string := gStim;
 
     --***********************************************************************--
     -- SIGNALS and VARIABLES:
