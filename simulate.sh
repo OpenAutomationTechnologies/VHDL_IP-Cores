@@ -1,15 +1,11 @@
 #!/bin/bash
-# Runs all available shell scripts that start with "tb".
-# The compilation/simulation results are copied to results directory.
+# Runs msim with all available tb*.settings files.
 # The script provides it's runtime after completion.
 
-DIR_RESULTS=results
+DIR_TOOLS=tools
 
 #Get start time.
 TIME_START=$(date +"%s")
-
-#Kill results directory
-rm ${DIR_RESULTS} -rf
 
 echo
 echo "Starting simulation of all available shell-scripts..."
@@ -18,30 +14,20 @@ echo
 #store current path
 export ORIGIN_DIR=.
 
-#find all shell scripts starting with "tb" and store in list
-TBSH_LIST=`find $ORIGIN_DIR -name "tb*.sh"`
+#find all *.settings
+TBSET_LIST=`find $ORIGIN_DIR -name "tb*.settings"`
 
-#loop through tb*.sh list
+#loop through tb*.setting list
 RET=1
-for TBSH in $TBSH_LIST
+pushd $DIR_TOOLS
+for TBSET in $TBSET_LIST
 do
-    TBSH_DIR=`dirname $TBSH`
-    TBSH_SRC=`basename $TBSH`
-
     echo "###############################################################################"
-    echo "# Run testbench in path ${TBSH}"
+    echo "# Run testbench of path ${TBSET}"
 
-    #change to directory of current tb*.sh
-    pushd $TBSH_DIR >> /dev/null
-
-    #run sh
-    chmod +x $TBSH_SRC
-    ./$TBSH_SRC
-
-    #store return
+    chmod +x ./msim-sim.sh
+    ./msim-sim.sh ../${TBSET}
     RET=$?
-
-    popd >> /dev/null
 
     #check return
     if [ $RET -ne 0 ]; then
@@ -51,13 +37,10 @@ do
         echo "-> SUCCESSFUL!"
     fi
 
-    #copy work to results
-    mkdir ${DIR_RESULTS}/${TBSH_DIR} -p
-    mv ${TBSH_DIR}/_out_* ./${DIR_RESULTS}/${TBSH_DIR}
-
     echo "###############################################################################"
     echo
 done
+popd
 
 #Get completion time, calculate duration time and give seconds in time format.
 TIME_COMPLETE=$(date +"%s")

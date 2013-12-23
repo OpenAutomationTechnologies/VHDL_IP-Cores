@@ -1,10 +1,6 @@
 #!/bin/bash
-#
-PAR=$*
-
-ROOT=../../..
-
-STIM_FILE="${ROOT}/common/openmac/tb/tbMmSlaveConv_stim.txt"
+# Settings file for running simulation.
+STIM_FILE="common/openmac/tb/tbMmSlaveConv_stim.txt"
 
 SRC_LIST="\
 common/lib/src/global.vhd \
@@ -23,13 +19,3 @@ gStimFile=${STIM_FILE} \
 "
 
 TOP_LEVEL=tbMmSlaveConv
-
-chmod +x $ROOT/common/util/sh/msim-sim.sh
-./$ROOT/common/util/sh/msim-sim.sh $TOP_LEVEL $PAR -s $SRC_LIST -g $GEN_LIST
-
-RET=$?
-
-if test $RET -ne 0
-then
-    exit 1
-fi
