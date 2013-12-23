@@ -1,0 +1,7 @@
+{ "signal" : [
+  { "name": "iSelectRam/Cont",  "wave": "01...0" },
+  { "name": "inWrite",          "wave": "x1...x" },
+  { "name": "inByteenable",     "wave": ".3.4.x", "data": ["BE0", "BE1"] },
+  { "name": "iAddress",         "wave": ".3.4.x", "data": ["A0", "A1"] },
+  { "name": "oReaddata",        "wave": "..3x4x", "data": ["D0", "D1"] }
+]}

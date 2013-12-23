@@ -4,6 +4,7 @@
 
 DIR_RELEASE=$1
 IP_VERSION=$2
+DIR_DOC=doc/openmac
 
 if [ -z "${DIR_RELEASE}" ];
 then
@@ -21,8 +22,25 @@ DIR_AXI="axi_openmac_${IP_VERSION}"
 echo "create release dir..."
 mkdir -p ${DIR_RELEASE}
 
+# generate docs
+echo "generate docs..."
+pushd $DIR_DOC
+./create-this-doc --skip-doxygen
+popd
+
 # copy docs
-# TODO
+echo "copy docs..."
+cp --parents ${DIR_DOC}/images/openmac-overview.png                 ${DIR_RELEASE}
+cp --parents ${DIR_DOC}/md/openmac.md                               ${DIR_RELEASE}
+cp --parents ${DIR_DOC}/doxyfile                                    ${DIR_RELEASE}
+cp --parents ${DIR_DOC}/mainpage.txt                                ${DIR_RELEASE}
+
+# create revision.txt
+REV_FILE=${DIR_RELEASE}/${DIR_DOC}/revision.md
+echo "Revision {#revision}" > $REV_FILE
+echo "========" >> $REV_FILE
+echo "" >> $REV_FILE
+git log --format="- %s" -- */openmac/* */lib/* >> $REV_FILE
 
 # copy drivers
 echo "copy drivers..."
