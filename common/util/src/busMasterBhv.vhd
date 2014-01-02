@@ -143,7 +143,7 @@ architecture bhv of busMaster is
     --***********************************************************************--
     -- SIGNALS:
     --***********************************************************************--
-    file stimulifile            : text open read_mode is gStimuliFile;
+    file stimulifile            : text;
 
     signal Reg, NextReg         : tRegSet;
     signal InterpreterState     : tInterpreterStates := s_HOLDOFF;
@@ -155,6 +155,24 @@ architecture bhv of busMaster is
     shared variable vJump       : boolean := FALSE;
 
 begin
+    --! This process opens the stimuli file and stops simulation in case of
+    --! failure.
+    OPEN_STIM_FILE : process
+        variable fileOpenStatus : FILE_OPEN_STATUS;
+    begin
+        file_open(fileOpenStatus, stimulifile, gStimuliFile, READ_MODE);
+
+        if fileOpenStatus = OPEN_OK then
+            assert (FALSE)
+                report "Open file " & gStimuliFile & " successfully"
+                severity note;
+        else
+            assert (FALSE)
+                report "Open file " & gStimuliFile & " failed!"
+                severity failure;
+        end if;
+        wait;
+    end process OPEN_STIM_FILE;
 
     FSM: process(InterpreterState, Reg, iEnable, iAck, iReaddata, fsmTrigger )
         variable vLine      : line;
