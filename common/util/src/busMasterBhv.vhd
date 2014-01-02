@@ -176,6 +176,7 @@ begin
 
     FSM: process(InterpreterState, Reg, iEnable, iAck, iReaddata, fsmTrigger )
         variable vLine      : line;
+        variable vCntLine   : natural := 0;
         variable vAddress   : std_logic_vector(gAddrWidth-1 downto 0);
         variable vValue     : std_logic_vector(gDataWidth-1 downto 0);
         variable vMemAccess : tMemoryAccess;
@@ -201,6 +202,7 @@ begin
                     if vJump = TRUE then                        -- skip intructions
                         for i in 0 to Reg.relativeJump-1 loop
                             readline(stimulifile, vLine);
+                            vCntLine := vCntLine + 1;
                             if endfile(stimulifile) then
                                 InterpreterState <= s_ERROR;    -- file is not terminated by an FIN instruction
                                 exit;
@@ -208,6 +210,7 @@ begin
                         end loop;
                     else
                         readline(stimulifile, vLine);            -- read instruction
+                        vCntLine := vCntLine + 1;
                     end if;
                 end if;
 
@@ -351,6 +354,10 @@ begin
             when s_ERROR        =>
                 NextReg.errorEnable <= cActivated;
                 InterpreterState    <= s_FINISHED;
+                assert (FALSE)
+                    report  "Hit assert in file " & gStimuliFile &
+                            " line " & integer'image(vCntLine) & "."
+                    severity error;
 
             when s_FINISHED     =>
                 NextReg.doneEnable <= cActivated;
