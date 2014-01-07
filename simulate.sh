@@ -19,14 +19,13 @@ TBSET_LIST=`find $ORIGIN_DIR -name "tb*.settings"`
 
 #loop through tb*.setting list
 RET=1
-pushd $DIR_TOOLS
 for TBSET in $TBSET_LIST
 do
     echo "###############################################################################"
     echo "# Run testbench of path ${TBSET}"
 
-    chmod +x ./msim-sim.sh
-    ./msim-sim.sh ../${TBSET}
+    chmod +x ./${DIR_TOOLS}/msim-sim.sh
+    ./${DIR_TOOLS}/msim-sim.sh ${TBSET}
     RET=$?
 
     #check return
@@ -40,7 +39,6 @@ do
     echo "###############################################################################"
     echo
 done
-popd
 
 #Get completion time, calculate duration time and give seconds in time format.
 TIME_COMPLETE=$(date +"%s")

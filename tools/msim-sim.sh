@@ -1,6 +1,6 @@
 #!/bin/bash
 # Runs modelsim to compile and simulate provided sources and toplevel.
-# Call e.g. ./msim-sim.sh SETTING-FILE
+# Call e.g. ./tools/msim-sim.sh SETTING-FILE
 
 proc_genList() {
     export GENLIST=
@@ -26,10 +26,6 @@ VHDL_STD="-93"
 # Get parameters from *.settings file
 source $SETTINGS_FILE
 
-################################################################################
-# Script changes to root directory to enable simple path settings files!
-pushd ..
-
 DOFILE=tools/sim.do
 
 echo
@@ -41,7 +37,6 @@ vlib work
 vcom $VHDL_STD -work work $SRC_LIST $VCOM_LIST -check_synthesis
 if test $? -ne 0
 then
-    popd
     exit 1
 fi
 
@@ -59,7 +54,6 @@ do
     echo
     if [ $RET -ne 0 ]; then
         echo "ERROR"
-        popd
         exit $RET
     else
         echo "PASS"
@@ -67,6 +61,5 @@ do
     CNT=$(( CNT + 1 ))
 done
 
-popd
 #exit with simulation return
 exit $RET
