@@ -84,6 +84,10 @@ set to those provided by stdint.h.
 #define UINT32              uint32_t
 #endif
 
+#ifndef UINT
+#define UINT                unsigned int
+#endif
+
 #ifndef BOOL
 #define BOOL                uint8_t
 #endif

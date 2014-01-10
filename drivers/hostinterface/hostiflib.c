@@ -53,12 +53,8 @@ modules.
 #include "hostiflib.h"
 #include "hostiflib_target.h"
 
-#include "lfqueue.h"
-#include "linmem.h"
-
 #include <stdlib.h>
 #include <string.h>
-
 
 //============================================================================//
 //            G L O B A L   D E F I N I T I O N S                             //
@@ -86,230 +82,56 @@ modules.
 
 #define HOSTIF_MAGIC              0x504C4B00  ///< Host Interface Magic
 
-#define HOSTIF_INSTANCE_COUNT     2   ///< number of supported instances
-#define HOSTIF_QUEUE_COUNT        16  ///< number of supported queues
-
-/**
-\brief Dynamic Buffer offsets for host side
-*/
-const UINT8 *apDynBuf[] =
-{
-    (UINT8*)HOSTIF_BASE_DYNBUF0,
-    (UINT8*)HOSTIF_BASE_DYNBUF1,
-    NULL
-};
-
-/**
-\brief Linear memory configuration of TPDO
-
-Stores the default configuration settings of the linear memory for Pcp and Host.
-*/
-const tLimConfig LimConfigTpdo =
-{
-    FALSE, (UINT8*)HOSTIF_BASE_TPDO, HOSTIF_SIZE_TPDO
-};
-
-/**
-\brief Linear memory configuration of RPDO
-
-Stores the default configuration settings of the linear memory for Pcp and Host.
-*/
-const tLimConfig LimConfigRpdo =
-{
-    FALSE, (UINT8*)HOSTIF_BASE_RPDO, HOSTIF_SIZE_RPDO
-};
-
-/**
-\brief Linear memory configuration of Error Counters
-
-Stores the default configuration settings of the linear memory for Pcp and Host.
-*/
-const tLimConfig LimConfigErrCount =
-{
-    FALSE, (UINT8*)HOSTIF_BASE_ERRORCOUNTER, HOSTIF_SIZE_ERRORCOUNTER
-};
-
-/**
-\brief Queue configuration for Tx Nmt
-
-Stores the default configuration settings for the queue instance.
-*/
-const tQueueConfig QueueConfigTxNmt =
-{
-    kQueueBoth, FALSE, (UINT8*)HOSTIF_BASE_TXNMTQ, HOSTIF_SIZE_TXNMTQ
-};
-
-/**
-\brief Queue configuration for Tx Generic
-
-Stores the default configuration settings for the queue instance.
-*/
-const tQueueConfig QueueConfigTxGen =
-{
-    kQueueBoth, FALSE, (UINT8*)HOSTIF_BASE_TXGENQ, HOSTIF_SIZE_TXGENQ
-};
-
-/**
-\brief Queue configuration for Tx Sync
-
-Stores the default configuration settings for the queue instance.
-*/
-const tQueueConfig QueueConfigTxSync =
-{
-    kQueueBoth, FALSE, (UINT8*)HOSTIF_BASE_TXSYNCQ, HOSTIF_SIZE_TXSYNCQ
-};
-
-/**
-\brief Queue configuration for Tx Virtual Ethernet
-
-Stores the default configuration settings for the queue instance.
-*/
-const tQueueConfig QueueConfigTxVeth =
-{
-    kQueueBoth, FALSE, (UINT8*)HOSTIF_BASE_TXVETHQ, HOSTIF_SIZE_TXVETHQ
-};
-
-/**
-\brief Queue configuration for Rx Virtual Ethernet
-
-Stores the default configuration settings for the queue instance.
-*/
-const tQueueConfig QueueConfigRxVeth =
-{
-    kQueueBoth, FALSE, (UINT8*)HOSTIF_BASE_RXVETHQ, HOSTIF_SIZE_RXVETHQ
-};
-
-/**
-\brief Queue configuration for Kernel-to-User
-
-Stores the default configuration settings for the queue instance.
-*/
-const tQueueConfig QueueConfigK2U =
-{
-    kQueueBoth, FALSE, (UINT8*)HOSTIF_BASE_K2UQ, HOSTIF_SIZE_K2UQ
-};
-
-/**
-\brief Queue configuration for User-to-Kernel
-
-Stores the default configuration settings for the queue instance.
-*/
-const tQueueConfig QueueConfigU2K =
-{
-    kQueueBoth, FALSE, (UINT8*)HOSTIF_BASE_U2KQ, HOSTIF_SIZE_U2KQ
-};
+#define HOSTIF_INSTANCE_COUNT       2   ///< number of supported instances
 
 //------------------------------------------------------------------------------
 // local types
 //------------------------------------------------------------------------------
 
 /**
-\brief Function type to set the address of a dynamic buffer
-
-This function type enables to set the corresponding dynamic buffer address
-register. The address of the status/control registers is given with
-pHostifScBase_p and the address itself with dwAddr_p.
-*/
-typedef void (*tSetDynBuf) (UINT8 *pHostifScBase_p, UINT32 addr_p);
-
-/**
-\brief Function type to get the address of a dynamic buffer
-
-This function type enables to get the address set in the dynamic buffer address
-register. The address of the statuc/control registers is given with
-pHostifScBase_p.
-*/
-typedef UINT32 (*tGetDynBuf) (UINT8 *pHostifScBase_p);
-
-/**
-\brief Structure for host interface dynamic buffer
-
-This structure defines for each dynamic buffer instance the set and get
-functions. Additionally the base and span is provided.
-*/
-typedef struct sHostifDynBuf
-{
-    tSetDynBuf  pfnSetDynBuf; ///< this function sets the dynamic buffer base to hardware
-    tGetDynBuf  pfnGetDynBuf; ///< this function gets the dynamic buffer base to hardware
-    UINT8*      pBase;        ///< base of the dynamic buffer
-    UINT16      span;        ///< span of the dynamic buffer
-} tHostifDynBufConfig;
-
-/**
-\brief Dynamic buffer configuration for Pcp
-
-Stores the default configuration settings for the dynamic buffers
-*/
-const tHostifDynBufConfig aDynBufInitPcp[kHostifInstIdLast] =
-{
-    {   /* kHostifInstIdErrCount */
-        hostif_writeDynBufPcpErrCnt, hostif_readDynBufPcpErrCnt,
-        (UINT8*)HOSTIF_BASE_ERRORCOUNTER, HOSTIF_SIZE_ERRORCOUNTER
-    },
-    {   /* kHostifInstIdTxNmtQueue */
-        hostif_writeDynBufPcpTxNmtQ, hostif_readDynBufPcpTxNmtQ,
-        (UINT8*)HOSTIF_BASE_TXNMTQ, HOSTIF_SIZE_TXNMTQ
-    },
-    {   /* kHostifInstIdTxGenQueue */
-        hostif_writeDynBufPcpTxGenQ, hostif_readDynBufPcpTxGenQ,
-        (UINT8*)HOSTIF_BASE_TXGENQ, HOSTIF_SIZE_TXGENQ
-    },
-    {   /* kHostifInstIdTxSyncQueue */
-        hostif_writeDynBufPcpTxSyncQ, hostif_readDynBufPcpTxSyncQ,
-        (UINT8*)HOSTIF_BASE_TXSYNCQ, HOSTIF_SIZE_TXSYNCQ
-    },
-    {   /* kHostifInstIdTxVethQueue */
-        hostif_writeDynBufPcpTxVethQ, hostif_readDynBufPcpTxVethQ,
-        (UINT8*)HOSTIF_BASE_TXVETHQ, HOSTIF_SIZE_TXVETHQ
-    },
-    {   /* kHostifInstIdRxVethQueue */
-        hostif_writeDynBufPcpRxVethQ, hostif_readDynBufPcpRxVethQ,
-        (UINT8*)HOSTIF_BASE_RXVETHQ, HOSTIF_SIZE_RXVETHQ
-    },
-    {   /* kHostifInstIdK2UQueue */
-        hostif_writeDynBufPcpK2UQ, hostif_readDynBufPcpK2UQ,
-        (UINT8*)HOSTIF_BASE_K2UQ, HOSTIF_SIZE_K2UQ
-    },
-    {   /* kHostifInstIdU2KQueue */
-        hostif_writeDynBufPcpU2KQ, hostif_readDynBufPcpU2KQ,
-        (UINT8*)HOSTIF_BASE_U2KQ, HOSTIF_SIZE_U2KQ
-    },
-    {   /* kHostifInstIdTpdo */
-        hostif_writeDynBufPcpTpdo, hostif_readDynBufPcpTpdo,
-        (UINT8*)HOSTIF_BASE_TPDO, HOSTIF_SIZE_TPDO
-    },
-    {   /* kHostifInstIdRpdo */
-        hostif_writeDynBufPcpRpdo, hostif_readDynBufPcpRpdo,
-        (UINT8*)HOSTIF_BASE_RPDO, HOSTIF_SIZE_RPDO
-    }
-};
-
-/**
 \brief Version field in Status/Control - Information
 
 Used to obtain hardware/software mismatch
 */
-typedef struct sHostifVersion
+typedef struct sHostifHwVersion
 {
-    volatile UINT8      cnt;        ///< Counting field
-    volatile UINT8      revision;   ///< Revision field
-    volatile UINT8      minor;      ///< Minor field
-    volatile UINT8      major;      ///< Major field
-} tHostifVersion;
+    UINT8           cnt;        ///< Counting field
+    tHostifVersion  version;    ///< Version field
+} tHostifHwVersion;
 
 /**
-\brief Queue process information
+\brief Buffer descriptor structure
 
-This structure holds the queue instance and the corresponding callback and
-argument for a certain queue resource.
+This structure is used to store the buffer descriptors
 */
-typedef struct sQueueProcess
+typedef struct sHostifBufDesc
 {
-    tHostifQueueInstance pInstance;    ///< the queue instance
-    tQueueCb            pfnCallback;     ///< instance callback
-    void                *pArg;        ///< instance argument
+    UINT32  offset;     ///< Buffer offset within hostif
+    UINT    span;       ///< Buffer span [byte]
+} tHostifBufDesc;
 
-} tQueueProcess;
+/**
+\brief Buffer map structure
+
+This structure is used to store the buffer base address and size.
+*/
+typedef struct sHostifBufMap
+{
+    UINT8*  pBase;  ///< Buffer base address
+    UINT    span;   ///< Buffer span [byte]
+} tHostifBufMap;
+
+/**
+\brief Initialization Parameter structure
+
+This structure is used to forward the initialization from Pcp to host.
+*/
+typedef struct sHostifInitParam
+{
+    UINT32          initMemLength; ///< Length of aInitMem
+    tHostifBufDesc  aInitMem[HOSTIF_DYNBUF_COUNT + HOSTIF_BUF_COUNT]; ///< Memory map from hostiflib-mem.h
+    UINT8           aUser[HOSTIF_USER_INIT_PAR_SIZE]; ///< Space for higher layers
+} tHostifInitParam;
 
 /**
 \brief Host Interface Instance
@@ -318,41 +140,16 @@ Holds the configuration passed to the instance at creation.
 */
 typedef struct sHostif
 {
-    tHostifConfig       config;       ///< copy of configuration
-    UINT8               *pBase;       ///< base address of host interface
-
-    int                 iDynBufEntries; ///< number of dynamic buffers (Pcp/Host)
-    tHostifDynBufConfig* pDynBufTbl;  ///< dynamic buffer table (Pcp/Host)
-    UINT8*              apDynBufHost[HOSTIF_DYNBUF_COUNT]; ///< DynBuf acquired by Host
-
-    tQueueProcess       aQueueProcessTable[HOSTIF_QUEUE_COUNT]; ///< queue process table, processed by hostif_process()
-    int                 iQueueProcessEntries; ///< number of entries in aQueueProcessTable
-
-    tHostifIrqCb        apfnIrqCb[kHostifIrqSrcLast];
-
+    tHostifConfig       config; ///< copy of configuration
+    UINT8*              pBase;  ///< base address of host interface
+    tHostifIrqCb        apfnIrqCb[kHostifIrqSrcLast]; ///< table that stores the irq callbacks
+    tHostifBufMap       aBufMap[kHostifInstIdLast]; ///< Table storing buffer mapping
+#if CONFIG_HOSTIF_PCP != FALSE
+    tHostifInitParam*   pInitParam; ///< Initialization parameter
+#else
+    UINT8*             apDynBuf[HOSTIF_DYNBUF_COUNT];
+#endif
 } tHostif;
-
-/**
-\brief Host Interface Queue Instance
-
-Holds the Host interface and queue instance
-*/
-typedef struct sHostifQueue
-{
-    tHostif*            pHostif;      ///< reference to hostif instance
-    tQueueInstance      pQueueInstance; ///< reference to queue instance
-} tHostifQueue;
-
-/**
-\brief Host Interface Lim Instance
-
-Holds the Host interface and lim instance
-*/
-typedef struct sHostifLim
-{
-    tHostif*            pHostif;      ///< reference to hostif instance
-    tLimInstance        pLimInstance; ///< reference to lim instance
-} tHostifLim;
 
 //------------------------------------------------------------------------------
 // local vars
@@ -362,7 +159,7 @@ typedef struct sHostifLim
 
 This array holds all Host Interface instances available.
 */
-static tHostif *paHostifInstance[HOSTIF_INSTANCE_COUNT] =
+static tHostif *paHostifInstance_l[HOSTIF_INSTANCE_COUNT] =
 {
     NULL
 };
@@ -370,27 +167,24 @@ static tHostif *paHostifInstance[HOSTIF_INSTANCE_COUNT] =
 //------------------------------------------------------------------------------
 // local function prototypes
 //------------------------------------------------------------------------------
-static void hostifIrqHandler (void *pArg_p);
+/* Local functions for Pcp and Host */
 static void freePtr(void *p);
-static tHostifReturn checkMagic (tHostif *pHostif_p);
-static tHostifReturn checkVersion (tHostif *pHostif_p);
-static tHostifReturn allocateDynBuffers (tHostif *pHostif_p);
-static tHostifReturn freeDynBuffers (tHostif *pHostif_p);
-static tHostifReturn setDynBuffers (tHostif *pHostif_p);
+static tHostifReturn checkMagic (UINT8* pBase_p);
+static tHostifReturn checkVersion (UINT8* pBase_p, tHostifVersion* pSwVersion_p);
+
+#if CONFIG_HOSTIF_PCP != FALSE
+
+/* Local functions for Pcp only */
 static tHostifReturn controlBridge (tHostif *pHostif_p, BOOL fEnable_p);
-HOSTIF_INLINE static BOOL getBridgeEnabled (tHostif *pHostif_p);
+
+#else
+
+/* Local functions for Host only */
+static void hostifIrqHandler (void *pArg_p);
 static tHostifReturn controlIrqMaster (tHostif *pHostif_p, BOOL fEnable_p);
+HOSTIF_INLINE static BOOL getBridgeEnabled (tHostif *pHostif_p);
 
-static tHostifReturn queueConfig (tHostif *pHostif_p,
-        tHostifInstanceId InstanceId_p, tQueueConfig *pQueueConfig_p);
-
-static tHostifReturn addQueueProcess (tHostif *pHostif_p,
-        tQueueProcess QueueProcess_p);
-static tHostifReturn removeQueueProcess (tHostif *pHostif_p,
-        tQueueProcess QueueProcess_p);
-
-static tHostifReturn limConfig (tHostif *pHostif_p,
-        tHostifInstanceId InstanceId_p, tLimConfig *pLimConfig_p);
+#endif
 
 //============================================================================//
 //            P U B L I C   F U N C T I O N S                                 //
@@ -424,8 +218,9 @@ on the pConfig_p parameters.
 //------------------------------------------------------------------------------
 tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstance_p)
 {
-    tHostifReturn Ret = kHostifSuccessful;
-    tHostif *pHostif = NULL;
+    tHostifReturn   Ret = kHostifSuccessful;
+    tHostif*        pHostif = NULL;
+    UINT8*          pBase_p = NULL;
     int i;
 
     if(pConfig_p == NULL || ppInstance_p == NULL)
@@ -434,15 +229,22 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
         goto Exit;
     }
 
-    // check config
-    switch(pConfig_p->ProcInstance)
+    pBase_p = HOSTIF_MAKE_NONCACHEABLE(pConfig_p->pBase);
+
+    // check magic
+    Ret = checkMagic(pBase_p);
+
+    if(Ret != kHostifSuccessful)
     {
-        case kHostifProcHost:
-        case kHostifProcPcp:
-            break;
-        default:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
+        goto Exit;
+    }
+
+    // check version
+    Ret = checkVersion(pBase_p, &pConfig_p->version);
+
+    if(Ret != kHostifSuccessful)
+    {
+        goto Exit;
     }
 
     // create instance
@@ -459,56 +261,16 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
     // initialize instance
     pHostif->config = *pConfig_p;
 
-    if(pHostif->config.ProcInstance == kHostifProcPcp)
-    {
-        pHostif->iDynBufEntries = kHostifInstIdLast;
-        pHostif->pDynBufTbl = (tHostifDynBufConfig*)aDynBufInitPcp;
-    }
-
     // store hostif base
-    if(pHostif->config.ProcInstance == kHostifProcHost)
-    {
-        pHostif->pBase = (UINT8*)HOSTIF_MAKE_NONCACHEABLE(HOSTIF_HOST_BASE);
-    }
-    else
-    {
-        pHostif->pBase = (UINT8*)HOSTIF_MAKE_NONCACHEABLE(HOSTIF_PCP_BASE);
-    }
-
-    // check magic
-    Ret = checkMagic(pHostif);
-
-    if(Ret != kHostifSuccessful)
-    {
-        goto Exit;
-    }
-
-    // check version
-    Ret = checkVersion(pHostif);
-
-    if(Ret != kHostifSuccessful)
-    {
-        goto Exit;
-    }
-
-    if(pHostif->config.ProcInstance == kHostifProcPcp)
-    {
-        // allocate buffers
-        Ret = allocateDynBuffers(pHostif);
-
-        if(Ret != kHostifSuccessful)
-        {
-            goto Exit;
-        }
-    }
+    pHostif->pBase = HOSTIF_MAKE_NONCACHEABLE(pHostif->config.pBase);
 
     // store instance in array
     for(i=0; i<HOSTIF_INSTANCE_COUNT; i++)
     {
-        if(paHostifInstance[i] == NULL)
+        if(paHostifInstance_l[i] == NULL)
         {
             // free entry found
-            paHostifInstance[i] = pHostif;
+            paHostifInstance_l[i] = pHostif;
 
             break;
         }
@@ -520,29 +282,99 @@ tHostifReturn hostif_create (tHostifConfig *pConfig_p, tHostifInstance *ppInstan
         goto Exit;
     }
 
-    if(pHostif->config.ProcInstance == kHostifProcPcp)
-    {
-        // since everything is fine, activate bridge
-        Ret = controlBridge(pHostif, TRUE);
 
-        if(Ret != kHostifSuccessful)
-        {
-            goto Exit;
-        }
-    }
-
-    if(pHostif->config.ProcInstance == kHostifProcHost)
+#if CONFIG_HOSTIF_PCP != FALSE
     {
-        // register isr in system
-        if(HOSTIF_IRQ_REG(hostifIrqHandler, (void*)pHostif))
+        tHostifBufDesc aInitVec[] = HOSTIF_INIT_VEC;
+
+        // Allocate init parameter memory
+        pHostif->pInitParam = (tHostifInitParam*)HOSTIF_UNCACHED_MALLOC(sizeof(tHostifInitParam));
+
+        if(pHostif->pInitParam == NULL)
         {
             Ret = kHostifNoResource;
             goto Exit;
         }
 
-        // enable system irq
-        HOSTIF_IRQ_ENABLE();
+        memset(pHostif->pInitParam, 0, sizeof(tHostifInitParam));
+
+        // Initialize init parameter memory
+        pHostif->pInitParam->initMemLength = HOSTIF_DYNBUF_COUNT + HOSTIF_BUF_COUNT;
+        memcpy(pHostif->pInitParam->aInitMem, aInitVec, sizeof(aInitVec));
+
+        // Now set init parameter address to hostif
+        hostif_writeInitBase(pHostif->pBase, (UINT32)pHostif->pInitParam);
+
+        // Write span of buffers into buf map table, malloc them and write to hostif
+        for(i=0; i<kHostifInstIdLast; i++)
+        {
+            pHostif->aBufMap[i].span = aInitVec[i + HOSTIF_DYNBUF_COUNT].span;
+            pHostif->aBufMap[i].pBase = (UINT8*)HOSTIF_UNCACHED_MALLOC(pHostif->aBufMap[i].span);
+
+            if(pHostif->aBufMap[i].pBase == NULL)
+            {
+                Ret = kHostifNoResource;
+                goto Exit;
+            }
+
+            hostif_writeBufPcp(pHostif->pBase, i, (UINT32)pHostif->aBufMap[i].pBase);
+        }
     }
+#else
+    {
+        UINT32              pcpAddr;
+        tHostifInitParam*   pInitParam;
+
+        // Busy wait for enabled bridge
+        while(getBridgeEnabled(pHostif) == FALSE)
+        {
+            //jz Use timeout?
+        }
+
+        // Get init param address in pcp memory space and write it to dyn buf 0
+        pcpAddr = hostif_readInitBase(pHostif->pBase);
+        hostif_writeDynBufHost(pHostif->pBase, 0, pcpAddr);
+
+        // Point to address after status control registers (=dyn buf 0)
+        pInitParam = (tHostifInitParam*)(pHostif->pBase + HOSTIF_STCTRL_SPAN);
+
+        // Check if mem length is correct, otherwise version mismatch!
+        if(pInitParam->initMemLength != HOSTIF_DYNBUF_COUNT + HOSTIF_BUF_COUNT)
+        {
+            Ret = kHostifWrongVersion;
+            goto Exit;
+        }
+
+        // And now, get the stuff
+        for(i=0; i<pInitParam->initMemLength; i++)
+        {
+            pHostif->aBufMap[i].pBase = pHostif->pBase + pInitParam->aInitMem[i].offset;
+            pHostif->aBufMap[i].span = pInitParam->aInitMem[i].span;
+        }
+    }
+#endif
+
+#if CONFIG_HOSTIF_PCP != FALSE
+    // since everything is fine, activate bridge
+    Ret = controlBridge(pHostif, TRUE);
+
+    if(Ret != kHostifSuccessful)
+    {
+        goto Exit;
+    }
+#endif
+
+#if CONFIG_HOSTIF_PCP == FALSE
+    // register isr in system
+    if(HOSTIF_IRQ_REG(hostifIrqHandler, (void*)pHostif))
+    {
+        Ret = kHostifNoResource;
+        goto Exit;
+    }
+
+    // enable system irq
+    HOSTIF_IRQ_ENABLE();
+#endif
 
     // return instance pointer
     *ppInstance_p = pHostif;
@@ -585,34 +417,48 @@ tHostifReturn hostif_delete (tHostifInstance pInstance_p)
         goto Exit;
     }
 
-    if(pHostif->config.ProcInstance == kHostifProcHost)
-    {
+#if CONFIG_HOSTIF_PCP == FALSE
+    // enable system irq (ignore ret)
+    HOSTIF_IRQ_DISABLE();
 
-        // enable system irq (ignore ret)
-        HOSTIF_IRQ_DISABLE();
-
-        // degister isr in system (ignore ret)
-        HOSTIF_IRQ_REG(NULL, NULL);
-    }
+    // degister isr in system (ignore ret)
+    HOSTIF_IRQ_REG(NULL, NULL);
+#endif
 
     // delete instance in instance array
     for(i=0; i<HOSTIF_INSTANCE_COUNT; i++)
     {
-        if(pHostif == paHostifInstance[i])
+        if(pHostif == paHostifInstance_l[i])
         {
-            paHostifInstance[i] = NULL;
+            paHostifInstance_l[i] = NULL;
 
             break;
         }
     }
 
-    if(pHostif->config.ProcInstance == kHostifProcPcp)
-    {
-        // deactivate bridge (ignore ret)
-        Ret = controlBridge(pHostif, FALSE);
+#if CONFIG_HOSTIF_PCP != FALSE
+    // deactivate bridge (ignore ret)
+    Ret = controlBridge(pHostif, FALSE);
 
-        Ret = freeDynBuffers(pHostif);
+    // Free init parameter
+    if(pHostif->pInitParam != NULL)
+    {
+        HOSTIF_UNCACHED_FREE(pHostif->pInitParam);
     }
+
+    hostif_writeInitBase(pHostif->pBase, (UINT32)NULL);
+
+    // Free buffers
+    for(i=0; i<kHostifInstIdLast; i++)
+    {
+        if(pHostif->aBufMap[i].pBase != NULL)
+        {
+            HOSTIF_UNCACHED_FREE(pHostif->aBufMap[i].pBase);
+        }
+
+        hostif_writeBufPcp(pHostif->pBase, i, (UINT32)NULL);
+    }
+#endif
 
     freePtr(pHostif);
 
@@ -634,7 +480,7 @@ If the instance is not found NULL is returned.
 \ingroup module_hostiflib
 */
 //------------------------------------------------------------------------------
-tHostifInstance hostif_getInstance (tHostifProcInstance Instance_p)
+tHostifInstance hostif_getInstance (UINT Instance_p)
 {
     tHostifInstance pHostif = NULL;
     int i;
@@ -642,78 +488,15 @@ tHostifInstance hostif_getInstance (tHostifProcInstance Instance_p)
     // search through array and return the matching one
     for(i=0; i<HOSTIF_INSTANCE_COUNT; i++)
     {
-        if(paHostifInstance[i]->config.ProcInstance == Instance_p)
+        if(paHostifInstance_l[i]->config.instanceNum == Instance_p)
         {
-            pHostif = (tHostifInstance)paHostifInstance[i];
+            pHostif = (tHostifInstance)paHostifInstance_l[i];
 
             break;
         }
     }
 
     return pHostif;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  This function processes all resources of the host interface
-
-This function processes the configured resources of the host interface like
-the queues.
-
-\param  pInstance_p             Host interface instance
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The process function exit without errors.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_process (tHostifInstance pInstance_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tQueueReturn qRet;
-    tHostif *pHostif = (tHostif*)pInstance_p;
-    tQueueProcess *pQueueProcess;
-    int i;
-    int iProcessed;
-    BOOL fQueueEmpty;
-
-    if(pInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    // set process pointer to very first entry
-    pQueueProcess = pHostif->aQueueProcessTable;
-
-    for(i = 0, iProcessed = 0; i < HOSTIF_QUEUE_COUNT; i++, pQueueProcess++)
-    {
-        if(pQueueProcess->pInstance == NULL)
-            continue;
-
-        qRet = lfq_checkEmpty(pQueueProcess->pInstance, &fQueueEmpty);
-
-        if(qRet != kQueueSuccessful)
-        {
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-        }
-
-        if(fQueueEmpty == FALSE && pQueueProcess->pfnCallback != NULL)
-        {
-            pQueueProcess->pfnCallback(pQueueProcess->pArg);
-        }
-
-        if(++iProcessed >= pHostif->iQueueProcessEntries)
-            break;
-    }
-
-    // add other resources to be processed here
-
-Exit:
-    return Ret;
 }
 
 //------------------------------------------------------------------------------
@@ -731,11 +514,11 @@ If the provided callback is NULL, then the irq source is disabled.
 \return The function returns a tHostifReturn error code.
 \retval kHostifSuccessful       The process function exit without errors.
 \retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifWrongProcInst    Only the host may call this function.
 
 \ingroup module_hostiflib
 */
 //------------------------------------------------------------------------------
+#if CONFIG_HOSTIF_PCP == FALSE
 tHostifReturn hostif_irqRegHdl (tHostifInstance pInstance_p,
         tHostifIrqSrc irqSrc_p, tHostifIrqCb pfnCb_p)
 {
@@ -746,12 +529,6 @@ tHostifReturn hostif_irqRegHdl (tHostifInstance pInstance_p,
     if(pInstance_p == NULL || irqSrc_p >= kHostifIrqSrcLast)
     {
         Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    if(pHostif->config.ProcInstance != kHostifProcHost)
-    {
-        Ret = kHostifWrongProcInst;
         goto Exit;
     }
 
@@ -773,6 +550,7 @@ tHostifReturn hostif_irqRegHdl (tHostifInstance pInstance_p,
 Exit:
     return Ret;
 }
+#endif
 
 //------------------------------------------------------------------------------
 /**
@@ -787,11 +565,11 @@ This function enables an irq source from the Pcp side.
 \return The function returns a tHostifReturn error code.
 \retval kHostifSuccessful       The process function exit without errors.
 \retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifWrongProcInst    Only the host may call this function.
 
 \ingroup module_hostiflib
 */
 //------------------------------------------------------------------------------
+#if CONFIG_HOSTIF_PCP != FALSE
 tHostifReturn hostif_irqSourceEnable (tHostifInstance pInstance_p,
         tHostifIrqSrc irqSrc_p, BOOL fEnable_p)
 {
@@ -802,12 +580,6 @@ tHostifReturn hostif_irqSourceEnable (tHostifInstance pInstance_p,
     if(pInstance_p == NULL || irqSrc_p >= kHostifIrqSrcLast)
     {
         Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    if(pHostif->config.ProcInstance != kHostifProcPcp)
-    {
-        Ret = kHostifWrongProcInst;
         goto Exit;
     }
 
@@ -825,6 +597,7 @@ tHostifReturn hostif_irqSourceEnable (tHostifInstance pInstance_p,
 Exit:
     return Ret;
 }
+#endif
 
 //------------------------------------------------------------------------------
 /**
@@ -839,11 +612,11 @@ host interface.
 \return The function returns a tHostifReturn error code.
 \retval kHostifSuccessful       The process function exit without errors.
 \retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifWrongProcInst    Only the host may call this function.
 
 \ingroup module_hostiflib
 */
 //------------------------------------------------------------------------------
+#if CONFIG_HOSTIF_PCP == FALSE
 tHostifReturn hostif_irqMasterEnable (tHostifInstance pInstance_p,
         BOOL fEnable_p)
 {
@@ -856,146 +629,18 @@ tHostifReturn hostif_irqMasterEnable (tHostifInstance pInstance_p,
         goto Exit;
     }
 
-    if(pHostif->config.ProcInstance == kHostifProcHost)
+    // activte master irq enable
+    Ret = controlIrqMaster(pHostif, fEnable_p);
+
+    if(Ret != kHostifSuccessful)
     {
-        // activte master irq enable
-        Ret = controlIrqMaster(pHostif, fEnable_p);
-
-        if(Ret != kHostifSuccessful)
-        {
-            goto Exit;
-        }
-    }
-    else
-        Ret = kHostifWrongProcInst;
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  This function sets a boot base to the host interface
-
-\param  pInstance_p             host interface instance
-\param  base_p                  base address to boot memory
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The process function exit without errors.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_setBootBase (tHostifInstance pInstance_p, UINT32 base_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tHostif *pHostif = (tHostif*)pInstance_p;
-
-    if(pInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
         goto Exit;
     }
 
-    hostif_writeBootBase(pHostif->pBase, base_p);
-
 Exit:
     return Ret;
 }
-
-//------------------------------------------------------------------------------
-/**
-\brief  This function gets the boot base from the host interface
-
-\param  pInstance_p             host interface instance
-\param  pBase_p                 pointer to boot base
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The process function exit without errors.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_getBootBase (tHostifInstance pInstance_p, UINT32 *pBase_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tHostif *pHostif = (tHostif*)pInstance_p;
-
-    if(pInstance_p == NULL || pBase_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    *pBase_p = hostif_readBootBase(pHostif->pBase);
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  This function sets an init base to the host interface
-
-\param  pInstance_p             host interface instance
-\param  base_p                  base address to init memory
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The process function exit without errors.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_setInitBase (tHostifInstance pInstance_p, UINT32 base_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tHostif *pHostif = (tHostif*)pInstance_p;
-
-    if(pInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    hostif_writeInitBase(pHostif->pBase, base_p);
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  This function gets the init base from the host interface
-
-\param  pInstance_p             host interface instance
-\param  pBase_p                 pointer to init base
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The process function exit without errors.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_getInitBase (tHostifInstance pInstance_p, UINT32 *pBase_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tHostif *pHostif = (tHostif*)pInstance_p;
-
-    if(pInstance_p == NULL || pBase_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    *pBase_p = hostif_readInitBase(pHostif->pBase);
-
-Exit:
-    return Ret;
-}
+#endif
 
 //------------------------------------------------------------------------------
 /**
@@ -1071,11 +716,11 @@ Note that only the Pcp is allowed to write to this register!
 \return The function returns a tHostifReturn error code.
 \retval kHostifSuccessful       The process function exit without errors.
 \retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifWrongProcInst    The caller processor instance is not allowed.
 
 \ingroup module_hostiflib
 */
 //------------------------------------------------------------------------------
+#if CONFIG_HOSTIF_PCP != FALSE
 tHostifReturn hostif_setState (tHostifInstance pInstance_p, tHostifState sta_p)
 {
     tHostifReturn Ret = kHostifSuccessful;
@@ -1087,18 +732,12 @@ tHostifReturn hostif_setState (tHostifInstance pInstance_p, tHostifState sta_p)
         goto Exit;
     }
 
-    if(pHostif->config.ProcInstance != kHostifProcPcp)
-    {
-        // host can't set state field
-        Ret = kHostifWrongProcInst;
-        goto Exit;
-    }
-
     hostif_writeState(pHostif->pBase, sta_p);
 
 Exit:
     return Ret;
 }
+#endif
 
 //------------------------------------------------------------------------------
 /**
@@ -1143,7 +782,6 @@ Note that only the Pcp is allowed to write to this register!
 \return The function returns a tHostifReturn error code.
 \retval kHostifSuccessful       The process function exit without errors.
 \retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifWrongProcInst    The caller processor instance is not allowed.
 
 \ingroup module_hostiflib
 */
@@ -1156,13 +794,6 @@ tHostifReturn hostif_setError (tHostifInstance pInstance_p, tHostifError err_p)
     if(pInstance_p == NULL)
     {
         Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    if(pHostif->config.ProcInstance != kHostifProcPcp)
-    {
-        // host can't set error field
-        Ret = kHostifWrongProcInst;
         goto Exit;
     }
 
@@ -1220,6 +851,7 @@ Note that only the Pcp is allowed to write to this register!
 \ingroup module_hostiflib
 */
 //------------------------------------------------------------------------------
+#if CONFIG_HOSTIF_PCP != FALSE
 tHostifReturn hostif_setHeartbeat (tHostifInstance pInstance_p, UINT16 heartbeat_p)
 {
     tHostifReturn Ret = kHostifSuccessful;
@@ -1231,18 +863,12 @@ tHostifReturn hostif_setHeartbeat (tHostifInstance pInstance_p, UINT16 heartbeat
         goto Exit;
     }
 
-    if(pHostif->config.ProcInstance != kHostifProcPcp)
-    {
-        // host can't set heart beat field
-        Ret = kHostifWrongProcInst;
-        goto Exit;
-    }
-
     hostif_writeHeartbeat(pHostif->pBase, heartbeat_p);
 
 Exit:
     return Ret;
 }
+#endif
 
 //------------------------------------------------------------------------------
 /**
@@ -1281,7 +907,8 @@ Exit:
 
 \param  pInstance_p             Host interface instance
 \param  pcpBaseAddr_p           Address in pcp memory space
-\param  ppDynBufBase_p          Returns base address in host memory space
+\param  pInstId_p               Returns dynamic buffer instance being acquired (needed for freeing)
+\param  ppBufBase_p             Addresse to acquired memory
 
 \return The function returns a tHostifReturn error code.
 \retval kHostifSuccessful       Dynamic buffer acquired ppDynBufBase_p valid.
@@ -1292,14 +919,15 @@ Exit:
 \ingroup module_hostiflib
 */
 //------------------------------------------------------------------------------
-tHostifReturn hostif_dynBufAcquire (tHostifInstance pInstance_p,
-        UINT32 pcpBaseAddr_p, UINT8 **ppDynBufBase_p)
+#if CONFIG_HOSTIF_PCP == FALSE
+tHostifReturn hostif_dynBufAcquire (tHostifInstance pInstance_p, UINT32 pcpBaseAddr_p,
+        tHostifInstanceId* pInstId_p, UINT8** ppBufBase_p)
 {
     tHostifReturn Ret;
     tHostif *pHostif = (tHostif*)pInstance_p;
     int i;
 
-    if(pInstance_p == NULL || ppDynBufBase_p == NULL)
+    if(pInstance_p == NULL || pInstId_p == NULL || ppBufBase_p == NULL)
     {
         Ret = kHostifInvalidParameter;
         goto Exit;
@@ -1315,16 +943,18 @@ tHostifReturn hostif_dynBufAcquire (tHostifInstance pInstance_p,
 
     for(i=0; i<HOSTIF_DYNBUF_COUNT; i++)
     {
-        if(pHostif->apDynBufHost[i] == 0)
+        if(pHostif->apDynBuf[i] == NULL)
         {
             // handle base address in pcp memory space
-            pHostif->apDynBufHost[i] = (UINT8*)pcpBaseAddr_p;
+            pHostif->apDynBuf[i] = (UINT8*)pcpBaseAddr_p;
 
             hostif_writeDynBufHost(pHostif->pBase, (UINT8)i, pcpBaseAddr_p);
 
-            // return base address in host memory space
-            *ppDynBufBase_p = (UINT8*)((UINT32)apDynBuf[i] +
-                    (UINT32)pHostif->pBase);
+            // Get dynamic buffer address
+            *ppBufBase_p = pHostif->aBufMap[i].pBase;
+
+            // Return used dynamic buffer instance
+            *pInstId_p = (tHostifInstanceId)i;
 
             Ret = kHostifSuccessful;
             break;
@@ -1334,13 +964,14 @@ tHostifReturn hostif_dynBufAcquire (tHostifInstance pInstance_p,
 Exit:
     return Ret;
 }
+#endif
 
 //------------------------------------------------------------------------------
 /**
 \brief  This function frees a dynamic buffer acquired by the host
 
 \param  pInstance_p             Host interface instance
-\param  pcpBaseAddr_p           Address in pcp memory space
+\param  instId_p                Dynamic buffer to be freed
 
 \return The function returns a tHostifReturn error code.
 \retval kHostifSuccessful       Dynamic buffer freed
@@ -1350,762 +981,230 @@ Exit:
 \ingroup module_hostiflib
 */
 //------------------------------------------------------------------------------
-tHostifReturn hostif_dynBufFree (tHostifInstance pInstance_p, UINT32 pcpBaseAddr_p)
+#if CONFIG_HOSTIF_PCP == FALSE
+tHostifReturn hostif_dynBufFree (tHostifInstance pInstance_p, tHostifInstanceId instId_p)
 {
-    tHostifReturn Ret;
+    tHostifReturn Ret = kHostifSuccessful;
     tHostif *pHostif = (tHostif*)pInstance_p;
-    int i;
 
-    if(pInstance_p == NULL)
+    if(pInstance_p == NULL || !(instId_p < HOSTIF_DYNBUF_COUNT))
     {
         Ret = kHostifInvalidParameter;
         goto Exit;
     }
 
-    Ret = kHostifNoResource;
+    pHostif->apDynBuf[instId_p] = NULL;
 
-    for(i=0; i<HOSTIF_DYNBUF_COUNT; i++)
-    {
-        if((UINT32)pHostif->apDynBufHost[i] == pcpBaseAddr_p)
-        {
-            // free dynamic buffer
-            pHostif->apDynBufHost[i] = 0;
-
-            hostif_writeDynBufHost(pHostif->pBase, (UINT8)i, 0);
-
-            Ret = kHostifSuccessful;
-            break;
-        }
-    }
+    hostif_writeDynBufHost(pHostif->pBase, (UINT8)instId_p, 0);
 
 Exit:
     return Ret;
 }
+#endif
 
 //------------------------------------------------------------------------------
 /**
-\brief  Create a queue instance for the given host interface instance
+\brief  This function returns the instance buffer
 
-This function creates queue instance for the given host instance.
+This function gets the buffer base and size of the addressed instance.
 
 \param  pInstance_p             Host interface instance
-\param  InstanceId_p            Resource instance id (Queue)
-\param  ppQueueInstance_p       Double-pointer to return created queue instance
+\param  instId_p                Addressed instance
+\param  ppBufBase_p             Returned buffer base address
+\param  pBufSize_p              Returned buffer size
 
 \return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is created succesfully.
+\retval kHostifSuccessful       Dynamic buffer freed
 \retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifNoResource       The queue can't be created
 
 \ingroup module_hostiflib
 */
 //------------------------------------------------------------------------------
-tHostifReturn hostif_queueCreate (tHostifInstance pInstance_p,
-        tHostifInstanceId InstanceId_p, tHostifQueueInstance *ppQueueInstance_p)
-
+tHostifReturn hostif_getBuf (tHostifInstance pInstance_p, tHostifInstanceId instId_p,
+        UINT8** ppBufBase_p, UINT* pBufSize_p)
 {
-    tHostifReturn Ret = kHostifSuccessful;
-    tQueueReturn qRet;
-    tHostifQueue *pHostifQueue;
-    tQueueConfig QueueConfig;
+    tHostifReturn ret = kHostifSuccessful;
+    tHostif *pHostif = (tHostif*)pInstance_p;
 
-    if(pInstance_p == NULL || ppQueueInstance_p == NULL ||
-            InstanceId_p >= kHostifInstIdLast)
+    if(pInstance_p == NULL || ppBufBase_p == NULL || pBufSize_p == NULL ||
+            !(instId_p < kHostifInstIdLast))
     {
-        Ret = kHostifInvalidParameter;
+        ret = kHostifInvalidParameter;
         goto Exit;
     }
 
-    // create hostif queue instance
-    pHostifQueue = (tHostifQueue*)malloc(sizeof(tHostifQueue));
-
-    if(pHostifQueue == NULL)
-    {
-        Ret = kHostifNoResource;
-        goto Exit;
-    }
-
-    pHostifQueue->pHostif = (tHostif*)pInstance_p;
-
-    Ret = queueConfig(pHostifQueue->pHostif, InstanceId_p, &QueueConfig);
-
-    if(Ret != kHostifSuccessful)
-    {
-        goto Exit;
-    }
-
-    qRet = lfq_create(&QueueConfig, &pHostifQueue->pQueueInstance);
-
-    switch(qRet)
-    {
-        case kQueueSuccessful:
-            break;
-        case kQueueAlignment:
-            Ret = kHostifBufferError;
-            goto Exit;
-        case kQueueHwError:
-            Ret = kHostifHwWriteError;
-            goto Exit;
-        case kQueueNoResource:
-        default:
-            Ret = kHostifNoResource;
-            goto Exit;
-    }
-
-    *ppQueueInstance_p = pHostifQueue;
+    *ppBufBase_p = pHostif->aBufMap[instId_p].pBase;
+    *pBufSize_p = pHostif->aBufMap[instId_p].span;
 
 Exit:
-    return Ret;
+    return ret;
 }
 
 //------------------------------------------------------------------------------
 /**
-\brief  Delete a queue instance
+\brief  This function returns the initialization parameters reference
 
-This function deletes the queue instance
-
-\param  pQueueInstance_p        Queue instance that has to be deleted
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is deleted succesfully.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifUnspecError      Unspecified error.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_queueDelete (tHostifQueueInstance pQueueInstance_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tQueueReturn qRet;
-    tHostifQueue *pHostifQueue = (tHostifQueue*)pQueueInstance_p;
-    tQueueProcess ProcessParam;
-
-    if(pQueueInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    // remove queue from processing
-    // note: If queue is already removed or was never processed then
-    //          it doesn't matter!
-    ProcessParam.pInstance = pHostifQueue->pQueueInstance;
-
-    removeQueueProcess(pHostifQueue->pHostif, ProcessParam);
-
-    qRet = lfq_delete(pHostifQueue->pQueueInstance);
-
-    switch(qRet)
-    {
-        case kQueueSuccessful:
-            break;
-        case kQueueInvalidParameter:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-        default:
-            Ret = kHostifUnspecError;
-            goto Exit;
-    }
-
-    // delete hostif queue instance
-    free(pHostifQueue);
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Register a queue callback
-
-This function adds a queue callback for a specific queue instance into the
-queue process array.
-
-\param  pQueueInstance_p        Queue instance
-\param  pfnQueueCb_p            Call back for queue instance
-\param  pArg_p                  Argument of call back
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is deleted succesfully.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifNoResource       The queue can't be processed.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_queueCallback (tHostifQueueInstance pQueueInstance_p,
-        tQueueCb pfnQueueCb_p, void *pArg_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tHostifQueue *pHostifQueue = (tHostifQueue*)pQueueInstance_p;
-    tQueueProcess ProcessParam;
-
-    if(pQueueInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    ProcessParam.pfnCallback = pfnQueueCb_p;
-    ProcessParam.pInstance = pHostifQueue->pQueueInstance;
-    ProcessParam.pArg = pArg_p;
-
-    if(ProcessParam.pfnCallback == NULL)
-    {
-        Ret = removeQueueProcess(pHostifQueue->pHostif, ProcessParam);
-    }
-    else
-    {
-        Ret = addQueueProcess(pHostifQueue->pHostif, ProcessParam);
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Reset queue
-
-This function triggers a queue reset with a given timeout
-
-\param  pQueueInstance_p        Queue instance
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is deleted successfully.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifBridgeDisabled   The bridge logic of the hostif is disabled.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_queueReset (tHostifQueueInstance pQueueInstance_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tHostifQueue *pHostifQueue = (tHostifQueue*)pQueueInstance_p;
-    tQueueReturn qRet;
-
-    if(pQueueInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    if(getBridgeEnabled(pHostifQueue->pHostif) == FALSE)
-    {
-        Ret = kHostifBridgeDisabled;
-        goto Exit;
-    }
-
-    qRet = lfq_reset(pHostifQueue->pQueueInstance);
-
-    switch(qRet)
-    {
-        case kQueueSuccessful:
-            break;
-        case kQueueInvalidParameter:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-        case kQueueWrongCaller:
-            Ret = kHostifWrongProcInst;
-            goto Exit;
-        default:
-            Ret = kHostifUnspecError;
-            goto Exit;
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Get queue entry count
-
-This function returns the number of entries in the given queue
-
-\param  pQueueInstance_p        Queue instance
-\param  pEntryCount_p           Returns the number of entries in the queue
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is deleted successfully.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifBridgeDisabled   The bridge logic of the hostif is disabled.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_queueGetEntryCount (tHostifQueueInstance pQueueInstance_p,
-        UINT16 *pEntryCount_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tHostifQueue *pHostifQueue = (tHostifQueue*)pQueueInstance_p;
-    tQueueReturn qRet;
-
-    if(pQueueInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    if(getBridgeEnabled(pHostifQueue->pHostif) == FALSE)
-    {
-        Ret = kHostifBridgeDisabled;
-        goto Exit;
-    }
-
-    qRet = lfq_getEntryCount(pHostifQueue->pQueueInstance, pEntryCount_p);
-
-    switch(qRet)
-    {
-        case kQueueSuccessful:
-            break;
-        case kQueueInvalidParameter:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-        default:
-            Ret = kHostifUnspecError;
-            goto Exit;
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Insert a queue entry
-
-This function inserts the given queue entry into a specified queue.
-
-\param  pQueueInstance_p        Queue instance
-\param  pData_p                 Data to be inserted
-\param  size_p                  Size of data to be inserted
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is deleted successfully.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifBridgeDisabled   The bridge logic of the hostif is disabled.
-\retval kHostifBufferOverflow   The queue is full.
-\retval kHostifUnspecError      Unknown error
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_queueInsert (tHostifQueueInstance pQueueInstance_p,
-        UINT8 *pData_p, UINT16 size_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tHostifQueue *pHostifQueue = (tHostifQueue*)pQueueInstance_p;
-    tQueueReturn qRet;
-
-    if(pQueueInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    if(getBridgeEnabled(pHostifQueue->pHostif) == FALSE)
-    {
-        Ret = kHostifBridgeDisabled;
-        goto Exit;
-    }
-
-    qRet = lfq_entryEnqueue(pHostifQueue->pQueueInstance, pData_p, size_p);
-
-    switch(qRet)
-    {
-        case kQueueSuccessful:
-            break;
-        case kQueueFull:
-            Ret = kHostifBufferOverflow;
-            goto Exit;
-        case kQueueAlignment:
-        case kQueueInvalidParameter:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-        default:
-            Ret = kHostifUnspecError;
-            goto Exit;
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Extract queue entry
-
-This function extracts an entry from the specified queue.
-
-\param  pQueueInstance_p        Queue instance
-\param  pData_p                 Buffer provided by the caller
-\param  pSize_p                 Buffer size, returns actual size
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is deleted successfully.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifBridgeDisabled   The bridge logic of the hostif is disabled.
-\retval kHostifBufferEmpty      The queue is empty.
-\retval kHostifUnspecError      Unknown error
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_queueExtract (tHostifQueueInstance pQueueInstance_p,
-        UINT8 *pData_p, UINT16 *pSize_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tHostifQueue *pHostifQueue = (tHostifQueue*)pQueueInstance_p;
-    tQueueReturn qRet;
-
-    if(pQueueInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    if(getBridgeEnabled(pHostifQueue->pHostif) == FALSE)
-    {
-        Ret = kHostifBridgeDisabled;
-        goto Exit;
-    }
-
-    qRet = lfq_entryDequeue(pHostifQueue->pQueueInstance, pData_p, pSize_p);
-
-    switch(qRet)
-    {
-        case kQueueSuccessful:
-            break;
-        case kQueueEmpty:
-            Ret = kHostifBufferEmpty;
-            goto Exit;
-        case kQueueAlignment:
-        case kQueueInvalidParameter:
-        case kQueueNoResource:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-        case kQueueInvalidEntry:
-            Ret = kHostifBufferError;
-            goto Exit;
-        default:
-            Ret = kHostifUnspecError;
-            goto Exit;
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Create a linear memory instance for the given host interface instance
-
-This function creates linear memory instance for the given host instance.
+This function returns the user part of the initialization parameters.
 
 \param  pInstance_p             Host interface instance
-\param  InstanceId_p            Resource instance id (Queue)
-\param  ppLimInstance_p         Double-pointer to return created linear memory
-                                instance
+\param  ppBufBase_p             Returned buffer base address
 
 \return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The lim is created successfully.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifNoResource       The lim can't be created
-\retval kHostifBufferError      The linear memory buffer is not UINT32-aligned.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_limCreate (tHostifInstance pInstance_p,
-        tHostifInstanceId InstanceId_p, tHostifLimInstance *ppLimInstance_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tLimReturn lRet = kLimSuccessful;
-    tHostifLim *pHostifLim;
-    tLimConfig LimConfig;
-
-    if(pInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    // create hostif queue instance
-    pHostifLim = (tHostifLim*)malloc(sizeof(tHostifLim));
-
-    if(pHostifLim == NULL)
-    {
-        Ret = kHostifNoResource;
-        goto Exit;
-    }
-
-    pHostifLim->pHostif = (tHostif*)pInstance_p;
-
-    Ret = limConfig(pHostifLim->pHostif, InstanceId_p, &LimConfig);
-
-    if(Ret != kHostifSuccessful)
-    {
-        goto Exit;
-    }
-
-    lRet = lim_create(&LimConfig, &pHostifLim->pLimInstance);
-
-    switch(lRet)
-    {
-        case kLimSuccessful:
-            break;
-        case kLimInvalidParameter:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-        case kLimNoResource:
-            Ret = kHostifNoResource;
-            goto Exit;
-        case kLimAlignment:
-            Ret = kHostifBufferError;
-            goto Exit;
-        default:
-            Ret = kHostifUnspecError;
-            goto Exit;
-    }
-
-    *ppLimInstance_p = pHostifLim;
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Delete a linear memory instance
-
-This function deletes the linear memory instance
-
-\param  pLimInstance_p          Linear memory instance that has to be deleted
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is deleted succesfully.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifUnspecError      Unspecified error.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_limDelete (tHostifLimInstance pLimInstance_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tLimReturn lRet;
-    tHostifLim *pHostifLim = (tHostifLim*)pLimInstance_p;
-
-    if(pLimInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    lRet = lim_delete(pHostifLim->pLimInstance);
-
-    switch(lRet)
-    {
-        case kLimSuccessful:
-            break;
-        case kLimInvalidInstance:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-        default:
-            Ret = kHostifUnspecError;
-            goto Exit;
-    }
-
-    free(pHostifLim);
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Write to a linear memory instance
-
-This function writes to the linear memory instance
-
-\param  pLimInstance_p          Linear memory instance to be written to
-\param  offset_p                Write at byte offset (UINT32-aligned!)
-\param  pSrc_p                  Pointer to data to be written (UINT32-aligned!)
-\param  size_p                  Size of data to be written
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is deleted succesfully.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifBridgeDisabled   The bridge logic of the hostif is disabled.
-\retval kHostifBufferOverflow   The write exceeds the linear memory buffer.
-\retval kHostifUnspecError      Unspecified error.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_limWrite (tHostifLimInstance pLimInstance_p,
-        UINT16 offset_p, UINT8 *pSrc_p, UINT16 size_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tLimReturn lRet;
-    tHostifLim *pHostifLim = (tHostifLim*)pLimInstance_p;
-
-    if(pLimInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    if(getBridgeEnabled(pHostifLim->pHostif) == FALSE)
-    {
-        Ret = kHostifBridgeDisabled;
-        goto Exit;
-    }
-
-    lRet = lim_write(pHostifLim->pLimInstance, offset_p, pSrc_p, size_p);
-
-    switch(lRet)
-    {
-        case kLimSuccessful:
-            break;
-        case kLimInvalidParameter:
-        case kLimInvalidInstance:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-        case kLimOverflow:
-            Ret = kHostifBufferOverflow;
-            goto Exit;
-        case kLimAlignment:
-        default:
-            Ret = kHostifBufferError;
-            goto Exit;
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Read from a linear memory instance
-
-This function reads from the linear memory instance
-
-\param  pLimInstance_p          Linear memory instance to be written to
-\param  pDst_p                  pointer to buffer to be written to
-                                (UINT32-aligned!)
-\param  offset_p                Write at byte offset (UINT32-aligned!)
-\param  size_p                  Size of buffer
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is deleted succesfully.
-\retval kHostifInvalidParameter The caller has provided incorrect parameters.
-\retval kHostifBridgeDisabled   The bridge logic of the hostif is disabled.
-\retval kHostifBufferOverflow   The read exceeds the linear memory buffer.
-\retval kHostifUnspecError      Unspecified error.
-
-\ingroup module_hostiflib
-*/
-//------------------------------------------------------------------------------
-tHostifReturn hostif_limRead (tHostifLimInstance pLimInstance_p,
-        UINT8 *pDst_p, UINT16 offset_p, UINT16 size_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    tLimReturn lRet;
-    tHostifLim *pHostifLim = (tHostifLim*)pLimInstance_p;
-
-    if(pLimInstance_p == NULL)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    if(getBridgeEnabled(pHostifLim->pHostif) == FALSE)
-    {
-        Ret = kHostifBridgeDisabled;
-        goto Exit;
-    }
-
-    lRet = lim_read(pHostifLim->pLimInstance, offset_p, pDst_p, size_p);
-
-    switch(lRet)
-    {
-        case kLimSuccessful:
-            break;
-        case kLimInvalidParameter:
-        case kLimInvalidInstance:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-        case kLimOverflow:
-            Ret = kHostifBufferOverflow;
-            goto Exit;
-        case kLimAlignment:
-        default:
-            Ret = kHostifBufferError;
-            goto Exit;
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Get the linear memory buffer
-
-This function provides the base address and size of the linear memory buffer of
-the specified instance.
-
-\param  pLimInstance_p          Linear memory instance of interest
-\param  ppBase_p                With this pointer the base address is returned.
-\param  pSpan_p                 With this pointer the size is returned.
-
-\return The function returns a tHostifReturn error code.
-\retval kHostifSuccessful       The queue is deleted succesfully.
+\retval kHostifSuccessful       Dynamic buffer freed
 \retval kHostifInvalidParameter The caller has provided incorrect parameters.
 
 \ingroup module_hostiflib
 */
 //------------------------------------------------------------------------------
-tHostifReturn hostif_limGetBuffer (tHostifLimInstance pLimInstance_p,
-        UINT8 **ppBase_p, UINT16 *pSpan_p)
+tHostifReturn hostif_getInitParam (tHostifInstance pInstance_p, UINT8** ppBase_p)
 {
-    tHostifReturn Ret = kHostifSuccessful;
-    tLimReturn lRet;
-    tHostifLim *pHostifLim = (tHostifLim*)pLimInstance_p;
+    tHostifReturn   ret = kHostifSuccessful;
+    tHostif*        pHostif = (tHostif*)pInstance_p;
 
-    if(pLimInstance_p == NULL || ppBase_p == NULL || pSpan_p == NULL)
+    if(pInstance_p == NULL || ppBase_p == NULL)
     {
-        Ret = kHostifInvalidParameter;
+        ret = kHostifInvalidParameter;
         goto Exit;
     }
 
-    lRet = lim_getBase(pHostifLim->pLimInstance, ppBase_p);
-
-    if(lRet != kLimSuccessful)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-    lRet = lim_getSpan(pHostifLim->pLimInstance, pSpan_p);
-
-    if(lRet != kLimSuccessful)
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
+#if CONFIG_HOSTIF_PCP != FALSE
+    *ppBase_p = pHostif->pInitParam->aUser;
+#else
+    *ppBase_p = (UINT8*)(((tHostifInitParam*)hostif_readInitBase(pHostif->pBase))->aUser);
+#endif
 
 Exit:
-    return Ret;
+    return ret;
 }
 
 //============================================================================//
 //            P R I V A T E   F U N C T I O N S                               //
 //============================================================================//
+
+/* Local functions for Pcp and Host */
+
+//------------------------------------------------------------------------------
+/**
+\brief  Free pointers which are not NULL
+
+The function frees a pointer if it isn't NULL.
+
+\param  p                       Pointer to be freed
+*/
+//------------------------------------------------------------------------------
+static void freePtr(void *p)
+{
+    if(p != NULL)
+        free(p);
+}
+
+//------------------------------------------------------------------------------
+/**
+\brief  Check magic word of ipcore
+
+This function reads and verifies the magic word from the host interface.
+
+\param  pBase_p     Base address to host interface hardware
+
+\return The function returns a tHostifReturn error code.
+*/
+//------------------------------------------------------------------------------
+static tHostifReturn checkMagic(UINT8* pBase_p)
+{
+    if(hostif_readMagic(pBase_p) == HOSTIF_MAGIC)
+        return kHostifSuccessful;
+    else
+        return kHostifWrongMagic;
+}
+
+//------------------------------------------------------------------------------
+/**
+\brief  Check version of ipcore
+
+This function reads and verifies the version from the host interface.
+
+\param  pBase_p         Base address to host interface hardware
+\param  pSwVersion_p    Pointer to version provided by sw
+
+\return The function returns a tHostifReturn error code.
+*/
+//------------------------------------------------------------------------------
+static tHostifReturn checkVersion(UINT8* pBase_p, tHostifVersion* pSwVersion_p)
+{
+    tHostifReturn       ret = kHostifSuccessful;
+    UINT32              versionField = hostif_readVersion(pBase_p);
+    tHostifHwVersion*   pHwVersion = (tHostifHwVersion*)&versionField;
+
+#if CONFIG_HOSTIF_PCP != FALSE
+    // Pcp must also check the counting part of the version field.
+    if(pHwVersion->cnt != HOSTIF_VERSION_COUNT)
+        ret = kHostifWrongVersion;
+#endif
+
+    /* Check Revision, Minor and Major */
+
+    if(pHwVersion->version.revision != pSwVersion_p->revision)
+        ret = kHostifWrongVersion;
+
+    if(pHwVersion->version.minor != pSwVersion_p->minor)
+        ret = kHostifWrongVersion;
+
+    if(pHwVersion->version.major != pSwVersion_p->major)
+        ret = kHostifWrongVersion;
+
+    return ret;
+}
+
+#if CONFIG_HOSTIF_PCP != FALSE
+
+/* Local functions for Pcp only */
+
+//------------------------------------------------------------------------------
+/**
+\brief  Turn on/off the host interface bridge
+
+This function turns on or off the bridge logic from Pcp side.
+This refuses the host accessing the Pcp-memory space in case of an uninitialized
+host interface.
+The function writes the specific enable pattern to hardware and reads it back
+again.
+
+\param  pHostif_p               Host interface instance
+\param  fEnable_p               Enable the bridge with TRUE
+
+\return The function returns a tHostifReturn error code.
+*/
+//------------------------------------------------------------------------------
+static tHostifReturn controlBridge (tHostif *pHostif_p, BOOL fEnable_p)
+{
+    tHostifReturn Ret = kHostifSuccessful;
+    UINT16 dst = 0;
+    UINT16 src;
+
+    if(fEnable_p != FALSE)
+    {
+        dst = HOSTIF_BRIDGE_ENABLE;
+    }
+
+    // set value to hw
+    hostif_writeBridgeEnable(pHostif_p->pBase, dst);
+
+    // read back value from hw and check if write was successful
+    src = hostif_readBridgeEnable(pHostif_p->pBase);
+
+    if((src & HOSTIF_BRIDGE_ENABLE) != dst)
+    {
+        Ret = kHostifHwWriteError;
+        goto Exit;
+    }
+
+Exit:
+    return Ret;
+}
+
+#else
+
+/* Local functions for Host only */
 
 //------------------------------------------------------------------------------
 /**
@@ -2153,256 +1252,6 @@ Exit:
 
 //------------------------------------------------------------------------------
 /**
-\brief  Free pointers which are not NULL
-
-The function frees a pointer if it isn't NULL.
-
-\param  p                       Pointer to be freed
-*/
-//------------------------------------------------------------------------------
-static void freePtr(void *p)
-{
-    if(p != NULL)
-        free(p);
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Check magic word of ipcore
-
-This function reads and verifies the magic word from the host interface.
-
-\param  pHostif_p               Host interface instance
-
-\return The function returns a tHostifReturn error code.
-*/
-//------------------------------------------------------------------------------
-static tHostifReturn checkMagic(tHostif *pHostif_p)
-{
-    if(hostif_readMagic(pHostif_p->pBase) == HOSTIF_MAGIC)
-        return kHostifSuccessful;
-    else
-        return kHostifWrongMagic;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Check version of ipcore
-
-This function reads and verifies the version from the host interface.
-
-\param  pHostif_p               Host interface instance
-
-\return The function returns a tHostifReturn error code.
-*/
-//------------------------------------------------------------------------------
-static tHostifReturn checkVersion(tHostif *pHostif_p)
-{
-    UINT32 version = hostif_readVersion(pHostif_p->pBase);
-    tHostifVersion *pVersion = (tHostifVersion*)&version;
-
-    if( (HOSTIF_VERSION_COUNT == pVersion->cnt)
-     && (HOSTIF_VERSION_REVISION == pVersion->revision)
-     && (HOSTIF_VERSION_MINOR == pVersion->minor)
-     && (HOSTIF_VERSION_MAJOR == pVersion->major)
-      )
-        return kHostifSuccessful;
-    else
-        return kHostifWrongVersion;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Allocate the dynamic buffers in heap memory
-
-This function allocates the memory necessary for the dynamic buffers in the heap
-on Pcp side. Note that this function does not allocate memory for buffers that
-can be set from host side, instead buffers like K2U-Queue or Error Counters.
-
-\param  pHostif_p               Host interface instance
-
-\return The function returns a tHostifReturn error code.
-*/
-//------------------------------------------------------------------------------
-static tHostifReturn allocateDynBuffers (tHostif *pHostif_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    int i;
-    UINT8 *pBase;
-    UINT16 span;
-
-    for(i=0; i<pHostif_p->iDynBufEntries; i++)
-    {
-        pBase = NULL;
-        span = pHostif_p->pDynBufTbl[i].span;
-
-        pBase = (UINT8*)HOSTIF_UNCACHED_MALLOC(span);
-
-        if(pBase == NULL)
-        {
-            Ret = kHostifNoResource;
-            goto Exit;
-        }
-
-        memset(pBase, 0, span);
-
-        pHostif_p->pDynBufTbl[i].pBase = pBase;
-    }
-
-    Ret = setDynBuffers(pHostif_p);
-
-    if(Ret != kHostifSuccessful)
-    {
-        goto Exit;
-    }
-
-Exit:
-    if(Ret != kHostifSuccessful)
-    {
-        // i points to failed one
-        while(i != 0)
-        {
-            freePtr(pHostif_p->pDynBufTbl[--i].pBase);
-
-            pHostif_p->pDynBufTbl[i].pBase = NULL;
-        }
-    }
-
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Free the dynamic buffers in heap memory
-
-This function frees the memory necessary for the dynamic buffers in the heap
-on Pcp side. Note that this function does not free memory for buffers that
-can be set from host side, instead buffers like K2U-Queue or Error Counters.
-
-\param  pHostif_p               Host interface instance
-
-\return The function returns a tHostifReturn error code.
-*/
-//------------------------------------------------------------------------------
-static tHostifReturn freeDynBuffers (tHostif *pHostif_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    int i;
-
-    for(i=0; i<pHostif_p->iDynBufEntries; i++)
-    {
-        HOSTIF_UNCACHED_FREE(pHostif_p->pDynBufTbl[i].pBase);
-
-        pHostif_p->pDynBufTbl[i].pBase = NULL;
-    }
-
-    Ret = setDynBuffers(pHostif_p);
-
-    if(Ret != kHostifSuccessful)
-    {
-        goto Exit;
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Set the address to the dynamic buffers
-
-This function sets the base addresses of the dynamic buffers in Pcp environment
-to the host interface bridge logic.
-
-\param  pHostif_p               Host interface instance
-
-\return The function returns a tHostifReturn error code.
-*/
-//------------------------------------------------------------------------------
-static tHostifReturn setDynBuffers (tHostif *pHostif_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    int i;
-    UINT8 *pAddr;
-
-    for(i=0; i<pHostif_p->iDynBufEntries; i++)
-    {
-        pAddr = pHostif_p->pDynBufTbl[i].pBase;
-
-        pHostif_p->pDynBufTbl[i].pfnSetDynBuf(pHostif_p->pBase, (UINT32)pAddr);
-    }
-
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Turn on/off the host interface bridge
-
-This function turns on or off the bridge logic from Pcp side.
-This refuses the host accessing the Pcp-memory space in case of an uninitialized
-host interface.
-The function writes the specific enable pattern to hardware and reads it back
-again.
-
-\param  pHostif_p               Host interface instance
-\param  fEnable_p               Enable the bridge with TRUE
-
-\return The function returns a tHostifReturn error code.
-*/
-//------------------------------------------------------------------------------
-static tHostifReturn controlBridge (tHostif *pHostif_p, BOOL fEnable_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-    UINT16 dst = 0;
-    UINT16 src;
-
-    if(fEnable_p != FALSE)
-    {
-        dst = HOSTIF_BRIDGE_ENABLE;
-    }
-
-    // set value to hw
-    hostif_writeBridgeEnable(pHostif_p->pBase, dst);
-
-    // read back value from hw and check if write was successful
-    src = hostif_readBridgeEnable(pHostif_p->pBase);
-
-    if((src & HOSTIF_BRIDGE_ENABLE) != dst)
-    {
-        Ret = kHostifHwWriteError;
-        goto Exit;
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Get bridge turned on/off
-
-This getter returns whether the bridge is turned on or off.
-
-\param  pHostif_p               Host interface instance
-
-\return The function returns TRUE if the bridge is turned on, otherwise FALSE.
-*/
-//------------------------------------------------------------------------------
-static BOOL getBridgeEnabled (tHostif *pHostif_p)
-{
-    UINT16 val;
-
-    val = hostif_readBridgeEnable(pHostif_p->pBase);
-
-    if(val & HOSTIF_BRIDGE_ENABLE)
-        return TRUE;
-    else
-        return FALSE;
-}
-
-//------------------------------------------------------------------------------
-/**
 \brief  Turn on/off the host interface interrupt master
 
 This function turns on or off the interrupt master from host side.
@@ -2444,237 +1293,25 @@ Exit:
 
 //------------------------------------------------------------------------------
 /**
-\brief  Configure queue instances
+\brief  Get bridge turned on/off
 
-This function configures the queue instances depending on the processor instance
-(Pcp or host).
+This getter returns whether the bridge is turned on or off.
 
 \param  pHostif_p               Host interface instance
-\param  InstanceId_p            Instance to be configured
-\param  pQueueConfig_p          Reference to queue configuration structure
 
-\return The function returns a tHostifReturn error code.
+\return The function returns TRUE if the bridge is turned on, otherwise FALSE.
 */
 //------------------------------------------------------------------------------
-static tHostifReturn queueConfig (tHostif *pHostif_p,
-        tHostifInstanceId InstanceId_p, tQueueConfig *pQueueConfig_p)
+static BOOL getBridgeEnabled (tHostif *pHostif_p)
 {
-    tHostifReturn Ret = kHostifSuccessful;
+    UINT16 val;
 
-    // initialize queue config from constants
-    switch(InstanceId_p)
-    {
-        case kHostifInstIdTxNmtQueue:
-            *pQueueConfig_p = QueueConfigTxNmt;
-            break;
-        case kHostifInstIdTxGenQueue:
-            *pQueueConfig_p = QueueConfigTxGen;
-            break;
-        case kHostifInstIdTxSyncQueue:
-            *pQueueConfig_p = QueueConfigTxSync;
-            break;
-        case kHostifInstIdTxVethQueue:
-            *pQueueConfig_p = QueueConfigTxVeth;
-            break;
-        case kHostifInstIdRxVethQueue:
-            *pQueueConfig_p = QueueConfigRxVeth;
-            break;
-        case kHostifInstIdK2UQueue:
-            *pQueueConfig_p = QueueConfigK2U;
-            break;
-        case kHostifInstIdU2KQueue:
-            *pQueueConfig_p = QueueConfigU2K;
-            break;
-        default:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-    }
+    val = hostif_readBridgeEnable(pHostif_p->pBase);
 
-    // set producer or consumer depending on host/pcp
-    switch(InstanceId_p)
-    {
-        case kHostifInstIdTxNmtQueue:
-        case kHostifInstIdTxGenQueue:
-        case kHostifInstIdTxSyncQueue:
-        case kHostifInstIdTxVethQueue:
-        case kHostifInstIdU2KQueue:
-            if(pHostif_p->config.ProcInstance == kHostifProcHost)
-            {
-                pQueueConfig_p->queueRole = kQueueProducer;
-            }
-            else
-            {
-                pQueueConfig_p->queueRole = kQueueConsumer;
-            }
-            break;
-        case kHostifInstIdRxVethQueue:
-        case kHostifInstIdK2UQueue:
-            if(pHostif_p->config.ProcInstance == kHostifProcPcp)
-            {
-                pQueueConfig_p->queueRole = kQueueProducer;
-            }
-            else
-            {
-                pQueueConfig_p->queueRole = kQueueConsumer;
-            }
-            break;
-        default:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-    }
-
-    // buffer allocation (malloc is done in hostif_create!)
-    pQueueConfig_p->fAllocHeap = FALSE;
-    if(pHostif_p->config.ProcInstance == kHostifProcPcp)
-    {
-        // get buffer in heap
-        pQueueConfig_p->pBase =
-                (UINT8*)pHostif_p->pDynBufTbl[InstanceId_p].pBase;
-    }
-    else if(pHostif_p->config.ProcInstance == kHostifProcHost)
-    {
-        // add hostif offset
-        pQueueConfig_p->pBase = (UINT8*)((UINT32)pQueueConfig_p->pBase +
-                (UINT32)pHostif_p->pBase);
-    }
+    if(val & HOSTIF_BRIDGE_ENABLE)
+        return TRUE;
     else
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-Exit:
-    return Ret;
+        return FALSE;
 }
 
-//------------------------------------------------------------------------------
-/**
-\brief  Add queue instance to processing list
-
-This function adds a queue instance to the processing table of the host
-interface instance.
-If the function hostif_process() is called, the queue process table is
-processed.
-
-\param  pHostif_p               Host interface instance
-\param  QueueProcess_p          Entry to be added to queue process table
-
-\return The function returns a tHostifReturn error code.
-*/
-//------------------------------------------------------------------------------
-static tHostifReturn addQueueProcess (tHostif *pHostif_p,
-        tQueueProcess QueueProcess_p)
-{
-    tHostifReturn Ret = kHostifNoResource;
-    int i;
-
-    for(i=0; i<HOSTIF_QUEUE_COUNT; i++)
-    {
-        if(pHostif_p->aQueueProcessTable[i].pInstance == NULL)
-        {
-            pHostif_p->aQueueProcessTable[i] = QueueProcess_p;
-            pHostif_p->iQueueProcessEntries++;
-            Ret = kHostifSuccessful;
-            goto Exit;
-        }
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Remove queue instance from processing list
-
-This function removes a queue instance from the processing table of the host
-interface instance.
-
-\param  pHostif_p               Host interface instance
-\param  QueueProcess_p          Entry to be removed from queue process table
-
-\return The function returns a tHostifReturn error code.
-*/
-//------------------------------------------------------------------------------
-static tHostifReturn removeQueueProcess (tHostif *pHostif_p,
-        tQueueProcess QueueProcess_p)
-{
-    tHostifReturn Ret = kHostifNoResource;
-    int i;
-
-    for(i=0; i<HOSTIF_QUEUE_COUNT; i++)
-    {
-        if(pHostif_p->aQueueProcessTable[i].pInstance ==
-                QueueProcess_p.pInstance)
-        {
-            memset(&pHostif_p->aQueueProcessTable[i], 0, sizeof(tQueueProcess));
-            pHostif_p->iQueueProcessEntries--;
-            Ret = kHostifSuccessful;
-            goto Exit;
-        }
-    }
-
-Exit:
-    return Ret;
-}
-
-//------------------------------------------------------------------------------
-/**
-\brief  Configure linear memory instances
-
-This function configures the linear memory instances depending on the processor
-instance (Pcp or host).
-
-\param  pHostif_p               Host interface instance
-\param  InstanceId_p            Instance to be configured
-\param  pLimConfig_p            Reference to linear memory configuration
-                                structure
-
-\return The function returns a tHostifReturn error code.
-*/
-//------------------------------------------------------------------------------
-static tHostifReturn limConfig (tHostif *pHostif_p,
-        tHostifInstanceId InstanceId_p, tLimConfig *pLimConfig_p)
-{
-    tHostifReturn Ret = kHostifSuccessful;
-
-    // initialize linear memory config from constants
-    switch(InstanceId_p)
-    {
-        case kHostifInstIdErrCount:
-            *pLimConfig_p = LimConfigErrCount;
-            break;
-        case kHostifInstIdRpdo:
-            *pLimConfig_p = LimConfigRpdo;
-            break;
-        case kHostifInstIdTpdo:
-            *pLimConfig_p = LimConfigTpdo;
-            break;
-        default:
-            Ret = kHostifInvalidParameter;
-            goto Exit;
-    }
-
-    // buffer allocation (malloc is done in hostif_create!)
-    pLimConfig_p->fAllocHeap = FALSE;
-    if(pHostif_p->config.ProcInstance == kHostifProcPcp)
-    {
-        // get buffer in heap
-        pLimConfig_p->pBase =
-                (UINT8*)pHostif_p->pDynBufTbl[InstanceId_p].pBase;
-    }
-    else if(pHostif_p->config.ProcInstance == kHostifProcHost)
-    {
-        // add hostif offset
-        pLimConfig_p->pBase = (UINT8*)((UINT32)pLimConfig_p->pBase +
-                (UINT32)pHostif_p->pBase);
-    }
-    else
-    {
-        Ret = kHostifInvalidParameter;
-        goto Exit;
-    }
-
-Exit:
-    return Ret;
-}
+#endif
