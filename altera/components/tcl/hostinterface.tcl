@@ -16,7 +16,7 @@ proc generationCallback { instName tgtDir bspDir } {
     puts ""
 
     set headerFile "hostiflib-mem.h"
-    puts "  -> generate $headerFile file"
+    puts "  -> generate $LIB_HOSTIF_path/$headerFile file"
     createHostifMemFile "$LIB_HOSTIF_path/$headerFile"
 
     puts "***********************************************************"
@@ -47,6 +47,36 @@ proc createHostifMemFile { fileName } {
     writeFile_string $headerFile "\n"
     writeFile_string $headerFile "/* SIZE */\n"
     writeFile_list_cmacro $headerFile $::listSizeCmacro
+
+    writeFile_string $headerFile "\n"
+    writeFile_string $headerFile "/* INIT VECTOR */\n"
+
+    # Write initialization vector
+    writeFile_string $headerFile "#define HOSTIF_INIT_VEC { \\"
+    writeFile_string $headerFile "\n"
+
+    # Get number of buffer, to know the vector length
+    set numOfBuf [llength $::listBaseCmacro]
+
+    set cnt 0
+    foreach off_name $::listBaseCmacro siz_name $::listSizeCmacro {
+        set tmpString "                        "
+        set tmpString "${tmpString}{ HOSTIF_${off_name}, HOSTIF_${siz_name} }"
+
+        incr cnt
+
+        if { $cnt < $numOfBuf } {
+            set tmpString "${tmpString}, "
+        }
+
+        set tmpString "${tmpString} \\"
+
+        writeFile_string $headerFile $tmpString
+        writeFile_string $headerFile "\n"
+    }
+
+    writeFile_string $headerFile "                      }"
+
     writeFile_string $headerFile "\n"
     writeFile_string $headerFile "#endif\n"
     writeFile_close $headerFile
