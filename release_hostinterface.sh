@@ -47,8 +47,6 @@ cp --parents drivers/hostinterface/hostiflib_nios.h                 ${DIR_RELEAS
 cp --parents drivers/hostinterface/hostiflib_target.h               ${DIR_RELEASE}
 cp --parents drivers/hostinterface/lfqueue.c                        ${DIR_RELEASE}
 cp --parents drivers/hostinterface/lfqueue.h                        ${DIR_RELEASE}
-cp --parents drivers/hostinterface/linmem.c                         ${DIR_RELEASE}
-cp --parents drivers/hostinterface/linmem.h                         ${DIR_RELEASE}
 
 # copy Altera host interface
 echo "copy altera powerlink ipcore..."
