@@ -46,8 +46,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "hostiflib_target.h"
 #include "hostiflib_l.h"
 
-#include <EplInc.h>
-
 #ifndef CONFIG_HOSTIF_PCP
 #error "Define CONFIG_HOSTIF_PCP to TRUE if this is PCP, otherwise FALSE!"
 #endif

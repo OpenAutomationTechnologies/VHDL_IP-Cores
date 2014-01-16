@@ -40,6 +40,8 @@ cp --parents ${DIR_DOC}/mainpage.txt                                ${DIR_RELEAS
 # copy drivers
 echo "copy drivers..."
 cp --parents drivers/hostinterface/hostiflib.c                      ${DIR_RELEASE}
+cp --parents drivers/hostinterface/hostiflibint-pcp.c               ${DIR_RELEASE}
+cp --parents drivers/hostinterface/hostiflibint-host.c              ${DIR_RELEASE}
 cp --parents drivers/hostinterface/hostiflib.h                      ${DIR_RELEASE}
 cp --parents drivers/hostinterface/hostiflib_l.c                    ${DIR_RELEASE}
 cp --parents drivers/hostinterface/hostiflib_l.h                    ${DIR_RELEASE}
