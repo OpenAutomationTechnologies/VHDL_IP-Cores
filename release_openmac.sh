@@ -41,7 +41,7 @@ REV_FILE=${DIR_RELEASE}/${DIR_DOC}/revision.md
 echo "Revision {#revision}" > $REV_FILE
 echo "========" >> $REV_FILE
 echo "" >> $REV_FILE
-git log --format="- %s" -- */openmac/* */lib/* >> $REV_FILE
+git log --format="- %s" -- */openmac/* >> $REV_FILE
 
 # copy drivers
 echo "copy drivers..."

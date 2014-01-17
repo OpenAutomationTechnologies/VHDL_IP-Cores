@@ -67,7 +67,6 @@ cp --parents common/lib/src/lutFileRtl.vhd                          ${DIR_RELEAS
 cp --parents common/lib/src/registerFileRtl.vhd                     ${DIR_RELEASE}
 cp --parents common/lib/src/synchronizerRtl.vhd                     ${DIR_RELEASE}
 cp --parents altera/hostinterface/src/alteraHostInterfaceRtl.vhd    ${DIR_RELEASE}
-cp --parents common/hostinterface/revision.txt                      ${DIR_RELEASE}
 cp --parents common/hostinterface/src/hostInterfacePkg.vhd          ${DIR_RELEASE}
 cp --parents common/hostinterface/src/hostInterfaceRtl.vhd          ${DIR_RELEASE}
 cp --parents common/hostinterface/src/irqGenRtl.vhd                 ${DIR_RELEASE}
@@ -81,4 +80,4 @@ REV_FILE=${DIR_RELEASE}/${DIR_DOC}/revision.md
 echo "Revision {#revision}" > $REV_FILE
 echo "========" >> $REV_FILE
 echo "" >> $REV_FILE
-git log --format="- %s" -- */hostinterface/* */lib/* >> $REV_FILE
+git log --format="- %s" -- */hostinterface/* >> $REV_FILE
