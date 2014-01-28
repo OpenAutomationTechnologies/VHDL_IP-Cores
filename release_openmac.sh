@@ -34,7 +34,6 @@ cp --parents ${DIR_DOC}/images/openmac-overview.png                 ${DIR_RELEAS
 cp --parents ${DIR_DOC}/md/openmac.md                               ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/doxyfile                                    ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/mainpage.txt                                ${DIR_RELEASE}
-cp --parents ${DIR_DOC}/omethlib.pdf                                ${DIR_RELEASE}
 
 # create revision.txt
 REV_FILE=${DIR_RELEASE}/${DIR_DOC}/revision.md
@@ -42,16 +41,6 @@ echo "Revision {#revision}" > $REV_FILE
 echo "========" >> $REV_FILE
 echo "" >> $REV_FILE
 git log --format="- %s" -- */openmac/* >> $REV_FILE
-
-# copy drivers
-echo "copy drivers..."
-cp --parents drivers/openmac/omethlib.c                         ${DIR_RELEASE}
-cp --parents drivers/openmac/omethlib.h                         ${DIR_RELEASE}
-cp --parents drivers/openmac/omethlib_phycfg_generic.c          ${DIR_RELEASE}
-cp --parents drivers/openmac/omethlib_phycfg.h                  ${DIR_RELEASE}
-cp --parents drivers/openmac/omethlib_target.h                  ${DIR_RELEASE}
-cp --parents drivers/openmac/omethlibint.c                      ${DIR_RELEASE}
-cp --parents drivers/openmac/omethlibint.h                      ${DIR_RELEASE}
 
 # copy Altera POWERLINK
 echo "copy Altera openmac ipcore..."

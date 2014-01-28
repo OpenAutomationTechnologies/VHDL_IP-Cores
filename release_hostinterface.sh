@@ -37,19 +37,6 @@ cp --parents ${DIR_DOC}/wavedrom/hostif_wr.svg                      ${DIR_RELEAS
 cp --parents ${DIR_DOC}/Doxyfile                                    ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/mainpage.txt                                ${DIR_RELEASE}
 
-# copy drivers
-echo "copy drivers..."
-cp --parents drivers/hostinterface/hostiflib.c                      ${DIR_RELEASE}
-cp --parents drivers/hostinterface/hostiflibint-pcp.c               ${DIR_RELEASE}
-cp --parents drivers/hostinterface/hostiflibint-host.c              ${DIR_RELEASE}
-cp --parents drivers/hostinterface/hostiflib.h                      ${DIR_RELEASE}
-cp --parents drivers/hostinterface/hostiflib_l.c                    ${DIR_RELEASE}
-cp --parents drivers/hostinterface/hostiflib_l.h                    ${DIR_RELEASE}
-cp --parents drivers/hostinterface/hostiflib_nios.h                 ${DIR_RELEASE}
-cp --parents drivers/hostinterface/hostiflib_target.h               ${DIR_RELEASE}
-cp --parents drivers/hostinterface/lfqueue.c                        ${DIR_RELEASE}
-cp --parents drivers/hostinterface/lfqueue.h                        ${DIR_RELEASE}
-
 # copy Altera host interface
 echo "copy altera powerlink ipcore..."
 cp --parents altera/components/hostinterface_hw.tcl                 ${DIR_RELEASE}
