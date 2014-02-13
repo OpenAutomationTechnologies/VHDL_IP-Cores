@@ -10,9 +10,9 @@ common/util/src/busMasterPkg.vhd \
 common/util/src/busMasterBhv.vhd \
 \
 common/lib/src/synchronizerRtl.vhd \
-common/lib/src/dpRamSplxNbe-e.vhd \
+common/memory/src/dpRamSplxNbe-e.vhd \
 \
-xilinx/lib/src/dpRamSplxNbe-rtl-a.vhd \
+xilinx/memory/src/dpRamSplxNbe-rtl-a.vhd \
 \
 common/fifo/src/fifoRead-rtl-ea.vhd \
 common/fifo/src/fifoWrite-rtl-ea.vhd \

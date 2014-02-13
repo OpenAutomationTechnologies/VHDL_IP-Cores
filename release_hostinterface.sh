@@ -44,8 +44,8 @@ cp --parents altera/components/hostinterface_sw.tcl                 ${DIR_RELEAS
 cp --parents altera/components/img/br.png                           ${DIR_RELEASE}
 cp --parents altera/components/sdc/hostinterface-async.sdc          ${DIR_RELEASE}
 cp --parents altera/components/tcl/hostinterface.tcl                ${DIR_RELEASE}
-cp --parents altera/lib/src/dpRam-rtl-a.vhd                         ${DIR_RELEASE}
-cp --parents common/lib/src/dpRam-e.vhd                             ${DIR_RELEASE}
+cp --parents altera/memory/src/dpRam-rtl-a.vhd                      ${DIR_RELEASE}
+cp --parents common/memory/src/dpRam-e.vhd                          ${DIR_RELEASE}
 cp --parents common/lib/src/addrDecodeRtl.vhd                       ${DIR_RELEASE}
 cp --parents common/lib/src/binaryEncoderRtl.vhd                    ${DIR_RELEASE}
 cp --parents common/lib/src/cntRtl.vhd                              ${DIR_RELEASE}

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Settings file for running simulation.
 INIT_FILE="UNUSED"
-STIM_FILE="common/lib/tb/tbDpRamSplx_stim.txt"
+STIM_FILE="common/memory/tb/tbDpRamSplx_stim.txt"
 
 SRC_LIST="\
 common/lib/src/global.vhd \
@@ -10,9 +10,11 @@ common/util/src/resetGenBhv.vhd \
 common/util/src/busMasterPkg.vhd \
 common/util/src/busMasterBhv.vhd \
 common/lib/src/cntRtl.vhd \
-common/lib/src/dpRamSplx-e.vhd \
-altera/lib/src/dpRamSplx-rtl-a.vhd \
-common/lib/tb/tbDpRamSplx-bhv-tb.vhd \
+common/memory/src/dpRam-e.vhd \
+xilinx/memory/src/dpRam-rtl-a.vhd \
+common/memory/src/dpRamSplx-e.vhd \
+xilinx/memory/src/dpRamSplx-rtl-a.vhd \
+common/memory/tb/tbDpRamSplx-bhv-tb.vhd \
 "
 
 GEN_LIST="\
@@ -22,6 +24,11 @@ gWordWidthB=32 \
 gNumberOfWordsB=1024 \
 gInitFile=${INIT_FILE} \
 gStimFile=${STIM_FILE} \
+"
+
+# Collision due to min() in std.STANDARD
+VCOM_LIST="\
+-suppress 1380 \
 "
 
 TOP_LEVEL=tbDpRamSplx

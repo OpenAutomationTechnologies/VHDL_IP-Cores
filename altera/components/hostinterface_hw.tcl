@@ -65,8 +65,8 @@ set_module_property ICON_PATH "img/br.png"
 add_fileset QUARTUS_SYNTH QUARTUS_SYNTH         fileset_callback
 set_fileset_property QUARTUS_SYNTH              TOP_LEVEL alteraHostInterface
 set_fileset_property QUARTUS_SYNTH              ENABLE_RELATIVE_INCLUDE_PATHS false
-add_fileset_file "dpRam-e.vhd"                  VHDL PATH "../../common/lib/src/dpRam-e.vhd"
-add_fileset_file "dpRam-rtl-a.vhd"              VHDL PATH "../../altera/lib/src/dpRam-rtl-a.vhd"
+add_fileset_file "dpRam-e.vhd"                  VHDL PATH "../../common/memory/src/dpRam-e.vhd"
+add_fileset_file "dpRam-rtl-a.vhd"              VHDL PATH "../../altera/memory/src/dpRam-rtl-a.vhd"
 add_fileset_file "addrDecodeRtl.vhd"            VHDL PATH "../../common/lib/src/addrDecodeRtl.vhd"
 add_fileset_file "binaryEncoderRtl.vhd"         VHDL PATH "../../common/lib/src/binaryEncoderRtl.vhd"
 add_fileset_file "cntRtl.vhd"                   VHDL PATH "../../common/lib/src/cntRtl.vhd"

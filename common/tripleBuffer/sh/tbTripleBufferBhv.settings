@@ -3,8 +3,8 @@
 SRC_LIST="common/lib/src/global.vhd \
 common/util/src/clkGenBhv.vhd \
 common/util/src/resetGenBhv.vhd \
-common/lib/src/dpRam-e.vhd \
-common/util/src/dpRam-bhv-a.vhd \
+common/memory/src/dpRam-e.vhd \
+common/memory/src/dpRam-bhv-a.vhd \
 common/lib/src/addrDecodeRtl.vhd \
 common/lib/src/binaryEncoderRtl.vhd \
 common/lib/src/edgedetectorRtl.vhd \

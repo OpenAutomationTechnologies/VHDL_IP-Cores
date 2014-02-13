@@ -56,8 +56,8 @@ cp --parents common/util/tcl/writeFile.tcl                      ${DIR_RELEASE}
 cp --parents common/lib/src/global.vhd                          ${DIR_RELEASE}
 cp --parents common/lib/src/addrDecodeRtl.vhd                   ${DIR_RELEASE}
 cp --parents common/lib/src/cntRtl.vhd                          ${DIR_RELEASE}
-cp --parents common/lib/src/dpRam-e.vhd                         ${DIR_RELEASE}
-cp --parents common/lib/src/dpRamSplx-e.vhd                     ${DIR_RELEASE}
+cp --parents common/memory/src/dpRam-e.vhd                      ${DIR_RELEASE}
+cp --parents common/memory/src/dpRamSplx-e.vhd                  ${DIR_RELEASE}
 cp --parents common/lib/src/edgedetectorRtl.vhd                 ${DIR_RELEASE}
 cp --parents common/lib/src/synchronizerRtl.vhd                 ${DIR_RELEASE}
 cp --parents common/lib/src/syncTog-rtl-ea.vhd                  ${DIR_RELEASE}
@@ -75,8 +75,8 @@ cp --parents common/openmac/src/phyMgmt-rtl-ea.vhd              ${DIR_RELEASE}
 cp --parents common/openmac/src/convRmiiToMii-rtl-ea.vhd        ${DIR_RELEASE}
 cp --parents common/openmac/src/openmac-rtl-ea.vhd              ${DIR_RELEASE}
 cp --parents common/openmac/src/openmacTop-rtl-ea.vhd           ${DIR_RELEASE}
-cp --parents altera/lib/src/dpRam-rtl-a.vhd                     ${DIR_RELEASE}
-cp --parents altera/lib/src/dpRamSplx-rtl-a.vhd                 ${DIR_RELEASE}
+cp --parents altera/memory/src/dpRam-rtl-a.vhd                  ${DIR_RELEASE}
+cp --parents altera/memory/src/dpRamSplx-rtl-a.vhd              ${DIR_RELEASE}
 cp --parents altera/fifo/src/asyncFifo-syn-a.vhd                ${DIR_RELEASE}
 cp --parents altera/openmac/src/alteraOpenmacTop-rtl-ea.vhd     ${DIR_RELEASE}
 
@@ -97,9 +97,9 @@ cp --parents common/lib/src/global.vhd                          ${DIR_RELEASE}
 cp --parents common/lib/src/addrDecodeRtl.vhd                   ${DIR_RELEASE}
 cp --parents common/lib/src/clkXingRtl.vhd                      ${DIR_RELEASE}
 cp --parents common/lib/src/cntRtl.vhd                          ${DIR_RELEASE}
-cp --parents common/lib/src/dpRam-e.vhd                         ${DIR_RELEASE}
-cp --parents common/lib/src/dpRamSplx-e.vhd                     ${DIR_RELEASE}
-cp --parents common/lib/src/dpRamSplxNbe-e.vhd                  ${DIR_RELEASE}
+cp --parents common/memory/src/dpRam-e.vhd                      ${DIR_RELEASE}
+cp --parents common/memory/src/dpRamSplx-e.vhd                  ${DIR_RELEASE}
+cp --parents common/memory/src/dpRamSplxNbe-e.vhd               ${DIR_RELEASE}
 cp --parents common/lib/src/edgedetectorRtl.vhd                 ${DIR_RELEASE}
 cp --parents common/lib/src/synchronizerRtl.vhd                 ${DIR_RELEASE}
 cp --parents common/lib/src/syncTog-rtl-ea.vhd                  ${DIR_RELEASE}
@@ -121,8 +121,8 @@ cp --parents common/openmac/src/convRmiiToMii-rtl-ea.vhd        ${DIR_RELEASE}
 cp --parents common/openmac/src/mmSlaveConv-rtl-ea.vhd          ${DIR_RELEASE}
 cp --parents common/openmac/src/openmac-rtl-ea.vhd              ${DIR_RELEASE}
 cp --parents common/openmac/src/openmacTop-rtl-ea.vhd           ${DIR_RELEASE}
-cp --parents xilinx/lib/src/dpRam-rtl-a.vhd                     ${DIR_RELEASE}
-cp --parents xilinx/lib/src/dpRamSplx-rtl-a.vhd                 ${DIR_RELEASE}
-cp --parents xilinx/lib/src/dpRamSplxNbe-rtl-a.vhd              ${DIR_RELEASE}
+cp --parents xilinx/memory/src/dpRam-rtl-a.vhd                  ${DIR_RELEASE}
+cp --parents xilinx/memory/src/dpRamSplx-rtl-a.vhd              ${DIR_RELEASE}
+cp --parents xilinx/memory/src/dpRamSplxNbe-rtl-a.vhd           ${DIR_RELEASE}
 cp --parents xilinx/openmac/src/ipifMasterHandler-rtl-ea.vhd    ${DIR_RELEASE}
 cp --parents xilinx/openmac/src/axi_openmac-rtl-ea.vhd          ${DIR_RELEASE}

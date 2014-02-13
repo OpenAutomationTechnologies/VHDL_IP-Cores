@@ -27,9 +27,9 @@ cp altera/components/tripleBuffer_sw.tcl                ${DIR_RELEASE}/altera/co
 cp altera/components/tcl/tripleBufferGui.tcl            ${DIR_RELEASE}/altera/components/tcl
 cp altera/components/tcl/tripleBuffer.tcl               ${DIR_RELEASE}/altera/components/tcl
 cp altera/tripleBuffer/src/alteraTripleBufferRtl.vhd    ${DIR_RELEASE}/altera/tripleBuffer/src
-cp altera/lib/src/dpRam-rtl-a.vhd                       ${DIR_RELEASE}/altera/lib/src
+cp --parents altera/memory/src/dpRam-rtl-a.vhd                    ${DIR_RELEASE}
 cp common/lib/src/global.vhd                            ${DIR_RELEASE}/common/lib/src
-cp common/lib/src/dpRam-e.vhd                           ${DIR_RELEASE}/common/lib/src
+cp --parents common/memory/src/dpRam-e.vhd                        ${DIR_RELEASE}
 cp common/lib/src/edgedetectorRtl.vhd                   ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/addrDecodeRtl.vhd                     ${DIR_RELEASE}/common/lib/src
 cp common/lib/src/binaryEncoderRtl.vhd                  ${DIR_RELEASE}/common/lib/src

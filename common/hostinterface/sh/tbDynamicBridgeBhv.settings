@@ -9,8 +9,8 @@ common/util/src/clkGenBhv.vhd \
 common/util/src/resetGenBhv.vhd \
 common/util/src/busMasterPkg.vhd \
 common/util/src/busMasterBhv.vhd \
-common/lib/src/dpRam-e.vhd \
-common/util/src/dpRam-bhv-a.vhd \
+common/memory/src/dpRam-e.vhd \
+common/memory/src/dpRam-bhv-a.vhd \
 common/lib/src/addrDecodeRtl.vhd \
 common/lib/src/binaryEncoderRtl.vhd \
 common/lib/src/cntRtl.vhd \
