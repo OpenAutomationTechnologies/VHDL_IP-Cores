@@ -301,7 +301,7 @@ begin
         BASESETACK : oBaseSetAck <= iBaseSetWrite or iBaseSetRead;
     end generate REGFILE;
 
-    DPRAM : if gUseMemBlock /= 0 generate
+    genDPRAM : if gUseMemBlock /= 0 generate
         -- Clip dpr word width to values of power 2 (e.g. 8, 16, 32)
         constant cDprWordWidth  : natural := 2**logDualis(iBaseSetData'length);
         constant cDprAddrWidth  : natural := logDualis(gAddressSpaceCount);
@@ -387,7 +387,7 @@ begin
                 oCnt    => open,
                 oTcnt   => dprPortA_readAck
             );
-    end generate DPRAM;
+    end generate genDPRAM;
 
     -- calculate translated address offset in dynamic space
     translateAddress <= std_logic_vector(

@@ -60,7 +60,7 @@ architecture bhv of dpRam is
         (others => (others => cInactivated));
 
     --! Dpram procedure - to be called within rising clock edge
-    procedure dpram (
+    procedure dpramProc (
         variable vRam   : inout tRam;
         signal iAddr    : in std_logic_vector;
         signal iEn      : in std_logic;
@@ -104,7 +104,7 @@ begin
     portAProc : process(iClk_A)
     begin
         if rising_edge(iClk_A) then
-            dpram (
+            dpramProc (
                 vRam    => vDpram,
                 iAddr   => iAddress_A,
                 iEn     => iEnable_A,
@@ -119,7 +119,7 @@ begin
     portBProc : process(iClk_B)
     begin
         if rising_edge(iClk_B) then
-            dpram (
+            dpramProc (
                 vRam    => vDpram,
                 iAddr   => iAddress_B,
                 iEn     => iEnable_B,
