@@ -45,7 +45,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.global.all;
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbRegisterFile is
     generic (
@@ -83,7 +89,7 @@ begin
     Rst             <= cInactivated after 2*cPeriode;
 
     ----  Component instantiations  ----
-    DUT : entity work.registerFile(Rtl)
+    DUT : entity libcommon.registerFile(Rtl)
         generic map(
             gRegCount   => 2**cAddressWidth
         )
@@ -102,7 +108,7 @@ begin
         oReaddataB         => ReadDataB
       );
 
-    busMaster : entity work.busMaster(Bhv)
+    busMaster : entity libutil.busMaster(Bhv)
       generic map (
            gAddrWidth       => cAddressWidth,
            gDataWidth       => cWordWidth,

@@ -1,9 +1,7 @@
 #!/bin/bash
 # Settings file for running simulation.
-SRC_LIST="common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
-common/lib/src/edgedetectorRtl.vhd \
-common/lib/tb/tbEdgedetectorBhv.vhd"
+SRC_LIST="\
+common/lib/tb/tbEdgedetectorBhv.vhd \
+"
 
 TOP_LEVEL=tbEdgedetector

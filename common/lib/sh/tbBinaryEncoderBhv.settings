@@ -1,9 +1,7 @@
 #!/bin/bash
 # Settings file for running simulation.
-SRC_LIST="common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
-common/lib/src/binaryEncoderRtl.vhd \
-common/lib/tb/tbBinaryEncoderBhv.vhd"
+SRC_LIST="\
+common/lib/tb/tbBinaryEncoderBhv.vhd \
+"
 
 TOP_LEVEL=tbBinaryEncoder

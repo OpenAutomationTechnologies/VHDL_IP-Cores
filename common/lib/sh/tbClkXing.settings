@@ -4,15 +4,6 @@
 STIM_FILE="common/lib/tb/tbClkXing-bhv-tb.txt"
 
 SRC_LIST="\
-common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
-common/util/src/busMasterPkg.vhd \
-common/util/src/busMasterBhv.vhd \
-common/lib/src/synchronizerRtl.vhd \
-common/lib/src/edgedetectorRtl.vhd \
-common/lib/src/syncTog-rtl-ea.vhd \
-common/lib/src/clkXingRtl.vhd \
 common/lib/tb/tbClkXing-bhv-tb.vhd \
 "
 

@@ -5,20 +5,9 @@ STIM_FILE_PKTBUF="common/openmac/tb/tbOpenmacTop-pktBuf_stim.txt"
 STIM_FILE_MACTIMER="common/openmac/tb/tbOpenmacTop-macTimer_stim.txt"
 
 SRC_LIST="\
-common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/busMasterPkg.vhd \
-common/util/src/busMasterBhv.vhd \
-\
-common/lib/src/addrDecodeRtl.vhd \
-common/lib/src/cntRtl.vhd \
 common/memory/src/dpRam-e.vhd \
 common/memory/src/dpRamSplx-e.vhd \
 common/memory/src/dpRamSplxNbe-e.vhd \
-common/lib/src/edgedetectorRtl.vhd \
-common/lib/src/synchronizerRtl.vhd \
-common/lib/src/syncTog-rtl-ea.vhd \
-\
 common/memory/src/dpRam-bhv-a.vhd \
 xilinx/memory/src/dpRamSplx-rtl-a.vhd \
 xilinx/memory/src/dpRamSplxNbe-rtl-a.vhd \

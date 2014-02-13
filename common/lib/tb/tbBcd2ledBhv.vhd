@@ -43,7 +43,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.global.all;
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
 
 entity tbBcd2led is
 end entity;
@@ -73,7 +76,7 @@ architecture bhv of tbBcd2led is
     --! Low active led value reference
     signal nLed_ref : std_logic_vector(led'range);
 begin
-    DUT : entity work.bcd2led
+    DUT : entity libcommon.bcd2led
         port map (
             iBcdVal => bcd,
             oLed => led,

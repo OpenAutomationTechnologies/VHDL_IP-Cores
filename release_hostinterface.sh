@@ -46,13 +46,6 @@ cp --parents altera/components/sdc/hostinterface-async.sdc          ${DIR_RELEAS
 cp --parents altera/components/tcl/hostinterface.tcl                ${DIR_RELEASE}
 cp --parents altera/memory/src/dpRam-rtl-a.vhd                      ${DIR_RELEASE}
 cp --parents common/memory/src/dpRam-e.vhd                          ${DIR_RELEASE}
-cp --parents common/lib/src/addrDecodeRtl.vhd                       ${DIR_RELEASE}
-cp --parents common/lib/src/binaryEncoderRtl.vhd                    ${DIR_RELEASE}
-cp --parents common/lib/src/cntRtl.vhd                              ${DIR_RELEASE}
-cp --parents common/lib/src/edgedetectorRtl.vhd                     ${DIR_RELEASE}
-cp --parents common/lib/src/lutFileRtl.vhd                          ${DIR_RELEASE}
-cp --parents common/lib/src/registerFileRtl.vhd                     ${DIR_RELEASE}
-cp --parents common/lib/src/synchronizerRtl.vhd                     ${DIR_RELEASE}
 cp --parents altera/hostinterface/src/alteraHostInterfaceRtl.vhd    ${DIR_RELEASE}
 cp --parents common/hostinterface/src/hostInterfacePkg.vhd          ${DIR_RELEASE}
 cp --parents common/hostinterface/src/hostInterfaceRtl.vhd          ${DIR_RELEASE}
@@ -60,7 +53,6 @@ cp --parents common/hostinterface/src/irqGenRtl.vhd                 ${DIR_RELEAS
 cp --parents common/hostinterface/src/dynamicBridgeRtl.vhd          ${DIR_RELEASE}
 cp --parents common/hostinterface/src/statusControlRegRtl.vhd       ${DIR_RELEASE}
 cp --parents common/hostinterface/src/parallelInterfaceRtl.vhd      ${DIR_RELEASE}
-cp --parents common/lib/src/global.vhd                              ${DIR_RELEASE}
 
 # create revision.txt
 REV_FILE=${DIR_RELEASE}/${DIR_DOC}/revision.md

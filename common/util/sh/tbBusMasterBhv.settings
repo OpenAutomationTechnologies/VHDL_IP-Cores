@@ -5,10 +5,9 @@ STIM_FILE="gStim=common/util/tb/tbBusMasterBhv_TB_stim.txt"
 
 VHDL_STD="-2008"
 
-SRC_LIST="common/lib/src/global.vhd \
-common/util/src/busMasterPkg.vhd \
-common/util/src/busMasterBhv.vhd \
-common/util/tb/tbBusMasterBhv.vhd"
+SRC_LIST="\
+common/util/tb/tbBusMasterBhv.vhd \
+"
 
 GEN_LIST=("$STIM_FILE")
 

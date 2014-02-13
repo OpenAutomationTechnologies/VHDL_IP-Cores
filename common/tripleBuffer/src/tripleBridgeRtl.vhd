@@ -45,7 +45,16 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 --! need reduce or operation
 use ieee.std_logic_misc.OR_REDUCE;
-use work.global.all;
+
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Work library
+library work;
+--! Use triple buffer package
 use work.tripleBufferPkg.all;
 
 entity tripleBridge is
@@ -158,7 +167,7 @@ begin
     --! Generate for every input buffer an address decoder
     genAddrDec : for i in bufferSel'range generate
     begin
-        theAddrDecode : entity work.addrDecode
+        theAddrDecode : entity libcommon.addrDecode
             generic map (
                 gAddrWidth  => gInAddrWidth,
                 gBaseAddr   => gInputBase(i),
@@ -172,7 +181,7 @@ begin
     end generate;
 
     --! Convert the one-hot-coded address decoders' output to binary
-    theBinaryEncode : entity work.binaryEncoder
+    theBinaryEncode : entity libcommon.binaryEncoder
         generic map (
             gDataWidth  => bufferSel'length
         )

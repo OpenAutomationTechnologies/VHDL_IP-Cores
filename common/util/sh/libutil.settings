@@ -1,0 +1,14 @@
+#!/bin/bash
+# Settings file for compiling library
+
+LIB_SRC="\
+common/util/src/busMasterPkg.vhd \
+common/util/src/busMasterBhv.vhd \
+common/util/src/clkGenBhv.vhd \
+common/util/src/enableGenBhv.vhd \
+common/util/src/ethPktGenBhv.vhd \
+common/util/src/resetGenBhv.vhd \
+common/util/src/spRamBhv.vhd \
+"
+
+LIB_NAME=libutil

@@ -44,9 +44,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Work library
 library work;
---! use global library
-use work.global.all;
 --! use openmac package
 use work.openmacPkg.all;
 
@@ -1051,7 +1055,7 @@ begin
     ---------------------------------------------------------------------------
     --! Generate address decoders for MAC REG memory map.
     GENMACREG_ADDRDEC : for i in cMemMapTable'range generate
-        THEADDRDEC : entity work.addrDecode
+        THEADDRDEC : entity libcommon.addrDecode
             generic map (
                 gAddrWidth  => iMacReg_address'length,
                 gBaseAddr   => cMemMapTable(i).base,
@@ -1135,7 +1139,7 @@ begin
 
         --! Generate ack delay for writes.
         GENWR_ACKDELAY : if cMemAccessDelayTable(i).write > 0 generate
-            THE_CNT : entity work.cnt
+            THE_CNT : entity libcommon.cnt
                 generic map (
                     gCntWidth   => logDualis(cMemAccessDelayTable(i).write + 1),
                     gTcntVal    => cMemAccessDelayTable(i).write
@@ -1156,7 +1160,7 @@ begin
 
         --! Generate ack delay for reads.
         GENRD_ACKDELAY : if cMemAccessDelayTable(i).read > 0 generate
-            THE_CNT : entity work.cnt
+            THE_CNT : entity libcommon.cnt
                 generic map (
                     gCntWidth   => logDualis(cMemAccessDelayTable(i).read + 1),
                     gTcntVal    => cMemAccessDelayTable(i).read

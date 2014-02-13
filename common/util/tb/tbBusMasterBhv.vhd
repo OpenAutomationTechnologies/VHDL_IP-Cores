@@ -50,9 +50,15 @@ use ieee.numeric_std.all;
 use ieee.std_logic_textio.all;
 use std.env.all;
 
-library work;
-use work.global.all;
-use work.busMasterPkg.all;
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
+--! Use bus master package
+use libutil.busMasterPkg.all;
 
 entity tbBusMasterBhv is
     generic (
@@ -149,7 +155,7 @@ begin
     --***********************************************************************--
     -- : INSTANTIATION of the DUT
     --***********************************************************************--
-    DUT: entity work.busMaster(bhv)
+    DUT: entity libutil.busMaster(bhv)
         generic map(
             gAddrWidth      => cMaxBitWidth,
             gDataWidth      => cMaxBitWidth,

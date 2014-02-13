@@ -43,9 +43,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
---! use global library
-use work.global.all;
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbMmSlaveConv is
     generic (
@@ -224,7 +228,7 @@ begin
 
     ---------------------------------------------------------------------------
     --! The bus master
-    THEBUSMASTER : entity work.busMaster
+    THEBUSMASTER : entity libutil.busMaster
         generic map (
             gAddrWidth      => cBusMasterAddrWidth,
             gDataWidth      => cBusMasterDataWidth,
@@ -248,7 +252,7 @@ begin
 
     ---------------------------------------------------------------------------
     --! The single port RAM
-    THESPRAM : entity work.spRam
+    THESPRAM : entity libutil.spRam
         generic map (
             gDataWidth  => cDutSlaveDataWidth,
             gAddrWidth  => cDutSlaveAddressWidth
@@ -267,7 +271,7 @@ begin
 
     ---------------------------------------------------------------------------
     --! Clock generator
-    THECLK : entity work.clkgen
+    THECLK : entity libutil.clkGen
     generic map (
         gPeriod => cPeriod_clk
     )

@@ -1,7 +1,9 @@
 #ignore dirs
+libcommon/
+libutil/
 release/
 results/
-work
+work/
 
 #ignore files
 *.asdb

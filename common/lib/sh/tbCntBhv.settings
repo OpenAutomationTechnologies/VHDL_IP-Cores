@@ -1,10 +1,9 @@
 #!/bin/bash
 # Settings file for running simulation.
-SRC_LIST="common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
-common/lib/src/cntRtl.vhd \
-common/lib/tb/tbCntBhv.vhd"
+
+SRC_LIST="\
+common/lib/tb/tbCntBhv.vhd \
+"
 
 GEN_LIST=( \
 "gCntWidth=8 gTcntVal=123" \

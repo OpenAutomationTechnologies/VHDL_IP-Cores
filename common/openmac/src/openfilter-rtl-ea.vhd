@@ -51,9 +51,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Work library
 library work;
---! use global library
-use work.global.all;
 --! use openmac package
 use work.openmacPkg.all;
 

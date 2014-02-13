@@ -46,7 +46,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
 
 architecture rtl_aclk of spiSlave is
     --! Spi Polarity
@@ -272,7 +276,7 @@ begin
         end if;
     end process;
 
-    theSpiTcSync : entity work.synchronizer
+    theSpiTcSync : entity libcommon.synchronizer
         generic map (
             gStages => cSyncStages,
             gInit   => cInactivated
@@ -284,7 +288,7 @@ begin
             oSync   => frmCnt_tc_tf
         );
 
-    theSpiTcEdgedet : entity work.edgedetector
+    theSpiTcEdgedet : entity libcommon.edgedetector
         port map (
             iClk        => iClk,
             iArst       => iArst,
@@ -296,7 +300,7 @@ begin
         );
 
     genTheLoadSync : for i in loadReg'range generate
-        theLoadSync : entity work.synchronizer
+        theLoadSync : entity libcommon.synchronizer
             generic map (
                 gStages => cSyncStages,
                 gInit   => cInactivated

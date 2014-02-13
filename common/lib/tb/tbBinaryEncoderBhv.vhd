@@ -42,7 +42,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbBinaryEncoder is
 end tbBinaryEncoder;
@@ -105,7 +112,7 @@ architecture bhv of tbBinaryEncoder is
     signal res_fail : boolean;
 begin
 
-    DUT : entity work.binaryEncoder
+    DUT : entity libcommon.binaryEncoder
         generic map (
             gDataWidth => cOneHotWidth
         )
@@ -144,7 +151,7 @@ begin
         wait;
     end process;
 
-    theClkGen : entity work.clkgen
+    theClkGen : entity libutil.clkGen
         generic map (
             gPeriod => 10 ns
         )
@@ -153,7 +160,7 @@ begin
             oClk => clk
         );
 
-    theRstGen : entity work.resetGen
+    theRstGen : entity libutil.resetGen
         generic map (
             gResetTime => 100 ns
         )

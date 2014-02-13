@@ -40,14 +40,18 @@
 --
 -------------------------------------------------------------------------------
 
+library std;
 use std.textio.all;
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_textio.all;
---! use global library
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
 
 entity ethPktGen is
     generic (

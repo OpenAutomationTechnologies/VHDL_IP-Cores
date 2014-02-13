@@ -3,21 +3,8 @@
 VHDL_STD="-2008"
 
 SRC_LIST="\
-common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
-common/util/src/busMasterPkg.vhd \
-common/util/src/busMasterBhv.vhd \
-common/util/src/spRamBhv.vhd \
 common/memory/src/dpRam-e.vhd \
 common/memory/src/dpRam-bhv-a.vhd \
-common/lib/src/addrDecodeRtl.vhd \
-common/lib/src/binaryEncoderRtl.vhd \
-common/lib/src/cntRtl.vhd \
-common/lib/src/edgedetectorRtl.vhd \
-common/lib/src/lutFileRtl.vhd \
-common/lib/src/synchronizerRtl.vhd \
-common/lib/src/registerFileRtl.vhd \
 common/hostinterface/src/hostInterfacePkg.vhd \
 common/hostinterface/src/dynamicBridgeRtl.vhd \
 common/hostinterface/src/irqGenRtl.vhd \

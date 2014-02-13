@@ -1,16 +1,11 @@
 #!/bin/bash
 # Settings file for running simulation.
-SRC_LIST="common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
-common/lib/src/nShiftRegRtl.vhd \
-common/lib/src/cntRtl.vhd \
-common/lib/src/synchronizerRtl.vhd \
-common/lib/src/edgedetectorRtl.vhd \
+SRC_LIST="\
 common/spi/src/spiSlave-e.vhd \
 common/spi/src/spiSlave-rtl_aclk-a.vhd \
 common/spi/src/spiSlave-rtl_sclk-a.vhd \
-common/spi/tb/tbSpiSlaveBhv.vhd"
+common/spi/tb/tbSpiSlaveBhv.vhd \
+"
 
 GEN_LIST=( \
 "gRegisterSize=8  gPolarity=0 gPhase=0 gShiftDir=1 gArchSel=0" \

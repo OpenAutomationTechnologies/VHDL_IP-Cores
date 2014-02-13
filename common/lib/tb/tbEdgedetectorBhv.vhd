@@ -42,7 +42,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbEdgedetector is
 end tbEdgedetector;
@@ -59,7 +66,7 @@ architecture bhv of tbEdgedetector is
     signal falling : std_logic;
     signal any : std_logic;
 begin
-    DUT : entity work.edgedetector
+    DUT : entity libcommon.edgedetector
         port map (
             iArst => rst,
             iClk => clk,
@@ -122,7 +129,7 @@ begin
         wait;
     end process;
 
-    theClkGen : entity work.clkgen
+    theClkGen : entity libutil.clkGen
         generic map (
             gPeriod => 10 ns
         )
@@ -131,7 +138,7 @@ begin
             oClk => clk
         );
 
-    theRstGen : entity work.resetGen
+    theRstGen : entity libutil.resetGen
         generic map (
             gResetTime => 100 ns
         )

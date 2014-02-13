@@ -45,7 +45,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Work library
+library work;
+--! Use triple buffer package
 use work.tripleBufferPkg.all;
 
 entity alteraTripleBuffer is

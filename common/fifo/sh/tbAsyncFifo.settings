@@ -4,14 +4,7 @@ STIM_FILE_WRITE="common/fifo/tb/tbAsyncFifo-write_stim.txt"
 STIM_FILE_READ="common/fifo/tb/tbAsyncFifo-read_stim.txt"
 
 SRC_LIST="\
-common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/busMasterPkg.vhd \
-common/util/src/busMasterBhv.vhd \
-\
-common/lib/src/synchronizerRtl.vhd \
 common/memory/src/dpRamSplxNbe-e.vhd \
-\
 xilinx/memory/src/dpRamSplxNbe-rtl-a.vhd \
 \
 common/fifo/src/fifoRead-rtl-ea.vhd \

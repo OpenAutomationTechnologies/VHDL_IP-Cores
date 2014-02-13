@@ -38,8 +38,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library work;
-use work.global.all;
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
 
 entity clkgen is
     generic (

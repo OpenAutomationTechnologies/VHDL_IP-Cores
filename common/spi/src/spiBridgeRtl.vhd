@@ -43,7 +43,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
 
 entity spiBridge is
     generic (
@@ -174,7 +178,7 @@ begin
     --! The synchronizer moves the spi sel into the iClk domain.
     --! The reg intialization can be inactivated, since only the falling edge
     --! is detected by theSpiSelEdgeDet.
-    theSpiSelSync : entity work.synchronizer
+    theSpiSelSync : entity libcommon.synchronizer
         generic map (
             gStages => 2,
             gInit   => cInactivated
@@ -189,7 +193,7 @@ begin
     --! Detect the falling edge of the synchronized spi sel signal.
     --! The input signal is initialized to '0', however, only the falling edge
     --! is detected.
-    theSpiSelEdgeDet : entity work.edgedetector
+    theSpiSelEdgeDet : entity libcommon.edgedetector
         port map (
             iArst       => iArst,
             iClk        => iClk,

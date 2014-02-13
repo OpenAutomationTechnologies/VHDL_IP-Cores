@@ -44,9 +44,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
+
+--! Work library
 library work;
---! use global library
-use work.global.all;
 --! use openmac package
 use work.openmacPkg.all;
 
@@ -409,7 +416,7 @@ begin
 
     ---------------------------------------------------------------------------
     --! Clock generator for dut_clkRst.clk
-    THECLK : entity work.clkgen
+    THECLK : entity libutil.clkGen
         generic map (
             gPeriod => cPeriod_clk
         )
@@ -419,7 +426,7 @@ begin
         );
 
     --! Clock generator for dut_clkRst.clk2x
-    THECLK2X : entity work.clkgen
+    THECLK2X : entity libutil.clkGen
         generic map (
             gPeriod => cPeriod_clk2x
         )
@@ -429,7 +436,7 @@ begin
         );
 
     --! Clock generator for dut_clkRst.dmaClk
-    THEDMACLK : entity work.clkgen
+    THEDMACLK : entity libutil.clkGen
         generic map (
             gPeriod => cPeriod_dmaClk
         )
@@ -439,7 +446,7 @@ begin
         );
 
     --! Clock generator for dut_clkRst.pktBufClk
-    THEPKTBUFCLK : entity work.clkgen
+    THEPKTBUFCLK : entity libutil.clkGen
         generic map (
             gPeriod => cPeriod_pktBufClk
         )
@@ -462,7 +469,7 @@ begin
 
     ---------------------------------------------------------------------------
     --! The bus master for dut_macReg
-    THEMACREGBUSMASTER : entity work.busMaster
+    THEMACREGBUSMASTER : entity libutil.busMaster
         generic map (
             gAddrWidth      => cBusMasterAddrWidth,
             gDataWidth      => cBusMasterDataWidth,
@@ -486,7 +493,7 @@ begin
 
     ---------------------------------------------------------------------------
     --! The bus master for dut_pktBuf
-    THEPKTBUFBUSMASTER : entity work.busMaster
+    THEPKTBUFBUSMASTER : entity libutil.busMaster
         generic map (
             gAddrWidth      => cBusMasterAddrWidth,
             gDataWidth      => cPktBufDataWidth,
@@ -510,7 +517,7 @@ begin
 
     ---------------------------------------------------------------------------
     --! The bus master for dut_macTimer
-    THEMACTIMERBUSMASTER : entity work.busMaster
+    THEMACTIMERBUSMASTER : entity libutil.busMaster
         generic map (
             gAddrWidth      => cBusMasterAddrWidth,
             gDataWidth      => cMacTimerDataWidth,

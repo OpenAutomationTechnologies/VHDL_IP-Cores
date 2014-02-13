@@ -42,7 +42,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbSpiSlave is
     generic (
@@ -121,12 +128,12 @@ architecture bhv of tbSpiSlave is
     signal firstLoad    : std_logic;
     signal check        : std_logic;
 begin
-    theRstGen : entity work.resetGen
+    theRstGen : entity libutil.resetGen
         port map (
             oReset => rst
         );
 
-    theClkGen : entity work.clkGen
+    theClkGen : entity libutil.clkGen
         generic map (
             gPeriod => cMainClkPeriod
         )
@@ -322,7 +329,7 @@ begin
         signal shiftReg : std_logic_vector(cRegisterSize-1 downto 0);
         signal cnt : natural;
     begin
-        edgeDet : entity work.edgedetector
+        edgeDet : entity libcommon.edgedetector
             port map (
                 iArst       => rst,
                 iClk        => clk,

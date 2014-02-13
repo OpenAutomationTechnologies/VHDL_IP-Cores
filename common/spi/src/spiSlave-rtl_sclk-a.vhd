@@ -43,7 +43,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
 
 architecture rtl_sclk of spiSlave is
     --! function to swap vector
@@ -211,7 +215,7 @@ begin
     end process;
 
     --! The shift register
-    theShiftReg : entity work.nShiftReg
+    theShiftReg : entity libcommon.nShiftReg
         generic map (
             gWidth => 1,
             gTabs => gRegisterSize,
@@ -229,7 +233,7 @@ begin
         );
 
     --! Terminal counter used as "frame counter"
-    theTermCnt : entity work.cnt
+    theTermCnt : entity libcommon.cnt
         generic map (
             gCntWidth => LogDualis(gRegisterSize),
             gTcntVal => gRegisterSize-1
@@ -244,7 +248,7 @@ begin
         );
 
     -- SPI input synchronizers
-    theSpiClkSync : entity work.synchronizer
+    theSpiClkSync : entity libcommon.synchronizer
         generic map (
             gStages => cSyncStages,
             gInit => cInactivated
@@ -256,7 +260,7 @@ begin
             oSync => spiClk
         );
 
-    theSpiSelSync : entity work.synchronizer
+    theSpiSelSync : entity libcommon.synchronizer
         generic map (
             gStages => cSyncStages,
             gInit => cnInactivated
@@ -270,7 +274,7 @@ begin
 
     spiSel <= not nSpiSel;
 
-    theSpiMosiSync : entity work.synchronizer
+    theSpiMosiSync : entity libcommon.synchronizer
         generic map (
             gStages => cSyncStages,
             gInit => cInactivated
@@ -282,7 +286,7 @@ begin
             oSync => spiMosi
         );
 
-    theSpiClkEdgeDet : entity work.edgedetector
+    theSpiClkEdgeDet : entity libcommon.edgedetector
         port map (
             iClk => iClk,
             iArst => iArst,

@@ -42,7 +42,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbProtStream is
     generic (
@@ -97,12 +104,12 @@ architecture bhv of tbProtStream is
     constant cSkipValids    : natural := gStreamSkipValids;
     constant cSkipCntMax    : natural := maximum(cSkipLoads, cSkipValids);
 begin
-    theRstGen : entity work.resetGen
+    theRstGen : entity libutil.resetGen
         port map (
             oReset => rst
         );
 
-    theClkGen : entity work.clkGen
+    theClkGen : entity libutil.clkGen
         generic map (
             gPeriod => cMainClkPeriod
         )

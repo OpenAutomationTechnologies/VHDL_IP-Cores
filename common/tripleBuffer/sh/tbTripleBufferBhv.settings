@@ -1,18 +1,14 @@
 #!/bin/bash
 # Settings file for running simulation.
-SRC_LIST="common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
+SRC_LIST="\
 common/memory/src/dpRam-e.vhd \
 common/memory/src/dpRam-bhv-a.vhd \
-common/lib/src/addrDecodeRtl.vhd \
-common/lib/src/binaryEncoderRtl.vhd \
-common/lib/src/edgedetectorRtl.vhd \
 common/tripleBuffer/src/tripleBufferPkg.vhd \
 common/tripleBuffer/src/tripleBridgeRtl.vhd \
 common/tripleBuffer/src/tripleLogicRtl.vhd \
 common/tripleBuffer/src/tripleBufferRtl.vhd \
-common/tripleBuffer/tb/tbTripleBufferBhv.vhd"
+common/tripleBuffer/tb/tbTripleBufferBhv.vhd \
+"
 
 GEN_LIST=\
 "gInputBuffers=10 \

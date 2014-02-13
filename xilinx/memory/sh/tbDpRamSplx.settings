@@ -4,12 +4,6 @@ INIT_FILE="UNUSED"
 STIM_FILE="common/memory/tb/tbDpRamSplx_stim.txt"
 
 SRC_LIST="\
-common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
-common/util/src/busMasterPkg.vhd \
-common/util/src/busMasterBhv.vhd \
-common/lib/src/cntRtl.vhd \
 common/memory/src/dpRam-e.vhd \
 xilinx/memory/src/dpRam-rtl-a.vhd \
 common/memory/src/dpRamSplx-e.vhd \

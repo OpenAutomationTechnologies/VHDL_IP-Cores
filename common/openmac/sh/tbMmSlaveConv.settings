@@ -3,14 +3,7 @@
 STIM_FILE="common/openmac/tb/tbMmSlaveConv_stim.txt"
 
 SRC_LIST="\
-common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/busMasterPkg.vhd \
-common/util/src/busMasterBhv.vhd \
-common/util/src/spRamBhv.vhd \
-\
 common/openmac/src/mmSlaveConv-rtl-ea.vhd \
-\
 common/openmac/tb/tbMmSlaveConv-bhv-tb.vhd \
 "
 

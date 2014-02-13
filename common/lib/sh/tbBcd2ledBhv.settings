@@ -1,7 +1,8 @@
 #!/bin/bash
 # Settings file for running simulation.
-SRC_LIST="common/lib/src/global.vhd \
-common/lib/src/bcd2ledRtl.vhd \
-common/lib/tb/tbBcd2ledBhv.vhd"
+
+SRC_LIST="\
+common/lib/tb/tbBcd2ledBhv.vhd \
+"
 
 TOP_LEVEL=tbBcd2led

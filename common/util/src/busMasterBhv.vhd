@@ -46,6 +46,7 @@
 --
 -------------------------------------------------------------------------------
 
+library std;
 use std.textio.all;
 
 library ieee;
@@ -53,9 +54,13 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_textio.all;
 
-library work;
-use work.global.all;
-use work.busMasterPkg.all;
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+library libutil;
+use libutil.busMasterPkg.all;
 
 entity busMaster is
     generic (

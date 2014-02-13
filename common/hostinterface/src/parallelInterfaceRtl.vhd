@@ -44,8 +44,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
---! use global library
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Work library
+library work;
 --! use host interface package for specific types
 use work.hostInterfacePkg.all;
 
@@ -352,7 +358,7 @@ begin
     end generate;
 
     -- synchronize all available control signals
-    syncChipselect : entity work.synchronizer
+    syncChipselect : entity libcommon.synchronizer
         generic map (
             gStages => 2,
             gInit   => cInactivated
@@ -364,7 +370,7 @@ begin
             oSync   => hostChipselect
         );
 
-    syncWrite : entity work.synchronizer
+    syncWrite : entity libcommon.synchronizer
         generic map (
             gStages => 2,
             gInit   => cInactivated
@@ -378,7 +384,7 @@ begin
 
     hostWrite <= hostChipselect and hostWrite_noCs;
 
-    syncRead : entity work.synchronizer
+    syncRead : entity libcommon.synchronizer
         generic map (
             gStages => 2,
             gInit   => cInactivated
@@ -394,7 +400,7 @@ begin
 
     genSyncAle : if gMultiplex /= 0 generate
     begin
-        syncAle : entity work.synchronizer
+        syncAle : entity libcommon.synchronizer
         generic map (
             gStages => 2,
             gInit   => cInactivated
@@ -406,7 +412,7 @@ begin
             oSync   => hostAle_noCs
         );
 
-        edgeAle : entity work.edgedetector
+        edgeAle : entity libcommon.edgedetector
         port map (
             iArst       => iRst,
             iClk        => iClk,

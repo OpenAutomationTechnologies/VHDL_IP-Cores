@@ -42,7 +42,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbAddrDecode is
 end tbAddrDecode;
@@ -66,7 +73,7 @@ architecture bhv of tbAddrDecode is
     signal addr_next : std_logic_vector(addr'range) := (others => cInactivated);
     signal sel : std_logic;
 begin
-    DUT : entity work.addrDecode
+    DUT : entity libcommon.addrDecode
         generic map (
             gAddrWidth => cAddrWidth,
             gBaseAddr => cBase,
@@ -147,7 +154,7 @@ begin
         end if;
     end process;
 
-    theClkGen : entity work.clkgen
+    theClkGen : entity libutil.clkGen
         generic map (
             gPeriod => 10 ns
         )
@@ -156,7 +163,7 @@ begin
             oClk => clk
         );
 
-    theRstGen : entity work.resetGen
+    theRstGen : entity libutil.resetGen
         generic map (
             gResetTime => 100 ns
         )

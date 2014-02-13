@@ -44,9 +44,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
---! use global library
-use work.global.all;
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbAsyncFifo is
     generic (
@@ -211,7 +215,7 @@ begin
 
     ---------------------------------------------------------------------------
     --! Clock generator for write port
-    THEWRCLK : entity work.clkgen
+    THEWRCLK : entity libutil.clkGen
         generic map (
             gPeriod => cPeriod_wrClk
         )
@@ -221,7 +225,7 @@ begin
         );
 
     --! Clock generator for read port
-    THERDCLK : entity work.clkgen
+    THERDCLK : entity libutil.clkGen
         generic map (
             gPeriod => cPeriod_rdClk
         )
@@ -240,7 +244,7 @@ begin
 
     ---------------------------------------------------------------------------
     --! The bus master for stim_writePort.
-    THEWRITEPORTMASTER : entity work.busMaster
+    THEWRITEPORTMASTER : entity libutil.busMaster
         generic map (
             gAddrWidth      => cBusMasterAddrWidth,
             gDataWidth      => cBusMasterDataWidth,
@@ -263,7 +267,7 @@ begin
         );
 
     --! The bus master for stim_readPort.
-    THEREADPORTMASTER : entity work.busMaster
+    THEREADPORTMASTER : entity libutil.busMaster
         generic map (
             gAddrWidth      => cBusMasterAddrWidth,
             gDataWidth      => cBusMasterDataWidth,

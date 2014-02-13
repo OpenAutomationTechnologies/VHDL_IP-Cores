@@ -43,8 +43,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
-use work.global.all;
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbClkXing is
     generic (
@@ -150,7 +155,7 @@ begin
     -- Instances
     ---------------------------------------------------------------------------
     --! The Dut
-    theDUT : entity work.clkxing
+    theDUT : entity libcommon.clkxing
         generic map (
             gCsNum      => cCsWidth,
             gDataWidth  => cBusMasterDataWidth
@@ -172,7 +177,7 @@ begin
         );
 
     --! The testbench stimuli is done by the bus master.
-    theSTIM : entity work.busMaster
+    theSTIM : entity libutil.busMaster
         generic map (
             gAddrWidth      => cBusMasterAddrWidth,
             gDataWidth      => cBusMasterDataWidth,
@@ -194,7 +199,7 @@ begin
             oDone       => done
         );
 
-    theClkGen : entity work.clkgen
+    theClkGen : entity libutil.clkGen
         generic map (
             gPeriod => 20 ns
         )
@@ -203,7 +208,7 @@ begin
             oClk => clk
         );
 
-    theFasterClkGen : entity work.clkgen
+    theFasterClkGen : entity libutil.clkGen
         generic map (
             gPeriod => 10 ns
         )
@@ -212,7 +217,7 @@ begin
             oClk => clkx2
         );
 
-    theRstGen : entity work.resetGen
+    theRstGen : entity libutil.resetGen
         generic map (
             gResetTime => 100 ns
         )

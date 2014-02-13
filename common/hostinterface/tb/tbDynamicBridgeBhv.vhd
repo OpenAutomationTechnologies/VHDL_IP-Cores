@@ -41,7 +41,17 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
+
+--! Work library
+library work;
 use work.hostInterfacePkg.all;
 
 entity tbDynamicBridge is
@@ -195,7 +205,7 @@ begin
 
     --! The bridge stimulation is handled by a bus master model, that simply
     --! performs reads. The read data is the translated address.
-    theBridgeStim : entity work.busMaster
+    theBridgeStim : entity libutil.busMaster
         generic map (
             gAddrWidth      => cBridgeInAddrWidth,
             gDataWidth      => cBridgeOutAddrWidth,
@@ -217,7 +227,7 @@ begin
             oDone       => done
         );
 
-    theClkGen : entity work.clkgen
+    theClkGen : entity libutil.clkGen
         generic map (
             gPeriod => 10 ns
         )
@@ -226,7 +236,7 @@ begin
             oClk => clk
         );
 
-    theRstGen : entity work.resetGen
+    theRstGen : entity libutil.resetGen
         generic map (
             gResetTime => 100 ns
         )

@@ -36,17 +36,11 @@
 lib proc_common_v3_00_a  all
 lib axi_lite_ipif_v1_01_a  all
 lib axi_master_burst_v1_00_a  all
+lib libcommon all
 
-lib axi_openmac_v1_00_a ../../../../../../common/lib/src/global vhdl
-lib axi_openmac_v1_00_a ../../../../../../common/lib/src/addrDecodeRtl vhdl
-lib axi_openmac_v1_00_a ../../../../../../common/lib/src/clkXingRtl vhdl
-lib axi_openmac_v1_00_a ../../../../../../common/lib/src/cntRtl vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/memory/src/dpRam-e vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/memory/src/dpRamSplx-e vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/memory/src/dpRamSplxNbe-e vhdl
-lib axi_openmac_v1_00_a ../../../../../../common/lib/src/edgedetectorRtl vhdl
-lib axi_openmac_v1_00_a ../../../../../../common/lib/src/synchronizerRtl vhdl
-lib axi_openmac_v1_00_a ../../../../../../common/lib/src/syncTog-rtl-ea vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/fifo/src/asyncFifo-e vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/fifo/src/asyncFifo-rtl-a vhdl
 lib axi_openmac_v1_00_a ../../../../../../common/fifo/src/fifoRead-rtl-ea vhdl

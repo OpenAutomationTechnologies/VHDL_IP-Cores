@@ -43,8 +43,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library work;
-use work.global.all;
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbDpRamSplx is
     generic (
@@ -154,7 +159,7 @@ begin
     stim.readdata   <= dut.readdata;
 
     --! The testbench stimuli is done by the bus master.
-    theSTIM : entity work.busMaster
+    theSTIM : entity libutil.busMaster
         generic map (
             gAddrWidth      => cBusMasterAddrWidth,
             gDataWidth      => cBusMasterDataWidth,
@@ -182,7 +187,7 @@ begin
     writeAck.enable <= stim.write;
 
     --! Read acknowlegde is generate with one cycle delay.
-    theREADACK : entity work.cnt
+    theREADACK : entity libcommon.cnt
         generic map (
             gCntWidth   => 1,
             gTcntVal    => 1
@@ -199,7 +204,7 @@ begin
     --! Write acknowlegde is generate with no cycle delay.
     theWRITEACK : writeAck.tcnt <= writeAck.enable;
 
-    theClkGen : entity work.clkgen
+    theClkGen : entity libutil.clkGen
         generic map (
             gPeriod => 10 ns
         )
@@ -208,7 +213,7 @@ begin
             oClk => clk
         );
 
-    theRstGen : entity work.resetGen
+    theRstGen : entity libutil.resetGen
         generic map (
             gResetTime => 100 ns
         )

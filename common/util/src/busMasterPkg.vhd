@@ -45,7 +45,9 @@
 --    POSSIBILITY OF SUCH DAMAGE.
 --
 -------------------------------------------------------------------------------
-use STD.textio.all;
+
+library std;
+use std.textio.all;
 
 library ieee;
 use ieee.std_logic_1164.all;

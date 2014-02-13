@@ -1,10 +1,8 @@
 #!/bin/bash
 # Settings file for running simulation.
 
-SRC_LIST="common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
-common/lib/src/addrDecodeRtl.vhd \
-common/lib/tb/tbAddrDecodeBhv.vhd"
+SRC_LIST="\
+common/lib/tb/tbAddrDecodeBhv.vhd \
+"
 
 TOP_LEVEL=tbAddrDecode

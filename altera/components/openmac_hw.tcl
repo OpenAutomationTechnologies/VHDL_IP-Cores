@@ -224,19 +224,12 @@ proc fileset_callback { entityName } {
     set dir_root        ../..
     set dir_common      ${dir_root}/common
     set dir_altera      ${dir_root}/altera
-    set path_lib        lib/src
     set path_openmac    openmac/src
     set path_fifo       fifo/src
     set path_memory     memory/src
 
-    add_fileset_file "global.vhd"                     VHDL PATH "${dir_common}/${path_lib}/global.vhd"
-    add_fileset_file "addrDecodeRtl.vhd"              VHDL PATH "${dir_common}/${path_lib}/addrDecodeRtl.vhd"
-    add_fileset_file "cntRtl.vhd"                     VHDL PATH "${dir_common}/${path_lib}/cntRtl.vhd"
     add_fileset_file "dpRam-e.vhd"                    VHDL PATH "${dir_common}/${path_memory}/dpRam-e.vhd"
     add_fileset_file "dpRamSplx-e.vhd"                VHDL PATH "${dir_common}/${path_memory}/dpRamSplx-e.vhd"
-    add_fileset_file "edgedetectorRtl.vhd"            VHDL PATH "${dir_common}/${path_lib}/edgedetectorRtl.vhd"
-    add_fileset_file "synchronizerRtl.vhd"            VHDL PATH "${dir_common}/${path_lib}/synchronizerRtl.vhd"
-    add_fileset_file "syncTog-rtl-ea.vhd"             VHDL PATH "${dir_common}/${path_lib}/syncTog-rtl-ea.vhd"
     add_fileset_file "asyncFifo-e.vhd"                VHDL PATH "${dir_common}/${path_fifo}/asyncFifo-e.vhd"
     add_fileset_file "openmacPkg-p.vhd"               VHDL PATH "${dir_common}/${path_openmac}/openmacPkg-p.vhd"
     add_fileset_file "dma_handler.vhd"                VHDL PATH "${dir_common}/${path_openmac}/dma_handler.vhd"

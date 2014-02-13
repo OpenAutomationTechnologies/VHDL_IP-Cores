@@ -1,12 +1,10 @@
 #!/bin/bash
 # Settings file for running simulation.
-SRC_LIST="common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
-common/lib/src/cntRtl.vhd \
-common/lib/src/edgedetectorRtl.vhd \
+
+SRC_LIST="\
 common/spi/src/protStreamRtl.vhd \
-common/spi/tb/tbProtStreamBhv.vhd"
+common/spi/tb/tbProtStreamBhv.vhd \
+"
 
 GEN_LIST=( \
 "gStreamDataWidth=8  gStreamSkipLoads=0 gStreamSkipValids=0 gBusDataWidth=8  gBusAddrWidth=8 gWrBufBase=16#00# gWrBufSize=100 gRdBufBase=16#80# gRdBufSize=100" \

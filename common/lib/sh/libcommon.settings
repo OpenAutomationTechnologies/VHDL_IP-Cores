@@ -1,0 +1,19 @@
+#!/bin/bash
+# Settings file for compiling library
+
+LIB_SRC="\
+common/lib/src/global.vhd \
+common/lib/src/addrDecodeRtl.vhd \
+common/lib/src/bcd2ledRtl.vhd \
+common/lib/src/binaryEncoderRtl.vhd \
+common/lib/src/cntRtl.vhd \
+common/lib/src/edgedetectorRtl.vhd \
+common/lib/src/lutFileRtl.vhd \
+common/lib/src/nShiftRegRtl.vhd \
+common/lib/src/registerFileRtl.vhd \
+common/lib/src/synchronizerRtl.vhd \
+common/lib/src/syncTog-rtl-ea.vhd \
+common/lib/src/clkXingRtl.vhd \
+"
+
+LIB_NAME=libcommon

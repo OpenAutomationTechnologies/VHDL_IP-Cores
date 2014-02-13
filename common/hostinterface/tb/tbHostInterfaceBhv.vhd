@@ -41,7 +41,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbHostInterface is
     generic (
@@ -188,7 +195,7 @@ begin
             oIrq                    => irq
         );
 
-    theRam : entity work.spRam
+    theRam : entity libutil.spRam
         generic map (
             gDataWidth  => hostBridgeWritedata'length,
             gAddrWidth  => cRamAddrWidth - 2
@@ -210,7 +217,7 @@ begin
     pcpAck                  <= not pcpWaitrequest;
     hostBridgeWaitrequest   <= not hostBridge_ready;
 
-    host : entity work.busMaster
+    host : entity libutil.busMaster
     generic map (
         gAddrWidth      => 17,
         gDataWidth      => 32,
@@ -230,7 +237,7 @@ begin
         oWritedata  => hostWritedata
     );
 
-    pcp : entity work.busMaster
+    pcp : entity libutil.busMaster
         generic map (
             gAddrWidth      => 11,
             gDataWidth      => 32,
@@ -250,7 +257,7 @@ begin
             oWritedata  => pcpWritedata
         );
 
-    theClkGen : entity work.clkgen
+    theClkGen : entity libutil.clkGen
         generic map (
             gPeriod => 10 ns
         )
@@ -259,7 +266,7 @@ begin
             oClk    => clk
         );
 
-    theRstGen : entity work.resetGen
+    theRstGen : entity libutil.resetGen
         generic map (
             gResetTime => 100 ns
         )

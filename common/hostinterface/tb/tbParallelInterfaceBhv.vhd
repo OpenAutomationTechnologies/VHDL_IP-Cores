@@ -43,8 +43,17 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
---! use global library
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
+
+--! Work library
+library work;
 --! use host interface package for specific types
 use work.hostInterfacePkg.all;
 
@@ -85,7 +94,7 @@ architecture bhv of tbParallelInterface is
     signal done : std_logic;
 begin
 
-    clkGen : entity work.clkGen
+    clkGen : entity libutil.clkGen
         generic map (
             gPeriod => 10 ns
         )
@@ -94,7 +103,7 @@ begin
             oClk => clk
         );
 
-    rstGen : entity work.resetGen
+    rstGen : entity libutil.resetGen
         port map (
             oReset => rst
         );

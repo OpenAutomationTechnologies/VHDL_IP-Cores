@@ -1,10 +1,10 @@
 #!/bin/bash
 # Settings file for running simulation.
-SRC_LIST="common/lib/src/global.vhd \
-common/util/src/clkGenBhv.vhd \
-common/util/src/resetGenBhv.vhd \
+
+SRC_LIST="\
 common/tripleBuffer/src/tripleBufferPkg.vhd \
 common/tripleBuffer/src/tripleLogicRtl.vhd \
-common/tripleBuffer/tb/tbTripleLogicBhv.vhd"
+common/tripleBuffer/tb/tbTripleLogicBhv.vhd \
+"
 
 TOP_LEVEL=tbTripleLogic

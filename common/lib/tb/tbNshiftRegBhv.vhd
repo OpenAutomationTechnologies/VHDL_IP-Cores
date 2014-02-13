@@ -42,7 +42,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.global.all;
+
+--! Common library
+library libcommon;
+--! Use common library global package
+use libcommon.global.all;
+
+--! Utility library
+library libutil;
 
 entity tbNshiftReg is
 end tbNshiftReg;
@@ -60,12 +67,12 @@ architecture bhv of tbNshiftReg is
     signal inLoadData, parOut : std_logic_vector(cWidth*cTabs-1 downto 0);
     signal count : natural;
 begin
-    theRstGen : entity work.resetGen
+    theRstGen : entity libutil.resetGen
         port map (
             oReset => rst
         );
 
-    theClkGen : entity work.clkGen
+    theClkGen : entity libutil.clkGen
         port map (
             iDone => done,
             oClk => clk
@@ -101,7 +108,7 @@ begin
     --ring
     inData <= outData;
 
-    theDUT : entity work.nShiftReg
+    theDUT : entity libcommon.nShiftReg
         generic map (
             gWidth => cWidth,
             gTabs => cTabs,

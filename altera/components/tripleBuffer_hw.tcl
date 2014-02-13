@@ -61,11 +61,7 @@ set_module_property ANALYZE_HDL false
 # -----------------------------------------------------------------------------
 add_file "../../altera/tripleBuffer/src/alteraTripleBufferRtl.vhd" {SYNTHESIS SIMULATION}
 add_file "../../altera/memory/src/dpRam-rtl-a.vhd" {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/addrDecodeRtl.vhd" {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/binaryEncoderRtl.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/memory/src/dpRam-e.vhd" {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/edgedetectorRtl.vhd" {SYNTHESIS SIMULATION}
-add_file "../../common/lib/src/global.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/tripleBuffer/src/tripleBridgeRtl.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/tripleBuffer/src/tripleBufferPkg.vhd" {SYNTHESIS SIMULATION}
 add_file "../../common/tripleBuffer/src/tripleBufferRtl.vhd" {SYNTHESIS SIMULATION}
