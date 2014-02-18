@@ -77,7 +77,7 @@ package body Global is
 
     function LogDualis(cNumber : natural) return natural is
         variable vClimbUp : natural := 1;
-        variable vResult  : natural;
+        variable vResult  : natural := 0;
     begin
         while vClimbUp < cNumber loop
             vClimbUp := vClimbUp * 2;
