@@ -1,38 +1,41 @@
 #------------------------------------------------------------------------------------------------------------------------
 #-- HOST INTERFACE XPS AXI Component (TCL)
 #--
-#--       Copyright (C) 2011 B&R
-#--       Copyright (C) Kalycito Infotech Pvt Ltd
-#--
-#--    Redistribution and use in source and binary forms, with or without
-#--    modification, are permitted provided that the following conditions
-#--    are met:
-#--
-#--    1. Redistributions of source code must retain the above copyright
-#--       notice, this list of conditions and the following disclaimer.
-#--
-#--    2. Redistributions in binary form must reproduce the above copyright
-#--       notice, this list of conditions and the following disclaimer in the
-#--       documentation and/or other materials provided with the distribution.
-#--
-#--    3. Neither the name of B&R nor the names of its
-#--       contributors may be used to endorse or promote products derived
-#--       from this software without prior written permission. For written
-#--       permission, please contact office@br-automation.com
-#--
-#--    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-#--    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-#--    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-#--    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-#--    COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-#--    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-#--    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-#--    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-#--    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-#--    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-#--    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-#--    POSSIBILITY OF SUCH DAMAGE.
-#--
+###############################################################################
+##
+##    (c) B&R, 2013
+##    (c) Kalycito Infotech Pvt Ltd
+##
+##    Redistribution and use in source and binary forms, with or without
+##    modification, are permitted provided that the following conditions
+##    are met:
+##
+##    1. Redistributions of source code must retain the above copyright
+##       notice, this list of conditions and the following disclaimer.
+##
+##    2. Redistributions in binary form must reproduce the above copyright
+##       notice, this list of conditions and the following disclaimer in the
+##       documentation and/or other materials provided with the distribution.
+##
+##    3. Neither the name of B&R nor the names of its
+##       contributors may be used to endorse or promote products derived
+##       from this software without prior written permission. For written
+##       permission, please contact office@br-automation.com
+##
+##    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+##    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+##    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+##    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+##    COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+##    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+##    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+##    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+##    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+##    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+##    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+##    POSSIBILITY OF SUCH DAMAGE.
+##
+###############################################################################
 #-------------------------------------------------------------------------------
 #-- Version History
 #-------------------------------------------------------------------------------
@@ -41,7 +44,7 @@
 #uses "xillib.tcl"
 
 proc calc_baseadr_dbuf1 { param_handle} {
-     set mhsinst      [xget_hw_parent_handle $param_handle]
+     set mhsinst     [xget_hw_parent_handle $param_handle]
      set Base_Addr   [xget_hw_parameter_value $mhsinst "gBaseDynBuf0"]
      set User_Size   [xget_hw_parameter_value $mhsinst "Size_KB_DynBuf0"]
      set Incr_Addr_Size [format 0x%x [expr $User_Size * 1024]]
@@ -245,11 +248,11 @@ proc generate {drv_handle} {
      set mhsinst [xget_hw_parent_handle $drv_handle]
      xdefine_include_file $drv_handle "xparameters.h" "axi_hostinterface" "C_BASEADDR" "C_HIGHADDR" "axi_hostinterface" "C_HOST_BASEADDR" "C_HOST_HIGHADDR" "gBaseDynBuf0" "gBaseDynBuf1" "gBaseErrCntr" "gBaseTxNmtQ" "gBaseTxGenQ" "gBaseTxSynQ" "gBaseTxVetQ" "gBaseRxVetQ" "gBaseK2UQ" "gBaseU2KQ" \
       "gBasePdo" "gBaseRes" "Conv_Size_KB_DynBuf0" "Conv_Size_KB_DynBuf1" "Conv_Size_B_ErrorCounter" "Conv_Size_KB_TxNmtQ" "Conv_Size_KB_TxGenQ" "Conv_Size_KB_TxSynQ" "Conv_Size_KB_TxVetQ" \
-      "Conv_Size_KB_RxVetQ" "Conv_Size_KB_K2UQ" "Conv_Size_KB_U2KQ" "Conv_Size_B_Pdo"
+      "Conv_Size_KB_RxVetQ" "Conv_Size_KB_K2UQ" "Conv_Size_KB_U2KQ" "Conv_Size_B_Pdo" "gVersionMajor" "gVersionMinor" "gVersionRevision" "gVersionCount"
 
      my_xdefine_include_file $drv_handle "hostiflib-mem.h" "axi_hostinterface" "gBaseDynBuf0" "gBaseDynBuf1" "gBaseErrCntr" "gBaseTxNmtQ" "gBaseTxGenQ" "gBaseTxSynQ" "gBaseTxVetQ" "gBaseRxVetQ" "gBaseK2UQ" "gBaseU2KQ" \
       "gBasePdo" "gBaseRes" "Conv_Size_KB_DynBuf0" "Conv_Size_KB_DynBuf1" "Conv_Size_B_ErrorCounter" "Conv_Size_KB_TxNmtQ" "Conv_Size_KB_TxGenQ" "Conv_Size_KB_TxSynQ" "Conv_Size_KB_TxVetQ" \
-      "Conv_Size_KB_RxVetQ" "Conv_Size_KB_K2UQ" "Conv_Size_KB_U2KQ" "Conv_Size_B_Pdo"
+      "Conv_Size_KB_RxVetQ" "Conv_Size_KB_K2UQ" "Conv_Size_KB_U2KQ" "Conv_Size_B_Pdo" "gVersionMajor" "gVersionMinor" "gVersionRevision" "gVersionCount"
 
 }
 
@@ -352,7 +355,15 @@ proc my_xget_name {periph_handle param} {
      set name [format "%s%s" "HOSTIF_SIZE_" "U2KQ"]
      } elseif {[string compare $param "Conv_Size_B_Pdo"] == 0} {
      set name [format "%s%s" "HOSTIF_SIZE_" "Pdo"]
-     } else {
+     }  elseif {[string compare $param "gVersionMajor"] == 0} {
+     set name [format "%s%s" "HOSTIF_" "VERSION_MAJOR"]
+     }  elseif {[string compare $param "gVersionMinor"] == 0} {
+     set name [format "%s%s" "HOSTIF_" "VERSION_MINOR"]
+     }  elseif {[string compare $param "gVersionRevision"] == 0} {
+     set name [format "%s%s" "HOSTIF_" "VERSION_REVISION"]
+     }  elseif {[string compare $param "gVersionCount"] == 0} {
+     set name [format "%s%s" "HOSTIF_" "VERSION_COUNT"]
+     }  else {
      set name [format "%s%s" "HOSTIF_SIZE_" $param]
      }
      return $name
