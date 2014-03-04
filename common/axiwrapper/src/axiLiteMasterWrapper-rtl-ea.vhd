@@ -49,14 +49,6 @@ library libcommon;
 --! Use global package
 use libcommon.global.all;
 
--------------------------------------------------------------------------------
---! @brief AXI lite master wrapper on avalon master interface signals
---
---! @details This will convert avalon master interface signals to AXI master
---! interface signals. An Finite tFsm Machine with 8 states (sINIT,sAWVALID,
---! sWVALID,sBREADY,sARVALID,sRREADY,sWRITE_DONE,sREAD_DONE) are used for
---! control the transitions of signals on both Avalon & AXI interface.
--------------------------------------------------------------------------------
 entity axiLiteMasterWrapper is
     generic (
         --! Address width for AXI bus interface
@@ -103,12 +95,17 @@ entity axiLiteMasterWrapper is
         iArready            : in    std_logic;
         --! ReadData for Read Data Channel
         iRdata              : in    std_logic_vector(gDataWidth-1 downto 0);
+        --TODO: Remove unused input pin 
         --! ReadResponse for Read Data Channel
-        iRresp              : in    std_logic_vector(1 downto 0); --unused input
+        iRresp              : in    std_logic_vector(1 downto 0);
         --! ReadValid for Read Data Channel
         iRvalid             : in    std_logic;
         --! ReadReady for Read Dara Channel
         oRready             : out   std_logic;
+        --! Host Interface IP Clock
+        iAvalonClk          : in std_logic;
+        --! Host Interface Reset
+        iAvalonReset        : in std_logic;
         --! Read signal for Avalon Master Interface
         iAvalonRead         : in    std_logic;
         --! Write Signal for Avalon Master interface
@@ -129,6 +126,7 @@ entity axiLiteMasterWrapper is
 end axiLiteMasterWrapper;
 
 architecture rtl of axiLiteMasterWrapper is
+   
     --! Axi lite master FSM type
     type tFsm is (
         sINIT,
@@ -140,77 +138,131 @@ architecture rtl of axiLiteMasterWrapper is
         sWRITE_DONE,
         sREAD_DONE
     );
-
+    --! synchronized fsm state
     signal fsm      : tFsm;
+    --! combinational fsm state
     signal fsm_next : tFsm;
-
+    
+    --! Avalon Interface sync FSM
+    type tAvalonFsm is (
+         sStart,
+         sWait,
+         sDone
+    );
+    --! synchornized avalon fsm state
+    signal avmFsm       : tAvalonFsm ;
+    --! combinational fsm sate for avalon fsm
+    signal avmFsm_next  : tAvalonFsm ;
+    
+    --Handle Avalon Master
+    --! Avalon Address 
+    signal avmAddress        : std_logic_vector (31 downto 0);
+    --! Avalon Address temp signal
+    signal avmAddress_next   : std_logic_vector (31 downto 0);
+    --! Avalon Read Signal
+    signal avmRead           : std_logic;
+    --! Avalon Read Signal temp signal
+    signal avmRead_next      : std_logic;
+    --! Avalon Write Signal
+    signal avmWrite          : std_logic;
+    --! Avalon Write Signal temp signal
+    signal avmWrite_next     : std_logic;
+    --! Avalon Write Data
+    signal avmWdata          : std_logic_vector (31 downto 0);
+    --! Avalon Write Data Signal temp signal
+    signal avmWdata_next     : std_logic_vector (31 downto 0);
+    --! Avalon Read Data
+    signal avmRdata          : std_logic_vector (31 downto 0);
+    --! Avalon Read Data temp Signal
+    signal avmRdata_next     : std_logic_vector (31 downto 0);
+    --! Avalon start operation
+    signal avmStart          : std_logic;
+    --! Avalon start operation temp signal
+    signal avmStart_next     : std_logic;
+    --! Avalon Byte Enable
+    signal avmBE             : std_logic_vector (3 downto 0);
+    --! Avalon Byte Enable Signal temp signal
+    signal avmBE_next        : std_logic_vector (3 downto 0);
+    --! Avalon Wait Signal
+    signal avmWait           : std_logic; 
+      
+    
     --  Handle Avalon Master
-    signal start_transfer   : std_logic;
+    --! Complete transfer between AXI and Avalon
     signal done_transfer    : std_logic;
+    --! Read Ready for Valid Read operations
     signal RReady           : std_logic;
+    --! Write operation complete
     signal writeOp_done     : std_logic;
+    --! Read operation complete
     signal readOp_done      : std_logic;
+    --! Read Data latch for hold data
     signal readData         : std_logic_vector(31 downto 0);
+    
 begin
     --AXI Master Signals
+    
+    -- Secure write is not enabled for read/write operations
     oAwprot <= "000";
     oArprot <= "000";
-    oAwaddr <= iAvalonAddr;
-    oAraddr <= iAvalonAddr;
-    oWdata  <= iAvalonWriteData;
+    --Master signal for AXI interface
+    oAwaddr <= avmAddress;
+    oAraddr <= avmAddress;
+    oWdata  <= avmWdata;
     -- Only read or write at a time and Read will always 32bit
-    oWstrb  <= iAvalonBE;
+    oWstrb  <= avmBE;
 
     -- Memory operations (AXI4) demands presence of WLAST (active for last data)
-    oWlast  <=  cActivated;
+    oWlast   <= cActivated;
 
-    oAwvalid <= cActivated when fsm = sINIT and iAvalonWrite = cActivated else
+    oAwvalid <= cActivated when fsm = sINIT and avmWrite = cActivated else
                 cActivated when fsm = sAWVALID else
                 cInactivated;
 
-    oWvalid <=  cActivated when fsm = sINIT and iAvalonWrite = cActivated else
+    oWvalid  <= cActivated when fsm = sINIT and avmWrite = cActivated else
                 cActivated when fsm = sAWVALID else
                 cActivated when fsm = sWVALID else
                 cInactivated;
 
-    oBready <=  cActivated when fsm = sWRITE_DONE else
+    oBready  <= cActivated when fsm = sWRITE_DONE and iBvalid = cActivated else
                 cActivated when fsm = sBREADY else
                 cInactivated;
 
-    oArvalid <= cActivated when iAvalonRead = cActivated else
+    oArvalid <= cActivated when fsm = sINIT and avmRead = cActivated else
                 cActivated when fsm =  sARVALID else
                 cInactivated;
 
-    oRready <=  cActivated when fsm = sREAD_DONE else
+    RReady  <= cActivated when fsm = sREAD_DONE and iRvalid = cActivated else
+               cInactivated;
+                
+    oRready <= RReady;
+    
+    -- Flop with Enable pin? Anyway passed through a register on Avalon side to
+    -- avoid latch issues. 
+    --FIXME: bring into fsm
+    --! Hold the data while it is valid
+    REG_RDATA: process(iAclk)
+    begin
+        if rising_edge (iAclk) then
+            if inAReset = cnActivated then
+                readData <= x"00000000";
+            elsif(iRvalid = cActivated) then
+                readData <= iRdata;
+            end if;
+        end if;
+    end process REG_RDATA;
+    
+    RReady <=   cActivated when fsm = sREAD_DONE and iRvalid = cActivated else
                 cInactivated;
-
-    -- Avalon Interface Signals
-    oAvalonReadValid    <= iRvalid;
-    oAvalonReadData     <= readData;
-
-    readData <= iRdata when iRvalid = cActivated else
-                readData; --FIXME: This is a crazy latch! Use register for storing!!!
-
-    oAvalonWaitReq <=   cActivated when start_transfer = cActivated else
-                        cInactivated when done_transfer = cActivated else
-                        cInactivated;
-
-    -- Internal Signals for Read Ready
-    RReady <=   cActivated when fsm = sREAD_DONE else
-                cInactivated;
-
-    -- Start of Operations
-    start_transfer <=   cInactivated when done_transfer = cActivated else
-                        (iAvalonRead and not RReady) or iAvalonWrite; --TODO: Split it to multiple logics
 
     -- Completion of Read/Write Operations
     done_transfer <= writeOp_done or readOp_done;
 
-    writeOp_done <= cActivated when fsm = sWRITE_DONE else
-                    cInactivated;
+    writeOp_done  <= cActivated when fsm = sWRITE_DONE else
+                     cInactivated;
 
-    readOp_done <=  cActivated when fsm = sREAD_DONE else
-                    cInactivated;
+    readOp_done   <= cActivated when fsm = sREAD_DONE else
+                     cInactivated;
 
     -- Master FSM
     --TODO: Explain logic if possible with Diagram in doxygen
@@ -225,14 +277,15 @@ begin
             end if;
         end if;
     end process SEQ_LOGIC;
-
+    
     -- Combinational Logics
-    -- --TODO: Explain logic if possible with Diagram in doxygen
-    --! Control based Process for tFsm updation
+    --TODO: Explain logic if possible with Diagram in doxygen
+    --! Master FSM for AXI lite interface
     COMB_LOGIC : process (
         fsm,
-        iAvalonRead,
-        iAvalonWrite,
+        avmRead,
+        avmWrite,
+        avmStart,
         iAwready,
         iWready,
         iBvalid,
@@ -246,7 +299,7 @@ begin
         case fsm is
             when sINIT =>
             -- Read Operations
-            if iAvalonRead = cActivated then
+            if avmRead = cActivated then
                 fsm_next <= sARVALID;
                 if iArready = cActivated then
                     if iRvalid = cActivated then
@@ -258,7 +311,7 @@ begin
                     fsm_next <= sARVALID;
                 end if;
             -- Write Operations
-            elsif iAvalonWrite = cActivated then
+            elsif avmWrite = cActivated then
                 fsm_next <= sAWVALID;
                 if iAwready = cActivated then
                     if iWready = cActivated then
@@ -329,13 +382,151 @@ begin
                 end if;
 
             when sWRITE_DONE =>
-                fsm_next <= sINIT;
+            --Wait for Complete activity at avalon side
+            if(avmStart = cInactivated) then
+               fsm_next <= sINIT;
+            else
+               fsm_next <= sWRITE_DONE;
+            end if;
 
             when sREAD_DONE =>
+            --Wait for Complete activity at avalon side
+             if(avmStart = cInactivated) then
                 fsm_next <= sINIT;
+             else
+                fsm_next <= sREAD_DONE;
+             end if;
 
             when others =>
                 null;
         end case;
     end process COMB_LOGIC;
+    
+    
+    
+    -- Avalon Interface signal crossing through FSM Register the inputs from 
+    -- Avalon and Pass to AXI to avoid glitches on Master side due to different 
+    -- clock domains
+    --! Sync Clock domains between Avalon & AXI through a handshaking system
+    AVM_SYNC:  process (iAvalonClk)
+    begin
+        if rising_edge (iAvalonClk) then
+            if iAvalonReset = cActivated then
+                avmFsm      <= sStart;
+                avmAddress  <= x"00000000"; 
+                avmRead     <= cInactivated;
+                avmWrite    <= cInactivated;
+                avmRdata    <= x"00000000";
+                avmWdata    <= x"00000000";
+                avmStart    <= cInactivated;
+                avmBE       <= x"0";
+            else
+                avmFsm      <= avmFsm_next ;
+                avmAddress  <= avmAddress_next; 
+                avmRead     <= avmRead_next;
+                avmWrite    <= avmWrite_next;
+                avmRdata    <= avmRdata_next;
+                avmWdata    <= avmWdata_next; 
+                avmStart    <= avmStart_next;
+                avmBE       <= avmBE_next;
+             end if;
+        end if;
+    end process AVM_SYNC;
+    -- To split the design for better timing
+    --! Combinational logic part for FSM
+    AVM_COM: process ( iAvalonRead,
+                       iAvalonWrite,
+                       iAvalonWriteData,
+                       iAvalonAddr,
+                       iAvalonBE,
+                       readData,
+                       done_transfer,
+                       avmFsm,
+                       avmRead,
+                       avmWrite,
+                       avmStart,
+                       avmAddress,
+                       avmRdata,
+                       avmWdata,
+                       avmBE
+    )
+    begin
+    
+       --Default values
+        avmFsm_next      <= avmFsm ;
+        avmAddress_next  <= avmAddress; 
+        avmRead_next     <= avmRead;
+        avmWrite_next    <= avmWrite;
+        avmRdata_next    <= avmRdata;
+        avmWdata_next    <= avmWdata; 
+        avmStart_next    <= avmStart;
+        avmBE_next       <= avmBE;
+       
+       case avmFsm is
+       
+        when sStart =>
+            avmAddress_next <= iAvalonAddr ;
+            avmBE_next      <= iAvalonBE   ;
+            
+            if iAvalonRead = cActivated then
+                avmFsm_next   <= sWait;
+                avmStart_next <= cActivated ;
+                avmRead_next  <= cActivated ;
+            elsif iAvalonWrite = cActivated then
+                avmFsm_next   <= sWait;
+                avmStart_next <= cActivated ;
+                avmWrite_next <= cActivated;
+                avmWdata_next <= iAvalonWriteData;
+            else
+                avmFsm_next   <= sStart;
+                avmStart_next <= cInactivated ;
+                avmRead_next  <= cInactivated ;
+                avmWrite_next <= cInactivated;
+                avmWdata_next <= x"00000000";
+            end if;
+        
+        --Wait untill the transfer get completed at AXI
+        when sWait  =>
+        
+           avmStart_next <= avmStart;
+           avmRead_next  <= avmRead ;
+           avmWrite_next <= avmWrite;
+           
+           if(done_transfer = cActivated) then
+            avmFsm_next   <= sDone;
+                -- Only for Read operations
+                if(iAvalonRead = cActivated) then
+                    avmRdata_next <=  readData;
+                else
+                    avmRdata_next <=  avmRdata;
+                end if;
+           else
+            avmFsm_next   <= sWait;
+           end if;
+        -- Handshake between two FSM domains
+        when sDone  =>  
+            if (done_transfer = cActivated) then
+                avmRead_next  <= cInactivated ;
+                avmWrite_next <= cInactivated;
+                avmStart_next <= cInactivated ;
+                avmFsm_next   <= sStart;
+            else
+                avmRead_next  <= avmRead ;
+                avmWrite_next <= avmWrite;
+                avmStart_next <= avmStart;
+                avmFsm_next   <= sDone;
+            end if;
+       
+       end case;
+    end process AVM_COM;
+    
+    --Avalon Interface signals
+    oAvalonReadData     <= readData;
+    oAvalonReadValid    <= not avmWait;
+    oAvalonWaitReq      <= avmWait;
+    
+    avmWait             <= cInactivated when avmFsm = sDone else
+                           cActivated ;
+    
+    
 end rtl;

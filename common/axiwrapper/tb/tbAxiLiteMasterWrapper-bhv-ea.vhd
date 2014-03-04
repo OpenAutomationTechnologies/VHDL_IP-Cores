@@ -71,7 +71,9 @@ architecture bhv of tbAxiLiteMasterWrapper is
     --! Global Clock
     signal  clock    : std_logic := '1';
     --! Global Active low Reset
-    signal  nReset : std_logic;
+    signal  nReset  : std_logic;
+    --! Global Active high Reset
+    signal  reset   : std_logic;
     --! Axi lite singals
     type tAxiLite is record
                 --Write Address
@@ -157,6 +159,8 @@ begin
     nReset <=   cnActivated after 0 ns,
                 cnInactivated after 100 ns;
 
+    reset <= not nReset;
+
     ---------------------------------------------------------------------------
     --  DUT:  AXI lite master
     ---------------------------------------------------------------------------
@@ -195,6 +199,8 @@ begin
         iRvalid             => inst_axiliteMaster.RVALID,
         oRready             => inst_axiliteMaster.RREADY,
         -- Avalon Interface Signals
+        iAvalonClk          => clock,
+        iAvalonReset        => reset,
         iAvalonRead         => inst_avalonMaster.AvalonRead,
         iAvalonWrite        => inst_avalonMaster.AvalonWrite,
         iAvalonAddr         => inst_avalonMaster.AvalonAddr,

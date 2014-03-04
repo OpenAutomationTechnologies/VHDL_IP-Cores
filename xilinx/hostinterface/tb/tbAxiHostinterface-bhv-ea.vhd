@@ -410,6 +410,8 @@ begin
             iRvalid             => inst_pcpAxiLite.RVALID,
             oRready             => inst_pcpAxiLite.RREADY,
             -- Avalon Interface Signals
+            iAvalonClk          => clk,
+            iAvalonReset        => rst,
             iAvalonRead         => inst_pcpBusMaster.AvalonRead,
             iAvalonWrite        => inst_pcpBusMaster.AvalonWrite,
             iAvalonAddr         => inst_pcpBusMaster.AvalonAddr,
@@ -496,7 +498,7 @@ begin
 
     BridgeAddress <= "00" & inst_masterAxiLite.AWADDR(29 downto 0);
 
-    --! Memory Model
+    --! External Memory Model
     theRam : entity libutil.spRam
         generic map (
             gDataWidth  => inst_memoryBusMaster.AvalonWriteData'length,
@@ -556,6 +558,8 @@ begin
                 iRvalid             => inst_hostAxiLite.RVALID,
                 oRready             => inst_hostAxiLite.RREADY,
                 -- Avalon Interface Signals
+                iAvalonClk          => clk,
+                iAvalonReset        => rst,
                 iAvalonRead         => inst_hostBusMaster.AvalonRead,
                 iAvalonWrite        => inst_hostBusMaster.AvalonWrite,
                 iAvalonAddr         => inst_hostBusMaster.AvalonAddr,
