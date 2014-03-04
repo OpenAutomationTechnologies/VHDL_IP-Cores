@@ -139,30 +139,43 @@ architecture rtl of axiLiteSlaveWrapper is
     );
 
     --Avalon Interface designs
+    --! address latch for Avalon Interface
     signal  address     : std_logic_vector(gAddrWidth-1 downto 0);
+    --! Muxed address from AXI interface
+    signal  mux_address : std_logic_vector(gAddrWidth-1 downto 0);
+    --! Chip select for address decoder
     signal  chip_sel    : std_logic;
+    --! Muxed byte enable latch from AXI Interface
     signal  byte_enable : std_logic_vector(gDataWidth/8-1 downto 0);
 
     --Signals for FSM
+    --! synchronised fsm state
     signal  fsm         :  tFsm;
+    --! fsm state for combinational logic
     signal  fsm_next    :  tFsm;
 
     --Internal Signals
+    --! control for avalon read signal with fsm
     signal avalonRead          : std_logic;
+    --! Read Data latch for avalon interface
     signal avalonReadDataLatch : std_logic_vector(31 downto 0);
+    --! control for avalon write signal with fsm
     signal avalonWrite         : std_logic;
 
+    --! write data from AXI for Avalon interface
     signal axiWriteData : std_logic_vector(31 downto 0);
+    --! valid data from AXI to Avalon
     signal axiDataValid : std_logic;
 
+    --! Write start fsm operations
     signal writeStart   : std_logic;
+    --! Write select for control write operations
     signal write_sel    : std_logic;
+    --! Read Start for fsm operations
     signal readStart    : std_logic;
+    --! Read select for control read opeartions
     signal read_sel     : std_logic;
 begin
-    -- TODO: Check weather we need to add clock sync to make sure data & control
-    --       signal crossing should be in same clock domains
-    --
 
     --Avalon Slave Interface Singals
     oAvsAddress     <= address;
@@ -223,10 +236,15 @@ begin
     read_sel  <=    cActivated when iAraddr(31 downto 16) = gBaseAddr(31 downto 16) else
                     cInactivated;
 
-    -- TODO: Check possibilities of reduce the no of bits in MUX/latch design
-    address <= iAraddr when readStart = cActivated and fsm = sIDLE else
-               iAwaddr when writeStart = cActivated and fsm = sIDLE else
-               address; --FIXME: This is a crazy latch! Use register for storing!!!
+    -- TODO: Check possibilities of reduce the no of bits in MUX/latch design 
+    -- and avoid combinational feedback on mux 
+    -- Mux the address first and latch it with FSM
+    address     <= mux_address when fsm = sIDLE else
+                   address ;
+    
+    mux_address <= iAraddr when readStart = cActivated else
+                   iAwaddr when writeStart = cActivated else
+                   x"00000000" ;
 
     writeStart      <= chip_sel and iAwvalid;
     readStart       <= chip_sel and iArvalid;
@@ -237,7 +255,6 @@ begin
                     byte_enable;
 
     -- Main Control FSM for converting AXI lite signals to Avalon
-    --TODO: Explain logic if possible with Diagram in doxygen
     --! Clock Based Process for state changes
     SEQ_LOGIC_FSM : process(iAclk)
     begin
@@ -250,7 +267,6 @@ begin
         end if;
     end process SEQ_LOGIC_FSM;
 
-    --TODO: Explain logic if possible with Diagram in doxygen
     --! Control based Process for state updation
     COM_LOGIC_FSM : process (
         fsm,
