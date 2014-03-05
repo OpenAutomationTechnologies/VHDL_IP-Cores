@@ -516,7 +516,8 @@ begin
                 avmStart_next <= avmStart;
                 avmFsm_next   <= sDone;
             end if;
-       
+         when others =>
+                null;
        end case;
     end process AVM_COM;
     

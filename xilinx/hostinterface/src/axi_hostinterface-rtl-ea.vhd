@@ -1,10 +1,10 @@
 -------------------------------------------------------------------------------
---! @file axi_hostinterface.vhd
+--! @file axi_hostinterface-rtl-ea.vhd
 --! @brief toplevel of host interface for Xilinx FPGA
 -------------------------------------------------------------------------------
 --
---    (c) B&R, 2012
---    (c) Kalycito Infotech Pvt Ltd
+--    (c) B&R, 2014
+--    (c) Kalycito Infotech Pvt Ltd, 2014
 --
 --    Redistribution and use in source and binary forms, with or without
 --    modification, are permitted provided that the following conditions
