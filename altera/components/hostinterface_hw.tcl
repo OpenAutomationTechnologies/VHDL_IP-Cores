@@ -67,13 +67,6 @@ set_fileset_property QUARTUS_SYNTH              TOP_LEVEL alteraHostInterface
 set_fileset_property QUARTUS_SYNTH              ENABLE_RELATIVE_INCLUDE_PATHS false
 add_fileset_file "dpRam-e.vhd"                  VHDL PATH "../../common/memory/src/dpRam-e.vhd"
 add_fileset_file "dpRam-rtl-a.vhd"              VHDL PATH "../../altera/memory/src/dpRam-rtl-a.vhd"
-add_fileset_file "addrDecodeRtl.vhd"            VHDL PATH "../../common/lib/src/addrDecodeRtl.vhd"
-add_fileset_file "binaryEncoderRtl.vhd"         VHDL PATH "../../common/lib/src/binaryEncoderRtl.vhd"
-add_fileset_file "cntRtl.vhd"                   VHDL PATH "../../common/lib/src/cntRtl.vhd"
-add_fileset_file "edgedetectorRtl.vhd"          VHDL PATH "../../common/lib/src/edgedetectorRtl.vhd"
-add_fileset_file "lutFileRtl.vhd"               VHDL PATH "../../common/lib/src/lutFileRtl.vhd"
-add_fileset_file "synchronizerRtl.vhd"          VHDL PATH "../../common/lib/src/synchronizerRtl.vhd"
-add_fileset_file "registerFileRtl.vhd"          VHDL PATH "../../common/lib/src/registerFileRtl.vhd"
 add_fileset_file "alteraHostInterfaceRtl.vhd"   VHDL PATH "../../altera/hostinterface/src/alteraHostInterfaceRtl.vhd"
 add_fileset_file "hostInterfacePkg.vhd"         VHDL PATH "../../common/hostinterface/src/hostInterfacePkg.vhd"
 add_fileset_file "hostInterfaceRtl.vhd"         VHDL PATH "../../common/hostinterface/src/hostInterfaceRtl.vhd"
@@ -81,7 +74,6 @@ add_fileset_file "irqGenRtl.vhd"                VHDL PATH "../../common/hostinte
 add_fileset_file "dynamicBridgeRtl.vhd"         VHDL PATH "../../common/hostinterface/src/dynamicBridgeRtl.vhd"
 add_fileset_file "statusControlRegRtl.vhd"      VHDL PATH "../../common/hostinterface/src/statusControlRegRtl.vhd"
 add_fileset_file "parallelInterfaceRtl.vhd"     VHDL PATH "../../common/hostinterface/src/parallelInterfaceRtl.vhd"
-add_fileset_file "global.vhd"                   VHDL PATH "../../common/lib/src/global.vhd"
 
 
 # -----------------------------------------------------------------------------
