@@ -34,12 +34,6 @@ cp --parents ${DIR_DOC}/images/hostif-dyn_bridge.png                ${DIR_RELEAS
 cp --parents ${DIR_DOC}/images/hostif-memmap.png                    ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/md/hostif.md                                ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/md/hostif_sc.md                             ${DIR_RELEASE}
-cp --parents ${DIR_DOC}/wavedrom/hostif_mplx_rd-wr.svg              ${DIR_RELEASE}
-cp --parents ${DIR_DOC}/wavedrom/hostif_rd-wr.svg                   ${DIR_RELEASE}
-cp --parents ${DIR_DOC}/wavedrom/hostif_mplx_rd.svg                 ${DIR_RELEASE}
-cp --parents ${DIR_DOC}/wavedrom/hostif_rd.svg                      ${DIR_RELEASE}
-cp --parents ${DIR_DOC}/wavedrom/hostif_mplx_wr.svg                 ${DIR_RELEASE}
-cp --parents ${DIR_DOC}/wavedrom/hostif_wr.svg                      ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/Doxyfile                                    ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/mainpage.txt                                ${DIR_RELEASE}
 
