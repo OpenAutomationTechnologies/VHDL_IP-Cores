@@ -17,6 +17,6 @@ fi
 echo "create release dir..."
 mkdir -p ${DIR_RELEASE}
 
-cp --parents common/parallelInterface/src/mpxMaster-rtl-ea.vhd  ${DIR_RELEASE}
+cp --parents common/parallelInterface/src/prlMaster-rtl-ea.vhd  ${DIR_RELEASE}
 
-cp --parents altera/components/mpxMaster_hw.tcl                 ${DIR_RELEASE}
+cp --parents altera/components/prlMaster_hw.tcl                 ${DIR_RELEASE}

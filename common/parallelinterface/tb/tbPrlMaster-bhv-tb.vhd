@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
---! @file tbMpxMaster-bhv-tb.vhd
+--! @file tbPrlMaster-bhv-tb.vhd
 --
 --! @brief Testbench for Multiplex parallel master ipcore
 -------------------------------------------------------------------------------
@@ -50,13 +50,13 @@ library libcommon;
 --! Use global package
 use libcommon.global.all;
 
-entity tbMpxMaster is
+entity tbPrlMaster is
     generic (
         gStim : string := "text.txt"
     );
-end tbMpxMaster;
+end tbPrlMaster;
 
-architecture bhv of tbMpxMaster is
+architecture bhv of tbPrlMaster is
     signal clk  : std_logic;
     signal rst  : std_logic;
     signal done : std_logic;
@@ -66,7 +66,7 @@ architecture bhv of tbMpxMaster is
     constant cAdWidth   : natural := maximum(cAddrWidth, cDataWidth);
 
     -- Multiplex master
-    type tMpxMaster is record
+    type tPrlMaster is record
         slv_address     : std_logic_vector(cAddrWidth-1 downto 0);
         slv_read        : std_logic;
         slv_readdata    : std_logic_vector(cDataWidth-1 downto 0);
@@ -74,30 +74,30 @@ architecture bhv of tbMpxMaster is
         slv_writedata   : std_logic_vector(cDataWidth-1 downto 0);
         slv_waitrequest : std_logic;
         slv_byteenable  : std_logic_vector(cDataWidth/8-1 downto 0);
-        mpxMst_cs       : std_logic;
-        mpxMst_ad_i     : std_logic_vector(cAdWidth-1 downto 0);
-        mpxMst_ad_o     : std_logic_vector(cAdWidth-1 downto 0);
-        mpxMst_ad_oen   : std_logic;
-        mpxMst_be       : std_logic_vector(cDataWidth/8-1 downto 0);
-        mpxMst_ale      : std_logic;
-        mpxMst_wr       : std_logic;
-        mpxMst_rd       : std_logic;
-        mpxMst_ack      : std_logic;
+        prlMst_cs       : std_logic;
+        prlMst_ad_i     : std_logic_vector(cAdWidth-1 downto 0);
+        prlMst_ad_o     : std_logic_vector(cAdWidth-1 downto 0);
+        prlMst_ad_oen   : std_logic;
+        prlMst_be       : std_logic_vector(cDataWidth/8-1 downto 0);
+        prlMst_ale      : std_logic;
+        prlMst_wr       : std_logic;
+        prlMst_rd       : std_logic;
+        prlMst_ack      : std_logic;
     end record;
 
-    signal inst_mpxMaster : tMpxMaster;
+    signal inst_prlMaster : tPrlMaster;
 
     -- multiplexed slave
-    type tMpxSlave is record
-        mpxSlv_cs       : std_logic;
-        mpxSlv_rd       : std_logic;
-        mpxSlv_wr       : std_logic;
-        mpxSlv_ale      : std_logic;
-        mpxSlv_ack      : std_logic;
-        mpxSlv_be       : std_logic_vector(cDataWidth/8-1 downto 0);
-        mpxSlv_ad_i     : std_logic_vector(cAdWidth-1 downto 0);
-        mpxSlv_ad_o     : std_logic_vector(cAdWidth-1 downto 0);
-        mpxSlv_ad_oen   : std_logic;
+    type tPrlSlave is record
+        prlSlv_cs       : std_logic;
+        prlSlv_rd       : std_logic;
+        prlSlv_wr       : std_logic;
+        prlSlv_ale      : std_logic;
+        prlSlv_ack      : std_logic;
+        prlSlv_be       : std_logic_vector(cDataWidth/8-1 downto 0);
+        prlSlv_ad_i     : std_logic_vector(cAdWidth-1 downto 0);
+        prlSlv_ad_o     : std_logic_vector(cAdWidth-1 downto 0);
+        prlSlv_ad_oen   : std_logic;
         mst_chipselect  : std_logic;
         mst_read        : std_logic;
         mst_write       : std_logic;
@@ -108,7 +108,7 @@ architecture bhv of tbMpxMaster is
         mst_waitrequest : std_logic;
     end record;
 
-    signal inst_mpxSlave : tMpxSlave;
+    signal inst_prlSlave : tPrlSlave;
 
     -- Single port ram
     type tSpram is record
@@ -148,45 +148,45 @@ begin
     ---------------------------------------------------------------------------
     -- Map components
 
-    -- inst_busMaster --- inst_mpxMaster
-    inst_mpxMaster.slv_read     <= inst_busMaster.read;
-    inst_mpxMaster.slv_write    <= inst_busMaster.write;
-    inst_busMaster.ack          <= not inst_mpxMaster.slv_waitrequest;
+    -- inst_busMaster --- inst_prlMaster
+    inst_prlMaster.slv_read     <= inst_busMaster.read;
+    inst_prlMaster.slv_write    <= inst_busMaster.write;
+    inst_busMaster.ack          <= not inst_prlMaster.slv_waitrequest;
 
-    inst_mpxMaster.slv_address      <= inst_busMaster.address(inst_mpxMaster.slv_address'range);
-    inst_mpxMaster.slv_byteenable   <= inst_busMaster.byteenable;
-    inst_mpxMaster.slv_writedata    <= inst_busMaster.writedata(inst_mpxMaster.slv_writedata'range);
-    inst_busMaster.readdata         <= inst_mpxMaster.slv_readdata;
+    inst_prlMaster.slv_address      <= inst_busMaster.address(inst_prlMaster.slv_address'range);
+    inst_prlMaster.slv_byteenable   <= inst_busMaster.byteenable;
+    inst_prlMaster.slv_writedata    <= inst_busMaster.writedata(inst_prlMaster.slv_writedata'range);
+    inst_busMaster.readdata         <= inst_prlMaster.slv_readdata;
 
-    -- inst_mpxMaster --- inst_mpxSlave
-    inst_mpxSlave.mpxSlv_cs     <= inst_mpxMaster.mpxMst_cs;
-    inst_mpxSlave.mpxSlv_rd     <= inst_mpxMaster.mpxMst_rd;
-    inst_mpxSlave.mpxSlv_wr     <= inst_mpxMaster.mpxMst_wr;
-    inst_mpxSlave.mpxSlv_ale    <= inst_mpxMaster.mpxMst_ale;
-    inst_mpxMaster.mpxMst_ack   <= inst_mpxSlave.mpxSlv_ack;
+    -- inst_prlMaster --- inst_prlSlave
+    inst_prlSlave.prlSlv_cs     <= inst_prlMaster.prlMst_cs;
+    inst_prlSlave.prlSlv_rd     <= inst_prlMaster.prlMst_rd;
+    inst_prlSlave.prlSlv_wr     <= inst_prlMaster.prlMst_wr;
+    inst_prlSlave.prlSlv_ale    <= inst_prlMaster.prlMst_ale;
+    inst_prlMaster.prlMst_ack   <= inst_prlSlave.prlSlv_ack;
 
-    inst_mpxSlave.mpxSlv_be     <= inst_mpxMaster.mpxMst_be;
+    inst_prlSlave.prlSlv_be     <= inst_prlMaster.prlMst_be;
 
-    inst_mpxMaster.mpxMst_ad_i  <=  inst_mpxSlave.mpxSlv_ad_o when inst_mpxSlave.mpxSlv_ad_oen = cActivated else
+    inst_prlMaster.prlMst_ad_i  <=  inst_prlSlave.prlSlv_ad_o when inst_prlSlave.prlSlv_ad_oen = cActivated else
                                     (others => 'Z');
 
-    inst_mpxSlave.mpxSlv_ad_i   <=  inst_mpxMaster.mpxMst_ad_o when inst_mpxMaster.mpxMst_ad_oen = cActivated else
+    inst_prlSlave.prlSlv_ad_i   <=  inst_prlMaster.prlMst_ad_o when inst_prlMaster.prlMst_ad_oen = cActivated else
                                     (others => 'Z');
 
-    -- inst_mpxSlave --- inst_spram
-    inst_spram.write        <= inst_mpxSlave.mst_write;
-    inst_spram.read         <= inst_mpxSlave.mst_read;
+    -- inst_prlSlave --- inst_spram
+    inst_spram.write        <= inst_prlSlave.mst_write;
+    inst_spram.read         <= inst_prlSlave.mst_read;
 
-    inst_mpxSlave.mst_waitrequest   <= not inst_spram.ready;
-    inst_mpxSlave.mst_readdata      <= inst_spram.readdata;
+    inst_prlSlave.mst_waitrequest   <= not inst_spram.ready;
+    inst_prlSlave.mst_readdata      <= inst_spram.readdata;
 
-    inst_spram.byteenable   <= inst_mpxSlave.mst_byteenable;
-    inst_spram.writedata    <= inst_mpxSlave.mst_writedata;
-    inst_spram.address      <= inst_mpxSlave.mst_address;
+    inst_spram.byteenable   <= inst_prlSlave.mst_byteenable;
+    inst_spram.writedata    <= inst_prlSlave.mst_writedata;
+    inst_spram.address      <= inst_prlSlave.mst_address;
 
     ---------------------------------------------------------------------------
 
-    DUT_master : entity work.mpxMaster
+    DUT_master : entity work.prlMaster
         generic map (
             gDataWidth  => cDataWidth,
             gAddrWidth  => cAddrWidth,
@@ -195,25 +195,25 @@ begin
         port map (
             iClk                => clk,
             iRst                => rst,
-            iSlv_address        => inst_mpxMaster.slv_address,
-            iSlv_read           => inst_mpxMaster.slv_read,
-            oSlv_readdata       => inst_mpxMaster.slv_readdata,
-            iSlv_write          => inst_mpxMaster.slv_write,
-            iSlv_writedata      => inst_mpxMaster.slv_writedata,
-            oSlv_waitrequest    => inst_mpxMaster.slv_waitrequest,
-            iSlv_byteenable     => inst_mpxMaster.slv_byteenable,
-            oMpxMst_cs          => inst_mpxMaster.mpxMst_cs,
-            iMpxMst_ad_i        => inst_mpxMaster.mpxMst_ad_i,
-            oMpxMst_ad_o        => inst_mpxMaster.mpxMst_ad_o,
-            oMpxMst_ad_oen      => inst_mpxMaster.mpxMst_ad_oen,
-            oMpxMst_be          => inst_mpxMaster.mpxMst_be,
-            oMpxMst_ale         => inst_mpxMaster.mpxMst_ale,
-            oMpxMst_wr          => inst_mpxMaster.mpxMst_wr,
-            oMpxMst_rd          => inst_mpxMaster.mpxMst_rd,
-            iMpxMst_ack         => inst_mpxMaster.mpxMst_ack
+            iSlv_address        => inst_prlMaster.slv_address,
+            iSlv_read           => inst_prlMaster.slv_read,
+            oSlv_readdata       => inst_prlMaster.slv_readdata,
+            iSlv_write          => inst_prlMaster.slv_write,
+            iSlv_writedata      => inst_prlMaster.slv_writedata,
+            oSlv_waitrequest    => inst_prlMaster.slv_waitrequest,
+            iSlv_byteenable     => inst_prlMaster.slv_byteenable,
+            oPrlMst_cs          => inst_prlMaster.prlMst_cs,
+            iPrlMst_ad_i        => inst_prlMaster.prlMst_ad_i,
+            oPrlMst_ad_o        => inst_prlMaster.prlMst_ad_o,
+            oPrlMst_ad_oen      => inst_prlMaster.prlMst_ad_oen,
+            oPrlMst_be          => inst_prlMaster.prlMst_be,
+            oPrlMst_ale         => inst_prlMaster.prlMst_ale,
+            oPrlMst_wr          => inst_prlMaster.prlMst_wr,
+            oPrlMst_rd          => inst_prlMaster.prlMst_rd,
+            iPrlMst_ack         => inst_prlMaster.prlMst_ack
         );
 
-    DUT_slave : entity work.mpxSlave
+    DUT_slave : entity work.prlSlave
         generic map (
             gDataWidth  => cDataWidth,
             gAddrWidth  => cAddrWidth,
@@ -222,22 +222,22 @@ begin
         port map (
             iClk                => clk,
             iRst                => rst,
-            iMpxSlv_cs          => inst_mpxSlave.mpxSlv_cs,
-            iMpxSlv_rd          => inst_mpxSlave.mpxSlv_rd,
-            iMpxSlv_wr          => inst_mpxSlave.mpxSlv_wr,
-            iMpxSlv_ale         => inst_mpxSlave.mpxSlv_ale,
-            oMpxSlv_ack         => inst_mpxSlave.mpxSlv_ack,
-            iMpxSlv_be          => inst_mpxSlave.mpxSlv_be,
-            oMpxSlv_ad_o        => inst_mpxSlave.mpxSlv_ad_o,
-            iMpxSlv_ad_i        => inst_mpxSlave.mpxSlv_ad_i,
-            oMpxSlv_oen         => inst_mpxSlave.mpxSlv_ad_oen,
-            oMst_address        => inst_mpxSlave.mst_address,
-            oMst_byteenable     => inst_mpxSlave.mst_byteenable,
-            oMst_read           => inst_mpxSlave.mst_read,
-            iMst_readdata       => inst_mpxSlave.mst_readdata,
-            oMst_write          => inst_mpxSlave.mst_write,
-            oMst_writedata      => inst_mpxSlave.mst_writedata,
-            iMst_waitrequest    => inst_mpxSlave.mst_waitrequest
+            iPrlSlv_cs          => inst_prlSlave.prlSlv_cs,
+            iPrlSlv_rd          => inst_prlSlave.prlSlv_rd,
+            iPrlSlv_wr          => inst_prlSlave.prlSlv_wr,
+            iPrlSlv_ale         => inst_prlSlave.prlSlv_ale,
+            oPrlSlv_ack         => inst_prlSlave.prlSlv_ack,
+            iPrlSlv_be          => inst_prlSlave.prlSlv_be,
+            oPrlSlv_ad_o        => inst_prlSlave.prlSlv_ad_o,
+            iPrlSlv_ad_i        => inst_prlSlave.prlSlv_ad_i,
+            oPrlSlv_oen         => inst_prlSlave.prlSlv_ad_oen,
+            oMst_address        => inst_prlSlave.mst_address,
+            oMst_byteenable     => inst_prlSlave.mst_byteenable,
+            oMst_read           => inst_prlSlave.mst_read,
+            iMst_readdata       => inst_prlSlave.mst_readdata,
+            oMst_write          => inst_prlSlave.mst_write,
+            oMst_writedata      => inst_prlSlave.mst_writedata,
+            iMst_waitrequest    => inst_prlSlave.mst_waitrequest
         );
 
     theRam : entity libutil.spRam

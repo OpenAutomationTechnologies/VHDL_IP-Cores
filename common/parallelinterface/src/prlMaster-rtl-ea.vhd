@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
---! @file mpxMaster-rtl-ea.vhd
+--! @file prlMaster-rtl-ea.vhd
 --! @brief Multiplexed memory mapped master
 -------------------------------------------------------------------------------
 --
@@ -48,7 +48,7 @@ library libcommon;
 --! Use global package
 use libcommon.global.all;
 
-entity mpxMaster is
+entity prlMaster is
     generic (
         --! Data bus width
         gDataWidth  : natural := 16;
@@ -81,27 +81,27 @@ entity mpxMaster is
         iSlv_byteenable     : in    std_logic_vector(gDataWidth/8-1 downto 0);
         -- Memory mapped multiplexed master
         --! Chipselect
-        oMpxMst_cs          : out   std_logic;
+        oPrlMst_cs          : out   std_logic;
         --! Multiplexed address data bus input
-        iMpxMst_ad_i       : in    std_logic_vector(gAdWidth-1 downto 0);
+        iPrlMst_ad_i       : in    std_logic_vector(gAdWidth-1 downto 0);
         --! Multiplexed address data bus output
-        oMpxMst_ad_o       : out   std_logic_vector(gAdWidth-1 downto 0);
+        oPrlMst_ad_o       : out   std_logic_vector(gAdWidth-1 downto 0);
         --! Multiplexed address data bus enable
-        oMpxMst_ad_oen     : out   std_logic;
+        oPrlMst_ad_oen     : out   std_logic;
         --! Byteenable
-        oMpxMst_be          : out   std_logic_vector(gDataWidth/8-1 downto 0);
+        oPrlMst_be          : out   std_logic_vector(gDataWidth/8-1 downto 0);
         --! Address latch enable
-        oMpxMst_ale         : out   std_logic;
+        oPrlMst_ale         : out   std_logic;
         --! Write strobe
-        oMpxMst_wr          : out   std_logic;
+        oPrlMst_wr          : out   std_logic;
         --! Read strobe
-        oMpxMst_rd          : out   std_logic;
+        oPrlMst_rd          : out   std_logic;
         --! Acknowledge
-        iMpxMst_ack         : in    std_logic
+        iPrlMst_ack         : in    std_logic
     );
-end entity mpxMaster;
+end entity prlMaster;
 
-architecture rtl of mpxMaster is
+architecture rtl of prlMaster is
     -- Counter to wait in states
     signal count        : std_logic_vector(2 downto 0);
     signal count_rst    : std_logic;
@@ -124,7 +124,7 @@ architecture rtl of mpxMaster is
     signal ack_l        : std_logic;
     signal readdata     : std_logic_vector(oSlv_readdata'range);
     signal readdata_l   : std_logic_vector(oSlv_readdata'range);
-    signal adReg        : std_logic_vector(oMpxMst_ad_o'range);
+    signal adReg        : std_logic_vector(oPrlMst_ad_o'range);
 begin
 
     process(iClk, iRst)
@@ -132,25 +132,25 @@ begin
         if iRst = cActivated then
             count           <= (others => cInactivated);
             count_rst       <= cInactivated;
-            oMpxMst_cs      <= cInactivated;
-            oMpxMst_ale     <= cInactivated;
-            oMpxMst_ad_oen  <= cInactivated;
-            oMpxMst_rd      <= cInactivated;
-            oMpxMst_wr      <= cInactivated;
+            oPrlMst_cs      <= cInactivated;
+            oPrlMst_ale     <= cInactivated;
+            oPrlMst_ad_oen  <= cInactivated;
+            oPrlMst_rd      <= cInactivated;
+            oPrlMst_wr      <= cInactivated;
             ack             <= cInactivated;
             ack_l           <= cInactivated;
             readdata        <= (others => cInactivated);
             readdata_l      <= (others => cInactivated);
-            oMpxMst_be      <= (others => cInactivated);
+            oPrlMst_be      <= (others => cInactivated);
             adReg           <= (others => cInactivated);
         elsif rising_edge(iClk) then
             --default
             count_rst <= cInactivated;
 
-            ack_l       <= iMpxMst_ack;
+            ack_l       <= iPrlMst_ack;
             ack         <= ack_l;
             ack_d       <= ack;
-            readdata_l  <= iMpxMst_ad_i;
+            readdata_l  <= iPrlMst_ad_i;
             readdata    <= readdata_l;
 
             if count_rst = cActivated then
@@ -159,34 +159,34 @@ begin
                 count <= std_logic_vector(unsigned(count) + 1);
             end if;
 
-            oMpxMst_be <= iSlv_byteenable;
+            oPrlMst_be <= iSlv_byteenable;
 
             case fsm is
                 when sIdle =>
                     count_rst       <= cActivated;
-                    oMpxMst_cs      <= cInactivated;
-                    oMpxMst_ale     <= cInactivated;
-                    oMpxMst_ad_oen  <= cInactivated;
-                    oMpxMst_rd      <= cInactivated;
-                    oMpxMst_wr      <= cInactivated;
+                    oPrlMst_cs      <= cInactivated;
+                    oPrlMst_ale     <= cInactivated;
+                    oPrlMst_ad_oen  <= cInactivated;
+                    oPrlMst_rd      <= cInactivated;
+                    oPrlMst_wr      <= cInactivated;
 
                     if iSlv_read = cActivated or iSlv_write = cActivated then
                         fsm                         <= sAle;
-                        oMpxMst_cs                  <= cActivated;
-                        oMpxMst_ale                 <= cActivated;
-                        oMpxMst_ad_oen              <= cActivated;
+                        oPrlMst_cs                  <= cActivated;
+                        oPrlMst_ale                 <= cActivated;
+                        oPrlMst_ad_oen              <= cActivated;
                         adReg                       <= (others => cInactivated);
                         adReg(iSlv_address'range)   <= iSlv_address;
                     end if;
                 when sAle =>
                     if count = cCount_AleDisable then
-                        oMpxMst_ale                 <= cInactivated;
+                        oPrlMst_ale                 <= cInactivated;
                     elsif count = cCount_AleExit then
                         count_rst                   <= cActivated;
                         fsm                         <= sWrd;
-                        oMpxMst_wr                  <= iSlv_write;
-                        oMpxMst_rd                  <= iSlv_read;
-                        oMpxMst_ad_oen              <= iSlv_write;
+                        oPrlMst_wr                  <= iSlv_write;
+                        oPrlMst_rd                  <= iSlv_read;
+                        oPrlMst_ad_oen              <= iSlv_write;
                         adReg                       <= (others => cInactivated);
                         adReg(iSlv_writedata'range) <= iSlv_writedata;
                     end if;
@@ -194,10 +194,10 @@ begin
                     if ack = cActivated then
                         count_rst       <= cActivated;
                         fsm             <= sWait;
-                        oMpxMst_cs      <= cInactivated;
-                        oMpxMst_rd      <= cInactivated;
-                        oMpxMst_wr      <= cInactivated;
-                        oMpxMst_ad_oen  <= cInactivated;
+                        oPrlMst_cs      <= cInactivated;
+                        oPrlMst_rd      <= cInactivated;
+                        oPrlMst_wr      <= cInactivated;
+                        oPrlMst_ad_oen  <= cInactivated;
                     end if;
                 when sWait =>
                     if ack = cInactivated or count = cCount_max then
@@ -208,7 +208,7 @@ begin
         end if;
     end process;
 
-    oMpxMst_ad_o    <= adReg;
+    oPrlMst_ad_o    <= adReg;
 
     -- if ack goes high deassert waitrequest (edge detection)
     oSlv_waitrequest    <= cInactivated when ack_d = cInactivated and ack = cActivated else cActivated;

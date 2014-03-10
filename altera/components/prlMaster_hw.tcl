@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# mpxMaster_hw.tcl
+# prlMaster_hw.tcl
 # -----------------------------------------------------------------------------
 #
 #    (c) B&R, 2014
@@ -54,12 +54,12 @@ package require qsysUtil 0.0.1
 # -----------------------------------------------------------------------------
 # module
 # -----------------------------------------------------------------------------
-set_module_property NAME mpxMaster
+set_module_property NAME prlMaster
 set_module_property VERSION 1.0.0
 set_module_property INTERNAL false
 set_module_property OPAQUE_ADDRESS_MAP true
 set_module_property AUTHOR "B&R"
-set_module_property DISPLAY_NAME "Parallel Mux AD-Bus Master"
+set_module_property DISPLAY_NAME "Parallel Address/Data-Bus Master"
 set_module_property INSTANTIATE_IN_SYSTEM_MODULE true
 set_module_property EDITABLE false
 set_module_property VALIDATION_CALLBACK validation_callback
@@ -71,7 +71,7 @@ set_module_property ICON_PATH "img/br.png"
 # file sets
 # -----------------------------------------------------------------------------
 add_fileset             QUARTUS_SYNTH QUARTUS_SYNTH fileset_callback
-set_fileset_property    QUARTUS_SYNTH TOP_LEVEL     mpxMaster
+set_fileset_property    QUARTUS_SYNTH TOP_LEVEL     prlMaster
 
 # -----------------------------------------------------------------------------
 # VHDL parameters
@@ -131,7 +131,7 @@ proc elaboration_callback {} {
 proc fileset_callback { entityName } {
     send_message INFO "Generating entity $entityName"
 
-    add_fileset_file "mpxMaster-rtl-ea.vhd" VHDL PATH "../../common/parallelInterface/src/mpxMaster-rtl-ea.vhd"
+    add_fileset_file "prlMaster-rtl-ea.vhd" VHDL PATH "../../common/parallelInterface/src/prlMaster-rtl-ea.vhd"
 }
 
 # -----------------------------------------------------------------------------
@@ -173,18 +173,18 @@ add_interface_port s0 iSlv_writedata writedata Input gdatawidth
 add_interface_port s0 oSlv_waitrequest waitrequest Output 1
 add_interface_port s0 iSlv_byteenable byteenable Input gdatawidth/8
 
-# connection point mpx0
-add_interface mpx0 conduit end
-set_interface_property mpx0 associatedClock c0
-set_interface_property mpx0 associatedReset r0
-set_interface_property mpx0 ENABLED true
+# connection point prl0
+add_interface prl0 conduit end
+set_interface_property prl0 associatedClock c0
+set_interface_property prl0 associatedReset r0
+set_interface_property prl0 ENABLED true
 
-add_interface_port mpx0 oMpxMst_cs export Output 1
-add_interface_port mpx0 iMpxMst_ad_i export Input gadwidth
-add_interface_port mpx0 oMpxMst_ad_o export Output gadwidth
-add_interface_port mpx0 oMpxMst_ad_oen export Output 1
-add_interface_port mpx0 oMpxMst_be export Output gdatawidth/8
-add_interface_port mpx0 oMpxMst_ale export Output 1
-add_interface_port mpx0 oMpxMst_wr export Output 1
-add_interface_port mpx0 oMpxMst_rd export Output 1
-add_interface_port mpx0 iMpxMst_ack export Input 1
+add_interface_port prl0 oPrlMst_cs export Output 1
+add_interface_port prl0 iPrlMst_ad_i export Input gadwidth
+add_interface_port prl0 oPrlMst_ad_o export Output gadwidth
+add_interface_port prl0 oPrlMst_ad_oen export Output 1
+add_interface_port prl0 oPrlMst_be export Output gdatawidth/8
+add_interface_port prl0 oPrlMst_ale export Output 1
+add_interface_port prl0 oPrlMst_wr export Output 1
+add_interface_port prl0 oPrlMst_rd export Output 1
+add_interface_port prl0 iPrlMst_ack export Input 1

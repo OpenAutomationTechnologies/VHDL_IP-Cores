@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
---! @file mpxSlave-rtl-ea.vhd
+--! @file prlSlave-rtl-ea.vhd
 --! @brief Multiplexed memory mapped slave
 -------------------------------------------------------------------------------
 --
@@ -48,7 +48,7 @@ library libcommon;
 --! Use global package
 use libcommon.global.all;
 
-entity mpxSlave is
+entity prlSlave is
     generic (
         --! Data bus width
         gDataWidth  : natural := 16;
@@ -64,23 +64,23 @@ entity mpxSlave is
         iRst                : in    std_logic;
         -- Memory mapped multiplexed slave
         --! Chipselect
-        iMpxSlv_cs          : in std_logic;
+        iPrlSlv_cs          : in std_logic;
         --! Read strobe
-        iMpxSlv_rd          : in std_logic;
+        iPrlSlv_rd          : in std_logic;
         --! Write strobe
-        iMpxSlv_wr          : in std_logic;
+        iPrlSlv_wr          : in std_logic;
         --! Address Latch enable (Multiplexed only)
-        iMpxSlv_ale         : in std_logic;
+        iPrlSlv_ale         : in std_logic;
         --! High active Acknowledge
-        oMpxSlv_ack         : out std_logic;
+        oPrlSlv_ack         : out std_logic;
         --! Byteenables
-        iMpxSlv_be          : in std_logic_vector(gDataWidth/8-1 downto 0);
+        iPrlSlv_be          : in std_logic_vector(gDataWidth/8-1 downto 0);
         --! Address/Data bus out
-        oMpxSlv_ad_o        : out std_logic_vector(gAdWidth-1 downto 0);
+        oPrlSlv_ad_o        : out std_logic_vector(gAdWidth-1 downto 0);
         --! Address/Data bus in
-        iMpxSlv_ad_i        : in std_logic_vector(gAdWidth-1 downto 0);
+        iPrlSlv_ad_i        : in std_logic_vector(gAdWidth-1 downto 0);
         --! Address/Data bus outenable
-        oMpxSlv_oen         : out std_logic;
+        oPrlSlv_oen         : out std_logic;
         -- Memory Mapped master
         --! MM slave host address
         oMst_address        : out std_logic_vector(gAddrWidth-1 downto 0);
@@ -97,9 +97,9 @@ entity mpxSlave is
         --! MM slave host waitrequest
         iMst_waitrequest    : in std_logic
     );
-end mpxSlave;
+end prlSlave;
 
-architecture rtl of mpxSlave is
+architecture rtl of prlSlave is
     -- address register to store the address populated to the interface
     signal addressRegister      : std_logic_vector(gAddrWidth-1 downto 0);
 
@@ -177,11 +177,11 @@ begin
             hostAck_reg         <= hostAck;
 
             if byteenableRegClkEnable = cActivated then
-                byteenableRegister <= iMpxSlv_be;
+                byteenableRegister <= iPrlSlv_be;
             end if;
 
             if writeDataRegClkEnable = cActivated then
-                writeDataRegister <= iMpxSlv_ad_i(writeDataRegister'range);
+                writeDataRegister <= iPrlSlv_ad_i(writeDataRegister'range);
             end if;
 
             if iMst_waitrequest = cInactivated and hostRead = cActivated then
@@ -191,9 +191,9 @@ begin
     end process;
 
     oMst_address    <= addressRegister;
-    oMpxSlv_oen     <= hostDataEnable_reg;
-    oMpxSlv_ack     <= hostAck_reg;
-    oMpxSlv_ad_o    <= readDataRegister;
+    oPrlSlv_oen     <= hostDataEnable_reg;
+    oPrlSlv_ack     <= hostAck_reg;
+    oPrlSlv_ad_o    <= readDataRegister;
 
     countRst    <= cActivated when fsm = sIdle else cInactivated;
     countEn     <= cActivated when fsm = sWait else cInactivated;
@@ -294,8 +294,8 @@ begin
         );
 
     inst_latch.clear    <= cInactivated;
-    inst_latch.enable   <= iMpxSlv_cs and iMpxSlv_ale;
-    inst_latch.data     <= iMpxSlv_ad_i(inst_latch.data'range);
+    inst_latch.enable   <= iPrlSlv_cs and iPrlSlv_ale;
+    inst_latch.data     <= iPrlSlv_ad_i(inst_latch.data'range);
 
     -- synchronize all available control signals
     syncChipselect : entity libcommon.synchronizer
@@ -306,7 +306,7 @@ begin
         port map (
             iArst   => iRst,
             iClk    => iClk,
-            iAsync  => iMpxSlv_cs,
+            iAsync  => iPrlSlv_cs,
             oSync   => hostChipselect
         );
 
@@ -318,7 +318,7 @@ begin
         port map (
             iArst   => iRst,
             iClk    => iClk,
-            iAsync  => iMpxSlv_wr,
+            iAsync  => iPrlSlv_wr,
             oSync   => hostWrite_noCs
         );
 
@@ -332,7 +332,7 @@ begin
         port map (
             iArst   => iRst,
             iClk    => iClk,
-            iAsync  => iMpxSlv_rd,
+            iAsync  => iPrlSlv_rd,
             oSync   => hostRead_noCs
         );
 
