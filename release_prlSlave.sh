@@ -19,7 +19,7 @@ mkdir -p ${DIR_RELEASE}
 
 cp --parents common/latch/src/dataLatch-e.vhd                   ${DIR_RELEASE}
 cp --parents altera/latch/src/dataLatch-syn-a.vhd               ${DIR_RELEASE}
-cp --parents common/parallelInterface/src/prlSlave-rtl-ea.vhd   ${DIR_RELEASE}
+cp --parents common/parallelinterface/src/prlSlave-rtl-ea.vhd   ${DIR_RELEASE}
 
 cp --parents altera/components/prlSlave_hw.tcl                  ${DIR_RELEASE}
 cp --parents altera/components/tcl/qsysUtil.tcl                 ${DIR_RELEASE}
