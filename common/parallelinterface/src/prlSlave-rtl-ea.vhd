@@ -209,11 +209,19 @@ begin
     -- Multiplexed output
     oPrlSlv_ad_oen  <= hostDataEnable_reg;
     oPrlSlv_ack     <= hostAck_reg;
-    oPrlSlv_ad_o    <= readDataRegister;
 
     -- Demultiplexed output
-    oPrlSlv_data_o      <= readDataRegister;
     oPrlSlv_data_oen    <= hostDataEnable_reg;
+
+    assignReaddata : process(readDataRegister)
+    begin
+        -- default assign zeros
+        oPrlSlv_ad_o                            <= (others => cInactivated);
+        oPrlSlv_data_o                          <= (others => cInactivated);
+
+        oPrlSlv_ad_o(readDataRegister'range)    <= readDataRegister;
+        oPrlSlv_data_o(readDataRegister'range)  <= readDataRegister;
+    end process assignReaddata;
 
     --! combinatoric process for ack and output enable generation
     combProc : process (
