@@ -78,6 +78,7 @@ set_fileset_property    QUARTUS_SYNTH TOP_LEVEL     prlSlave
 # -----------------------------------------------------------------------------
 set hdlParamVisible TRUE
 
+qsysUtil::addHdlParam  gEnableMux   NATURAL 0   $hdlParamVisible
 qsysUtil::addHdlParam  gDataWidth   NATURAL 16  $hdlParamVisible
 qsysUtil::addHdlParam  gAddrWidth   NATURAL 16  $hdlParamVisible
 qsysUtil::addHdlParam  gAdWidth     NATURAL 1   $hdlParamVisible
@@ -89,6 +90,7 @@ qsysUtil::addHdlParam  gAdWidth     NATURAL 1   $hdlParamVisible
 # -----------------------------------------------------------------------------
 # GUI parameters
 # -----------------------------------------------------------------------------
+qsysUtil::addGuiParam  gui_enableMux BOOLEAN FALSE "Enable MUX Bus" "" ""
 qsysUtil::addGuiParam  gui_dataWidth NATURAL 16 "Data width"    "Bits" "8 16 32"
 qsysUtil::addGuiParam  gui_addrWidth NATURAL 16 "Address width" "Bits" "1:32"
 
@@ -100,6 +102,8 @@ qsysUtil::addGuiParam  gui_addrWidth NATURAL 16 "Address width" "Bits" "1:32"
 # callbacks
 # -----------------------------------------------------------------------------
 proc validation_callback {} {
+    # Get mux enable
+    set muxEnable [get_parameter_value gui_enableMux]
     # Get configured width
     set dataBits  [get_parameter_value gui_dataWidth]
     set addrBits  [get_parameter_value gui_addrWidth]
@@ -114,13 +118,46 @@ proc validation_callback {} {
         set maxBits $addrBits
     }
 
+    if { $muxEnable } {
+        # TRUE
+        set enableMux 1
+    } else {
+        # FALSE
+        set enableMux 0
+    }
+
     # Assign HDL generics
+    set_parameter_value gEnableMux  $enableMux
     set_parameter_value gDataWidth  $dataBits
     set_parameter_value gAddrWidth  $addrBits
     set_parameter_value gAdWidth    $maxBits
 }
 
 proc elaboration_callback {} {
+    # Get mux enable
+    set muxEnable [get_parameter_value gui_enableMux]
+
+    if { $muxEnable } {
+        # TRUE
+        set_port_property iPrlSlv_ale       termination FALSE
+        set_port_property oPrlSlv_ad_o      termination FALSE
+        set_port_property iPrlSlv_ad_i      termination FALSE
+        set_port_property oPrlSlv_ad_oen    termination FALSE
+        set_port_property iPrlSlv_addr      termination TRUE
+        set_port_property iPrlSlv_data_i    termination TRUE
+        set_port_property oPrlSlv_data_o    termination TRUE
+        set_port_property oPrlSlv_data_oen  termination TRUE
+    } else {
+        # FALSE
+        set_port_property iPrlSlv_ale       termination TRUE
+        set_port_property oPrlSlv_ad_o      termination TRUE
+        set_port_property iPrlSlv_ad_i      termination TRUE
+        set_port_property oPrlSlv_ad_oen    termination TRUE
+        set_port_property iPrlSlv_addr      termination FALSE
+        set_port_property iPrlSlv_data_i    termination FALSE
+        set_port_property oPrlSlv_data_o    termination FALSE
+        set_port_property oPrlSlv_data_oen  termination FALSE
+    }
 }
 
 proc fileset_callback { entityName } {
@@ -155,15 +192,19 @@ set_interface_property prl0 associatedClock c0
 set_interface_property prl0 associatedReset r0
 set_interface_property prl0 ENABLED true
 
-add_interface_port prl0 iPrlSlv_cs export Input 1
-add_interface_port prl0 iPrlSlv_rd export Input 1
-add_interface_port prl0 iPrlSlv_wr export Input 1
-add_interface_port prl0 iPrlSlv_ale export Input 1
-add_interface_port prl0 oPrlSlv_ack export Output 1
-add_interface_port prl0 iPrlSlv_be export Input gdatawidth/8
-add_interface_port prl0 oPrlSlv_ad_o export Output gadwidth
-add_interface_port prl0 iPrlSlv_ad_i export Input gadwidth
-add_interface_port prl0 oPrlSlv_oen export Output 1
+add_interface_port prl0 iPrlSlv_cs          export Input    1
+add_interface_port prl0 iPrlSlv_rd          export Input    1
+add_interface_port prl0 iPrlSlv_wr          export Input    1
+add_interface_port prl0 iPrlSlv_ale         export Input    1
+add_interface_port prl0 oPrlSlv_ack         export Output   1
+add_interface_port prl0 iPrlSlv_be          export Input    gDataWidth/8
+add_interface_port prl0 oPrlSlv_ad_o        export Output   gAdWidth
+add_interface_port prl0 iPrlSlv_ad_i        export Input    gAdWidth
+add_interface_port prl0 oPrlSlv_ad_oen      export Output   1
+add_interface_port prl0 iPrlSlv_addr        export Input    gAddrWidth
+add_interface_port prl0 iPrlSlv_data_i      export Input    gDataWidth
+add_interface_port prl0 oPrlSlv_data_o      export Output   gDataWidth
+add_interface_port prl0 oPrlSlv_data_oen    export Output   1
 
 # connection point m0
 add_interface m0 avalon start
@@ -179,10 +220,10 @@ set_interface_property m0 linewrapBursts false
 set_interface_property m0 maximumPendingReadTransactions 0
 set_interface_property m0 ENABLED true
 
-add_interface_port m0 oMst_address address Output gaddrwidth
-add_interface_port m0 oMst_byteenable byteenable Output gdatawidth/8
-add_interface_port m0 oMst_read read Output 1
-add_interface_port m0 iMst_readdata readdata Input gdatawidth
-add_interface_port m0 oMst_write write Output 1
-add_interface_port m0 oMst_writedata writedata Output gdatawidth
-add_interface_port m0 iMst_waitrequest waitrequest Input 1
+add_interface_port m0 oMst_address      address     Output  gAddrWidth
+add_interface_port m0 oMst_byteenable   byteenable  Output  gDataWidth/8
+add_interface_port m0 oMst_read         read        Output  1
+add_interface_port m0 iMst_readdata     readdata    Input   gDataWidth
+add_interface_port m0 oMst_write        write       Output  1
+add_interface_port m0 oMst_writedata    writedata   Output  gDataWidth
+add_interface_port m0 iMst_waitrequest  waitrequest Input   1

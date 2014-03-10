@@ -50,12 +50,14 @@ use libcommon.global.all;
 
 entity prlSlave is
     generic (
+        --! Enable multiplexed address/data-bus mode (0 = FALSE)
+        gEnableMux      : natural := 0;
         --! Data bus width
-        gDataWidth  : natural := 16;
+        gDataWidth      : natural := 16;
         --! Address bus width
-        gAddrWidth  : natural := 16;
-        --! Ad bus width
-        gAdWidth    : natural := 16
+        gAddrWidth      : natural := 16;
+        --! Ad bus width (valid when gEnableMux /= FALSE)
+        gAdWidth        : natural := 16
     );
     port (
         --! Clock
@@ -64,38 +66,48 @@ entity prlSlave is
         iRst                : in    std_logic;
         -- Memory mapped multiplexed slave
         --! Chipselect
-        iPrlSlv_cs          : in std_logic;
+        iPrlSlv_cs          : in    std_logic;
         --! Read strobe
-        iPrlSlv_rd          : in std_logic;
+        iPrlSlv_rd          : in    std_logic;
         --! Write strobe
-        iPrlSlv_wr          : in std_logic;
+        iPrlSlv_wr          : in    std_logic;
         --! Address Latch enable (Multiplexed only)
-        iPrlSlv_ale         : in std_logic;
+        iPrlSlv_ale         : in    std_logic;
         --! High active Acknowledge
-        oPrlSlv_ack         : out std_logic;
+        oPrlSlv_ack         : out   std_logic;
         --! Byteenables
-        iPrlSlv_be          : in std_logic_vector(gDataWidth/8-1 downto 0);
+        iPrlSlv_be          : in    std_logic_vector(gDataWidth/8-1 downto 0);
+        -- Multiplexed AD-bus
         --! Address/Data bus out
-        oPrlSlv_ad_o        : out std_logic_vector(gAdWidth-1 downto 0);
+        oPrlSlv_ad_o        : out   std_logic_vector(gAdWidth-1 downto 0);
         --! Address/Data bus in
-        iPrlSlv_ad_i        : in std_logic_vector(gAdWidth-1 downto 0);
+        iPrlSlv_ad_i        : in    std_logic_vector(gAdWidth-1 downto 0);
         --! Address/Data bus outenable
-        oPrlSlv_oen         : out std_logic;
+        oPrlSlv_ad_oen      : out   std_logic;
+        -- Demultiplexed AD-bus
+        --! Address bus
+        iPrlSlv_addr        : in    std_logic_vector(gAddrWidth-1 downto 0);
+        --! Data bus in
+        iPrlSlv_data_i      : in    std_logic_vector(gDataWidth-1 downto 0);
+        --! Data bus out
+        oPrlSlv_data_o      : out   std_logic_vector(gDataWidth-1 downto 0);
+        --! Data bus outenable
+        oPrlSlv_data_oen    : out   std_logic;
         -- Memory Mapped master
         --! MM slave host address
-        oMst_address        : out std_logic_vector(gAddrWidth-1 downto 0);
+        oMst_address        : out   std_logic_vector(gAddrWidth-1 downto 0);
         --! MM slave host byteenable
-        oMst_byteenable     : out std_logic_vector(gDataWidth/8-1 downto 0);
+        oMst_byteenable     : out   std_logic_vector(gDataWidth/8-1 downto 0);
         --! MM slave host read
-        oMst_read           : out std_logic;
+        oMst_read           : out   std_logic;
         --! MM slave host readdata
-        iMst_readdata       : in std_logic_vector(gDataWidth-1 downto 0);
+        iMst_readdata       : in    std_logic_vector(gDataWidth-1 downto 0);
         --! MM slave host write
-        oMst_write          : out std_logic;
+        oMst_write          : out   std_logic;
         --! MM slave host writedata
-        oMst_writedata      : out std_logic_vector(gDataWidth-1 downto 0);
+        oMst_writedata      : out   std_logic_vector(gDataWidth-1 downto 0);
         --! MM slave host waitrequest
-        iMst_waitrequest    : in std_logic
+        iMst_waitrequest    : in    std_logic
     );
 end prlSlave;
 
@@ -170,8 +182,13 @@ begin
             hostAck_reg         <= cInactivated;
         elsif rising_edge(iClk) then
             -- Assign byte addresses to the address register
-            addressRegister <= (others => cInactivated);
-            addressRegister <= inst_latch.output;
+            if gEnableMux /= 0 then
+                addressRegister <= (others => cInactivated);
+                addressRegister <= inst_latch.output;
+            elsif byteenableRegClkEnable = cActivated then
+                -- Also latch address together with byteenable when demux mode
+                addressRegister <= iPrlSlv_addr;
+            end if;
 
             hostDataEnable_reg  <= hostDataEnable;
             hostAck_reg         <= hostAck;
@@ -181,7 +198,11 @@ begin
             end if;
 
             if writeDataRegClkEnable = cActivated then
-                writeDataRegister <= iPrlSlv_ad_i(writeDataRegister'range);
+                if gEnableMux /= 0 then
+                    writeDataRegister <= iPrlSlv_ad_i(writeDataRegister'range);
+                else
+                    writeDataRegister <= iPrlSlv_data_i;
+                end if;
             end if;
 
             if iMst_waitrequest = cInactivated and hostRead = cActivated then
@@ -191,9 +212,15 @@ begin
     end process;
 
     oMst_address    <= addressRegister;
-    oPrlSlv_oen     <= hostDataEnable_reg;
+
+    -- Multiplexed output
+    oPrlSlv_ad_oen  <= hostDataEnable_reg;
     oPrlSlv_ack     <= hostAck_reg;
     oPrlSlv_ad_o    <= readDataRegister;
+
+    -- Demultiplexed output
+    oPrlSlv_data_o      <= readDataRegister;
+    oPrlSlv_data_oen    <= hostDataEnable_reg;
 
     countRst    <= cActivated when fsm = sIdle else cInactivated;
     countEn     <= cActivated when fsm = sWait else cInactivated;
@@ -281,21 +308,23 @@ begin
     oMst_writedata          <= writeDataRegister;
     readDataRegister_next   <= iMst_readdata;
 
-    -- Address latch
-    addrLatch : entity work.dataLatch
-        generic map (
-            gDataWidth => inst_latch.data'length
-        )
-        port map (
-            iClear  => inst_latch.clear,
-            iEnable => inst_latch.enable,
-            iData   => inst_latch.data,
-            oData   => inst_latch.output
-        );
+    muxLatch : if gEnableMux /= 0 generate
+        -- Address latch
+        addrLatch : entity work.dataLatch
+            generic map (
+                gDataWidth => inst_latch.data'length
+            )
+            port map (
+                iClear  => inst_latch.clear,
+                iEnable => inst_latch.enable,
+                iData   => inst_latch.data,
+                oData   => inst_latch.output
+            );
 
-    inst_latch.clear    <= cInactivated;
-    inst_latch.enable   <= iPrlSlv_cs and iPrlSlv_ale;
-    inst_latch.data     <= iPrlSlv_ad_i(inst_latch.data'range);
+        inst_latch.clear    <= cInactivated;
+        inst_latch.enable   <= iPrlSlv_cs and iPrlSlv_ale;
+        inst_latch.data     <= iPrlSlv_ad_i(inst_latch.data'range);
+    end generate muxLatch;
 
     -- synchronize all available control signals
     syncChipselect : entity libcommon.synchronizer

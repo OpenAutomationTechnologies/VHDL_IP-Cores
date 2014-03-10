@@ -11,7 +11,8 @@ common/parallelinterface/tb/tbPrlMaster-bhv-tb.vhd \
 "
 
 GEN_LIST=( \
-" gStim=common/parallelinterface/tb/tbPrlMaster_stim.txt " \
+" gEnableMux=0 gStim=common/parallelinterface/tb/tbPrlMaster_stim.txt " \
+" gEnableMux=1 gStim=common/parallelinterface/tb/tbPrlMaster_stim.txt " \
 )
 
 TOP_LEVEL=tbPrlMaster

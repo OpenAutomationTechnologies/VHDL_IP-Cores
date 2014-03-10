@@ -50,14 +50,16 @@ use libcommon.global.all;
 
 entity prlMaster is
     generic (
+        --! Enable multiplexed address/data-bus mode (0 = FALSE)
+        gEnableMux      : natural := 0;
         --! Data bus width
-        gDataWidth  : natural := 16;
+        gDataWidth      : natural := 16;
         --! Address bus width
-        gAddrWidth  : natural := 16;
+        gAddrWidth      : natural := 16;
         --! Address low
-        gAddrLow    : natural := 0;
-        --! Ad bus width
-        gAdWidth    : natural := 16
+        gAddrLow        : natural := 0;
+        --! Ad bus width (valid when gEnableMux /= FALSE)
+        gAdWidth        : natural := 16
     );
     port (
         --! Clock
@@ -82,12 +84,22 @@ entity prlMaster is
         -- Memory mapped multiplexed master
         --! Chipselect
         oPrlMst_cs          : out   std_logic;
+        -- Multiplexed AD-bus
         --! Multiplexed address data bus input
-        iPrlMst_ad_i       : in    std_logic_vector(gAdWidth-1 downto 0);
+        iPrlMst_ad_i       : in     std_logic_vector(gAdWidth-1 downto 0);
         --! Multiplexed address data bus output
-        oPrlMst_ad_o       : out   std_logic_vector(gAdWidth-1 downto 0);
+        oPrlMst_ad_o       : out    std_logic_vector(gAdWidth-1 downto 0);
         --! Multiplexed address data bus enable
-        oPrlMst_ad_oen     : out   std_logic;
+        oPrlMst_ad_oen     : out    std_logic;
+        -- Demultiplexed AD-bus
+        --! Address bus
+        oPrlMst_addr        : out   std_logic_vector(gAddrWidth-1 downto 0);
+        --! Data bus in
+        iPrlMst_data_i      : in    std_logic_vector(gDataWidth-1 downto 0);
+        --! Data bus out
+        oPrlMst_data_o      : out   std_logic_vector(gDataWidth-1 downto 0);
+        --! Data bus outenable
+        oPrlMst_data_oen    : out   std_logic;
         --! Byteenable
         oPrlMst_be          : out   std_logic_vector(gDataWidth/8-1 downto 0);
         --! Address latch enable
@@ -102,13 +114,10 @@ entity prlMaster is
 end entity prlMaster;
 
 architecture rtl of prlMaster is
-    -- Counter to wait in states
-    signal count        : std_logic_vector(2 downto 0);
-    signal count_rst    : std_logic;
-
     constant cCount_AleDisable  : std_logic_vector := "011";
     constant cCount_AleExit     : std_logic_vector := "101";
     constant cCount_max         : std_logic_vector := "111";
+    constant cCountWidth        : natural := cCount_max'length;
 
     -- State machine for bus timing
     type tFsm is (
@@ -117,100 +126,226 @@ architecture rtl of prlMaster is
         sWrd,
         sWait
     );
-    signal fsm : tFsm;
 
-    signal ack          : std_logic;
-    signal ack_d        : std_logic;
-    signal ack_l        : std_logic;
-    signal readdata     : std_logic_vector(oSlv_readdata'range);
-    signal readdata_l   : std_logic_vector(oSlv_readdata'range);
-    signal adReg        : std_logic_vector(oPrlMst_ad_o'range);
+    -- Synchronized ack signal
+    signal ack              : std_logic;
+    -- Rising edge of ack signal
+    signal ack_p            : std_logic;
+    -- Metastable readdata
+    signal readdata_meta    : std_logic_vector(oSlv_readdata'range);
+    -- Synchronized readdata
+    signal readdata         : std_logic_vector(oSlv_readdata'range);
+
+    --! This record holds all output registers to the bus.
+    type tReg is record
+        address     : std_logic_vector(gAddrWidth-1 downto 0);
+        byteenable  : std_logic_vector(gDataWidth/8-1 downto 0);
+        write       : std_logic;
+        read        : std_logic;
+        chipselect  : std_logic;
+        data        : std_logic_vector(gDataWidth-1 downto 0);
+        data_oen    : std_logic;
+        ad          : std_logic_vector(gAdWidth-1 downto 0);
+        ad_oen      : std_logic;
+        ale         : std_logic;
+        fsm         : tFsm;
+        count       : std_logic_vector(cCountWidth-1 downto 0);
+        count_rst   : std_logic;
+    end record;
+
+    -- Initialization vector of output registers
+    constant cRegInit : tReg := (
+        address     => (others => cInactivated),
+        byteenable  => (others => cInactivated),
+        write       => cInactivated,
+        read        => cInactivated,
+        chipselect  => cInactivated,
+        data        => (others => cInactivated),
+        data_oen    => cInactivated,
+        ad          => (others => cInactivated),
+        ad_oen      => cInactivated,
+        ale         => cInactivated,
+        fsm         => sIdle,
+        count       => (others => cInactivated),
+        count_rst   => cInactivated
+    );
+
+    -- Register state
+    signal reg      : tReg;
+    -- Next register state
+    signal reg_next : tReg;
 begin
 
-    process(iClk, iRst)
+    -- MAP IOs
+    oSlv_waitrequest    <= not ack_p;
+    oSlv_readdata       <= readdata;
+
+    oPrlMst_be          <= reg.byteenable;
+    oPrlMst_wr          <= reg.write;
+    oPrlMst_rd          <= reg.read;
+    oPrlMst_cs          <= reg.chipselect;
+
+    --! Generate mux bus IOs. Demux bus is incactive.
+    genMux : if gEnableMux /= 0 generate
+        -- MUX
+        oPrlMst_ale         <= reg.ale;
+        oPrlMst_ad_o        <= reg.ad;
+        oPrlMst_ad_oen      <= reg.ad_oen;
+        readdata_meta       <= iPrlMst_ad_i(readdata_meta'range);
+
+        oPrlMst_addr        <= (others => cInactivated);
+        oPrlMst_data_o      <= (others => cInactivated);
+        oPrlMst_data_oen    <= cInactivated;
+        -- iPrlMst_data_i is ignored
+    end generate genMux;
+
+    --! Generate demux bus IOs. Mux bus is incactive.
+    genDemux : if gEnableMux = 0 generate
+        -- DEMUX
+        oPrlMst_addr        <= reg.address;
+        oPrlMst_data_o      <= reg.data;
+        oPrlMst_data_oen    <= reg.data_oen;
+        readdata_meta       <= iPrlMst_data_i(readdata_meta'range);
+
+        oPrlMst_ale         <= cInactivated;
+        oPrlMst_ad_o        <= (others => cInactivated);
+        oPrlMst_ad_oen      <= cInactivated;
+        -- iPrlMst_ad_i is ignored
+    end generate genDemux;
+
+    --! This is the clock register process.
+    regClk : process(iRst, iClk)
     begin
         if iRst = cActivated then
-            count           <= (others => cInactivated);
-            count_rst       <= cInactivated;
-            oPrlMst_cs      <= cInactivated;
-            oPrlMst_ale     <= cInactivated;
-            oPrlMst_ad_oen  <= cInactivated;
-            oPrlMst_rd      <= cInactivated;
-            oPrlMst_wr      <= cInactivated;
-            ack             <= cInactivated;
-            ack_l           <= cInactivated;
-            readdata        <= (others => cInactivated);
-            readdata_l      <= (others => cInactivated);
-            oPrlMst_be      <= (others => cInactivated);
-            adReg           <= (others => cInactivated);
+            reg <= cRegInit;
         elsif rising_edge(iClk) then
-            --default
-            count_rst <= cInactivated;
-
-            ack_l       <= iPrlMst_ack;
-            ack         <= ack_l;
-            ack_d       <= ack;
-            readdata_l  <= iPrlMst_ad_i;
-            readdata    <= readdata_l;
-
-            if count_rst = cActivated then
-                count <= (others => cInactivated);
-            else
-                count <= std_logic_vector(unsigned(count) + 1);
-            end if;
-
-            oPrlMst_be <= iSlv_byteenable;
-
-            case fsm is
-                when sIdle =>
-                    count_rst       <= cActivated;
-                    oPrlMst_cs      <= cInactivated;
-                    oPrlMst_ale     <= cInactivated;
-                    oPrlMst_ad_oen  <= cInactivated;
-                    oPrlMst_rd      <= cInactivated;
-                    oPrlMst_wr      <= cInactivated;
-
-                    if iSlv_read = cActivated or iSlv_write = cActivated then
-                        fsm                         <= sAle;
-                        oPrlMst_cs                  <= cActivated;
-                        oPrlMst_ale                 <= cActivated;
-                        oPrlMst_ad_oen              <= cActivated;
-                        adReg                       <= (others => cInactivated);
-                        adReg(iSlv_address'range)   <= iSlv_address;
-                    end if;
-                when sAle =>
-                    if count = cCount_AleDisable then
-                        oPrlMst_ale                 <= cInactivated;
-                    elsif count = cCount_AleExit then
-                        count_rst                   <= cActivated;
-                        fsm                         <= sWrd;
-                        oPrlMst_wr                  <= iSlv_write;
-                        oPrlMst_rd                  <= iSlv_read;
-                        oPrlMst_ad_oen              <= iSlv_write;
-                        adReg                       <= (others => cInactivated);
-                        adReg(iSlv_writedata'range) <= iSlv_writedata;
-                    end if;
-                when sWrd =>
-                    if ack = cActivated then
-                        count_rst       <= cActivated;
-                        fsm             <= sWait;
-                        oPrlMst_cs      <= cInactivated;
-                        oPrlMst_rd      <= cInactivated;
-                        oPrlMst_wr      <= cInactivated;
-                        oPrlMst_ad_oen  <= cInactivated;
-                    end if;
-                when sWait =>
-                    if ack = cInactivated or count = cCount_max then
-                        count_rst   <= cActivated;
-                        fsm         <= sIdle;
-                    end if;
-            end case;
+            reg <= reg_next;
         end if;
-    end process;
+    end process regClk;
 
-    oPrlMst_ad_o    <= adReg;
+    --! This is the next register state process.
+    combReg : process (
+        reg, ack,
+        iSlv_read,
+        iSlv_write,
+        iSlv_byteenable,
+        iSlv_address,
+        iSlv_writedata
+    )
+    begin
+        -- default
+        reg_next    <= reg;
 
-    -- if ack goes high deassert waitrequest (edge detection)
-    oSlv_waitrequest    <= cInactivated when ack_d = cInactivated and ack = cActivated else cActivated;
-    oSlv_readdata       <= readdata;
+        -- counter reset active by default
+        reg_next.count_rst  <= cActivated;
+
+        if reg.count_rst = cActivated then
+            reg_next.count <= (others => cInactivated);
+        else
+            reg_next.count <= std_logic_vector(unsigned(reg.count) + 1);
+        end if;
+
+        case reg.fsm is
+            when sIdle =>
+                reg_next.chipselect         <= cInactivated;
+                reg_next.ale                <= cInactivated;
+                reg_next.ad_oen             <= cInactivated;
+                reg_next.data_oen           <= cInactivated;
+                reg_next.read               <= cInactivated;
+                reg_next.write              <= cInactivated;
+
+                -- Start transaction if there is either a read or write.
+                if iSlv_write = cActivated or iSlv_read = cActivated then
+                    reg_next.chipselect     <= cActivated;
+                    reg_next.byteenable     <= iSlv_byteenable;
+                    if gEnableMux /= 0 then
+                        -- MUX mode
+                        reg_next.fsm        <= sAle;
+                        reg_next.ale        <= cActivated;
+                        reg_next.ad_oen     <= cActivated;
+                        reg_next.ad         <= (others => cInactivated);
+                        reg_next.ad(iSlv_address'range) <= iSlv_address;
+                    else
+                        -- DEMUX mode
+                        reg_next.fsm        <= sWrd;
+                        reg_next.write      <= iSlv_write;
+                        reg_next.read       <= iSlv_read;
+                        reg_next.data       <= iSlv_writedata;
+                        reg_next.data_oen   <= iSlv_write;
+                        reg_next.address    <= iSlv_address;
+                    end if;
+                end if;
+            when sAle =>
+                -- Use counter to generate ale timing.
+                reg_next.count_rst          <= cInactivated;
+
+                if reg.count = cCount_AleDisable then
+                    reg_next.ale            <= cInactivated;
+                elsif reg.count = cCount_AleExit then
+                    reg_next.count_rst      <= cActivated;
+                    reg_next.fsm            <= sWrd;
+                    reg_next.write          <= iSlv_write;
+                    reg_next.read           <= iSlv_read;
+                    reg_next.ad_oen         <= iSlv_write;
+                    reg_next.ad             <= (others => cInactivated);
+                    reg_next.ad(iSlv_writedata'range) <= iSlv_writedata;
+                end if;
+            when sWrd =>
+                if ack = cActivated then
+                    reg_next.fsm            <= sWait;
+                    reg_next.chipselect     <= cInactivated;
+                    reg_next.read           <= cInactivated;
+                    reg_next.write          <= cInactivated;
+                    reg_next.ad_oen         <= cInactivated;
+                    reg_next.data_oen       <= cInactivated;
+                end if;
+            when sWait =>
+                -- Use counter to generate timeout
+                reg_next.count_rst          <= cInactivated;
+
+                if ack = cActivated or reg.count = cCount_max then
+                    reg_next.fsm            <= sIdle;
+                end if;
+        end case;
+    end process combReg;
+
+    --! Synchronizer to sync ack input.
+    syncAck : entity libcommon.synchronizer
+    generic map (
+        gStages => 2,
+        gInit   => cInactivated
+    )
+    port map (
+        iArst   => iRst,
+        iClk    => iClk,
+        iAsync  => iPrlMst_ack,
+        oSync   => ack
+    );
+
+    --! Synchronizer collection to sync readdata.
+    genSyncReaddata : for i in readdata_meta'range generate
+        syncReaddata : entity libcommon.synchronizer
+            generic map (
+                gStages => 2,
+                gInit   => cInactivated
+            )
+            port map (
+                iArst   => iRst,
+                iClk    => iClk,
+                iAsync  => readdata_meta(i),
+                oSync   => readdata(i)
+            );
+    end generate genSyncReaddata;
+
+    --! Detect rising edge of ack signal to generate waitrequest neg. pulse.
+    edgeAck : entity libcommon.edgedetector
+        port map (
+            iArst       => iRst,
+            iClk        => iClk,
+            iEnable     => cActivated,
+            iData       => ack,
+            oRising     => ack_p,
+            oFalling    => open,
+            oAny        => open
+        );
 end architecture rtl;

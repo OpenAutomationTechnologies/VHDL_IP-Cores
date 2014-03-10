@@ -52,7 +52,8 @@ use libcommon.global.all;
 
 entity tbPrlMaster is
     generic (
-        gStim : string := "text.txt"
+        gEnableMux  : natural := 0;
+        gStim       : string := "text.txt"
     );
 end tbPrlMaster;
 
@@ -78,6 +79,10 @@ architecture bhv of tbPrlMaster is
         prlMst_ad_i     : std_logic_vector(cAdWidth-1 downto 0);
         prlMst_ad_o     : std_logic_vector(cAdWidth-1 downto 0);
         prlMst_ad_oen   : std_logic;
+        prlMst_addr     : std_logic_vector(cAddrWidth-1 downto 0);
+        prlMst_data_i   : std_logic_vector(cDataWidth-1 downto 0);
+        prlMst_data_o   : std_logic_vector(cDataWidth-1 downto 0);
+        prlMst_data_oen : std_logic;
         prlMst_be       : std_logic_vector(cDataWidth/8-1 downto 0);
         prlMst_ale      : std_logic;
         prlMst_wr       : std_logic;
@@ -98,6 +103,10 @@ architecture bhv of tbPrlMaster is
         prlSlv_ad_i     : std_logic_vector(cAdWidth-1 downto 0);
         prlSlv_ad_o     : std_logic_vector(cAdWidth-1 downto 0);
         prlSlv_ad_oen   : std_logic;
+        prlSlv_addr     : std_logic_vector(cAddrWidth-1 downto 0);
+        prlSlv_data_i   : std_logic_vector(cAdWidth-1 downto 0);
+        prlSlv_data_o   : std_logic_vector(cAdWidth-1 downto 0);
+        prlSlv_data_oen : std_logic;
         mst_chipselect  : std_logic;
         mst_read        : std_logic;
         mst_write       : std_logic;
@@ -167,10 +176,20 @@ begin
 
     inst_prlSlave.prlSlv_be     <= inst_prlMaster.prlMst_be;
 
+    -- MUX
     inst_prlMaster.prlMst_ad_i  <=  inst_prlSlave.prlSlv_ad_o when inst_prlSlave.prlSlv_ad_oen = cActivated else
                                     (others => 'Z');
 
     inst_prlSlave.prlSlv_ad_i   <=  inst_prlMaster.prlMst_ad_o when inst_prlMaster.prlMst_ad_oen = cActivated else
+                                    (others => 'Z');
+
+    -- DEMUX
+    inst_prlSlave.prlSlv_addr   <=  inst_prlMaster.prlMst_addr;
+
+    inst_prlSlave.prlSlv_data_i <=  inst_prlMaster.prlMst_data_o when inst_prlMaster.prlMst_data_oen = cActivated else
+                                    (others => 'Z');
+
+    inst_prlMaster.prlMst_data_i <= inst_prlSlave.prlSlv_data_o when inst_prlSlave.prlSlv_data_oen = cActivated else
                                     (others => 'Z');
 
     -- inst_prlSlave --- inst_spram
@@ -188,9 +207,10 @@ begin
 
     DUT_master : entity work.prlMaster
         generic map (
-            gDataWidth  => cDataWidth,
-            gAddrWidth  => cAddrWidth,
-            gAdWidth    => cAdWidth
+            gEnableMux      => gEnableMux,
+            gDataWidth      => cDataWidth,
+            gAddrWidth      => cAddrWidth,
+            gAdWidth        => cAdWidth
         )
         port map (
             iClk                => clk,
@@ -206,6 +226,10 @@ begin
             iPrlMst_ad_i        => inst_prlMaster.prlMst_ad_i,
             oPrlMst_ad_o        => inst_prlMaster.prlMst_ad_o,
             oPrlMst_ad_oen      => inst_prlMaster.prlMst_ad_oen,
+            oPrlMst_addr        => inst_prlMaster.prlMst_addr,
+            iPrlMst_data_i      => inst_prlMaster.prlMst_data_i,
+            oPrlMst_data_o      => inst_prlMaster.prlMst_data_o,
+            oPrlMst_data_oen    => inst_prlMaster.prlMst_data_oen,
             oPrlMst_be          => inst_prlMaster.prlMst_be,
             oPrlMst_ale         => inst_prlMaster.prlMst_ale,
             oPrlMst_wr          => inst_prlMaster.prlMst_wr,
@@ -215,9 +239,10 @@ begin
 
     DUT_slave : entity work.prlSlave
         generic map (
-            gDataWidth  => cDataWidth,
-            gAddrWidth  => cAddrWidth,
-            gAdWidth    => cAdWidth
+            gEnableMux      => gEnableMux,
+            gDataWidth      => cDataWidth,
+            gAddrWidth      => cAddrWidth,
+            gAdWidth        => cAdWidth
         )
         port map (
             iClk                => clk,
@@ -230,7 +255,11 @@ begin
             iPrlSlv_be          => inst_prlSlave.prlSlv_be,
             oPrlSlv_ad_o        => inst_prlSlave.prlSlv_ad_o,
             iPrlSlv_ad_i        => inst_prlSlave.prlSlv_ad_i,
-            oPrlSlv_oen         => inst_prlSlave.prlSlv_ad_oen,
+            oPrlSlv_ad_oen      => inst_prlSlave.prlSlv_ad_oen,
+            iPrlSlv_addr        => inst_prlSlave.prlSlv_addr,
+            iPrlSlv_data_i      => inst_prlSlave.prlSlv_data_i,
+            oPrlSlv_data_o      => inst_prlSlave.prlSlv_data_o,
+            oPrlSlv_data_oen    => inst_prlSlave.prlSlv_data_oen,
             oMst_address        => inst_prlSlave.mst_address,
             oMst_byteenable     => inst_prlSlave.mst_byteenable,
             oMst_read           => inst_prlSlave.mst_read,
