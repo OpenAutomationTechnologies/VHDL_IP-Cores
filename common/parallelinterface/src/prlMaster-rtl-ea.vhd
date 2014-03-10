@@ -124,7 +124,7 @@ architecture rtl of prlMaster is
         sIdle,
         sAle,
         sWrd,
-        sWait
+        sHold
     );
 
     -- Synchronized ack signal
@@ -292,19 +292,18 @@ begin
                 end if;
             when sWrd =>
                 if ack = cActivated then
-                    reg_next.fsm            <= sWait;
+                    reg_next.fsm            <= sHold;
+                    reg_next.count_rst      <= cActivated;
                     reg_next.chipselect     <= cInactivated;
                     reg_next.read           <= cInactivated;
                     reg_next.write          <= cInactivated;
                     reg_next.ad_oen         <= cInactivated;
                     reg_next.data_oen       <= cInactivated;
                 end if;
-            when sWait =>
-                -- Use counter to generate timeout
-                reg_next.count_rst          <= cInactivated;
-
-                if ack = cActivated or reg.count = cCount_max then
+            when sHold =>
+                if ack = cInactivated then
                     reg_next.fsm            <= sIdle;
+                    reg_next.count_rst      <= cActivated;
                 end if;
         end case;
     end process combReg;

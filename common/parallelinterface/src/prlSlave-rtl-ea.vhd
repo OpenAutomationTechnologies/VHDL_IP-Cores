@@ -142,21 +142,14 @@ architecture rtl of prlSlave is
     signal hostAck_reg          : std_logic;
 
     -- fsm
-    type tFsm is (sIdle, sStart, sWaitForBus, sWait);
-    signal fsm : tFsm;
+    type tFsm is (
+        sIdle,
+        sStart,
+        sWaitForBus,
+        sHold
+    );
 
-    -- timeout
-    constant cCountWidth    : natural := 4;
-    signal count            : std_logic_vector(cCountWidth-1 downto 0);
-    alias countTc           : std_logic is count(cCountWidth-1);
-    signal countEn          : std_logic;
-    signal countRst         : std_logic;
-    constant cCountWrAckAct : std_logic_vector(count'range) := "0000";
-    constant cCountWrAckDea : std_logic_vector(count'range) := "0001";
-    constant cCountRdAckAct : std_logic_vector(count'range) := "0001";
-    constant cCountRdAckDea : std_logic_vector(count'range) := "0010";
-    constant cCountRdEnAct  : std_logic_vector(count'range) := "0000";
-    constant cCountRdEnDea  : std_logic_vector(count'range) := "0011";
+    signal fsm : tFsm;
 
     -- Latch type
     type tLatch is record
@@ -222,12 +215,8 @@ begin
     oPrlSlv_data_o      <= readDataRegister;
     oPrlSlv_data_oen    <= hostDataEnable_reg;
 
-    countRst    <= cActivated when fsm = sIdle else cInactivated;
-    countEn     <= cActivated when fsm = sWait else cInactivated;
-
     --! combinatoric process for ack and output enable generation
     combProc : process (
-        count,
         hostWrite,
         hostRead,
         fsm
@@ -237,21 +226,12 @@ begin
         hostAck         <= cInactivated;
         hostDataEnable  <= cInactivated;
 
-        if fsm = sWait then
+        if fsm = sHold then
             if hostRead = cActivated then
-                -- activate ack signal for read
-                if count >= cCountRdAckAct and count <= cCountRdAckDea then
-                    hostAck <= cActivated;
-                end if;
-                -- activate data output for read
-                if count >= cCountRdEnAct and count <= cCountRdEnDea then
-                    hostDataEnable <= cActivated;
-                end if;
+                hostDataEnable  <= cActivated;
+                hostAck         <= cActivated;
             elsif hostWrite = cActivated then
-                -- activate ack signal for write
-                if count >= cCountWrAckAct and count <= cCountWrAckDea then
-                    hostAck <= cActivated;
-                end if;
+                hostAck         <= cActivated;
             end if;
         end if;
     end process;
@@ -265,14 +245,7 @@ begin
             writeDataRegClkEnable   <= cInactivated;
             oMst_write              <= cInactivated;
             oMst_read               <= cInactivated;
-            count                   <= (others => cInactivated);
         elsif rising_edge(iClk) then
-            if countRst = cActivated then
-                count <= (others => cInactivated);
-            elsif countEn = cActivated and countTc /= cActivated then
-                count <= std_logic_vector(unsigned(count) + 1);
-            end if;
-
             --defaults
             byteenableRegClkEnable  <= cInactivated;
             writeDataRegClkEnable   <= cInactivated;
@@ -292,12 +265,12 @@ begin
                     oMst_write  <= hostWrite;
                 when sWaitForBus =>
                     if iMst_waitrequest = cInactivated then
-                        fsm         <= sWait;
+                        fsm         <= sHold;
                         oMst_read   <= cInactivated;
                         oMst_write  <= cInactivated;
                     end if;
-                when sWait =>
-                    if countTc = cActivated then
+                when sHold =>
+                    if hostRead = cInactivated and hostWrite = cInactivated then
                         fsm <= sIdle;
                     end if;
             end case;
