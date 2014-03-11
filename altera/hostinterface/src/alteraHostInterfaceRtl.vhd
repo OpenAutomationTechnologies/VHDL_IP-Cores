@@ -83,7 +83,9 @@ entity alteraHostInterface is
         --! Base address Tpdo
         gBasePdo            : natural := 16#0B000#;
         --! Base address Reserved (-1 = high address of Pdo)
-        gBaseRes            : natural := 16#0E000#
+        gBaseRes            : natural := 16#0E000#;
+        --! Host address width
+        gHostAddrWidth      : natural := 16
     );
     port (
         --! Clock Source input
@@ -92,7 +94,7 @@ entity alteraHostInterface is
         rsi_r0_reset                    : in std_logic;
         -- Avalon Memory Mapped Slave for Host
         --! Avalon-MM slave host address
-        avs_host_address                : in std_logic_vector(16 downto 2);
+        avs_host_address                : in std_logic_vector(gHostAddrWidth-1 downto 2);
         --! Avalon-MM slave host byteenable
         avs_host_byteenable             : in std_logic_vector(3 downto 0);
         --! Avalon-MM slave host read
@@ -174,7 +176,8 @@ begin
         gBaseK2UQ              => gBaseK2UQ,
         gBaseU2KQ              => gBaseU2KQ,
         gBasePdo               => gBasePdo,
-        gBaseRes               => gBaseRes
+        gBaseRes               => gBaseRes,
+        gHostAddrWidth         => gHostAddrWidth
     )
     port map (
         iClk                   => csi_c0_clock,

@@ -79,6 +79,7 @@ architecture Bhv of tbHostInterface is
     constant cBaseU2KQ          : natural := 16#09000#;
     constant cBasePdo           : natural := 16#0B000#;
     constant cBaseRes           : natural := 16#0E000#;
+    constant cHostAddrWidth     : natural := 16;
 
     constant cRamSize       : natural := 640 * 1024; --[byte]
     constant cRamAddrWidth  : natural := LogDualis(cRamSize);
@@ -99,7 +100,7 @@ architecture Bhv of tbHostInterface is
     signal hostRead         : std_logic;
     signal hostWaitrequest  : std_logic;
     signal hostWrite        : std_logic;
-    signal hostAddress      : std_logic_vector (16 downto 0);
+    signal hostAddress      : std_logic_vector (cHostAddrWidth-1 downto 0);
     signal hostByteenable   : std_logic_vector (3 downto 0);
     signal hostReaddata     : std_logic_vector (31 downto 0);
     signal hostWritedata    : std_logic_vector (31 downto 0);
@@ -155,6 +156,7 @@ begin
             gBaseTxSynQ         => cBaseTxSynQ,
             gBaseTxVetQ         => cBaseTxVetQ,
             gBaseU2KQ           => cBaseU2KQ,
+            gHostAddrWidth      => cHostAddrWidth,
             gVersionCount       => cVersionCount,
             gVersionMajor       => cVersionMajor,
             gVersionMinor       => cVersionMinor,
@@ -171,7 +173,7 @@ begin
             oPcpWaitrequest         => pcpWaitrequest,
             iPcpWrite               => pcpWrite,
             iPcpWritedata           => pcpWritedata,
-            iHostAddress            => hostAddress(16 downto 2),
+            iHostAddress            => hostAddress(cHostAddrWidth-1 downto 2),
             iHostByteenable         => hostByteenable,
             iHostRead               => hostRead,
             oHostReaddata           => hostReaddata,

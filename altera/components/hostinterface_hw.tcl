@@ -38,7 +38,22 @@
 #
 # -----------------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------
+# PACKAGES
+# -----------------------------------------------------------------------------
+# Insert local packages.
+source "../../common/util/tcl/ipcoreUtil.tcl"
+source "../../altera/components/tcl/qsysUtil.tcl"
+source "../../common/openmac/tcl/openmac.tcl"
+
+# Use QSYS version 12.0
 package require -exact qsys 12.0
+
+# Use package ipcoreUtil for general functions...
+package require ipcoreUtil 0.0.1
+
+# Use package qsysUtil for Qsys helpers...
+package require qsysUtil 0.0.1
 
 # -----------------------------------------------------------------------------
 # module
@@ -217,6 +232,14 @@ set_parameter_property  gBaseRes            HDL_PARAMETER       TRUE
 set_parameter_property  gBaseRes            AFFECTS_ELABORATION FALSE
 set_parameter_property  gBaseRes            VISIBLE             FALSE
 set_parameter_property  gBaseRes            DISPLAY_HINT        "HEXADECIMAL"
+
+add_parameter           gHostAddrWidth      NATURAL             16
+set_parameter_property  gHostAddrWidth      DEFAULT_VALUE       16
+set_parameter_property  gHostAddrWidth      TYPE                NATURAL
+set_parameter_property  gHostAddrWidth      DERIVED             TRUE
+set_parameter_property  gHostAddrWidth      HDL_PARAMETER       TRUE
+set_parameter_property  gHostAddrWidth      AFFECTS_ELABORATION FALSE
+set_parameter_property  gHostAddrWidth      VISIBLE             FALSE
 
 # -----------------------------------------------------------------------------
 # System Info parameters
@@ -420,19 +443,10 @@ proc generate_memory_mapping {} {
 
     set_parameter_value gui_sizeTotal $memorySpan
 
-    #test memory mapping
-    set ret [check_memory_mapping $listBase $memorySpanKb]
+    #calculate required address width of host log2(size-1)
+    set hostAddrWidth [ipcoreUtil::logDualis [expr ${memorySpan} - 1 ] ]
 
-    switch $ret {
-        "SUCCESSFUL" { }
-        "EXCEED" {
-            send_message Error "The buffer size settings exceed the $memorySpanKb Kilobyte span!"
-        }
-        default {
-            send_message Warning "check_memory_mapping returned $ret"
-        }
-    }
-
+    set_parameter_value gHostAddrWidth $hostAddrWidth
     set_list_hdl $listBaseParam $listBase
 
     set_list_cmacro $listBaseCmacro $listBase
@@ -510,21 +524,6 @@ proc get_required_memory_span { listBase } {
     return [lindex $listBase end]
 }
 
-proc check_memory_mapping { listBase memorySpanKb } {
-    set memorySpan [expr $memorySpanKb * 1024]
-    set ret "SUCCESSFUL"
-
-    set lastListBase [get_required_memory_span $listBase]
-
-    if {$lastListBase <= $memorySpan}  {
-
-    } else {
-        set ret "EXCEED"
-    }
-
-    return $ret
-}
-
 # utilities
 proc set_list_hdl { listParam listValue } {
     foreach param $listParam value $listValue {
@@ -586,7 +585,7 @@ set_interface_property host timingUnits Cycles
 set_interface_property host writeWaitTime 0
 set_interface_property host ENABLED true
 
-add_interface_port host avs_host_address address Input 15
+add_interface_port host avs_host_address address Input gHostAddrWidth-2
 add_interface_port host avs_host_byteenable byteenable Input 4
 add_interface_port host avs_host_read read Input 1
 add_interface_port host avs_host_readdata readdata Output 32

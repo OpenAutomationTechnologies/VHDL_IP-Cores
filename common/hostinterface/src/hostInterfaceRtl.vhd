@@ -91,7 +91,9 @@ entity hostInterface is
         --! Base address Pdo
         gBasePdo            : natural := 16#0B000#;
         --! Base address Reserved (-1 = high address of Pdo)
-        gBaseRes            : natural := 16#0E000#
+        gBaseRes            : natural := 16#0E000#;
+        --! Host address width
+        gHostAddrWidth      : natural := 16
     );
     port (
         --! Clock Source input
@@ -100,7 +102,7 @@ entity hostInterface is
         iRst                    : in std_logic;
         -- Memory Mapped Slave for Host
         --! MM slave host address
-        iHostAddress            : in std_logic_vector(16 downto 2);
+        iHostAddress            : in std_logic_vector(gHostAddrWidth-1 downto 2);
         --! MM slave host byteenable
         iHostByteenable         : in std_logic_vector(3 downto 0);
         --! MM slave host read
@@ -269,6 +271,9 @@ architecture Rtl of hostInterface is
     --! external sync signal detected any edge
     signal extSync_any      : std_logic;
 begin
+    assert (2**gHostAddrWidth-1 >= gBaseRes-1)
+    report "The host side high address cannot be addressed! Increase gHostAddrWidth generic!"
+    severity failure;
 
     -- select status/control registers if host address is below 2 kB
     statCtrlSel <=  cActivated when iHostAddress < cBaseAddressArray(0)(iHostAddress'range) else

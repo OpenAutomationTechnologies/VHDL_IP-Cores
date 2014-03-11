@@ -394,7 +394,9 @@ begin
         gBaseK2UQ               => gBaseK2UQ,
         gBaseU2KQ               => gBaseU2KQ,
         gBasePdo                => gBasePdo,
-        gBaseRes                => gBaseRes
+        gBaseRes                => gBaseRes,
+        --FIXME: Assign address width depending on memory span!
+        gHostAddrWidth          => host_address'left+1
     )
     port map (
         iClk                    => hostif_clock,
