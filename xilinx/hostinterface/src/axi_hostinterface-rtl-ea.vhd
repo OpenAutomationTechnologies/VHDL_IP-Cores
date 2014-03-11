@@ -248,12 +248,6 @@ entity axi_hostinterface is
         irqOut_irq                  : out   std_logic;
         --! External Sync Source
         iExtSync_exsync             : in    std_logic;
-        --! Node Id
-        iNodeId_nodeid              : in    std_logic_vector(7 downto 0);
-        --! POWERLINK Error LED
-        oPlkLed_lederr              : out   std_logic;
-        --! POWERLINK Status LED
-        oPlkLed_ledst               : out   std_logic;
         -- Parallel Host Interface
         --! Chipselect
         iParHost_chipselect         : in    std_logic;
@@ -424,10 +418,7 @@ begin
         iHostBridgeWaitrequest  => avm_hostBridge_waitrequest,
         iIrqIntSync             => irqSync_irq,
         iIrqExtSync             => iExtSync_exsync,
-        oIrq                    => irqOut_irq,
-        iNodeId                 => iNodeId_nodeid,
-        oPlkLedError            => oPlkLed_lederr,
-        oPlkLedStatus           => oPlkLed_ledst
+        oIrq                    => irqOut_irq
     );
 
     ---------------------------------------------------------------------------

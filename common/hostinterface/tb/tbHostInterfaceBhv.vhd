@@ -117,10 +117,6 @@ architecture Bhv of tbHostInterface is
     signal pcpAck           : std_logic;
     signal pcpDone          : std_logic;
 
-    signal plkLedError  : std_logic;
-    signal plkLedStatus : std_logic;
-    signal nodeId       : std_logic_vector (7 downto 0);
-
     signal irqExtSync   : std_logic;
     signal irqIntSync   : std_logic;
     signal irq          : std_logic;
@@ -140,7 +136,6 @@ begin
 
     irqIntSync  <= cActivated when unsigned(counter) = 10 else cInactivated;
     irqExtSync  <= cInactivated;
-    nodeId      <= x"F0";
 
     DUT : entity work.hostInterface
         generic map (
@@ -187,9 +182,6 @@ begin
             iHostBridgeWaitrequest  => hostBridgeWaitrequest,
             oHostBridgeWrite        => hostBridgeWrite,
             oHostBridgeWritedata    => hostBridgeWritedata,
-            iNodeId                 => nodeId,
-            oPlkLedError            => plkLedError,
-            oPlkLedStatus           => plkLedStatus,
             iIrqExtSync             => irqExtSync,
             iIrqIntSync             => irqIntSync,
             oIrq                    => irq

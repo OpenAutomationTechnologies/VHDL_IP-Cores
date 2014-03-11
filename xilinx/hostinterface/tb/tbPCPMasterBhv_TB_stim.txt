@@ -33,15 +33,11 @@ WR d 7c000024 DEADBEEF
 ASS d 7c000000 504C4B00
 #read version
 ASS d 7c000004 FFFFFF00
-#check node id for F0
-ASS b 7c00020C 000000F0
 #wait for command
 WAIT w 7c000204 00000001
 ###############################################
 ##PCP is Writing Addresses - Host is on Wait
 
-#set led (but PCP has only R0!)
-WR w 7c000210 xxxx0003
 #set error counter base
 WR  d 7c000400 30001000
 ASS d 7c000400 30001000

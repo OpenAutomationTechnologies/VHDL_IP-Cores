@@ -142,13 +142,7 @@ entity alteraHostInterface is
         --! Interrupt sender
         ins_irqOut_irq                  : out std_logic;
         --! External Sync Source
-        coe_ExtSync_exsync              : in std_logic;
-        --! Node Id
-        coe_NodeId_nodeid               : in std_logic_vector(7 downto 0);
-        --! POWERLINK Error LED
-        coe_PlkLed_lederr               : out std_logic;
-        --! POWERLINK Status LED
-        coe_PlkLed_ledst                : out std_logic
+        coe_ExtSync_exsync              : in std_logic
     );
 end alteraHostInterface;
 
@@ -205,9 +199,6 @@ begin
         iHostBridgeWaitrequest => avm_hostBridge_waitrequest,
         iIrqIntSync            => inr_irqSync_irq,
         iIrqExtSync            => coe_ExtSync_exsync,
-        oIrq                   => ins_irqOut_irq,
-        iNodeId                => coe_NodeId_nodeid,
-        oPlkLedError           => coe_PlkLed_lederr,
-        oPlkLedStatus          => coe_PlkLed_ledst
+        oIrq                   => ins_irqOut_irq
     );
 end rtl;

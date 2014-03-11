@@ -150,13 +150,7 @@ entity hostInterface is
         --! External sync source
         iIrqExtSync             : in std_logic;
         --! Interrupt output signal
-        oIrq                    : out std_logic;
-        --! Node Id
-        iNodeId                 : in std_logic_vector(7 downto 0);
-        --! POWERLINK Error LED
-        oPlkLedError            : out std_logic;
-        --! POWERLINK Status LED
-        oPlkLedStatus           : out std_logic
+        oIrq                    : out std_logic
     );
 end hostInterface;
 
@@ -215,8 +209,6 @@ architecture Rtl of hostInterface is
     signal bridgeEnable             : std_logic;
     --! Bridge address is valid
     signal bridgeAddrValid          : std_logic;
-    --! LED from status/control registers
-    signal statCtrlLed              : std_logic_vector(1 downto 0);
     --! The magic bridge outputs the dword address
     signal hostBridgeAddress_dword  : std_logic_vector(oHostBridgeAddress'length-1 downto 2);
     --! Bridge transfer done strobe
@@ -486,13 +478,7 @@ begin
         iIrqPending             => irqSourcePending,
         oExtSyncEnable          => extSyncEnable,
         oExtSyncConfig          => extSyncConfig,
-        iNodeId                 => iNodeId,
-        oPLed                   => statCtrlLed,
         oBridgeEnable           => bridgeEnable
     );
-
-    oPlkLedStatus <= statCtrlLed(0);
-
-    oPlkLedError <= statCtrlLed(1);
 
 end Rtl;

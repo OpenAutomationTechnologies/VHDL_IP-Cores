@@ -16,10 +16,6 @@ WR d 8c000024 DEADBEEF
 ASS d 8c000000 504C4B00
 #read version
 ASS d 8c000004 FFFFFF00
-#check node id for F0
-ASS b 8c00020C 000000F0
-#set led
-WR w 8c000210 00000001
 #do some invalid access
 WR d 8c008000 DEADC0DE
 
@@ -34,10 +30,7 @@ WR w 8c000204 00000001
 WAIT w 8c000206 00000001
 ###############################################
 NOP
-#set led
-WR w 8c000210 xxxx0002
 #set dyn buf 0 base
-
 WR  d 8c000400 30000100
 ASS d 8c000400 30000100
 #set dyn buf 1 base

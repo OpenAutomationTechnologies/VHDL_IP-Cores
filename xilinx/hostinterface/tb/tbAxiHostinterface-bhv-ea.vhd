@@ -161,12 +161,6 @@ architecture bhv of  tbAxiHostInterface is
     signal ins_irqOut_irq       : std_logic;
     --! External Sync Source
     signal coe_ExtSync_exsync   : std_logic;
-     --! Node Id set to MN
-    signal coe_NodeId_nodeid    : std_logic_vector(7 downto 0) := x"F0";
-    --! POWERLINK Error LED
-    signal coe_PlkLed_lederr    : std_logic;
-    --! POWERLINK Status LED
-    signal coe_PlkLed_ledst     : std_logic;
 
     --Parallel Interface Signals
     --! Data width
@@ -365,9 +359,6 @@ begin
             irqSync_irq                  => inr_irqSync_irq,
             irqOut_irq                   => ins_irqOut_irq,
             iExtSync_exsync              => coe_ExtSync_exsync,
-            iNodeId_nodeid               => coe_NodeId_nodeid,
-            oPlkLed_lederr               => coe_PlkLed_lederr,
-            oPlkLed_ledst                => coe_PlkLed_ledst,
             -- Parallel Host Interface
             iParHost_chipselect          => coe_parHost_chipselect,
             iParHost_read                => coe_parHost_read,

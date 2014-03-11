@@ -7,12 +7,6 @@ ASS d 00000000 504C4B00
 #read version
 RD d 00000004
 
-#check node id for F0
-ASS b 0000020C 000000F0
-
-#set led
-WR w 00000210 00000001
-
 #do some invalid access
 WR d 00008000 DEADC0DE
 WR w 00008000 DEADDEAD
@@ -25,9 +19,6 @@ WR w 00000204 00000001
 
 #wait for state
 WAIT w 00000206 00000001
-
-#set led
-WR w 00000210 xxxx0002
 
 #set dyn buf 0 base
 WR d 00000400 00001000

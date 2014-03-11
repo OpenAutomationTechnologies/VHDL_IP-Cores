@@ -24,7 +24,6 @@ BUS_INTERFACE BUS = M_AXI_PCP, BUS_STD = AXI, BUS_TYPE = MASTER
 
 ##IO Interface
 IO_INTERFACE IO_IF = PAP, IO_TYPE = XIL_GPIO_V1
-IO_INTERFACE IO_IF = LED, IO_TYPE = XIL_GPIO_V1
 
 ## Generics for VHDL or Parameters for Verilog
 ## Generic for PCP Host interface
@@ -173,10 +172,7 @@ PORT M_AXI_RREADY = RREADY, BUS = M_AXI_PCP, DIR = O
 ## Host Interface Signals
 PORT irqSync_irq = "", DIR = I, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_HIGH
 PORT irqOut_irq = "", DIR = O, SIGIS = INTERRUPT, SENSITIVITY = LEVEL_HIGH
-PORT iExtSync_exsync = "" , DIR = I, IO_IF = LED
-PORT iNodeId_nodeid = "" , DIR = I, VEC = [7:0], IO_IF = LED
-PORT oPlkLed_lederr = "" , DIR = O, IO_IF = LED
-PORT oPlkLed_ledst = "" , DIR = O, IO_IF = LED
+PORT iExtSync_exsync = "" , DIR = I
 ## Parallel Interface Signals
 PORT iExtSync_exsync = "", DIR = I, IO_IF = PAP, ISVALID = (gHostIfType == 1)
 PORT iParHost_chipselect = "", DIR = I, IO_IF = PAP, ISVALID = (gHostIfType == 1)
