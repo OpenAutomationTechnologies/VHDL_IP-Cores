@@ -89,9 +89,9 @@ entity hostInterface is
         --! Base address User-to-Kernel Queue
         gBaseU2KQ           : natural := 16#09000#;
         --! Base address Pdo
-        gBasePdo           : natural := 16#0B000#;
+        gBasePdo            : natural := 16#0B000#;
         --! Base address Reserved (-1 = high address of Pdo)
-        gBaseRes            : natural := 16#14000#
+        gBaseRes            : natural := 16#0E000#
     );
     port (
         --! Clock Source input

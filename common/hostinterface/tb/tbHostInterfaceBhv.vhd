@@ -217,8 +217,8 @@ begin
 
     host : entity libutil.busMaster
     generic map (
-        gAddrWidth      => 17,
-        gDataWidth      => 32,
+        gAddrWidth      => hostAddress'length,
+        gDataWidth      => hostWritedata'length,
         gStimuliFile    => gHostStim
     )
     port map(
@@ -237,8 +237,8 @@ begin
 
     pcp : entity libutil.busMaster
         generic map (
-            gAddrWidth      => 11,
-            gDataWidth      => 32,
+            gAddrWidth      => pcpAddress'length,
+            gDataWidth      => pcpWritedata'length,
             gStimuliFile    => gPcpStim
         )
         port map(

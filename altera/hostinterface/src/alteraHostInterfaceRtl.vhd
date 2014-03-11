@@ -81,15 +81,9 @@ entity alteraHostInterface is
         --! Base address User-to-Kernel Queue
         gBaseU2KQ           : natural := 16#09000#;
         --! Base address Tpdo
-        gBasePdo           : natural := 16#0B000#;
+        gBasePdo            : natural := 16#0B000#;
         --! Base address Reserved (-1 = high address of Pdo)
-        gBaseRes            : natural := 16#0E000#;
-        --! Select Host Interface Type (0 = Avalon, 1 = Parallel)
-        gHostIfType         : natural := 0;
-        --! Data width of parallel interface (16/32)
-        gParallelDataWidth  : natural := 16;
-        --! Address and Data bus are multiplexed (0 = FALSE, otherwise = TRUE)
-        gParallelMultiplex  : natural := 0
+        gBaseRes            : natural := 16#0E000#
     );
     port (
         --! Clock Source input
@@ -152,26 +146,7 @@ entity alteraHostInterface is
         --! POWERLINK Error LED
         coe_PlkLed_lederr               : out std_logic;
         --! POWERLINK Status LED
-        coe_PlkLed_ledst                : out std_logic;
-        -- Parallel Host Interface
-        --! Chipselect
-        coe_parHost_chipselect          : in std_logic;
-        --! Read strobe
-        coe_parHost_read                : in std_logic;
-        --! Write strobe
-        coe_parHost_write               : in std_logic;
-        --! Address Latch enable (Multiplexed only)
-        coe_parHost_addressLatchEnable  : in std_logic;
-        --! High active Acknowledge
-        coe_parHost_acknowledge         : out std_logic;
-        --! Byteenables
-        coe_parHost_byteenable          : in std_logic_vector(gParallelDataWidth/8-1 downto 0);
-        --! Address bus (Demultiplexed, word-address)
-        coe_parHost_address             : in std_logic_vector(15 downto 0);
-        --! Data bus (Demultiplexed)
-        coe_parHost_data                : inout std_logic_vector(gParallelDataWidth-1 downto 0);
-        --! Address/Data bus (Multiplexed, word-address))
-        coe_parHost_addressData         : inout std_logic_vector(gParallelDataWidth-1 downto 0)
+        coe_PlkLed_ledst                : out std_logic
     );
 end alteraHostInterface;
 
@@ -179,82 +154,7 @@ architecture rtl of alteraHostInterface is
     --! The bridge translation lut is implemented in memory blocks to save logic resources.
     --! If no M9K shall be used, set this constant to 0.
     constant cBridgeUseMemBlock : natural := 1;
-
-    signal host_address     : std_logic_vector(16 downto 2);
-    signal host_byteenable  : std_logic_vector(3 downto 0);
-    signal host_read        : std_logic;
-    signal host_readdata    : std_logic_vector(31 downto 0);
-    signal host_write       : std_logic;
-    signal host_writedata   : std_logic_vector(31 downto 0);
-    signal host_waitrequest : std_logic;
 begin
-    --! Assign the host side to Avalon
-    genAvalon : if gHostIfType = 0 generate
-    begin
-        host_address            <= avs_host_address;
-        host_byteenable         <= avs_host_byteenable;
-        host_read               <= avs_host_read;
-        avs_host_readdata       <= host_readdata;
-        host_write              <= avs_host_write;
-        host_writedata          <= avs_host_writedata;
-        avs_host_waitrequest    <= host_waitrequest;
-    end generate;
-
-    --! Assign the host side to Parallel
-    genParallel : if gHostIfType = 1 generate
-        signal hostData_i           : std_logic_vector(gParallelDataWidth-1 downto 0);
-        signal hostData_o           : std_logic_vector(gParallelDataWidth-1 downto 0);
-        signal hostData_en          : std_logic;
-        signal hostAddressData_i    : std_logic_vector(gParallelDataWidth-1 downto 0);
-        signal hostAddressData_o    : std_logic_vector(gParallelDataWidth-1 downto 0);
-        signal hostAddressData_en   : std_logic;
-    begin
-        -- not used signals are set to inactive
-        avs_host_readdata <= (others => cInactivated);
-        avs_host_waitrequest <= cInactivated;
-
-        theParallelInterface : entity work.parallelInterface
-            generic map (
-                gDataWidth => gParallelDataWidth,
-                gMultiplex => gParallelMultiplex
-            )
-            port map (
-                iParHostChipselect          => coe_parHost_chipselect,
-                iParHostRead                => coe_parHost_read,
-                iParHostWrite               => coe_parHost_write,
-                iParHostAddressLatchEnable  => coe_parHost_addressLatchEnable,
-                oParHostAcknowledge         => coe_parHost_acknowledge,
-                iParHostByteenable          => coe_parHost_byteenable,
-                iParHostAddress             => coe_parHost_address,
-                oParHostData                => hostData_o,
-                iParHostData                => hostData_i,
-                oParHostDataEnable          => hostData_en,
-                oParHostAddressData         => hostAddressData_o,
-                iParHostAddressData         => hostAddressData_i,
-                oParHostAddressDataEnable   => hostAddressData_en,
-                iClk                        => csi_c0_clock,
-                iRst                        => rsi_r0_reset,
-                oHostAddress                => host_address,
-                oHostByteenable             => host_byteenable,
-                oHostRead                   => host_read,
-                iHostReaddata               => host_readdata,
-                oHostWrite                  => host_write,
-                oHostWritedata              => host_writedata,
-                iHostWaitrequest            => host_waitrequest
-            );
-
-        -- tri-state buffers
-        coe_parHost_data <= hostData_o when hostData_en = cActivated else
-                            (others => 'Z');
-
-        hostData_i <= coe_parHost_data;
-
-        coe_parHost_addressData <= hostAddressData_o when hostAddressData_en = cActivated else
-                                   (others => 'Z');
-
-        hostAddressData_i <= coe_parHost_addressData;
-    end generate;
-
     --! The host interface
     theHostInterface: entity work.hostInterface
     generic map (
@@ -279,13 +179,13 @@ begin
     port map (
         iClk                   => csi_c0_clock,
         iRst                   => rsi_r0_reset,
-        iHostAddress           => host_address,
-        iHostByteenable        => host_byteenable,
-        iHostRead              => host_read,
-        oHostReaddata          => host_readdata,
-        iHostWrite             => host_write,
-        iHostWritedata         => host_writedata,
-        oHostWaitrequest       => host_waitrequest,
+        iHostAddress           => avs_host_address,
+        iHostByteenable        => avs_host_byteenable,
+        iHostRead              => avs_host_read,
+        oHostReaddata          => avs_host_readdata,
+        iHostWrite             => avs_host_write,
+        iHostWritedata         => avs_host_writedata,
+        oHostWaitrequest       => avs_host_waitrequest,
         iPcpAddress            => avs_pcp_address,
         iPcpByteenable         => avs_pcp_byteenable,
         iPcpRead               => avs_pcp_read,

@@ -73,7 +73,6 @@ add_fileset_file "hostInterfaceRtl.vhd"         VHDL PATH "../../common/hostinte
 add_fileset_file "irqGenRtl.vhd"                VHDL PATH "../../common/hostinterface/src/irqGenRtl.vhd"
 add_fileset_file "dynamicBridgeRtl.vhd"         VHDL PATH "../../common/hostinterface/src/dynamicBridgeRtl.vhd"
 add_fileset_file "statusControlRegRtl.vhd"      VHDL PATH "../../common/hostinterface/src/statusControlRegRtl.vhd"
-add_fileset_file "parallelInterfaceRtl.vhd"     VHDL PATH "../../common/hostinterface/src/parallelInterfaceRtl.vhd"
 
 
 # -----------------------------------------------------------------------------
@@ -219,30 +218,6 @@ set_parameter_property  gBaseRes            AFFECTS_ELABORATION FALSE
 set_parameter_property  gBaseRes            VISIBLE             FALSE
 set_parameter_property  gBaseRes            DISPLAY_HINT        "HEXADECIMAL"
 
-add_parameter           gHostIfType         NATURAL             0
-set_parameter_property  gHostIfType         DEFAULT_VALUE       0
-set_parameter_property  gHostIfType         TYPE                NATURAL
-set_parameter_property  gHostIfType         DERIVED             TRUE
-set_parameter_property  gHostIfType         HDL_PARAMETER       TRUE
-set_parameter_property  gHostIfType         AFFECTS_ELABORATION FALSE
-set_parameter_property  gHostIfType         VISIBLE             FALSE
-
-add_parameter           gParallelDataWidth  NATURAL             32
-set_parameter_property  gParallelDataWidth  DEFAULT_VALUE       32
-set_parameter_property  gParallelDataWidth  TYPE                NATURAL
-set_parameter_property  gParallelDataWidth  DERIVED             TRUE
-set_parameter_property  gParallelDataWidth  HDL_PARAMETER       TRUE
-set_parameter_property  gParallelDataWidth  AFFECTS_ELABORATION FALSE
-set_parameter_property  gParallelDataWidth  VISIBLE             FALSE
-
-add_parameter           gParallelMultiplex  NATURAL             0
-set_parameter_property  gParallelMultiplex  DEFAULT_VALUE       0
-set_parameter_property  gParallelMultiplex  TYPE                NATURAL
-set_parameter_property  gParallelMultiplex  DERIVED             TRUE
-set_parameter_property  gParallelMultiplex  HDL_PARAMETER       TRUE
-set_parameter_property  gParallelMultiplex  AFFECTS_ELABORATION FALSE
-set_parameter_property  gParallelMultiplex  VISIBLE             FALSE
-
 # -----------------------------------------------------------------------------
 # System Info parameters
 # -----------------------------------------------------------------------------
@@ -259,27 +234,6 @@ set_parameter_property  sys_uniqueId        VISIBLE             FALSE
 # -----------------------------------------------------------------------------
 # GUI parameters
 # -----------------------------------------------------------------------------
-add_parameter           gui_interfaceTyp    NATURAL             0
-set_parameter_property  gui_interfaceTyp    DEFAULT_VALUE       0
-set_parameter_property  gui_interfaceTyp    TYPE                NATURAL
-set_parameter_property  gui_interfaceTyp    DISPLAY_NAME        "Host Interface Configuration"
-set_parameter_property  gui_interfaceTyp    ALLOWED_RANGES      {0:Avalon 1:Parallel}
-set_parameter_property  gui_interfaceTyp    DISPLAY_HINT        RADIO
-
-add_parameter           gui_parallelMltplx  NATURAL             0
-set_parameter_property  gui_parallelMltplx  DEFAULT_VALUE       0
-set_parameter_property  gui_parallelMltplx  TYPE                NATURAL
-set_parameter_property  gui_parallelMltplx  DISPLAY_NAME        "Address-/Data-Bus Multiplexing"
-set_parameter_property  gui_parallelMltplx  ALLOWED_RANGES      {0:Demultiplexed 1:Multiplexed}
-set_parameter_property  gui_parallelMltplx  DISPLAY_HINT        RADIO
-
-add_parameter           gui_parallelDwidth  NATURAL             16
-set_parameter_property  gui_parallelDwidth  DEFAULT_VALUE       16
-set_parameter_property  gui_parallelDwidth  TYPE                NATURAL
-set_parameter_property  gui_parallelDwidth  DISPLAY_NAME        "Data Width"
-set_parameter_property  gui_parallelDwidth  ALLOWED_RANGES      {16 32}
-set_parameter_property  gui_parallelDwidth  UNITS               "Bits"
-
 add_parameter           gui_sizeDynBuf0     NATURAL             2
 set_parameter_property  gui_sizeDynBuf0     DEFAULT_VALUE       2
 set_parameter_property  gui_sizeDynBuf0     TYPE                NATURAL
@@ -376,13 +330,6 @@ set_parameter_property  gui_baseAddrTblVal  DISPLAY_HINT        "HEXADECIMAL"
 # -----------------------------------------------------------------------------
 # GUI configuration
 # -----------------------------------------------------------------------------
-add_display_item        "" "General"                            GROUP TAB
-add_display_item        "General"           gui_interfaceTyp    PARAMETER
-add_display_item        "General"           "Avalon"            GROUP
-add_display_item        "General"           "Parallel Interface" GROUP
-add_display_item        "Parallel Interface" gui_parallelDwidth PARAMETER
-add_display_item        "Parallel Interface" gui_parallelMltplx PARAMETER
-
 add_display_item        "" "Buffer Configuration"               GROUP TAB
 add_display_item        "Buffer Configuration" "Queues"         GROUP
 add_display_item        "Buffer Configuration" "Pdo"            GROUP
@@ -412,47 +359,12 @@ add_display_item        baseAddrTbl         gui_baseAddrTblVal  PARAMETER
 
 proc fileset_callback { entityName } {
     send_message INFO "Generating entity $entityName"
-
-    set ifCfg [get_interfaceConfiguration]
-
-    switch $ifCfg {
-        0 {
-            # Avalon Interface selected
-            # -> no sdc file required!
-        }
-        1 {
-            # Parallel Interface selected
-            switch [get_parallelInterfaceConfiguration] {
-                0 {
-                    # asynchronous
-                    add_fileset_file "hostinterface/hostinterface-async.sdc" SDC PATH "sdc/hostinterface-async.sdc"
-                }
-                1 {
-                    # synchronous
-                    send_message ERROR "Synchronous Parallel Interface not yet supported!"
-                    #TODO: add sdc file if sync parallel interface is selected
-                }
-                default {
-
-                }
-            }
-        }
-        default {
-
-        }
-    }
 }
 
 proc elaboration_callback {} {
-
-    #control GUI
-    display_parallelInterface
-
     #generate HDL generics and C macros
     generate_version
     generate_memory_mapping
-    generate_hostInterface
-
 }
 
 # -----------------------------------------------------------------------------
@@ -461,68 +373,9 @@ proc elaboration_callback {} {
 
 # -----------------------------------------------------------------------------
 # display control
-proc display_parallelInterface {} {
-    set_display_item_property "Avalon" VISIBLE FALSE
-    set_display_item_property "Parallel Interface" VISIBLE FALSE
-
-    set ifCfg [get_interfaceConfiguration]
-
-    switch $ifCfg {
-        0 {
-            set_display_item_property "Avalon" VISIBLE TRUE
-        }
-        1 {
-            set_display_item_property "Parallel Interface" VISIBLE TRUE
-        }
-        default {
-
-        }
-    }
-}
 
 # -----------------------------------------------------------------------------
 # generate
-proc generate_hostInterface {} {
-    set interfaceConfig [get_interfaceConfiguration]
-    set hdlNameList [list "gHostIfType"]
-    set hdlParamList [list $interfaceConfig]
-
-    # check if Avalon or parallel interface is selected
-    if {$interfaceConfig == 0} {
-        #enable Avalon host
-        set_interface_property host ENABLED TRUE
-
-        #disable parallel host
-        set_interface_property parHost ENABLED FALSE
-
-    } else {
-        #enable parallel host
-        set_interface_property parHost ENABLED TRUE
-
-        #disable Avalon host
-        set_interface_property host ENABLED FALSE
-
-        #terminate multiplex signals
-        set interfaceMultiplex [get_interfaceParallelMultiplex]
-
-        if {$interfaceMultiplex == 0} {
-            #terminate multiplex signals since not in use
-            set_port_property coe_parHost_addressLatchEnable termination true
-            set_port_property coe_parHost_addressData termination true
-        } else {
-            #terminate demultiplex signals since not in use
-            set_port_property coe_parHost_address termination true
-            set_port_property coe_parHost_data termination true
-        }
-
-        #set HDL generics
-        set hdlNameList [concat $hdlNameList "gParallelDataWidth" "gParallelMultiplex"]
-        set hdlParamList [concat $hdlParamList [get_interfaceParallelDwidth] $interfaceMultiplex]
-    }
-
-    set_list_hdl $hdlNameList $hdlParamList
-}
-
 proc generate_version {} {
     set listVersionParam [list "gVersionMajor" "gVersionMinor" "gVersionRevision" "gVersionCount"]
     set listVersionCmacro [list "VERSION_MAJOR" "VERSION_MINOR" "VERSION_REVISION" "VERSION_COUNT"]
@@ -672,82 +525,6 @@ proc check_memory_mapping { listBase memorySpanKb } {
     return $ret
 }
 
-# functions for reading/checking GUI parameters
-proc get_interfaceConfiguration { } {
-    set param "gui_interfaceTyp"
-    set val [get_parameter_value $param]
-
-    switch $val  {
-        0 {
-        #Avalon
-        }
-        1 {
-        #Parallel
-        }
-        default {
-            send_message Error "Set [get_parameter_property $param DISPLAY_NAME]"
-        }
-    }
-
-    return $val
-}
-
-proc get_parallelInterfaceConfiguration { } {
-    #Note: This procedure returns always 0 (asynchronous), since no GUI configuration
-    #      is implemented!
-    set param ""
-    set val 0
-
-    switch $val {
-        0 {
-        # asynchronous configuration
-        }
-        1 {
-        # synchronous configuration
-        }
-        default {
-        }
-    }
-
-    return $val
-}
-
-proc get_interfaceParallelDwidth { } {
-    set param "gui_parallelDwidth"
-    set val [get_parameter_value $param]
-
-    switch $val  {
-        16 {
-        }
-        32 {
-        }
-        default {
-            send_message Error "Set [get_parameter_property $param DISPLAY_NAME]"
-        }
-    }
-
-    return $val
-}
-
-proc get_interfaceParallelMultiplex { } {
-    set param "gui_parallelMltplx"
-    set val [get_parameter_value $param]
-
-    switch $val  {
-        0 {
-        #Demultiplexed
-        }
-        1 {
-        #Multiplexed
-        }
-        default {
-            send_message Error "Set [get_parameter_property $param DISPLAY_NAME]"
-        }
-    }
-
-    return $val
-}
-
 # utilities
 proc set_list_hdl { listParam listValue } {
     foreach param $listParam value $listValue {
@@ -807,7 +584,7 @@ set_interface_property host readWaitTime 1
 set_interface_property host setupTime 0
 set_interface_property host timingUnits Cycles
 set_interface_property host writeWaitTime 0
-set_interface_property host ENABLED FALSE
+set_interface_property host ENABLED true
 
 add_interface_port host avs_host_address address Input 15
 add_interface_port host avs_host_byteenable byteenable Input 4
@@ -902,17 +679,3 @@ set_interface_property irqOut associatedReset r0
 set_interface_property irqOut ENABLED true
 
 add_interface_port irqOut ins_irqOut_irq irq Output 1
-
-
-# connection point parallel host interface
-add_interface parHost conduit end
-set_interface_property parHost ENABLED false
-add_interface_port parHost coe_parHost_chipselect export Input 1
-add_interface_port parHost coe_parHost_read export Input 1
-add_interface_port parHost coe_parHost_write export Input 1
-add_interface_port parHost coe_parHost_addressLatchEnable export Input 1
-add_interface_port parHost coe_parHost_acknowledge export Output 1
-add_interface_port parHost coe_parHost_byteenable export Input gParallelDataWidth/8
-add_interface_port parHost coe_parHost_address export Input 16
-add_interface_port parHost coe_parHost_data export Bidir gParallelDataWidth
-add_interface_port parHost coe_parHost_addressData export Bidir gParallelDataWidth
