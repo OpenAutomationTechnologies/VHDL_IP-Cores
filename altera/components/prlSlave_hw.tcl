@@ -76,7 +76,7 @@ set_fileset_property    QUARTUS_SYNTH TOP_LEVEL     prlSlave
 # -----------------------------------------------------------------------------
 # VHDL parameters
 # -----------------------------------------------------------------------------
-set hdlParamVisible TRUE
+set hdlParamVisible FALSE
 
 qsysUtil::addHdlParam  gEnableMux   NATURAL 0   $hdlParamVisible
 qsysUtil::addHdlParam  gDataWidth   NATURAL 16  $hdlParamVisible
@@ -86,6 +86,9 @@ qsysUtil::addHdlParam  gAdWidth     NATURAL 1   $hdlParamVisible
 # -----------------------------------------------------------------------------
 # System Info parameters
 # -----------------------------------------------------------------------------
+set sysParamVisible FALSE
+
+qsysUtil::addSysParam sys_clk INTEGER 0 {CLOCK_RATE c0} $sysParamVisible
 
 # -----------------------------------------------------------------------------
 # GUI parameters
@@ -163,9 +166,37 @@ proc elaboration_callback {} {
 proc fileset_callback { entityName } {
     send_message INFO "Generating entity $entityName"
 
+    set clockFreqHz     [get_parameter_value sys_clk]
+    set clockPeriodNs   [expr 1000000000 / $clockFreqHz]
+
+    if { [get_parameter_value gui_enableMux] } {
+        set muxString "set ENABLE_ALE      TRUE"
+    } else {
+        set muxString "set ENABLE_ALE      FALSE"
+    }
+
+    # Read sdc file
+    set fp [open "sdc/prlSlave.sdc" r]
+    set sdcFileIn [read $fp]
+
+    # Process sdc file
+    foreach line [split $sdcFileIn "\n"] {
+        if { $line == "# SET INSTANCE NAME HERE #" } {
+            append sdcFileOut "set INSTANCE_NAME   ${entityName}\n"
+        } elseif { $line == "# SET ENABLE ALE HERE #" } {
+            append sdcFileOut "${muxString}\n"
+        } elseif { $line == "# SET CLOCK PERIOD HERE #" } {
+            append sdcFileOut "set CLOCK_PERIOD    ${clockPeriodNs}\n"
+        } else {
+            append sdcFileOut "${line}\n"
+        }
+    }
+    close $fp
+
     add_fileset_file "prlSlave-rtl-ea.vhd"  VHDL PATH "../../common/parallelInterface/src/prlSlave-rtl-ea.vhd"
     add_fileset_file "dataLatch-e.vhd"      VHDL PATH "../../common/latch/src/dataLatch-e.vhd"
     add_fileset_file "dataLatch-syn-a.vhd"  VHDL PATH "../../altera/latch/src/dataLatch-syn-a.vhd"
+    add_fileset_file "${entityName}/prlSlave.sdc" SDC TEXT $sdcFileOut
 }
 
 # -----------------------------------------------------------------------------

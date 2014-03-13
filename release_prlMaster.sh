@@ -20,4 +20,5 @@ mkdir -p ${DIR_RELEASE}
 cp --parents common/parallelinterface/src/prlMaster-rtl-ea.vhd  ${DIR_RELEASE}
 
 cp --parents altera/components/prlMaster_hw.tcl                 ${DIR_RELEASE}
+cp --parents altera/components/sdc/prlMaster.sdc                ${DIR_RELEASE}
 cp --parents altera/components/tcl/qsysUtil.tcl                 ${DIR_RELEASE}
