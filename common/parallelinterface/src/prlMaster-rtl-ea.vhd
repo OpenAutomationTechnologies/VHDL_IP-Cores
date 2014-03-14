@@ -131,10 +131,6 @@ architecture rtl of prlMaster is
     signal ack              : std_logic;
     -- Rising edge of ack signal
     signal ack_p            : std_logic;
-    -- Metastable readdata
-    signal readdata_meta    : std_logic_vector(oSlv_readdata'range);
-    -- Synchronized readdata
-    signal readdata         : std_logic_vector(oSlv_readdata'range);
 
     --! This record holds all output registers to the bus.
     type tReg is record
@@ -145,6 +141,7 @@ architecture rtl of prlMaster is
         chipselect  : std_logic;
         data        : std_logic_vector(gDataWidth-1 downto 0);
         data_oen    : std_logic;
+        data_in     : std_logic_vector(gDataWidth-1 downto 0);
         ad          : std_logic_vector(gAdWidth-1 downto 0);
         ad_oen      : std_logic;
         ale         : std_logic;
@@ -162,6 +159,7 @@ architecture rtl of prlMaster is
         chipselect  => cInactivated,
         data        => (others => cInactivated),
         data_oen    => cInactivated,
+        data_in     => (others => cInactivated),
         ad          => (others => cInactivated),
         ad_oen      => cInactivated,
         ale         => cInactivated,
@@ -178,7 +176,7 @@ begin
 
     -- MAP IOs
     oSlv_waitrequest    <= not ack_p;
-    oSlv_readdata       <= readdata;
+    oSlv_readdata       <= reg.data_in;
 
     oPrlMst_be          <= reg.byteenable;
     oPrlMst_wr          <= reg.write;
@@ -191,7 +189,6 @@ begin
         oPrlMst_ale         <= reg.ale;
         oPrlMst_ad_o        <= reg.ad;
         oPrlMst_ad_oen      <= reg.ad_oen;
-        readdata_meta       <= iPrlMst_ad_i(readdata_meta'range);
 
         oPrlMst_addr        <= (others => cInactivated);
         oPrlMst_data_o      <= (others => cInactivated);
@@ -205,7 +202,6 @@ begin
         oPrlMst_addr        <= reg.address;
         oPrlMst_data_o      <= reg.data;
         oPrlMst_data_oen    <= reg.data_oen;
-        readdata_meta       <= iPrlMst_data_i(readdata_meta'range);
 
         oPrlMst_ale         <= cInactivated;
         oPrlMst_ad_o        <= (others => cInactivated);
@@ -230,7 +226,9 @@ begin
         iSlv_write,
         iSlv_byteenable,
         iSlv_address,
-        iSlv_writedata
+        iSlv_writedata,
+        iPrlMst_ad_i,
+        iPrlMst_data_i
     )
     begin
         -- default
@@ -299,6 +297,14 @@ begin
                     reg_next.write          <= cInactivated;
                     reg_next.ad_oen         <= cInactivated;
                     reg_next.data_oen       <= cInactivated;
+
+                    if reg.read = cActivated then
+                        if gEnableMux /= 0 then
+                            reg_next.data_in <= iPrlMst_ad_i(reg.data_in'range);
+                        else
+                            reg_next.data_in <= iPrlMst_data_i(reg.data_in'range);
+                        end if;
+                    end if;
                 end if;
             when sHold =>
                 if ack = cInactivated then
@@ -320,21 +326,6 @@ begin
         iAsync  => iPrlMst_ack,
         oSync   => ack
     );
-
-    --! Synchronizer collection to sync readdata.
-    genSyncReaddata : for i in readdata_meta'range generate
-        syncReaddata : entity libcommon.synchronizer
-            generic map (
-                gStages => 2,
-                gInit   => cInactivated
-            )
-            port map (
-                iArst   => iRst,
-                iClk    => iClk,
-                iAsync  => readdata_meta(i),
-                oSync   => readdata(i)
-            );
-    end generate genSyncReaddata;
 
     --! Detect rising edge of ack signal to generate waitrequest neg. pulse.
     edgeAck : entity libcommon.edgedetector
