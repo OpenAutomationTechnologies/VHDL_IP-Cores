@@ -98,7 +98,7 @@ architecture rtl of openmacTimer is
     signal toggle_s             : std_logic;
 begin
     oIrq <= irq_s;
-    oToggle <= toggle_s;
+    oToggle <= toggle_s when gMacTimer_2ndTimer = TRUE else cInactivated;
 
     --! This process generates the interrupt and toggle signals and handles the
     --! register writes.
