@@ -174,20 +174,19 @@ begin
             hostDataEnable_reg  <= cInactivated;
             hostAck_reg         <= cInactivated;
         elsif rising_edge(iClk) then
-            -- Assign byte addresses to the address register
-            if gEnableMux /= 0 then
-                addressRegister <= (others => cInactivated);
-                addressRegister <= inst_latch.output;
-            elsif byteenableRegClkEnable = cActivated then
-                -- Also latch address together with byteenable when demux mode
-                addressRegister <= iPrlSlv_addr;
-            end if;
-
             hostDataEnable_reg  <= hostDataEnable;
             hostAck_reg         <= hostAck;
 
             if byteenableRegClkEnable = cActivated then
                 byteenableRegister <= iPrlSlv_be;
+
+                -- Assign byte addresses to the address register
+                if gEnableMux /= 0 then
+                    addressRegister <= (others => cInactivated);
+                    addressRegister <= inst_latch.output;
+                else
+                    addressRegister <= iPrlSlv_addr;
+                end if;
             end if;
 
             if writeDataRegClkEnable = cActivated then
@@ -303,7 +302,7 @@ begin
             );
 
         inst_latch.clear    <= cInactivated;
-        inst_latch.enable   <= iPrlSlv_cs and iPrlSlv_ale;
+        inst_latch.enable   <= iPrlSlv_ale;
         inst_latch.data     <= iPrlSlv_ad_i(inst_latch.data'range);
     end generate muxLatch;
 

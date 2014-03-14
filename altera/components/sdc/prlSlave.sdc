@@ -59,19 +59,16 @@ if { $ENABLE_ALE } {
     set ale_input_max       [expr $t_ale_per - $t_ale_sd]
     set ale_input_min       $t_ale_hd
 
-    # Get ALE pin
-    set pin_ale [get_pins -compatibility_mode *${INSTANCE_NAME}*latch*enable*outclk*]
+    # Get ALE port
+    set port_ale ""
+    foreach_in_collection fans [get_fanins -clock *addrLatch*] { set port_ale [get_node_info -name $fans] }
 
     # Create clock for LATCH ENABLE
-    create_clock -name PARALLEL_SLAVE_ALE -period $t_ale_per -waveform "0 $t_ale_on" $pin_ale
+    create_clock -name PARALLEL_SLAVE_ALE -period $t_ale_per -waveform "0 $t_ale_on" [get_ports $port_ale]
 
     # Input delay PORTS --> LATCH DATAIN
     set_max_delay -from [get_ports *] -to [get_registers $latch_address] $ale_input_max
     set_min_delay -from [get_ports *] -to [get_registers $latch_address] $ale_input_min
-
-    # Input delay PORT ALE --> LATCH ENABLE
-    set_max_delay -from [get_ports *] -to $pin_ale $t_ale_sd
-    set_min_delay -from [get_ports *] -to $pin_ale $t_ale_hd
 
     # LATCH ENABLE is exclusive clock
     set_false_path -to [get_clocks PARALLEL_SLAVE_ALE] -from [get_clocks *]
