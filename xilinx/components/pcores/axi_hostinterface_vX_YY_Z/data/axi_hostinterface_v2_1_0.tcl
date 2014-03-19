@@ -1,6 +1,6 @@
-#------------------------------------------------------------------------------------------------------------------------
-#-- HOST INTERFACE XPS AXI Component (TCL)
-#--
+##------------------------------------------------------------------------------
+##-- HOST INTERFACE XPS AXI Component (TCL)
+##------------------------------------------------------------------------------
 ###############################################################################
 ##
 ##    (c) B&R, 2013
@@ -298,6 +298,20 @@ proc my_xdefine_include_file {drv_handle file_name drv_string args} {
           puts $file_handle "#define [my_xget_name $periph $arg] $value"
      }
      }
+     puts $file_handle "\n /* INIT VECTOR */
+          \n #define HOSTIF_INIT_VEC { \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_DYNBUF0, HOSTIF_SIZE_DYNBUF0 },  \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_DYNBUF1, HOSTIF_SIZE_DYNBUF1 },  \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_ERRORCOUNTER, HOSTIF_SIZE_ERRORCOUNTER }, \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_TXNMTQ, HOSTIF_SIZE_TXNMTQ },  \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_TXGENQ, HOSTIF_SIZE_TXGENQ },  \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_TXSYNCQ, HOSTIF_SIZE_TXSYNCQ }, \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_TXVETHQ, HOSTIF_SIZE_TXVETHQ }, \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_RXVETHQ, HOSTIF_SIZE_RXVETHQ }, \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_K2UQ, HOSTIF_SIZE_K2UQ }, \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_U2KQ, HOSTIF_SIZE_U2KQ }, \\ \
+                \n\t\t\t\t\t\t  { HOSTIF_BASE_PDO, HOSTIF_SIZE_PDO }, \\ \
+                \n\t\t\t\t\t\t }"
      puts $file_handle "\n/******************************************************************/\n"
      close $file_handle
 }
