@@ -368,7 +368,7 @@ proc my_xget_name {periph_handle param} {
      } elseif {[string compare $param "Conv_Size_KB_U2KQ"] == 0} {
      set name [format "%s%s" "HOSTIF_SIZE_" "U2KQ"]
      } elseif {[string compare $param "Conv_Size_B_Pdo"] == 0} {
-     set name [format "%s%s" "HOSTIF_SIZE_" "Pdo"]
+     set name [format "%s%s" "HOSTIF_SIZE_" "PDO"]
      }  elseif {[string compare $param "gVersionMajor"] == 0} {
      set name [format "%s%s" "HOSTIF_" "VERSION_MAJOR"]
      }  elseif {[string compare $param "gVersionMinor"] == 0} {
