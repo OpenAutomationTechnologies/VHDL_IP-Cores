@@ -3,8 +3,8 @@
 ##------------------------------------------------------------------------------
 ###############################################################################
 ##
-##    (c) B&R, 2013
-##    (c) Kalycito Infotech Pvt Ltd
+##    (c) B&R, 2014
+##    (c) Kalycito Infotech Pvt Ltd, 2014
 ##
 ##    Redistribution and use in source and binary forms, with or without
 ##    modification, are permitted provided that the following conditions
@@ -36,11 +36,7 @@
 ##    POSSIBILITY OF SUCH DAMAGE.
 ##
 ###############################################################################
-#-------------------------------------------------------------------------------
-#-- Version History
-#-------------------------------------------------------------------------------
-# -- 2014-01-13    V0.01    Vinod PA            initial draft
-#-------------------------------------------------------------------------------
+
 #uses "xillib.tcl"
 
 proc calc_baseadr_dbuf1 { param_handle} {

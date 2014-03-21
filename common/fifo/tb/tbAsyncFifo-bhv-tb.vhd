@@ -7,7 +7,7 @@
 --!          to and from the asynchronous FIFO.
 -------------------------------------------------------------------------------
 --
---    (c) B&R, 2013
+--    (c) B&R, 2014
 --
 --    Redistribution and use in source and binary forms, with or without
 --    modification, are permitted provided that the following conditions

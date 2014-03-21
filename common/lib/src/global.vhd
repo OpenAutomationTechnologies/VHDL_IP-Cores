@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 -- Global package
 --
---       Copyright (C) 2012 B&R
+--    (c) B&R, 2014
 --
 --    Redistribution and use in source and binary forms, with or without
 --    modification, are permitted provided that the following conditions
@@ -33,10 +33,6 @@
 --    POSSIBILITY OF SUCH DAMAGE.
 --
 --
--------------------------------------------------------------------------------
--- Version History
--------------------------------------------------------------------------------
--- 2012-02-07   zelenkaj    Derived from global package
 -------------------------------------------------------------------------------
 
 library ieee;
