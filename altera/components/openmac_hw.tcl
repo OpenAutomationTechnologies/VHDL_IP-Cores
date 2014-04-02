@@ -144,13 +144,13 @@ set_parameter_property gui_extraSmi    DESCRIPTION     "Set this option to TRUE 
                                                         If all connected Phys share the same SMI, set the option to FALSE."
 set_parameter_property gui_txBufLoc    DESCRIPTION     "Select the Tx buffer location to LOCAL or EXTERNAL. The LOCAL configuration allocates the Tx buffers in BRAM resources -
                                                         this configuration is preferred if the external memory is having a dynamic access latency.
-                                                        The EXTERNAL configuration inserts an AXI master to fetch Tx frames from external memory -
+                                                        The EXTERNAL configuration inserts an Avalon master to fetch Tx frames from external memory -
                                                         this configuration requires a fast memory connection."
 set_parameter_property gui_txBufSize   DESCRIPTION     "Set the LOCAL Tx buffer size in KiB. Note that this setting affects the BRAM resource utilization!"
 set_parameter_property gui_txBurstSize DESCRIPTION     "Set the number of words transferred in each burst if the Tx buffer location is EXTERNAL."
 set_parameter_property gui_rxBufLoc    DESCRIPTION     "Select the Rx buffer location to LOCAL or EXTERNAL. The LOCAL configuration allocates the Rx buffers in BRAM resources -
                                                         this configuration is preferred if enough BRAM resources are available.
-                                                        The EXTERNAL configuration inserts an AXI master to transfer Rx frames to external memory -
+                                                        The EXTERNAL configuration inserts an Avalon master to transfer Rx frames to external memory -
                                                         this configuration is preferred to save BRAM resources."
 set_parameter_property gui_rxBufSize   DESCRIPTION     "Set the LOCAL Rx buffer size in KiB. Note that this setting affects the BRAM resource utilization!"
 set_parameter_property gui_rxBurstSize DESCRIPTION     "Set the number of words transferred in each burst if the Rx buffer location is EXTERNAL."
