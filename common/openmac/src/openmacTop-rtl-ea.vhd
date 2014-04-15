@@ -277,6 +277,9 @@ architecture rtl of openmacTop is
     constant cEnableDma             : boolean := (
         gPacketBufferLocRx = cPktBufExtern or gPacketBufferLocTx = cPktBufExtern
     );
+
+    --! Fixed openMAC DMA address width
+    constant cDmaAddrWidth  : natural := 32;
     ---------------------------------------------------------------------------
     -- Component types
     ---------------------------------------------------------------------------
@@ -300,7 +303,7 @@ architecture rtl of openmacTop is
         dma_acknowledge     : std_logic;
         dma_requestOverflow : std_logic;
         dma_readLength      : std_logic_vector(11 downto 0);
-        dma_address         : std_logic_vector(gDmaAddrWidth-1 downto 1);
+        dma_address         : std_logic_vector(cDmaAddrWidth-1 downto 1);
         dma_writedata       : std_logic_vector(15 downto 0);
         dma_readdata        : std_logic_vector(15 downto 0);
         rmii                : tRmii;
@@ -919,7 +922,10 @@ begin
             vDmaAddrDword_tmp   := vDmaAddrWord_tmp(vDmaAddrDword_tmp'range); -- only assigned LEFT downto 2
 
             -- Packet buffer address is for 32 bit (dwords)
-            inst_pktBuffer.dma.address <= vDmaAddrDword_tmp(inst_pktBuffer.dma.address'range);
+            inst_pktBuffer.dma.address  <= std_logic_vector(resize(
+                                                unsigned(vDmaAddrDword_tmp),
+                                                inst_pktBuffer.dma.address'length)
+                                            );
 
             -- DMA writes words, so duplicate words to packet buffer
             inst_pktBuffer.dma.writedata <= inst_openmac.dma_writedata & inst_openmac.dma_writedata;
@@ -962,7 +968,10 @@ begin
         inst_dmaMaster.dma.reqRead          <= inst_openmac.dma_request and inst_openmac.nDma_write;
         inst_dmaMaster.dma.reqOverflow      <= inst_openmac.dma_requestOverflow;
         inst_dmaMaster.dma.readLength       <= inst_openmac.dma_readLength;
-        inst_dmaMaster.dma.address          <= inst_openmac.dma_address;
+        inst_dmaMaster.dma.address          <= std_logic_vector(resize(
+                                                    unsigned(inst_openmac.dma_address),
+                                                    inst_dmaMaster.dma.address'length)
+                                                );
         inst_dmaMaster.dma.writedata        <= inst_openmac.dma_writedata;
         inst_dmaMaster.master.clk           <= iDmaClk;
         inst_dmaMaster.master.rst           <= iDmaRst;
@@ -996,7 +1005,7 @@ begin
     --! dynamic response delay.
     THEOPENMAC : entity work.openmac
         generic map (
-            gDmaHighAddr    => gDmaAddrWidth-1,
+            gDmaHighAddr    => cDmaAddrWidth-1,
             gTimerEnable    => TRUE,
             gTimerTrigTx    => TRUE,
             gAutoTxDel      => TRUE
