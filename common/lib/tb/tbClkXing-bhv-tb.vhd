@@ -60,7 +60,7 @@ end entity;
 
 architecture bhv of tbClkXing is
     --! Address width of bus master
-    constant cBusMasterAddrWidth    : natural := 1;
+    constant cBusMasterAddrWidth    : natural := 4;
     --! Data width of bus master
     constant cBusMasterDataWidth    : natural := 32;
     --! Chipselect width
@@ -110,6 +110,10 @@ architecture bhv of tbClkXing is
     signal dut      : tDut;
     --! Stim port
     signal stim     : tStim;
+
+    type tRegArray  is array (natural range <>)
+                    of std_logic_vector(cBusMasterDataWidth-1 downto 0);
+    signal testRegister : tRegArray((2**cBusMasterAddrWidth)/4-1 downto 0);
 begin
     assert (error /= cActivated)
     report "Bus master reports error due to assertion!"
@@ -122,7 +126,6 @@ begin
     dut.slowClk         <= clk;
     dut.fastCs(0)       <= stim.sel;
     dut.fastRnw         <= stim.read;
-    dut.slowReaddata    <= x"1234ABCD";
 
     stim.clk            <= clkx2;
     stim.ack            <= dut.fastRdAck or dut.fastWrAck;
@@ -131,25 +134,40 @@ begin
     ---------------------------------------------------------------------------
     -- Ack generators
     ---------------------------------------------------------------------------
-    genAck : process(rst, clk)
+    genAck : process(rst, dut.slowClk)
     begin
         if rst = cActivated then
             dut.slowRdAck   <= cInactivated;
             dut.slowWrAck   <= cInactivated;
-        elsif rising_edge(clk) then
+            testRegister    <= (others => (others => cInactivated));
+        elsif rising_edge(dut.slowClk) then
             -- defaults to generate clock pulse
             dut.slowRdAck   <= cInactivated;
             dut.slowWrAck   <= cInactivated;
 
-            if dut.slowCs(0) = cActivated then
+            if dut.slowCs(0) = cActivated and dut.slowRdAck = cInactivated and
+                dut.slowWrAck = cInactivated then
                 if dut.slowRnw = cActivated then
                     dut.slowRdAck <= cActivated;
                 else
                     dut.slowWrAck <= cActivated;
+                    testRegister(to_integer(unsigned(stim.address))/4) <= stim.writedata;
                 end if;
             end if;
         end if;
     end process;
+
+    ---------------------------------------------------------------------------
+    -- Readdata
+    ---------------------------------------------------------------------------
+    readProc : process(dut, stim, testRegister)
+    begin
+        if dut.slowCs(0) = cActivated and dut.slowRnw = cActivated then
+            dut.slowReaddata <= testRegister(to_integer(unsigned(stim.address))/4);
+        else
+            dut.slowReaddata <= (others => cInactivated);
+        end if;
+    end process readProc;
 
     ---------------------------------------------------------------------------
     -- Instances
