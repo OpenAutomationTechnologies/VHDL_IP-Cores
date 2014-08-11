@@ -87,4 +87,3 @@ set_min_delay -from [get_ports *] -to [get_registers $in_regs] $input_delay_min
 # CLOCK-TO-OUTPUT
 set_max_delay -from [get_registers $out_regs] -to [get_ports *] $output_delay_max
 set_min_delay -from [get_registers $out_regs] -to [get_ports *] $output_delay_min
-

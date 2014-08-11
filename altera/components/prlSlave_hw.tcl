@@ -193,7 +193,7 @@ proc fileset_callback { entityName } {
     }
     close $fp
 
-    add_fileset_file "prlSlave-rtl-ea.vhd"  VHDL PATH "../../common/parallelInterface/src/prlSlave-rtl-ea.vhd"
+    add_fileset_file "prlSlave-rtl-ea.vhd"  VHDL PATH "../../common/parallelinterface/src/prlSlave-rtl-ea.vhd"
     add_fileset_file "dataLatch-e.vhd"      VHDL PATH "../../common/latch/src/dataLatch-e.vhd"
     add_fileset_file "dataLatch-syn-a.vhd"  VHDL PATH "../../altera/latch/src/dataLatch-syn-a.vhd"
     add_fileset_file "${entityName}/prlSlave.sdc" SDC TEXT $sdcFileOut

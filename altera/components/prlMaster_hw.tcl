@@ -190,7 +190,7 @@ proc fileset_callback { entityName } {
     }
     close $fp
 
-    add_fileset_file "prlMaster-rtl-ea.vhd" VHDL PATH "../../common/parallelInterface/src/prlMaster-rtl-ea.vhd"
+    add_fileset_file "prlMaster-rtl-ea.vhd" VHDL PATH "../../common/parallelinterface/src/prlMaster-rtl-ea.vhd"
     add_fileset_file "${entityName}/prlMaster.sdc" SDC TEXT $sdcFileOut
 }
 
