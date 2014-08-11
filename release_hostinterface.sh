@@ -42,7 +42,6 @@ echo "copy altera ipcore..."
 cp --parents altera/components/hostinterface_hw.tcl                 ${DIR_RELEASE}
 cp --parents altera/components/hostinterface_sw.tcl                 ${DIR_RELEASE}
 cp --parents altera/components/img/br.png                           ${DIR_RELEASE}
-cp --parents altera/components/sdc/hostinterface-async.sdc          ${DIR_RELEASE}
 cp --parents altera/components/tcl/hostinterface.tcl                ${DIR_RELEASE}
 cp --parents altera/memory/src/dpRam-rtl-a.vhd                      ${DIR_RELEASE}
 cp --parents common/memory/src/dpRam-e.vhd                          ${DIR_RELEASE}

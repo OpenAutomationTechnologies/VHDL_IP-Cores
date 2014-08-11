@@ -31,6 +31,10 @@ popd
 # copy docs
 echo "copy docs..."
 cp --parents ${DIR_DOC}/images/openmac-overview.png                 ${DIR_RELEASE}
+cp --parents ${DIR_DOC}/wavedrom/master-read.svg                    ${DIR_RELEASE}
+cp --parents ${DIR_DOC}/wavedrom/master-write.svg                   ${DIR_RELEASE}
+cp --parents ${DIR_DOC}/wavedrom/slave-read.svg                     ${DIR_RELEASE}
+cp --parents ${DIR_DOC}/wavedrom/slave-write.svg                    ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/md/openmac.md                               ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/doxyfile                                    ${DIR_RELEASE}
 cp --parents ${DIR_DOC}/mainpage.txt                                ${DIR_RELEASE}
