@@ -97,4 +97,3 @@ begin
         end if;
     end process PORTB;
 end architecture rtl;
-
