@@ -375,8 +375,8 @@ proc generateDma {} {
     if { [getDmaUsed] } {
         # Enable DMA
         set_interface_property dma ENABLED TRUE
-        set_interface_property dma ENABLED TRUE
-        set_interface_property dma ENABLED TRUE
+        set_interface_property dmaClk ENABLED TRUE
+        set_interface_property dmaRst ENABLED TRUE
 
         # Terminate burstcount if no bursts are used
         if { [getBurstUsed] } {
@@ -406,8 +406,8 @@ proc generateDma {} {
         }
     } else {
         set_interface_property dma ENABLED FALSE
-        set_interface_property dma ENABLED FALSE
-        set_interface_property dma ENABLED FALSE
+        set_interface_property dmaClk ENABLED FALSE
+        set_interface_property dmaRst ENABLED FALSE
     }
 }
 
