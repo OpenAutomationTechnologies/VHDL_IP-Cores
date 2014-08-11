@@ -10,6 +10,11 @@ then
     DIR_RELEASE=release
 fi
 
+if [ -z "${IP_VERSION}" ];
+then
+    IP_VERSION=v1_01_a
+fi
+
 DIR_XIL="libcommon_${IP_VERSION}"
 
 # create dir structure

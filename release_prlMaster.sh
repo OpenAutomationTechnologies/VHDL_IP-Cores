@@ -10,7 +10,7 @@ fi
 
 if [ -z "${IP_VERSION}" ];
 then
-    IP_VERSION=v1_00_a
+    IP_VERSION=v1_01_a
 fi
 
 # create dir structure
