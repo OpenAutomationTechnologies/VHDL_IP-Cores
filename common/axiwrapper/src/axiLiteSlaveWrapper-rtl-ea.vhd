@@ -1,10 +1,16 @@
 -------------------------------------------------------------------------------
 --! @file axiLiteSlaveWrapper-rtl-ea.vhd
+--
 --! @brief AXI lite slave wrapper on avalon slave interface signals
+--
+--! @details AXI lite slave will convert AXI slave interface singal to Avalon
+--! interface signals.
+--
 -------------------------------------------------------------------------------
 --
---    (c) B&R, 2014
---    (c) Kalycito Infotech Pvt Ltd, 2014
+--    Copyright (c) 2014, Bernecker+Rainer Industrie-Elektronik Ges.m.b.H. (B&R)
+--    Copyright (c) 2014, Kalycito Infotech Private Limited.
+--    All rights reserved.
 --
 --    Redistribution and use in source and binary forms, with or without
 --    modification, are permitted provided that the following conditions
@@ -41,25 +47,22 @@
 library ieee;
 --! Use logic elements
 use ieee.std_logic_1164.all;
---! Use numeric std
-use ieee.numeric_std.all;
-
 --! Use libcommon library
 library libcommon;
---! Use global package
+--! Use Global Library
 use libcommon.global.all;
 
 -------------------------------------------------------------------------------
 --! @brief
---! @details  AXI lite slave wrapper will recieve singls from AXI bus and
---! provide proper inputs for a avlon interface to perform the same action
---! initiated by axi master
+--! @details  AXI-lite slave wrapper will receive signals from AXI bus and
+--! provide proper inputs for a Avlon interface to perform the same action
+--! initiated by AXI master
 -------------------------------------------------------------------------------
 entity axiLiteSlaveWrapper is
     generic (
-        --! Base Lower address for the AXI lite slave interface
+        --! Base Lower address for the AXI-lite slave interface
         gBaseAddr       : std_logic_vector(31 downto 0) := x"00000000";
-        --! Base Higher address for the AXI lite slave interface
+        --! Base Higher address for the AXI-lite slave interface
         gHighAddr       : std_logic_vector(31 downto 0) := x"0000ffff";
         --! Address width for AXI bus interface
         gAddrWidth      : integer                       := 32;
@@ -93,7 +96,7 @@ entity axiLiteSlaveWrapper is
         oBvalid         : out   std_logic;
         --! ResponaseReady for Write Response Channel
         iBready         : in    std_logic;
-        --! ReadAddress for Read Adddress Channel
+        --! ReadAddress for Read Address Channel
         iAraddr         : in    std_logic_vector(gAddrWidth-1 downto 0);
         --! ReadAddressProtection for Read Address Channel
         iArprot         : in    std_logic_vector(2 downto 0); --unused input
@@ -127,7 +130,7 @@ entity axiLiteSlaveWrapper is
 end axiLiteSlaveWrapper;
 
 architecture rtl of axiLiteSlaveWrapper is
-    --! Vinod: Add documentation
+    --! Control signal FSM
     type tFsm is (
         sIDLE,
         sREAD,
@@ -149,17 +152,17 @@ architecture rtl of axiLiteSlaveWrapper is
     signal  byte_enable : std_logic_vector(gDataWidth/8-1 downto 0);
 
     --Signals for FSM
-    --! synchronised fsm state
+    --! synchronized fsm state
     signal  fsm         :  tFsm;
     --! fsm state for combinational logic
     signal  fsm_next    :  tFsm;
 
     --Internal Signals
-    --! control for avalon read signal with fsm
+    --! control for Avalon read signal with fsm
     signal avalonRead          : std_logic;
-    --! Read Data latch for avalon interface
+    --! Read Data latch for Avalon interface
     signal avalonReadDataLatch : std_logic_vector(31 downto 0);
-    --! control for avalon write signal with fsm
+    --! control for Avalon write signal with fsm
     signal avalonWrite         : std_logic;
 
     --! write data from AXI for Avalon interface
@@ -173,11 +176,11 @@ architecture rtl of axiLiteSlaveWrapper is
     signal write_sel    : std_logic;
     --! Read Start for fsm operations
     signal readStart    : std_logic;
-    --! Read select for control read opeartions
+    --! Read select for control read operations
     signal read_sel     : std_logic;
 begin
 
-    --Avalon Slave Interface Singals
+    --Avalon Slave Interface Signals
     oAvsAddress     <= address;
     oAvsByteenable  <= byte_enable;
     oAvsRead        <= avalonRead;
@@ -189,7 +192,6 @@ begin
                     cInactivated when fsm = sREAD_DONE else
                     cInactivated;
 
-
     avalonWrite <=  cActivated when fsm = sWRITE and iWvalid = cActivated else
                     cActivated when fsm = sIDLE and axiDataValid = cActivated else
                     cActivated when fsm = sWRITE_DONE else
@@ -198,7 +200,7 @@ begin
     axiWriteData <= iWdata when axiDataValid = cActivated else
                     axiWriteData;
 
-    -- AXI Lite Write Data Signals
+    -- AXI-Lite Write Data Signals
     oBvalid  <= cActivated when fsm = sWRITE_DONE and iAvsWaitrequest = cInactivated else
                 cActivated when fsm = sWRRES_DONE else
                 cInactivated;
@@ -210,7 +212,7 @@ begin
                 cActivated when fsm = sIDLE and axiDataValid = cActivated else
                 cInactivated;
 
-    -- AXI lite Read Data Signals
+    -- AXI-lite Read Data Signals
     oArready <= cActivated when fsm = sIDLE and readStart = cActivated else
                 cInactivated;
 
@@ -236,12 +238,12 @@ begin
     read_sel  <=    cActivated when iAraddr(31 downto 16) = gBaseAddr(31 downto 16) else
                     cInactivated;
 
-    -- TODO: Check possibilities of reduce the no of bits in MUX/latch design 
-    -- and avoid combinational feedback on mux 
+    -- TODO: Check possibilities of reduce the no of bits in MUX/latch design
+    -- and avoid combinational feedback on MUX
     -- Mux the address first and latch it with FSM
     address     <= mux_address when fsm = sIDLE else
                    address ;
-    
+
     mux_address <= iAraddr when readStart = cActivated else
                    iAwaddr when writeStart = cActivated else
                    x"00000000" ;
@@ -254,7 +256,7 @@ begin
                     iWstrb when writeStart = cActivated and fsm = sIDLE else
                     byte_enable;
 
-    -- Main Control FSM for converting AXI lite signals to Avalon
+    -- Main Control FSM for converting AXI-lite signals to Avalon
     --! Clock Based Process for state changes
     SEQ_LOGIC_FSM : process(iAclk)
     begin
@@ -267,7 +269,7 @@ begin
         end if;
     end process SEQ_LOGIC_FSM;
 
-    --! Control based Process for state updation
+    --! Control State machine
     COM_LOGIC_FSM : process (
         fsm,
         chip_sel,

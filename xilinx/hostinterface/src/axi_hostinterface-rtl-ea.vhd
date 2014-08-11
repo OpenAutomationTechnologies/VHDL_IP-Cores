@@ -1,10 +1,15 @@
 -------------------------------------------------------------------------------
---! @file axi_hostinterface-rtl-ea.vhd
+--! @file axi_hostinterface.vhd
+--
 --! @brief toplevel of host interface for Xilinx FPGA
+--
+--! @details This toplevel interfaces to Xilinx specific implementation.
+--
 -------------------------------------------------------------------------------
 --
---    (c) B&R, 2014
---    (c) Kalycito Infotech Pvt Ltd, 2014
+--    Copyright (c) 2014, Bernecker+Rainer Industrie-Elektronik Ges.m.b.H. (B&R)
+--    Copyright (c) 2014, Kalycito Infotech Private Limited
+--    All rights reserved.
 --
 --    Redistribution and use in source and binary forms, with or without
 --    modification, are permitted provided that the following conditions
@@ -41,12 +46,11 @@
 library ieee;
 --! Use logic elements
 use ieee.std_logic_1164.all;
---! Use numeric std
-use ieee.numeric_std.all;
-
---! Use libcommon library
+--! Use work library
+library work;
+--! Common library
 library libcommon;
---! Use global package
+--! Use global library
 use libcommon.global.all;
 
 entity axi_hostinterface is
@@ -77,7 +81,7 @@ entity axi_hostinterface is
         C_HOST_FAMILY               : string                := "virtex6";
         --! Master Bridge Address Width
         C_M_AXI_ADDR_WIDTH          : integer               := 32;
-        --! Master Bridge Data Widtg Width
+        --! Master Bridge Data Width
         C_M_AXI_DATA_WIDTH          : integer               := 32;
         --! Host Interface Version major
         gVersionMajor               : natural               := 16#FF#;
@@ -231,7 +235,7 @@ entity axi_hostinterface is
         M_AXI_ARPROT                : out   std_logic_vector(2 downto 0);
         --! AXI Bridge Master Read Address Valid
         M_AXI_ARVALID               : out   std_logic;
-        --! AXI Bridge Master Read Addrss Ready
+        --! AXI Bridge Master Read Address Ready
         M_AXI_ARREADY               : in    std_logic;
         --! AXI Bridge Master Read Data
         M_AXI_RDATA                 : in    std_logic_vector(C_M_AXI_DATA_WIDTH-1 downto 0);
@@ -249,7 +253,7 @@ entity axi_hostinterface is
         --! External Sync Source
         iExtSync_exsync             : in    std_logic;
         -- Parallel Host Interface
-        --! Parallel Interface Chipselect
+        --! Parallel Interface Chip select
         iParHost_chipselect         : in    std_logic;
         --! Parallel Interface  Read Signal
         iParHost_read               : in    std_logic;
@@ -259,23 +263,23 @@ entity axi_hostinterface is
         iParHost_addressLatchEnable : in    std_logic;
         --! Parallel Interface High active Acknowledge
         oParHost_acknowledge        : out   std_logic;
-        --! Parallel Interface  Byteenables
+        --! Parallel Interface  Byte enables
         iParHost_byteenable         : in    std_logic_vector(gParallelDataWidth/8-1 downto 0);
-        --! Parallel Interface  Address bus (Demultiplexed, word-address)
+        --! Parallel Interface  Address bus (De-multiplexed, word-address)
         iParHost_address            : in    std_logic_vector(15 downto 0);
         -- Data bus IO
-        --! Parallel Interface  Data bus input (Demultiplexed)
+        --! Parallel Interface  Data bus input (De-multiplexed)
         iParHost_data_io            : in    std_logic_vector(gParallelDataWidth-1 downto 0);
-        --! Parallel Interface  Data bus output (Demultiplexed)
+        --! Parallel Interface  Data bus output (De-multiplexed)
         oParHost_data_io            : out   std_logic_vector(gParallelDataWidth-1 downto 0);
-        --! Parallel Interface  Data bus tristate enable (Demultiplexed)
+        --! Parallel Interface  Data bus tri-state enable (De-multiplexed)
         oParHost_data_io_tri        : out   std_logic;
         -- Address/data bus IO
         --! Parallel Interface  Address/Data bus input (Multiplexed, word-address))
         iParHost_addressData_io     : in    std_logic_vector(gParallelDataWidth-1 downto 0);
         --! Parallel Interface  Address/Data bus output (Multiplexed, word-address))
         oParHost_addressData_io     : out   std_logic_vector(gParallelDataWidth-1 downto 0);
-        --! Parallel Interface  Address/Data bus tristate Enable(Multiplexed, word-address))
+        --! Parallel Interface  Address/Data bus tri-state Enable(Multiplexed, word-address))
         oParHost_addressData_tri    : out   std_logic
     );
 
@@ -317,7 +321,7 @@ architecture rtl of axi_hostinterface is
     --! Use memory blocks or registers for translation address storage (registers = 0, memory blocks /= 0)
     constant cBridgeUseMemBlock : natural := cTrue;
 
-    --TODO: Export Nons-secure transations signals to top level 
+    --TODO: Export Non-secure transitions signals to top level
     --! Non-secure Write signal for PCP Slave interface
     signal S_AXI_PCP_AWPROT     :  std_logic_vector(2 downto 0);
     --! Non-secure Read signal for PCP Slave interface
@@ -327,8 +331,8 @@ architecture rtl of axi_hostinterface is
     --! Non-Secure Read signal for Host Slave interface
     signal S_AXI_HOST_ARPROT    :  std_logic_vector(2 downto 0);
 
-    --Signals for warapper to PCP Host Interface
-    --! Avalon slave Address for PCP 
+    --Signals for wrapper to PCP Host Interface
+    --! Avalon slave Address for PCP
     signal  AvsPcpAddress      :  std_logic_vector(31 downto 0);
     --! Avalon slave byte enable for PCP
     signal  AvsPcpByteenable   :  std_logic_vector(3 downto 0);
@@ -336,7 +340,7 @@ architecture rtl of axi_hostinterface is
     signal  AvsPcpRead         :  std_logic;
     --! Avalon slave Write signal for PCP
     signal  AvsPcpWrite        :  std_logic;
-    --! Avalon slave Write Data for PCP 
+    --! Avalon slave Write Data for PCP
     signal  AvsPcpWritedata    :  std_logic_vector(31 downto 0);
     --! Avalon slave Read Data for PCP
     signal  AvsPcpReaddata     :  std_logic_vector(31 downto 0);
@@ -358,48 +362,48 @@ architecture rtl of axi_hostinterface is
     signal  avm_hostBridge_writedata        : std_logic_vector(31 downto 0);
     --! Avalon master wait request for Bridge Interface
     signal  avm_hostBridge_waitrequest      : std_logic;
-    
+
     -- Host Interface Internal Bus (For Internal Host Processor)
     --! Avalon slave Address for Host processor
     signal  AvsHostAddress      :  std_logic_vector(31 downto 0);
     --! Avalon slave Byte enable for Host processor
     signal  AvsHostByteenable   :  std_logic_vector(3 downto 0);
-    --! Avalon slave Read signal for Host processor 
+    --! Avalon slave Read signal for Host processor
     signal  AvsHostRead         :  std_logic;
     --! Avalon slave Write signal for Host processor
     signal  AvsHostWrite        :  std_logic;
     --! Avalon slave write data for Host processor
     signal  AvsHostWritedata    :  std_logic_vector(31 downto 0);
-    --! Avalon slave Read data for Host processor 
+    --! Avalon slave Read data for Host processor
     signal  AvsHostReaddata     :  std_logic_vector(31 downto 0);
     --! Avalon Slave wait request for Host Processor
     signal  AvsHostWaitrequest  :  std_logic;
 
     -- Common signals used for different host source (internal/External)
-    --! Host Processor (External/Internal) Address 
+    --! Host Processor (External/Internal) Address
     signal  host_address        : std_logic_vector(16 downto 2);
     --! Host Processor (External/Internal) Byte enable
     signal  host_byteenable     : std_logic_vector(3 downto 0);
     --! Host Processor (External/Internal) Read signal
     signal  host_Read           : std_logic;
-    --! Host Processor (External/Internal) Read Data 
+    --! Host Processor (External/Internal) Read Data
     signal  host_readdata       : std_logic_vector(31 downto 0);
     --! Host Processor (External/Internal) write signal
     signal  host_write          : std_logic;
     --! Host Processor (External/Internal) write data
     signal  host_writedata      : std_logic_vector(31 downto 0);
-    --! Host Processor (External/Internal) wait request 
+    --! Host Processor (External/Internal) wait request
     signal  host_waitrequest    : std_logic;
 
     --! Clock signal for host interface and axi-wrappers
     signal  hostif_clock        : std_logic;
     --! Active high Reset for host interface
     signal  hostif_reset        : std_logic;
-    
-    --! Word alligned address for Bridge signal 
+
+    --! Word aligned address for Bridge signal
     signal AxiLiteBridgeAddress : std_logic_vector(31 downto 0);
 begin
-    
+
     -- clock signal host interface IP core
     hostif_clock <= S_AXI_PCP_ACLK;
     -- Active high for rest for Host interface IP core
@@ -461,9 +465,9 @@ begin
     );
 
     ---------------------------------------------------------------------------
-    --  PCP AXI lite Slave Interface Wrapper
+    --  PCP AXI-lite Slave Interface Wrapper
     ---------------------------------------------------------------------------
-    --! AXI lite slave wrapper for PCP interface of HostinterfaceIP core
+    --! AXI-lite slave wrapper for PCP interface of HostinterfaceIP core
     AXI_LITE_SLAVE_PCP: entity work.axiLiteSlaveWrapper
     generic map (
         gBaseAddr       => C_BASEADDR,
@@ -510,9 +514,9 @@ begin
     );
 
     ---------------------------------------------------------------------------
-    --  Bridge AXI lite Master Interface Wrapper
+    --  Bridge AXI-lite Master Interface Wrapper
     ---------------------------------------------------------------------------
-    --! AXI Lite Master Wrapper for Memory Interface of HostinterfaceIP Core
+    --! AXI-Lite Master Wrapper for Memory Interface of HostinterfaceIP Core
     AXI_LITE_MASTER_BRIDGE: entity work.axiLiteMasterWrapper
     generic map (
         gAddrWidth          => C_M_AXI_ADDR_WIDTH,
@@ -561,15 +565,15 @@ begin
     );
 
     --TODO: Try to use full memory range, now its allowed only up to 0x3FFFFFFF
-    --Convert 30bit address from avalon master to 32 bit for AXI
+    --Convert 30bit address from Avalon master to 32 bit for AXI
     AxiLiteBridgeAddress <= "00" & avm_hostBridge_address;
     ---------------------------------------------------------------------------
-    --  HOST AXI lite Slave Interface Wrapper
+    --  HOST AXI-lite Slave Interface Wrapper
     ---------------------------------------------------------------------------
-    -- Generate AXI lite slave Interface for Internal Processor Communication
+    -- Generate AXI-lite slave Interface for Internal Processor Interface
     genAxiHost : if gHostIfType = 0 generate
     begin
-        --! AXI lite slave wrapper for comunicating with internal processor
+        --! AXI-lite slave wrapper for internal processor
         AXI_LITE_SLAVE_HOST: entity work.axiLiteSlaveWrapper
         generic map (
             gBaseAddr       => C_HOST_BASEADDR,
@@ -615,7 +619,7 @@ begin
             iAvsWaitrequest => AvsHostWaitrequest
         );
 
-        -- Interface signals are handover to common signals used for 
+        -- Interface signals are hand over to common signals used for
         -- both external and internal processor
         host_address        <= AvsHostAddress(16 downto 2);
         host_byteenable     <= AvsHostByteenable;
@@ -629,19 +633,19 @@ begin
     ---------------------------------------------------------------------------
     --  Parallel Interface External Host Processor
     ---------------------------------------------------------------------------
-    -- Generate Parallel Interface for External Processor communication
+    -- Generate Parallel Interface for External Processor Interface
     genParallel : if gHostIfType = 1 generate
-        --! Host Data input signal for parallel Inteface
+        --! Host Data input signal for parallel Interface
         signal hostData_i        : std_logic_vector(gParallelDataWidth-1 downto 0);
         --! Host Data output signal for Parallel Interface
         signal hostData_o        : std_logic_vector(gParallelDataWidth-1 downto 0);
-        --! Host Data Enable for switch between input and out for a tristate buffer
+        --! Host Data Enable for switch between input and out for a tri-state buffer
         signal hostData_en       : std_logic;
-        --! AddressData input signal for Multiplexed address/data 
+        --! AddressData input signal for Multiplexed address/data
         signal hostAddressData_i : std_logic_vector(gParallelDataWidth-1 downto 0);
         --! AddressData output signal for Multiplexed address/data
         signal hostAddressData_o : std_logic_vector(gParallelDataWidth-1 downto 0);
-        --! AddressData Enable for switch between address and data for a tristate buffer 
+        --! AddressData Enable for switch between address and data for a tri-state buffer
         signal hostAddressData_en: std_logic;
     begin
         --! Parallel interface For communicating with external Processor
@@ -675,13 +679,13 @@ begin
             iHostWaitrequest            => host_waitrequest
         );
 
-        -- Added for Xilinx Design for enabling tristate IO Buffers
+        -- Added for Xilinx Design for enabling tri-state IO Buffers
         -- '1' for In '0' for Out
         hostData_i              <= iParHost_data_io;
         oParHost_data_io        <= hostData_o;
         oParHost_data_io_tri    <= not hostData_en;
 
-        -- Added for Xilinx Design for enabling tristate IO Buffers
+        -- Added for Xilinx Design for enabling tri-state IO Buffers
         hostAddressData_i           <= iParHost_addressData_io;
         oParHost_addressData_io     <= hostAddressData_o;
         oParHost_addressData_tri    <= not hostAddressData_en;
