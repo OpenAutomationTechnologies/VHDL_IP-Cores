@@ -1,42 +1,45 @@
-##------------------------------------------------------------------------------
-##-- HOST INTERFACE XPS AXI Component (TCL)
-##------------------------------------------------------------------------------
-###############################################################################
-##
-##    (c) B&R, 2014
-##    (c) Kalycito Infotech Pvt Ltd, 2014
-##
-##    Redistribution and use in source and binary forms, with or without
-##    modification, are permitted provided that the following conditions
-##    are met:
-##
-##    1. Redistributions of source code must retain the above copyright
-##       notice, this list of conditions and the following disclaimer.
-##
-##    2. Redistributions in binary form must reproduce the above copyright
-##       notice, this list of conditions and the following disclaimer in the
-##       documentation and/or other materials provided with the distribution.
-##
-##    3. Neither the name of B&R nor the names of its
-##       contributors may be used to endorse or promote products derived
-##       from this software without prior written permission. For written
-##       permission, please contact office@br-automation.com
-##
-##    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-##    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-##    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-##    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-##    COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-##    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-##    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-##    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-##    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-##    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-##    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-##    POSSIBILITY OF SUCH DAMAGE.
-##
-###############################################################################
-
+#------------------------------------------------------------------------------
+#-- HOST INTERFACE XPS AXI Component (TCL)
+#------------------------------------------------------------------------------
+#
+#   (c) B&R, 2014
+#   (c) Kalycito Infotech Private Limited, 2014
+#
+#   Redistribution and use in source and binary forms, with or without
+#   modification, are permitted provided that the following conditions
+#   are met:
+#
+#   1. Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#
+#   2. Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#
+#   3. Neither the name of B&R nor the names of its
+#      contributors may be used to endorse or promote products derived
+#      from this software without prior written permission. For written
+#      permission, please contact office@br-automation.com
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#   FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+#   COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#   BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+#   CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+#   LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+#   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#   POSSIBILITY OF SUCH DAMAGE.
+#
+# -----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#-- Version History
+#-------------------------------------------------------------------------------
+# -- 2014-01-13    V0.01    Vinod PA            initial draft
+#-------------------------------------------------------------------------------
 #uses "xillib.tcl"
 
 proc calc_baseadr_dbuf1 { param_handle} {
@@ -218,6 +221,7 @@ proc calc_size_Pdo {param_handle} {
 
 
 
+
 proc calc_total_memory { param_handle} {
      set mhsinst      [xget_hw_parent_handle $param_handle]
      set listGuiParam [list "Size_KB_DynBuf0" "Size_KB_DynBuf1" "Size_B_ErrorCounter" "Size_KB_TxNmtQ" "Size_KB_TxGenQ" "Size_KB_TxSynQ" "Size_KB_TxVetQ" "Size_KB_RxVetQ" "Size_KB_K2UQ" "Size_KB_U2KQ" "Size_B_Pdo"]
@@ -295,19 +299,19 @@ proc my_xdefine_include_file {drv_handle file_name drv_string args} {
      }
      }
      puts $file_handle "\n /* INIT VECTOR */
-          \n #define HOSTIF_INIT_VEC { \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_DYNBUF0, HOSTIF_SIZE_DYNBUF0 },  \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_DYNBUF1, HOSTIF_SIZE_DYNBUF1 },  \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_ERRORCOUNTER, HOSTIF_SIZE_ERRORCOUNTER }, \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_TXNMTQ, HOSTIF_SIZE_TXNMTQ },  \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_TXGENQ, HOSTIF_SIZE_TXGENQ },  \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_TXSYNCQ, HOSTIF_SIZE_TXSYNCQ }, \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_TXVETHQ, HOSTIF_SIZE_TXVETHQ }, \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_RXVETHQ, HOSTIF_SIZE_RXVETHQ }, \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_K2UQ, HOSTIF_SIZE_K2UQ }, \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_U2KQ, HOSTIF_SIZE_U2KQ }, \\ \
-                \n\t\t\t\t\t\t  { HOSTIF_BASE_PDO, HOSTIF_SIZE_PDO }, \\ \
-                \n\t\t\t\t\t\t }"
+                     \n #define HOSTIF_INIT_VEC {\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_DYNBUF0, HOSTIF_SIZE_DYNBUF0 },\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_DYNBUF1, HOSTIF_SIZE_DYNBUF1 },\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_ERRORCOUNTER, HOSTIF_SIZE_ERRORCOUNTER },\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_TXNMTQ, HOSTIF_SIZE_TXNMTQ },\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_TXGENQ, HOSTIF_SIZE_TXGENQ },\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_TXSYNCQ, HOSTIF_SIZE_TXSYNCQ },\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_TXVETHQ, HOSTIF_SIZE_TXVETHQ },\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_RXVETHQ, HOSTIF_SIZE_RXVETHQ },\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_K2UQ, HOSTIF_SIZE_K2UQ },\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_U2KQ, HOSTIF_SIZE_U2KQ },\\\
+                     \n\t\t\t\t\t\t  { HOSTIF_BASE_PDO, HOSTIF_SIZE_PDO },\\\
+                     \n\t\t\t\t\t\t }"
      puts $file_handle "\n/******************************************************************/\n"
      close $file_handle
 }
@@ -316,7 +320,6 @@ proc my_xdefine_include_file {drv_handle file_name drv_string args} {
 proc my_xget_name {periph_handle param} {
      set name [xget_value $periph_handle "NAME"]
      set name [string toupper $name]
-     set name [format "mani_%s_" $name]
      if {[string match C_* $param]} {
      set name [format "%s%s" $name [string range $param 2 end]]
      } elseif {[string compare $param "gBaseDynBuf0"] == 0} {
@@ -340,7 +343,7 @@ proc my_xget_name {periph_handle param} {
      } elseif {[string compare $param "gBaseU2KQ"] == 0} {
      set name [format "%s%s" "HOSTIF_BASE_" "U2KQ"]
      } elseif {[string compare $param "gBasePdo"] == 0} {
-     set name [format "%s%s" "HOSTIF_BASE_" "Pdo"]
+     set name [format "%s%s" "HOSTIF_BASE_" "PDO"]
      } elseif {[string compare $param "gBaseRes"] == 0} {
      set name [format "%s%s" "HOSTIF_BASE_" "RES"]
      } elseif {[string compare $param "Conv_Size_KB_DynBuf0"] == 0} {
@@ -378,4 +381,3 @@ proc my_xget_name {periph_handle param} {
      }
      return $name
 }
-

@@ -11,7 +11,7 @@ common/hostinterface/src/dynamicBridgeRtl.vhd \
 common/hostinterface/src/irqGenRtl.vhd \
 common/hostinterface/src/statusControlRegRtl.vhd \
 common/hostinterface/src/hostInterfaceRtl.vhd \
-common/hostinterface/src/parallelInterfaceRtl.vhd \
+xilinx/parallelinterface/src/parallelInterface-rtl-ea.vhd \
 common/axiwrapper/src/axiLiteMasterWrapper-rtl-ea.vhd \
 common/axiwrapper/src/axiLiteSlaveWrapper-rtl-ea.vhd \
 xilinx/hostinterface/src/axi_hostinterface-rtl-ea.vhd \

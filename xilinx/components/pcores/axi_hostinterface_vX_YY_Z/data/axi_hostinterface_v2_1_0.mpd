@@ -1,38 +1,37 @@
-###############################################################################
-##
-##    (c) B&R, 2014
-##    (c) Kalycito Infotech Pvt Ltd, 2014
-##
-##    Redistribution and use in source and binary forms, with or without
-##    modification, are permitted provided that the following conditions
-##    are met:
-##
-##    1. Redistributions of source code must retain the above copyright
-##       notice, this list of conditions and the following disclaimer.
-##
-##    2. Redistributions in binary form must reproduce the above copyright
-##       notice, this list of conditions and the following disclaimer in the
-##       documentation and/or other materials provided with the distribution.
-##
-##    3. Neither the name of B&R nor the names of its
-##       contributors may be used to endorse or promote products derived
-##       from this software without prior written permission. For written
-##       permission, please contact office@br-automation.com
-##
-##    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-##    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-##    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-##    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-##    COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-##    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-##    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-##    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-##    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-##    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-##    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-##    POSSIBILITY OF SUCH DAMAGE.
-##
-###############################################################################
+#
+#   (c) B&R, 2014
+#   (c) Kalycito Infotech Private Limited, 2014
+#
+#   Redistribution and use in source and binary forms, with or without
+#   modification, are permitted provided that the following conditions
+#   are met:
+#
+#   1. Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#
+#   2. Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#
+#   3. Neither the name of B&R nor the names of its
+#      contributors may be used to endorse or promote products derived
+#      from this software without prior written permission. For written
+#      permission, please contact office@br-automation.com
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+#   FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+#   COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#   BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+#   CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+#   LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+#   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#   POSSIBILITY OF SUCH DAMAGE.
+#
+# -----------------------------------------------------------------------------
 
 BEGIN axi_hostinterface
 
@@ -65,7 +64,7 @@ PARAMETER C_S_AXI_PCP_ADDR_WIDTH = 32,         DT = INTEGER,           BUS = S_A
 PARAMETER C_S_AXI_PCP_PROTOCOL   = AXI4LITE,   DT = STRING,            BUS = S_AXI_PCP, ASSIGNMENT = CONSTANT, TYPE = NON_HDL
 
 PARAMETER C_BASEADDR             = 0xffffffff, DT = std_logic_vector,  BUS = S_AXI_PCP, PAIR = C_HIGHADDR, ADDRESS = BASE, MIN_SIZE = 0x10000
-PARAMETER C_HIGHADDR             = 0x00000000, DT = std_logic_vector,  BUS = S_AXI_PCP, PAIR = C_BASEADDR, ADDRESS = HIGH 
+PARAMETER C_HIGHADDR             = 0x00000000, DT = std_logic_vector,  BUS = S_AXI_PCP, PAIR = C_BASEADDR, ADDRESS = HIGH
 
 ###############################################################################
 ## Generic for Host processor interface
@@ -81,7 +80,7 @@ PARAMETER C_HOST_HIGHADDR         = 0x00000000, DT = std_logic_vector,  PAIR = C
 ## Generic used for Master Bridge
 PARAMETER C_M_AXI_ADDR_WIDTH      = 32,        DT = INTEGER, ASSIGNMENT = CONSTANT, BUS = M_AXI_PCP
 PARAMETER C_M_AXI_DATA_WIDTH      = 32,        DT = INTEGER, ASSIGNMENT = CONSTANT, BUS = M_AXI_PCP
-PARAMETER C_M_AXI_PROTOCOL        = AXI4Lite,  DT = string,  ASSIGNMENT = CONSTANT, BUS = M_AXI_PCP, TYPE = NON_HDL 
+PARAMETER C_M_AXI_PROTOCOL        = AXI4Lite,  DT = string,  ASSIGNMENT = CONSTANT, BUS = M_AXI_PCP, TYPE = NON_HDL
 PARAMETER C_M_AXI_SUPPORTS_READ   = 1,         DT = integer, ASSIGNMENT = CONSTANT, BUS = M_AXI_PCP, TYPE = NON_HDL
 PARAMETER C_M_AXI_SUPPORTS_WRITE  = 1,         DT = integer, ASSIGNMENT = CONSTANT, BUS = M_AXI_PCP, TYPE = NON_HDL
 
@@ -89,9 +88,9 @@ PARAMETER C_M_AXI_SUPPORTS_WRITE  = 1,         DT = integer, ASSIGNMENT = CONSTA
 ## Generics used for Host Interface IP
 
 PARAMETER gHostIfType       = 1,    DT = INTEGER, RANGE = (0:1),    VALUES = (0 = "Internal AXI Bus", 1 = "Parallel Interface" )
-PARAMETER gVersionMajor     = 0xFF, DT = INTEGER, RANGE = (0:65535), ASSIGNMENT = CONSTANT
-PARAMETER gVersionMinor     = 0xFF, DT = INTEGER, RANGE = (0:65535), ASSIGNMENT = CONSTANT
-PARAMETER gVersionRevision  = 0xFF, DT = INTEGER, RANGE = (0:65535), ASSIGNMENT = CONSTANT
+PARAMETER gVersionMajor     = 0x1,  DT = INTEGER, RANGE = (0:65535), ASSIGNMENT = CONSTANT
+PARAMETER gVersionMinor     = 0x0,  DT = INTEGER, RANGE = (0:65535), ASSIGNMENT = CONSTANT
+PARAMETER gVersionRevision  = 0x0,  DT = INTEGER, RANGE = (0:65535), ASSIGNMENT = CONSTANT
 PARAMETER gVersionCount     = 0x0,  DT = INTEGER, RANGE = (0:65535), ASSIGNMENT = CONSTANT
 
 ###############################################################################
@@ -234,8 +233,8 @@ PORT ioParHost_data_io           = "", DIR = INOUT, IO_IF = PAP, ISVALID = (gHos
 PORT iParHost_addressLatchEnable = "", DIR = I,     IO_IF = PAP, ISVALID = (gParallelMultiplex == 1)
 
 ###############################################################################
-PORT iParHost_addressData_io     = "", DIR = I,     IO_IF = PAP, ISVALID = (gParallelMultiplex == 1), VEC =[gParallelDataWidth-1:0] 
-PORT oParHost_addressData_io     = "", DIR = O,     IO_IF = PAP, ISVALID = (gParallelMultiplex == 1), VEC =[gParallelDataWidth-1:0]  
+PORT iParHost_addressData_io     = "", DIR = I,     IO_IF = PAP, ISVALID = (gParallelMultiplex == 1), VEC =[gParallelDataWidth-1:0]
+PORT oParHost_addressData_io     = "", DIR = O,     IO_IF = PAP, ISVALID = (gParallelMultiplex == 1), VEC =[gParallelDataWidth-1:0]
 PORT oParHost_addressData_tri    = "", DIR = O,     IO_IF = PAP, ISVALID = (gParallelMultiplex == 1)
 PORT ioParHost_addressData_io    = "", DIR = INOUT, IO_IF = PAP, ISVALID = (gParallelMultiplex == 1), VEC =[gParallelDataWidth-1:0], THREE_STATE = TRUE, TRI_I = iParHost_addressData_io, TRI_O = oParHost_addressData_io, TRI_T = oParHost_addressData_tri
 

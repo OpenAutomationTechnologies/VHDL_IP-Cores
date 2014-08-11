@@ -71,7 +71,7 @@ cp --parents common/hostinterface/src/hostInterfaceRtl.vhd          ${DIR_RELEAS
 cp --parents common/hostinterface/src/irqGenRtl.vhd                 ${DIR_RELEASE}
 cp --parents common/hostinterface/src/dynamicBridgeRtl.vhd          ${DIR_RELEASE}
 cp --parents common/hostinterface/src/statusControlRegRtl.vhd       ${DIR_RELEASE}
-cp --parents common/hostinterface/src/parallelInterfaceRtl.vhd      ${DIR_RELEASE}
+cp --parents xilinx/parallelinterface/src/parallelInterface-rtl-ea.vhd      ${DIR_RELEASE}
 
 cp --parents common/axiwrapper/src/axiLiteSlaveWrapper-rtl-ea.vhd   ${DIR_RELEASE}
 cp --parents common/axiwrapper/src/axiLiteMasterWrapper-rtl-ea.vhd  ${DIR_RELEASE}
