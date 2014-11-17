@@ -13,7 +13,7 @@ fi
 
 if [ -z "${IP_VERSION}" ];
 then
-    IP_VERSION=v1_01_a
+    IP_VERSION=v1_02_a
 fi
 
 DIR_AXI="axi_openmac_${IP_VERSION}"

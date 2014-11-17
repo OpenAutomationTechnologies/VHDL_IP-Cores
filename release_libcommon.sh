@@ -12,7 +12,7 @@ fi
 
 if [ -z "${IP_VERSION}" ];
 then
-    IP_VERSION=v1_01_a
+    IP_VERSION=v1_02_a
 fi
 
 DIR_XIL="libcommon_${IP_VERSION}"
