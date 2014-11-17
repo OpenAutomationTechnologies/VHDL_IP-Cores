@@ -67,7 +67,7 @@ set cPhyPortMii     $::openmac::cPhyPortMii
 # module
 # -----------------------------------------------------------------------------
 set_module_property NAME openmac
-set_module_property VERSION 1.0.1
+set_module_property VERSION 1.0.2
 set_module_property INTERNAL false
 set_module_property GROUP "Interface Protocols/Ethernet"
 set_module_property AUTHOR "B&R"

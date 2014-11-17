@@ -43,7 +43,7 @@ source ../components/tcl/tripleBuffer.tcl
 # module
 # -----------------------------------------------------------------------------
 set_module_property NAME tripleBuffer
-set_module_property VERSION 1.0.1
+set_module_property VERSION 1.0.2
 set_module_property INTERNAL false
 set_module_property GROUP "Memory"
 set_module_property AUTHOR "B&R"
