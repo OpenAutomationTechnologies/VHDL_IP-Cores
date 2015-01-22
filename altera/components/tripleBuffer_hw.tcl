@@ -223,6 +223,10 @@ proc elaboration_callback {} {
         send_message info "porta -> Read size = $sizeCon | Write size = $sizePro"
     }
 
+    if { $sizeCon != $sizePro } {
+        send_message warning "The size of the consumer and producer triple buffer needs to be equal on some targets! (e.g: SPI master + DMA)"
+    }
+
     # -------------------------------------------------------------------------
     # Get Input Memory Map
 
