@@ -1,0 +1,13 @@
+#!/bin/bash
+# Settings file for running simulation.
+
+SRC_LIST="\
+common/atomicmodify/src/atomicmodifyRtl.vhd \
+common/atomicmodify/tb/tbAtomicmodifyBhv.vhd \
+"
+
+GEN_LIST=( \
+"gStim=common/atomicmodify/tb/tbAtomicmodify_stim.txt"
+)
+
+TOP_LEVEL=tbAtomicmodify
