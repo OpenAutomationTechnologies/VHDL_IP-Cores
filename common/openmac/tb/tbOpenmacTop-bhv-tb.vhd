@@ -201,6 +201,7 @@ architecture bhv of tbOpenmacTop is
         read        : std_logic;
         waitrequest : std_logic;
         address     : std_logic_vector(cMacTimerAddrWidth-1 downto 0);
+        byteenable  : std_logic_vector(cMacTimerDataWidth/cByteLength-1 downto 0);
         writedata   : std_logic_vector(cMacTimerDataWidth-1 downto 0);
         readdata    : std_logic_vector(cMacTimerDataWidth-1 downto 0);
     end record;
@@ -346,6 +347,7 @@ begin
 
         -- assign dut signals
         dut_macTimer.address    <= stim_macTimer.address(dut_macTimer.address'range);
+        dut_macTimer.byteenable <= stim_macTimer.byteenable;
         dut_macTimer.chipselect <= stim_macTimer.sel;
         dut_macTimer.read       <= stim_macTimer.read;
         dut_macTimer.write      <= stim_macTimer.write;
@@ -584,6 +586,7 @@ begin
         iMacTimer_read          => dut_macTimer.read,
         oMacTimer_waitrequest   => dut_macTimer.waitrequest,
         iMacTimer_address       => dut_macTimer.address,
+        iMacTimer_byteenable    => dut_macTimer.byteenable,
         iMacTimer_writedata     => dut_macTimer.writedata,
         oMacTimer_readdata      => dut_macTimer.readdata,
         iPktBuf_chipselect      => dut_macPktBuf.chipselect,
