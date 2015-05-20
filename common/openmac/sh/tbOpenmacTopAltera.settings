@@ -6,8 +6,10 @@ STIM_FILE_MACTIMER="common/openmac/tb/tbOpenmacTop-macTimer_stim.txt"
 
 SRC_LIST="\
 common/memory/src/dpRam-e.vhd \
+common/memory/src/dpRamOpenmac-e.vhd \
 common/memory/src/dpRamSplx-e.vhd \
 altera/memory/src/dpRam-rtl-a.vhd \
+altera/memory/src/dpRamOpenmac-rtl-a.vhd \
 altera/memory/src/dpRamSplx-rtl-a.vhd \
 \
 common/fifo/src/asyncFifo-e.vhd \
