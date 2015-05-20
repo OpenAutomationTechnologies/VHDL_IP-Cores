@@ -8,7 +8,7 @@ SRC_LIST="\
 common/memory/src/dpRam-e.vhd \
 common/memory/src/dpRamSplx-e.vhd \
 common/memory/src/dpRamSplxNbe-e.vhd \
-common/memory/src/dpRam-bhv-a.vhd \
+xilinx/memory/src/dpRam-rtl-a.vhd \
 xilinx/memory/src/dpRamSplx-rtl-a.vhd \
 xilinx/memory/src/dpRamSplxNbe-rtl-a.vhd \
 \
