@@ -1,0 +1,40 @@
+#!/bin/bash
+# Settings file for running simulation.
+STIM_FILE_MACREG="common/openmac/tb/tbOpenmacTop-macReg_stim.txt"
+STIM_FILE_PKTBUF="common/openmac/tb/tbOpenmacTop-pktBuf_stim.txt"
+STIM_FILE_MACTIMER="common/openmac/tb/tbOpenmacTop-macTimer_stim.txt"
+
+SRC_LIST="\
+common/memory/src/dpRam-e.vhd \
+common/memory/src/dpRamOpenmac-e.vhd \
+common/memory/src/dpRamSplx-e.vhd \
+altera/memory/src/dpRam-rtl-a.vhd \
+altera/memory/src/dpRamOpenmac-rtl-a.vhd \
+altera/memory/src/dpRamSplx-rtl-a.vhd \
+\
+common/fifo/src/asyncFifo-e.vhd \
+altera/fifo/src/asyncFifo-syn-a.vhd
+\
+common/openmac/src/openmacPkg-p.vhd \
+common/openmac/src/dma_handler.vhd \
+common/openmac/src/master_handler.vhd \
+common/openmac/src/openMAC_DMAmaster.vhd \
+common/openmac/src/openfilter-rtl-ea.vhd \
+common/openmac/src/openhub-rtl-ea.vhd \
+common/openmac/src/openmacTimer-rtl-ea.vhd \
+common/openmac/src/phyActGen-rtl-ea.vhd \
+common/openmac/src/phyMgmt-rtl-ea.vhd \
+common/openmac/src/convRmiiToMii-rtl-ea.vhd \
+common/openmac/src/openmac-rtl-ea.vhd \
+common/openmac/src/openmacTop-rtl-ea.vhd \
+\
+common/openmac/tb/tbOpenmacTop-bhv-tb.vhd \
+"
+
+GEN_LIST="\
+gStimFileMacReg=${STIM_FILE_MACREG} \
+gStimFilePktBuf=${STIM_FILE_PKTBUF} \
+gStimFileMacTimer=${STIM_FILE_MACTIMER} \
+"
+
+TOP_LEVEL=tbOpenmacTop

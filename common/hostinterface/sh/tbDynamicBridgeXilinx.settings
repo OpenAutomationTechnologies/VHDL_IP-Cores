@@ -1,0 +1,16 @@
+#!/bin/bash
+# Settings file for running simulation.
+
+STIM_FILE="gStim=common/hostinterface/tb/tbDynamicBridgeBhv-stim.txt"
+
+SRC_LIST="\
+common/memory/src/dpRam-e.vhd \
+xilinx/memory/src/dpRam-rtl-a.vhd \
+common/hostinterface/src/hostInterfacePkg.vhd \
+common/hostinterface/src/dynamicBridgeRtl.vhd \
+common/hostinterface/tb/tbDynamicBridgeBhv.vhd \
+"
+
+GEN_LIST=("gUseMemBlock=0 $STIM_FILE" "gUseMemBlock=1 $STIM_FILE")
+
+TOP_LEVEL=tbDynamicBridge
