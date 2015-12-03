@@ -1,0 +1,14 @@
+{ "signal" : [
+  { "name": "CS",          "wave": "x..1|.|x...." },
+  { "name": "ALE",         "wave": "010.|.|....x" },
+  { "name": "WR",          "wave": "0..1|.|0...." },
+  { "name": "RD",          "wave": "0...|.|....." },
+  { "name": "BE",          "wave": "x..5|.|x....",    "data": ["BE"] },
+  { "name": "AD",          "wave": "z3x4|.|z...x",    "data": ["A0","D0"] },
+  { "name": "ACK",         "wave": "0...|1|...0." }
+],
+  foot : {
+    text:'Core clock [cycles]',
+    tock:0
+  }
+}
