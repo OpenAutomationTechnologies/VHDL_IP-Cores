@@ -103,7 +103,7 @@ architecture rtl of atomicmodify is
 
     -- register set
     type tReg is record
-        address         : std_logic_vector(iSlv_address'range);
+        address         : std_logic_vector(oMst_address'range);
         byteenable      : std_logic_vector(oMst_byteenable'range);
         writedata       : std_logic_vector(oMst_writedata'range);
         readdata        : std_logic_vector(iMst_readdata'range);
@@ -152,7 +152,7 @@ begin
             when sIdle =>
                 if iSlv_write = cActivated and reg.ack = cInactivated then
                     reg_next.fsm        <= sRead;
-                    reg_next.address    <= iSlv_address;
+                    reg_next.address    <= iSlv_address & "00";
                     reg_next.byteenable <= iSlv_byteenable;
                     reg_next.writedata  <= iSlv_writedata;
                 elsif iSlv_read = cActivated and reg.ack = cInactivated then
@@ -177,7 +177,7 @@ begin
     oSlv_waitrequest    <= not reg.ack;
     oSlv_readdata       <= reg.readdata;
 
-    oMst_address        <= reg.address & "00";
+    oMst_address        <= reg.address;
     oMst_byteenable     <= reg.byteenable;
     oMst_writedata      <= reg.writedata;
     oMst_read           <= cActivated when reg.fsm = sRead else cInactivated;
