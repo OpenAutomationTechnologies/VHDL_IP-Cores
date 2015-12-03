@@ -109,8 +109,8 @@ entity tbOpenmacTop is
         gPacketBufferLog2Size   : natural := 10;
         -----------------------------------------------------------------------
         -- MAC timer configuration
-        --! Number of timers
-        gTimerCount             : natural := 2;
+        --! Enable pulse timer
+        gTimerEnablePulse       : natural := cFalse;
         --! Enable timer pulse width control
         gTimerEnablePulseWidth  : natural := cFalse;
         --! Timer pulse width register width
@@ -234,9 +234,10 @@ architecture bhv of tbOpenmacTop is
 
     --! Interrupt type
     type tDutInterrupt is record
-        timer   : std_logic;
-        tx      : std_logic;
-        rx      : std_logic;
+        timer       : std_logic;
+        timerPulse  : std_logic;
+        tx          : std_logic;
+        rx          : std_logic;
     end record;
 
     --! RMII phy port type
@@ -267,7 +268,6 @@ architecture bhv of tbOpenmacTop is
     --! Other port type
     type tDutOther is record
         activity    : std_logic;
-        timer       : std_logic_vector(gTimerCount-1 downto 0);
     end record;
 
     ---------------------------------------------------------------------------
@@ -561,7 +561,7 @@ begin
         gPacketBufferLocTx      => gPacketBufferLocTx,
         gPacketBufferLocRx      => gPacketBufferLocRx,
         gPacketBufferLog2Size   => gPacketBufferLog2Size,
-        gTimerCount             => gTimerCount,
+        gTimerEnablePulse       => gTimerEnablePulse,
         gTimerEnablePulseWidth  => gTimerEnablePulseWidth,
         gTimerPulseRegWidth     => gTimerPulseRegWidth
     )
@@ -608,6 +608,7 @@ begin
         oDma_writedata          => dut_macDma.writedata,
         iDma_readdata           => dut_macDma.readdata,
         oMacTimer_interrupt     => dut_interrupt.timer,
+        oMacTimer_pulse         => dut_interrupt.timerPulse,
         oMacTx_interrupt        => dut_interrupt.tx,
         oMacRx_interrupt        => dut_interrupt.rx,
         iRmii_Rx                => dut_RmiiPhy.rx,
@@ -623,7 +624,6 @@ begin
         oSmi_data_outEnable     => dut_PhyMgmt.data_outEnable,
         oSmi_data_out           => dut_PhyMgmt.data_out,
         iSmi_data_in            => dut_PhyMgmt.data_in,
-        oActivity               => dut_other.activity,
-        oMacTimer               => dut_other.timer
+        oActivity               => dut_other.activity
     );
 end bhv;
