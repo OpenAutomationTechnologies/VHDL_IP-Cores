@@ -1,7 +1,7 @@
 { "signal" : [
   { "name": "iSelectRam/Cont",  "wave": "01...0" },
   { "name": "inWrite",          "wave": "x010.x" },
-  { "name": "inByteenable",     "wave": ".3x45x", "data": ["BE0", "BE1", "BE2"] },
-  { "name": "iAddress",         "wave": ".3x45x", "data": ["A0", "A1", "A2"] },
-  { "name": "iWritedata",       "wave": ".3x45x", "data": ["D0", "D1", "D2"] }
+  { "name": "inByteenable",     "wave": "x3x45x", "data": ["BE0", "BE1", "BE2"] },
+  { "name": "iAddress",         "wave": "x3x45x", "data": ["A0", "A1", "A2"] },
+  { "name": "iWritedata",       "wave": "x3x45x", "data": ["D0", "D1", "D2"] }
 ]}

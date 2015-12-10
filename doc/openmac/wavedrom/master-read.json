@@ -2,6 +2,6 @@
   { "name": "oDmaReq",      "wave": "01|..0.|1|..0." },
   { "name": "onDmaWrite",   "wave": "01|..0.|1|..0." },
   { "name": "iDmaAck",      "wave": "0.|.10.|.|.10." },
-  { "name": "oDmaAddress",  "wave": ".3|..x.|4|..x.", "data": ["A0", "A1"] },
-  { "name": "iDmaReaddata", "wave": "..|..3x|.|..4x", "data": ["D0", "D1"] }
+  { "name": "oDmaAddress",  "wave": "x3|..x.|4|..x.", "data": ["A0", "A1"] },
+  { "name": "iDmaReaddata", "wave": "x.|..3x|.|..4x", "data": ["D0", "D1"] }
 ]}
