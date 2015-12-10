@@ -5,8 +5,10 @@
 # First parameter is json file
 JSON=$1
 
+WAVEDROM=WaveDromEditor
+
 # check if wavedrom is installed
-which wavedrom >> /dev/null
+which ${WAVEDROM} >> /dev/null
 
 if [ $? -ne 0 ];
 then
@@ -22,7 +24,7 @@ JSON_SRC=`basename $JSON .json`
 # Note: Wavedrom does not return any error, instead GUI shows error msg!
 printf "Convert $JSON_SRC ..."
 
-wavedrom ${PWD}/${JSON_DIR}/${JSON_SRC}.json ${PWD}/${JSON_DIR}/${JSON_SRC}.svg
+${WAVEDROM} source ${PWD}/${JSON_DIR}/${JSON_SRC}.json svg ${PWD}/${JSON_DIR}/${JSON_SRC}.svg
 
 printf " done\n"
 
