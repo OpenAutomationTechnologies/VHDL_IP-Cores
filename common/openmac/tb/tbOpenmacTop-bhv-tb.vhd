@@ -67,6 +67,8 @@ entity tbOpenmacTop is
         gStimFilePktBuf         : string := "text.txt";
         --! For MAC TIMER
         gStimFileMacTimer       : string := "text.txt";
+        --! For Packet Generator
+        gStimFilePktGen         : string := "text.txt";
         -----------------------------------------------------------------------
         -- Phy configuration
         --! Number of Phy ports
@@ -158,6 +160,17 @@ architecture bhv of tbOpenmacTop is
         done        : std_logic;
     end record;
 
+    --! Packet generator type
+    type tStimPacketGen is record
+        rst         : std_logic;
+        clk         : std_logic;
+        trigTx      : std_logic;
+        srcFile     : string(1 to 512);
+        txEnable    : std_logic;
+        txData      : std_logic_vector(cRmiiDataWidth-1 downto 0);
+        txDone      : std_logic;
+    end record;
+
     ---------------------------------------------------------------------------
     -- Stim port mapping instances
     --! MAC REG bus master instance
@@ -168,6 +181,9 @@ architecture bhv of tbOpenmacTop is
 
     --! MAC TIMER bus master instance
     signal stim_macTimer    : tStimBusMaster;
+
+    --! Packet generator instance
+    signal stim_packetGen   : tStimPacketGen;
 
     ---------------------------------------------------------------------------
     -- Type for DUT port mapping
@@ -376,10 +392,22 @@ begin
     --! Assign RMII ports.
     THERMIIPORTS : block
     begin
+        process(stim_packetGen)
+        begin
+            for i in gPhyPortCount-1 downto 0 loop
+                if i = 0 then
+                    dut_RmiiPhy.rx(i).enable    <= stim_packetGen.txEnable;
+                    dut_RmiiPhy.rx(i).data      <= stim_packetGen.txData;
+                    dut_RmiiPhy.rxError(i)      <= cInactivated; --TODO: Simulate Rx error?
+                else
+                    dut_RmiiPhy.rx(i).enable    <= cInactivated;
+                    dut_RmiiPhy.rx(i).data      <= (others => cInactivated);
+                    dut_RmiiPhy.rxError(i)      <= cInactivated;
+                end if;
+            end loop;
+        end process;
         GEN_RMIIPORTS : for i in gPhyPortCount-1 downto 0 generate
-            dut_RmiiPhy.rx(i).enable    <= cInactivated;
-            dut_RmiiPhy.rx(i).data      <= (others => cInactivated);
-            dut_RmiiPhy.rxError(i)      <= cInactivated;
+
         end generate GEN_RMIIPORTS;
     end block THERMIIPORTS;
 
@@ -415,6 +443,47 @@ begin
         stim_pktBuf.ack         <= not dut_macPktBuf.waitrequest;
         stim_pktBuf.readdata    <= dut_macPktBuf.readdata;
     end block THEPKTBUFMAP;
+
+    --! Assign Packet generaor stimuli
+    THEPACKETGENMAP : block
+        signal phyTx_l  : std_logic;
+    begin
+        stim_packetGen.rst          <= dut_clkRst.rst;
+        stim_packetGen.clk          <= dut_clkRst.clk;
+
+        stim_packetGen.srcFile(gStimFilePktGen'range)   <= gStimFilePktGen;
+
+        process(stim_packetGen.clk)
+            variable vCountDown : boolean := false;
+            variable vCounter   : natural := 512;
+        begin
+            if rising_edge(stim_packetGen.clk) then
+                if stim_packetGen.rst = cActivated then
+                    stim_packetGen.trigTx   <= cInactivated;
+                    phyTx_l                 <= cInactivated;
+                    vCountDown              := false;
+                    vCounter                := 48;
+                else
+                    stim_packetGen.trigTx   <= cInactivated;
+                    phyTx_l                 <= dut_RmiiPhy.tx(0).enable;
+
+                    if phyTx_l = cActivated and dut_RmiiPhy.tx(0).enable = cInactivated then
+                        vCountDown  := true;
+                        vCounter    := 48;
+                    end if;
+
+                    if vCountDown then
+                        if vCounter = 0 then
+                            vCountDown := false;
+                            stim_packetGen.trigTx   <= cActivated;
+                        else
+                            vCounter := vCounter - 1;
+                        end if;
+                    end if;
+                end if;
+            end if;
+        end process;
+    end block THEPACKETGENMAP;
 
     ---------------------------------------------------------------------------
     --! Clock generator for dut_clkRst.clk
@@ -539,6 +608,22 @@ begin
             oWritedata  => stim_macTimer.writedata,
             oError      => stim_macTimer.error,
             oDone       => stim_macTimer.done
+        );
+
+    ---------------------------------------------------------------------------
+    --! The packet generator
+    THEPACKETGEN : entity libutil.ethPktGen
+        generic map (
+            gDataWidth  => cRmiiDataWidth
+        )
+        port map (
+            iClk        => stim_packetGen.clk,
+            iRst        => stim_packetGen.rst,
+            iTrigTx     => stim_packetGen.trigTx,
+            iSrcFile    => stim_packetGen.srcFile,
+            oTxEnable   => stim_packetGen.txEnable,
+            oTxData     => stim_packetGen.txData,
+            oTxDone     => stim_packetGen.txDone
         );
 
     ---------------------------------------------------------------------------

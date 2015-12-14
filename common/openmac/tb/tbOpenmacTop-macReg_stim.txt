@@ -57,8 +57,6 @@ ASS w 00001002 FFFF
 # 2.1.7 Check pending irq
 # 2.1.8 Ack pending irq
 # 2.1.9 Check pending irq again
-# 2.1.10 Stop MAC
-# 2.1.11 Check stopped MAC
 ################################################################################
 # 2.1.1 Set Tx descriptor 0: Packet size 62 byte
 WR w 00000D02 003E
@@ -77,17 +75,80 @@ WR w 00000002 A080
 # 2.1.6 Wait for Transmission complete
 WAIT w 00000D00 0400
 # 2.1.7 Check pending irq
-JEQ w 00000000 A1A0 2
+JEQ w 00000000 A1A0 00000002
 ERR
 # 2.1.8 Ack pending irq
 WR w 00000004 0100
 # 2.1.9 Check pending irq again
-JEQ w 00000000 A0A0 2
+JEQ w 00000000 A0A0 00000002
 ERR
-# 2.1.10 Stop MAC
+
+################################################################################
+# 2. TEST MAC
+# 2.2 Set up reception
+# 2.2.0 Enable Rx filter 0
+# 2.2.1 Set Rx descriptor 0: Buffer size 128 byte
+# 2.2.2 Set Rx descriptor 0: Pointer 12340100
+# 2.2.3 Set Rx descriptor 0: Owner is MAC and last descriptor
+# 2.2.4 Check Rx descriptor again
+# 2.2.5 Set MAC Rx control: Irq enable and run
+# 2.2.6 Wait for Rx complete
+# 2.2.7 Check pending irq
+# 2.2.8 Ack pending irq
+# 2.2.9 Check pending irq again
+################################################################################
+# 2.2.0 Enable Rx filter 0
+WR b 0000083E 40
+# 2.2.1 Set Rx descriptor 0: Buffer size 128 byte
+WR w 00000C02 0080
+# 2.2.2 Set Rx descriptor 0: Pointer 12340100
+WR w 00000C04 0100
+WR w 00000C06 1234
+# 2.2.3 Set Rx descriptor 0: Owner is MAC and last descriptor
+WR w 00000C00 0300
+# 2.2.4 Check Rx descriptor again
+ASS w 00000C02 0080
+ASS w 00000C04 0100
+ASS w 00000C06 1234
+ASS w 00000C00 0300
+
+# 2.2.5 Set MAC Rx control: Irq enable and run
+WR w 0000000A 8080
+
+# 2.2.6 Wait for Rx complete
+WAIT w 00000C00 0800
+
+# 2.2.7 Check pending irq
+JEQ w 00000008 81A0 00000002
+ERR
+
+# 2.2.8 Ack pending irq
+WR w 0000000C 0100
+
+# 2.2.9 Check pending irq again
+JEQ w 00000008 80A0 00000002
+ERR
+
+################################################################################
+# 2. TEST MAC
+# 2.3 Stop MAC
+# 2.3.1 Stop MAC (Tx)
+# 2.3.2 Check stopped MAC (Tx)
+# 2.3.3 Stop MAC (Rx)
+# 2.3.4 Check stopped MAC (Rx)
+################################################################################
+# 2.3.1 Stop MAC (Tx)
 WR w 00000004 A080
-# 2.1.11 Check stopped MAC
-JEQ w 00000000 0020 2
+
+# 2.3.2 Check stopped MAC (Tx
+JEQ w 00000000 0020 00000002
+ERR
+
+# 2.3.3 Stop MAC (Rx)
+WR w 0000000C 8190
+
+# 2.3.4 Check stopped MAC (Rx)
+JEQ w 00000008 0020 00000002
 ERR
 
 FIN
