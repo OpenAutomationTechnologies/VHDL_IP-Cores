@@ -504,7 +504,7 @@ bTxDesc:    block
     signal Ram_Be       : std_logic_vector( 1 downto 0);
     signal Ram_Wr       : std_logic;
     signal Desc_We      : std_logic;
-    signal Desc_Addr    : std_logic_vector( 7 downto 0);
+    signal Desc_Addr    : std_logic_vector( 6 downto 0);
     signal DescIdx      : std_logic_vector( 2 downto 0);
     signal Last_Desc    : std_logic;
     signal ZeitL        : std_logic_vector(15 downto 0);
@@ -546,7 +546,7 @@ begin
 
     Tx_Dma_Very1stOverflow <= cActivated when Dibl_Cnt = "01" and Sm_Tx = sPre and Tx_Timer(7) = '1' else cInactivated;
 
-    Ram_Wr    <= '1' when    inWrite = '0' and iSelectRam = '1' and iAddress(10) = '1'    else '0';
+    Ram_Wr    <= '1' when    inWrite = '0' and iSelectRam = '1' and iAddress(10 downto 8) = "101"    else '0';
     Ram_Be(1) <= '1' when    inWrite = '1' or inByteenable(1) = '0'                        else '0';
     Ram_Be(0) <= '1' when    inWrite = '1' or inByteenable(0) = '0'                        else '0';
 
@@ -572,8 +572,8 @@ begin
 
     Desc_We <= '1' when  Dsm = sTimL or Dsm = sTimH or Dsm = sStat    else   '0';
 
-    Desc_Addr <= '1' & Tx_Desc  & DescIdx    when    Ext_Tx = '0'    else
-                 '1' & Ext_Desc & DescIdx;
+    Desc_Addr <= Tx_Desc  & DescIdx    when    Ext_Tx = '0'    else
+                 Ext_Desc & DescIdx;
 
 gTxTime:    if gTimerEnable generate
     DescRam_In <= Zeit(15 downto 0)            when    Dsm  = sTimH    else
@@ -591,14 +591,14 @@ end generate;
     TXRAM : entity work.dpRamOpenmac
         generic map (
             gWordWidth      => iWritedata'length,
-            gNumberOfWords  => 256,
+            gNumberOfWords  => 128,
             gInitFile       => "UNUSED"
         )
         port map (
             iClk_A          => iClk,
             iEnable_A       => cActivated,
             iWriteEnable_A  => Ram_Wr,
-            iAddress_A      => iAddress(8 downto 1),
+            iAddress_A      => iAddress(7 downto 1),
             iByteenable_A   => Ram_Be,
             iWritedata_A    => iWritedata,
             oReaddata_A     => Tx_Ram_Dat,
@@ -1100,7 +1100,7 @@ bRxDesc:    block
     signal Ram_Be       : std_logic_vector(1 downto 0);
     signal Ram_Wr       : std_logic;
     signal Desc_We      : std_logic;
-    signal Desc_Addr    : std_logic_vector(7 downto 0);
+    signal Desc_Addr    : std_logic_vector(6 downto 0);
     signal ZeitL        : std_logic_vector(15 downto 0);
     signal Rx_On        : std_logic;
     signal Rx_Ie        : std_logic;
@@ -1152,7 +1152,7 @@ begin
 
     WrDescStat <= '1' when Dsm = sStat    else '0';
 
-    Ram_Wr    <= '1' when    inWrite = '0' and iSelectRam = '1' and iAddress(10) = '1'    else '0';
+    Ram_Wr    <= '1' when    inWrite = '0' and iSelectRam = '1' and iAddress(10 downto 8) = "100"    else '0';
     Ram_Be(1) <= '1' when    inWrite = '1' or inByteenable(1) = '0'                        else '0';
     Ram_Be(0) <= '1' when    inWrite = '1' or inByteenable(0) = '0'                        else '0';
 
@@ -1171,7 +1171,7 @@ begin
     Desc_We <= '1'    when   Dsm = sTimL or Dsm = sTimH                    else
                '1'    when  (Dsm = sLenW or Dsm = sStat) and Match = '1'  else    '0';
 
-    Desc_Addr <= "0" & Rx_Desc & DescIdx;
+    Desc_Addr <= Rx_Desc & DescIdx;
 
 gRxTime:    if gTimerEnable generate
     DescRam_In <= Zeit(15 downto 0)                when    Dsm = sTimH        else
@@ -1189,14 +1189,14 @@ end generate;
     RXRAM : entity work.dpRamOpenmac
         generic map (
             gWordWidth      => iWritedata'length,
-            gNumberOfWords  => 256,
+            gNumberOfWords  => 128,
             gInitFile       => "UNUSED"
         )
         port map (
             iClk_A          => iClk,
             iEnable_A       => cActivated,
             iWriteEnable_A  => Ram_Wr,
-            iAddress_A      => iAddress(8 downto 1),
+            iAddress_A      => iAddress(7 downto 1),
             iByteenable_A   => Ram_Be,
             iWritedata_A    => iWritedata,
             oReaddata_A     => Rx_Ram_Dat,
