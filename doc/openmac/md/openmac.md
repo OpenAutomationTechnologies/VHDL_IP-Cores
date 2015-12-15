@@ -70,23 +70,23 @@ frames, like the address to the buffer, the length and some status flags.
 The Tx- and Rx-descriptors are located in the MAC's dual-port-RAM (dpRam),
 which enables fast access (without CPU-control) by the MAC with the RMII Ref-CLK (openmac.iClk, 50MHz).
 This block has a size of 512 Bytes and is divided into Tx- and Rx-descriptors.
-The openMAC supports 16 Tx- and 16 Rx-descriptors.
+The openMAC supports 32 Tx- and 32 Rx-descriptors.
 
 Address    |   31.. 0
 ---------- | ---------
-RAM_BASE + 0x05FC | TX_DESC[15].[timeStamp](#sec-openmac_interface_descr_timeStamp)
-RAM_BASE + 0x05F8 | TX_DESC[15].[startTime](#sec-openmac_interface_descr_startTime)
-RAM_BASE + 0x05F4 | TX_DESC[15].[framePointer](#sec-openmac_interface_descr_framePointer)
-RAM_BASE + 0x05F0 | TX_DESC[15].[status](#sec-openmac_interface_descr_txStatus)
+RAM_BASE + 0x07FC | TX_DESC[31].[timeStamp](#sec-openmac_interface_descr_timeStamp)
+RAM_BASE + 0x07F8 | TX_DESC[31].[startTime](#sec-openmac_interface_descr_startTime)
+RAM_BASE + 0x07F4 | TX_DESC[31].[framePointer](#sec-openmac_interface_descr_framePointer)
+RAM_BASE + 0x07F0 | TX_DESC[31].[status](#sec-openmac_interface_descr_txStatus)
 ...               | ...
-RAM_BASE + 0x050C | TX_DESC[0].[timeStamp](#sec-openmac_interface_descr_timeStamp)
-RAM_BASE + 0x0508 | TX_DESC[0].[startTime](#sec-openmac_interface_descr_startTime)
-RAM_BASE + 0x0504 | TX_DESC[0].[framePointer](#sec-openmac_interface_descr_framePointer)
-RAM_BASE + 0x0500 | TX_DESC[0].[status](#sec-openmac_interface_descr_txStatus)
-RAM_BASE + 0x04FC | RX_DESC[15].[timeStamp](#sec-openmac_interface_descr_timeStamp)
-RAM_BASE + 0x04F8 | RX_DESC[15].RESERVED
-RAM_BASE + 0x04F4 | RX_DESC[15].[framePointer](#sec-openmac_interface_descr_framePointer)
-RAM_BASE + 0x04F0 | RX_DESC[15].[status](#sec-openmac_interface_descr_rxStatus)
+RAM_BASE + 0x060C | TX_DESC[0].[timeStamp](#sec-openmac_interface_descr_timeStamp)
+RAM_BASE + 0x0608 | TX_DESC[0].[startTime](#sec-openmac_interface_descr_startTime)
+RAM_BASE + 0x0604 | TX_DESC[0].[framePointer](#sec-openmac_interface_descr_framePointer)
+RAM_BASE + 0x0600 | TX_DESC[0].[status](#sec-openmac_interface_descr_txStatus)
+RAM_BASE + 0x05FC | RX_DESC[31].[timeStamp](#sec-openmac_interface_descr_timeStamp)
+RAM_BASE + 0x05F8 | RX_DESC[31].RESERVED
+RAM_BASE + 0x05F4 | RX_DESC[31].[framePointer](#sec-openmac_interface_descr_framePointer)
+RAM_BASE + 0x05F0 | RX_DESC[31].[status](#sec-openmac_interface_descr_rxStatus)
 ...               | ...
 RAM_BASE + 0x040C | RX_DESC[0].[timeStamp](#sec-openmac_interface_descr_timeStamp)
 RAM_BASE + 0x0408 | RX_DESC[0].RESERVED
@@ -222,7 +222,7 @@ Bit | Name  | Default   | Mode | Description
 11.. 8 | IRQPEN | 0     | RO   | Number of pending Tx interrupts
 7   | RUN   | 0         | RW   | Enable Tx block
 5   | IDLE  | 0         | RO   | Tx block is idle (no Tx in progress)
-3..0 | DESCPTR | 0      | RO   | Tx descriptor pointer (acknowledge with IRQACK)
+4..0 | DESCPTR | 0      | RO   | Tx descriptor pointer (acknowledge with IRQACK)
 
 #### Tx Register SET (SC) {#sec-openmac_interface_statusControl_txregset}
 
@@ -259,7 +259,7 @@ Bit | Name  | Default   | Mode | Description
 --- | ----- | --------- | ---- | -----------
 14  | SETIFG | 0        | RW   | Enable IFG field
 13.. 8 | IFG | 0        | RW   | IFG field [ticks]
-3..0 | DESCPTR | 0      | RW   | Tx descriptor pointer (only write to this register when RUN is 0)
+4..0 | DESCPTR | 0      | RW   | Tx descriptor pointer (only write to this register when RUN is 0)
 
 #### Rx Register (RW) {#sec-openmac_interface_statusControl_rxreg}
 
@@ -272,9 +272,9 @@ Bit | Name  | Default   | Mode | Description
 15  | IE    | 0         | RW   | Enable Rx interrupts
 11.. 8 | IRQPEN | 0     | RO   | Number of pending Rx interrupts
 7   | RUN   | 0         | RW   | Enable Rx block
+6   | LOST  | 0         | RO   | Frame was received but RUN cleared or no descriptor available
 5   | IDLE  | 0         | RO   | Rx block is idle (no Rx in progress)
-4   | LOST  | 0         | RO   | Frame was received but RUN cleared or no descriptor available
-3..0 | DESCPTR | 0      | RO   | Rx descriptor pointer (acknowledge with IRQACK)
+4..0 | DESCPTR | 0      | RO   | Rx descriptor pointer (acknowledge with IRQACK)
 
 #### Rx Register SET (SC) {#sec-openmac_interface_statusControl_rxregset}
 
@@ -308,7 +308,7 @@ Bit | Name  | Default   | Mode | Description
 
 Bit | Name  | Default   | Mode | Description
 --- | ----- | --------- | ---- | -----------
-3..0 | DESCPTR | 0      | RW   | Rx descriptor pointer (only write to this register when RUN is 0)
+4..0 | DESCPTR | 0      | RW   | Rx descriptor pointer (only write to this register when RUN is 0)
 
 ### Rx Filters {#sec-openmac_interface_rxfilter}
 
@@ -358,7 +358,7 @@ Bit | Name  | Default   | Description
 --- | ----- | --------- | -----------
 7 | TXEN | 0 | Enable auto-response when filter match.
 6 | FLTON | 0 | Enable filter.
-3.. 0 | TXDESC | 0 | Tx descritpor to be send when TXEN is set.
+4.. 0 | TXDESC | 0 | Tx descritpor to be send when TXEN is set.
 
 ## Timing {#sec-openmac_timing}
 The openMAC core implementation (openmac) provides a slave and a master interface.
