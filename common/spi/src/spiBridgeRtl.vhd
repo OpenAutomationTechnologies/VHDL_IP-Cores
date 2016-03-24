@@ -135,7 +135,8 @@ begin
             gBusAddrWidth       => gBusAddrWidth,
             gWrBufBase          => gWrBufBase,
             gWrBufSize          => gWrBufSize,
-            gRdBufBase          => gRdBufBase
+            gRdBufBase          => gRdBufBase,
+            gRdBufSize          => gRdBufSize
         )
         port map (
             iArst               => iArst,
