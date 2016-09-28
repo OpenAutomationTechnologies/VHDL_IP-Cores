@@ -15,7 +15,7 @@
 --       notice, this list of conditions and the following disclaimer in the
 --       documentation and/or other materials provided with the distribution.
 --
---    3. Neither the name of B&R nor the names of its
+--    3. Neither the name of the copyright holders nor the names of its
 --       contributors may be used to endorse or promote products derived
 --       from this software without prior written permission. For written
 --       permission, please contact office@br-automation.com
