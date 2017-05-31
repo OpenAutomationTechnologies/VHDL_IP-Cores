@@ -97,6 +97,13 @@ qsysUtil::addGuiParam  gui_enableMux BOOLEAN FALSE "Enable MUX Bus" "" ""
 qsysUtil::addGuiParam  gui_dataWidth NATURAL 16 "Data width"    "Bits" "8 16 32"
 qsysUtil::addGuiParam  gui_addrWidth NATURAL 16 "Address width" "Bits" "1:32"
 
+set_parameter_property  gui_enableMux  DESCRIPTION "Check to use data and address lines sequentially."
+set_parameter_property  gui_dataWidth  DESCRIPTION "The data width of the parallel interface can be 8, 16 or 32 bit."
+set_parameter_property  gui_addrWidth  DESCRIPTION "The address width depends on the size of the buffer and the alignment.
+                                                    This value must be calculated. The generated lines are considered for byte addressing,
+                                                    where the lower 1 (in case of 16 bits data width) or 2 (in case of 32 bits data width)
+                                                    lines might not be connected."
+
 # -----------------------------------------------------------------------------
 # GUI configuration
 # -----------------------------------------------------------------------------
