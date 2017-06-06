@@ -236,8 +236,10 @@ architecture bhv of  tbAxiHostInterface is
     constant cBaseU2KQ          : integer := 16#09000#;
     --! Base Addreess for PDO
     constant cBasePdo           : integer := 16#0B000#;
+    --! Base Addreess for PDO
+    constant cBaseTimeSync      : integer := 16#0E000#;
     --! Base Addreess for Reverved Area
-    constant cBaseRes           : integer := 16#0E000#;
+    constant cBaseRes           : integer := 16#0E400#;
     --! Bridge Address
     signal BridgeAddress : std_logic_vector(31 downto 0);
 begin
@@ -274,6 +276,7 @@ begin
             gBaseK2UQ               => cBaseK2UQ,
             gBaseU2KQ               => cBaseU2KQ,
             gBasePdo                => cBasePdo,
+            gBaseTimeSync           => cBaseTimeSync,
             gBaseRes                => cBaseRes,
             gHostIfType             => cHostIfType,
             gParallelDataWidth      => cParallelDataWidth,

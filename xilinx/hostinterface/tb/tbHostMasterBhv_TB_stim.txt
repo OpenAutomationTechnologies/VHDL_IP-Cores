@@ -60,6 +60,8 @@ WR  d 8c007000 70001234
 WR  d 8c009000 90001234
 #write to B000
 WR  d 8c00B000 B0001234
+#write to E000
+WR  d 8c00E000 B0001234
 #read from 0800
 ASS d 8c000800 08001234
 #read from 1000
@@ -82,6 +84,8 @@ ASS d 8c007000 70001234
 ASS d 8c009000 90001234
 #read from B000
 ASS d 8c00B000 B0001234
+#read from E000
+ASS d 8c00E000 B0001234
 #########################RESRV###################
 #write to reserved
 WR  d 8c00FA00 14141234

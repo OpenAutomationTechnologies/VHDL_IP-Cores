@@ -65,6 +65,9 @@ ASS d 7c00041C 30008000
 #set pdo base
 WR  d 7c000420 30009000
 ASS d 7c000420 30009000
+#set timesync base
+WR  d 7c000424 3000A000
+ASS d 7c000424 3000A000
 #enable bridge
 WR  w 7c000200 00000001
 #enable all irq sources
