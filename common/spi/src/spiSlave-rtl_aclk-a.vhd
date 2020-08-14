@@ -109,8 +109,10 @@ architecture rtl_aclk of spiSlave is
         std_logic_vector(to_unsigned(gRegisterSize-1, logDualis(gRegisterSize)));
     --! Terminal count
     signal frmCnt_tc        : std_logic;
+    signal frmCnt_tc_next   : std_logic;
     --! Count value is zero
     signal frmCnt_zero      : std_logic;
+    signal frmCnt_zero_next : std_logic;
     --! Counter value zero
     constant cFrmCnt_zero   : std_logic_vector(frmCnt'range) :=
         (others => cInactivated);
@@ -168,25 +170,31 @@ begin
     frmCntProc : process(inSpiSel, iSpiClk)
     begin
         if inSpiSel = cnInactivated then
-            frmCnt <= (others => cInactivated);
+            frmCnt      <= (others => cInactivated);
+            frmCnt_tc   <= cInactivated;
+            frmCnt_zero <= cInactivated;
         elsif iSpiClk = cShift and iSpiClk'event then
             if cPhase = 0 then
-                frmCnt <= frmCnt_next;
+                frmCnt      <= frmCnt_next;
+                frmCnt_tc   <= frmCnt_tc_next;
+                frmCnt_zero <= frmCnt_zero_next;
             end if;
         elsif iSpiClk = cCapture and iSpiClk'event and cPhase /= 0 then
             if cPhase /= 0 then
-                frmCnt <= frmCnt_next;
+                frmCnt      <= frmCnt_next;
+                frmCnt_tc   <= frmCnt_tc_next;
+                frmCnt_zero <= frmCnt_zero_next;
             end if;
         end if;
     end process;
 
     -- Assign frame terminal count
-    frmCnt_tc <=    cActivated when frmCnt = cFrmCnt_tc else
-                    cInactivated;
+    frmCnt_tc_next <=   cActivated when frmCnt_next = cFrmCnt_tc else
+                        cInactivated;
 
     -- Assign frame count zero
-    frmCnt_zero <=  cActivated when frmCnt = cFrmCnt_zero else
-                    cInactivated;
+    frmCnt_zero_next <= cActivated when frmCnt_next = cFrmCnt_zero else
+                        cInactivated;
 
     --! Spi Register combinatoric process
     spiCombProc : process (
